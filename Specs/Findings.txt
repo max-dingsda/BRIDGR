@@ -9,3 +9,4 @@
 9. Bei generischen Suchbegriffen wie `mail` antwortet Tab 1 aktuell zu grob und zieht unterschiedliche Anwendungen unter einem Sammelbegriff zusammen. Gewuenscht ist eine klarere Behandlung, z. B. Gruppierung nach konkreter Anwendung oder eine sprachliche Absicherung bei mehreren unterschiedlichen Treffern.
 10. Wenn eine Anwendung aus einer Prozessbeschreibung verschwindet oder durch eine andere ersetzt wird, wird die alte Prozess-Anwendungs-Beziehung aktuell nicht zuverlaessig aus Neo4j entfernt. Der Graph kann dadurch veraltete `NUTZT`-Kanten behalten, obwohl sie im aktuellen Importstand nicht mehr fachlich gueltig sind.
 11. die chat-oberfläche bedarf eines buttons, der den kontext leert und ein neues gespräch beginnt. nicht immer ist es sinnvoll eine neue frage im kontext des bisherigen gesprächs zu stellen
+12. Ein sinnvolles weiteres Importformat wäre ODF/ODT
