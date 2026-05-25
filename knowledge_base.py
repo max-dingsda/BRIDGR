@@ -59,7 +59,11 @@ def confirm_link(
     updated_confirmed = [
         entry
         for entry in knowledge_base.confirmed
-        if not (entry.get("prozess") == process_name and entry.get("anwendung_name") == application_name)
+        if not (
+            entry.get("prozess") == process_name
+            and entry.get("anwendung_name") == application_name
+            and entry.get("cmdb_id") == cmdb_id
+        )
     ]
     updated_confirmed.append(
         {
@@ -74,7 +78,11 @@ def confirm_link(
     updated_rejected = [
         entry
         for entry in knowledge_base.rejected
-        if not (entry.get("prozess") == process_name and entry.get("anwendung_name") == application_name)
+        if not (
+            entry.get("prozess") == process_name
+            and entry.get("anwendung_name") == application_name
+            and (not entry.get("cmdb_id") or entry.get("cmdb_id") == cmdb_id)
+        )
     ]
     return KnowledgeBase(
         confirmed=updated_confirmed,
@@ -84,23 +92,37 @@ def confirm_link(
     )
 
 
-def reject_link(knowledge_base: KnowledgeBase, process_name: str, application_name: str) -> KnowledgeBase:
+def reject_link(
+    knowledge_base: KnowledgeBase,
+    process_name: str,
+    application_name: str,
+    cmdb_id: str | None = None,
+) -> KnowledgeBase:
     updated_rejected = [
         entry
         for entry in knowledge_base.rejected
-        if not (entry.get("prozess") == process_name and entry.get("anwendung_name") == application_name)
+        if not (
+            entry.get("prozess") == process_name
+            and entry.get("anwendung_name") == application_name
+            and entry.get("cmdb_id") == cmdb_id
+        )
     ]
     updated_rejected.append(
         {
             "prozess": process_name,
             "anwendung_name": application_name,
+            "cmdb_id": cmdb_id,
             "abgelehnt_am": date.today().isoformat(),
         }
     )
     updated_confirmed = [
         entry
         for entry in knowledge_base.confirmed
-        if not (entry.get("prozess") == process_name and entry.get("anwendung_name") == application_name)
+        if not (
+            entry.get("prozess") == process_name
+            and entry.get("anwendung_name") == application_name
+            and (cmdb_id is None or entry.get("cmdb_id") == cmdb_id)
+        )
     ]
     return KnowledgeBase(
         confirmed=updated_confirmed,

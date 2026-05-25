@@ -3,7 +3,7 @@
 BRIDGR verbindet Prozessdokumentation mit CMDB-Daten, um einen EA-Wissensgraphen aufzubauen und spaeter ueber eine natuerlichsprachliche Oberflaeche abfragbar zu machen.
 
 Der aktuelle Architektur-Referenzstand fuer die Umsetzung ist:
-- `Specs/Bridgr_Architektur_v10.md`
+- `Specs/Bridgr_Architektur_v11.md`
 
 ## Zielbild
 
@@ -12,20 +12,21 @@ BRIDGR soll fuer v1:
 - Anwendungsreferenzen per LLM extrahieren
 - gegen eine CMDB matchen
 - unsichere oder offene Links im UI reviewbar machen
-- bestaetigte Ergebnisse spaeter in Neo4j schreiben
+- bestaetigte oder starke Ergebnisse in Neo4j schreiben
 
 ## Aktueller Stand
 
 Das Projekt ist noch im Aufbau, hat aber bereits ein erstes funktionsfaehiges Scaffold:
 - OpenAI-kompatibler LLM-Client
-- BPMN-Extraktion ueber Prompt + JSON-Output
-- CMDB-Matching mit KB-First-Logik und Fuzzy Matching
-- Neo4j-Write-Pfad fuer Prozesse, Orgeinheiten und Anwendungen
-- minimaler Query-Layer mit LLM->Cypher->Neo4j
+- BPMN-Extraktion ueber Prompt + JSON-Output mit Rohsicht und deduplizierter Arbeitssicht fuer Anwendungen
+- CMDB-Matching mit KB-First-Logik, mehreren Kandidaten und Fuzzy Matching
+- Neo4j-Write-Pfad fuer Prozesse, Orgeinheiten und bestaetigte bzw. starke Anwendungslinks
+- natuerlichsprachlicher Query-Layer mit LLM -> Cypher -> Neo4j -> Antwort
 - persistente Knowledge Base
 - Streamlit-UI mit 3 Tabs
 - persistente Laufartefakte in `Output/`
-- Review-Aktionen fuer `Bestaetigen`, `Ablehnen`, `Korrigieren` und `manuellen Link anlegen`
+- aktionsfaehige Review-Liste fuer `Bestaetigen`, `Ablehnen` und `manuellen Link anlegen`
+- Hinweise auf uneinheitliche Prozessnotation bei mehrfach extrahierten Rohvarianten
 
 Noch nicht umgesetzt:
 - separate Read-only-DB-Identitaet fuer den Query-Layer
@@ -73,6 +74,7 @@ Wichtige Felder:
 - `input_path`: gemeinsamer Eingabeordner fuer BPMN/XML und CMDB-Dateien
 - `cmdb_filename`: aktive CMDB-Datei innerhalb des Eingabeordners
 - `output_path`: Ziel fuer Laufartefakte
+- `last_run_mode`: Standardlaufmodus fuer die Pipeline
 
 Beispiel:
 
@@ -156,7 +158,8 @@ Aktuell verfuegbar:
 - Cypher per LLM generieren
 - Read-only-Validierung auf verbotene Write-Tokens
 - Query gegen Neo4j ausfuehren
-- generierten Cypher und Ergebnis anzeigen
+- Ergebnis in kurze natuerliche Sprache umformulieren
+- generierten Cypher als technische Details anzeigen
 
 ### Tab 2 - Link Editing
 
@@ -164,11 +167,11 @@ Aktuell verfuegbar:
 - Pipeline-Preview starten
 - letzten gespeicherten Lauf aus `Output/latest_run.json` anzeigen
 - Statusfilter fuer Dokumente
-- Dokumentdetails mit Anwendungen, Matches und Review-Kontext
-- Match-Vorschlag bestaetigen
-- Match-Vorschlag ablehnen
-- Match-Vorschlag auf anderes CMDB-Ziel korrigieren
-- manuellen Link fuer einen Prozess anlegen
+- aktionsfaehige Review-Liste mit `Bestaetigen`, `Ablehnen` und `Manuell anlegen`
+- mehrere schwache CMDB-Kandidaten pro Prozessanwendung anzeigen
+- Dokumentdetails mit Prozesskontext und technischen Rohdaten
+- Hinweise auf moegliche Mehrfachnotation derselben Anwendung innerhalb eines Prozesses
+- nur starke oder KB-bestaetigte Links in Neo4j schreiben; schwache fuzzy-Kandidaten bleiben im Review
 
 ### Tab 3 - Anwendungskonfig
 
@@ -176,11 +179,11 @@ Aktuell verfuegbar:
 - LLM-Endpoint konfigurieren
 - Modellnamen setzen
 - API-Key-Umgebungsvariable setzen
-- Neo4j-URL, User und Passwort setzen
+- Neo4j-URL, User, Passwort und optionalen Datenbanknamen setzen
 - gemeinsamen Input- und Output-Pfad setzen
 - aktive CMDB-Datei innerhalb des Input-Ordners waehlen
 - Fuzzy-Threshold setzen
-- Modus speichern
+- Importmodus direkt beim Starten der Pipeline waehlen
 - Modellliste ueber `/v1/models` abrufen
 
 ## Tests
@@ -193,14 +196,15 @@ python -m pytest
 
 Der aktuelle Teststand deckt unter anderem ab:
 - `.env`-Loading
-- BPMN-Extraktion und XML-Fehlerfall
+- BPMN-Extraktion, Deduplizierung und XML-Fehlerfall
 - Prozess-ID-Extraktion
-- Matching inkl. abgelehnter Links
+- Matching inkl. Mehrfachkandidaten und abgelehnter Links
 - Read-only-Cypher-Validierung
-- Query-Layer-Happy-Path
+- Query-Layer-Happy-Path inkl. natuerlicher Antwort
 - Pipeline-Happy-Path, Delta-Skip und Laufartefakte
-- Aufbereitung der UI-Statusdaten
-- KB-Aktionen fuer Bestaetigen und Ablehnen
+- Aufbereitung der UI-Statusdaten und Warnhinweise
+- KB-Aktionen fuer kandidatenspezifisches Bestaetigen und Ablehnen
+- Graph-Write-Pfad inkl. Aufraeumen alter `NUTZT`-Kanten
 
 ## Hinweise
 

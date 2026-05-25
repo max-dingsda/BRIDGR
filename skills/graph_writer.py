@@ -30,6 +30,15 @@ class GraphWriter:
                 "process_name": process.process_name,
             },
         )
+        client.execute_write(
+            """
+            MATCH (p:Prozess {prozess_id: $process_id})-[r:NUTZT]->(:Anwendung)
+            DELETE r
+            """,
+            {
+                "process_id": process.process_id,
+            },
+        )
 
         if process.org_unit:
             client.execute_write(
@@ -59,6 +68,8 @@ class GraphWriter:
 
         for match in payload.matches:
             if not match.cmdb_id:
+                continue
+            if match.confidence != "stark" and match.source not in {"knowledge_base", "knowledge_base_manual"}:
                 continue
             client.execute_write(
                 """

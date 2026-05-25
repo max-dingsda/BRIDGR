@@ -12,17 +12,23 @@
         "process_id": "WFP-1-1",
         "org_unit": "",
         "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "Product Backlog Interface",
+            "confidence": "stark"
+          },
+          {
+            "name": "Mail Interface",
+            "confidence": "stark"
+          }
+        ],
         "applications": [
           {
-            "name": "Trouble Ticket System",
+            "name": "Product Backlog Interface",
             "confidence": "stark"
           },
           {
-            "name": "com.camunda.examples.incidentmanagement.ProductBacklog (addTicket)",
-            "confidence": "stark"
-          },
-          {
-            "name": "com.camunda.examples.incidentmanagement.Mail (sendMailToIssueReporterOperation)",
+            "name": "Mail Interface",
             "confidence": "stark"
           }
         ],
@@ -30,37 +36,27 @@
       },
       "matches": [
         {
-          "application_name": "Trouble Ticket System",
-          "cmdb_id": "0cbf0519-9d73-4451-b6f2-6f1a3715cd3e",
-          "matched_name": "Trouble Ticket System",
+          "application_name": "Product Backlog Interface",
+          "cmdb_id": "ce0f0193-e253-4c97-a004-2473f6b6ba8e",
+          "matched_name": "Product Backlog System",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "Mail Interface",
+          "cmdb_id": "744b30b1-b138-4e67-849d-37cdee4c1482",
+          "matched_name": "Mail Interface",
           "confidence": "stark",
-          "source": "fuzzy"
-        },
-        {
-          "application_name": "com.camunda.examples.incidentmanagement.ProductBacklog (addTicket)",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched"
-        },
-        {
-          "application_name": "com.camunda.examples.incidentmanagement.Mail (sendMailToIssueReporterOperation)",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched"
+          "source": "fuzzy",
+          "score": 1.0
         }
       ],
       "review_items": [
         {
           "process_name": "Incident Management",
-          "application_name": "com.camunda.examples.incidentmanagement.ProductBacklog (addTicket)",
-          "reason": "unmatched"
-        },
-        {
-          "process_name": "Incident Management",
-          "application_name": "com.camunda.examples.incidentmanagement.Mail (sendMailToIssueReporterOperation)",
-          "reason": "unmatched"
+          "application_name": "Product Backlog Interface",
+          "reason": "fuzzy"
         }
       ],
       "graph_payload": {
@@ -69,17 +65,23 @@
           "process_id": "WFP-1-1",
           "org_unit": "",
           "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "Product Backlog Interface",
+              "confidence": "stark"
+            },
+            {
+              "name": "Mail Interface",
+              "confidence": "stark"
+            }
+          ],
           "applications": [
             {
-              "name": "Trouble Ticket System",
+              "name": "Product Backlog Interface",
               "confidence": "stark"
             },
             {
-              "name": "com.camunda.examples.incidentmanagement.ProductBacklog (addTicket)",
-              "confidence": "stark"
-            },
-            {
-              "name": "com.camunda.examples.incidentmanagement.Mail (sendMailToIssueReporterOperation)",
+              "name": "Mail Interface",
               "confidence": "stark"
             }
           ],
@@ -87,25 +89,20 @@
         },
         "matches": [
           {
-            "application_name": "Trouble Ticket System",
-            "cmdb_id": "0cbf0519-9d73-4451-b6f2-6f1a3715cd3e",
-            "matched_name": "Trouble Ticket System",
+            "application_name": "Product Backlog Interface",
+            "cmdb_id": "ce0f0193-e253-4c97-a004-2473f6b6ba8e",
+            "matched_name": "Product Backlog System",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "Mail Interface",
+            "cmdb_id": "744b30b1-b138-4e67-849d-37cdee4c1482",
+            "matched_name": "Mail Interface",
             "confidence": "stark",
-            "source": "fuzzy"
-          },
-          {
-            "application_name": "com.camunda.examples.incidentmanagement.ProductBacklog (addTicket)",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched"
-          },
-          {
-            "application_name": "com.camunda.examples.incidentmanagement.Mail (sendMailToIssueReporterOperation)",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched"
+            "source": "fuzzy",
+            "score": 1.0
           }
         ]
       },
@@ -118,15 +115,25 @@
       "extracted_process": {
         "process_name": "Seller process",
         "process_id": "sellerProcess",
-        "org_unit": "Seller",
+        "org_unit": "The Seller",
         "follows_after": [],
-        "applications": [
+        "raw_applications": [
           {
-            "name": "sellerServiceInterface (requestQuoteOp, orderOp)",
+            "name": "Seller Service Interface",
             "confidence": "stark"
           },
           {
-            "name": "shipperServiceInterface (requestShippingOp)",
+            "name": "Shipper Service Interface",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Seller Service Interface",
+            "confidence": "stark"
+          },
+          {
+            "name": "Shipper Service Interface",
             "confidence": "stark"
           }
         ],
@@ -134,45 +141,57 @@
       },
       "matches": [
         {
-          "application_name": "sellerServiceInterface (requestQuoteOp, orderOp)",
-          "cmdb_id": null,
-          "matched_name": null,
+          "application_name": "Seller Service Interface",
+          "cmdb_id": "0985937e-7a75-4f39-ab27-918714c464a7",
+          "matched_name": "Seller Service",
           "confidence": "schwach",
-          "source": "unmatched"
+          "source": "fuzzy",
+          "score": 1.0
         },
         {
-          "application_name": "shipperServiceInterface (requestShippingOp)",
-          "cmdb_id": null,
-          "matched_name": null,
+          "application_name": "Shipper Service Interface",
+          "cmdb_id": "ac2f45d2-0f21-4018-bc44-5fb16bb2c321",
+          "matched_name": "Shipper Service",
           "confidence": "schwach",
-          "source": "unmatched"
+          "source": "fuzzy",
+          "score": 1.0
         }
       ],
       "review_items": [
         {
           "process_name": "Seller process",
-          "application_name": "sellerServiceInterface (requestQuoteOp, orderOp)",
-          "reason": "unmatched"
+          "application_name": "Seller Service Interface",
+          "reason": "fuzzy"
         },
         {
           "process_name": "Seller process",
-          "application_name": "shipperServiceInterface (requestShippingOp)",
-          "reason": "unmatched"
+          "application_name": "Shipper Service Interface",
+          "reason": "fuzzy"
         }
       ],
       "graph_payload": {
         "process": {
           "process_name": "Seller process",
           "process_id": "sellerProcess",
-          "org_unit": "Seller",
+          "org_unit": "The Seller",
           "follows_after": [],
-          "applications": [
+          "raw_applications": [
             {
-              "name": "sellerServiceInterface (requestQuoteOp, orderOp)",
+              "name": "Seller Service Interface",
               "confidence": "stark"
             },
             {
-              "name": "shipperServiceInterface (requestShippingOp)",
+              "name": "Shipper Service Interface",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Seller Service Interface",
+              "confidence": "stark"
+            },
+            {
+              "name": "Shipper Service Interface",
               "confidence": "stark"
             }
           ],
@@ -180,18 +199,20 @@
         },
         "matches": [
           {
-            "application_name": "sellerServiceInterface (requestQuoteOp, orderOp)",
-            "cmdb_id": null,
-            "matched_name": null,
+            "application_name": "Seller Service Interface",
+            "cmdb_id": "0985937e-7a75-4f39-ab27-918714c464a7",
+            "matched_name": "Seller Service",
             "confidence": "schwach",
-            "source": "unmatched"
+            "source": "fuzzy",
+            "score": 1.0
           },
           {
-            "application_name": "shipperServiceInterface (requestShippingOp)",
-            "cmdb_id": null,
-            "matched_name": null,
+            "application_name": "Shipper Service Interface",
+            "cmdb_id": "ac2f45d2-0f21-4018-bc44-5fb16bb2c321",
+            "matched_name": "Shipper Service",
             "confidence": "schwach",
-            "source": "unmatched"
+            "source": "fuzzy",
+            "score": 1.0
           }
         ]
       },

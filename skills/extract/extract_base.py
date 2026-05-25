@@ -17,6 +17,7 @@ class ExtractedProcess:
     process_id: str
     org_unit: str
     follows_after: list[str]
+    raw_applications: list[ApplicationReference]
     applications: list[ApplicationReference]
     source_path: str
 
@@ -24,4 +25,3 @@ class ExtractedProcess:
 class Extractor(Protocol):
     def extract(self, source_path: Path) -> ExtractedProcess:
         ...
-

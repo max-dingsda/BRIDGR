@@ -18,6 +18,7 @@ from pipeline import run_pipeline
 from query_layer import answer_question
 from run_artifacts import load_latest_run
 from ui_run_view import (
+    build_duplicate_application_warnings,
     build_document_details,
     build_document_status_rows,
     build_review_rows,
@@ -29,8 +30,13 @@ from ui_run_view import (
 def render_query_tab() -> None:
     st.subheader("Kommunikation")
     config = load_config(Path("config.json"))
-    question = st.text_input("Frage an den Wissensgraphen", placeholder="Welche Anwendungen unterstuetzt Prozess X?")
-    if st.button("Senden", key="send_query"):
+    with st.form("query_form"):
+        question = st.text_input(
+            "Frage an den Wissensgraphen",
+            placeholder="Welche Anwendungen unterstuetzt Prozess X?",
+        )
+        submitted = st.form_submit_button("Senden")
+    if submitted:
         if not question:
             st.warning("Bitte zuerst eine Frage eingeben.")
             return
@@ -123,7 +129,8 @@ def render_review_tab() -> None:
     filtered_documents = filter_documents(latest_run, selected_statuses)
     cmdb_rows = load_cmdb_rows(resolve_input_cmdb_path(config))
     render_document_status_table(filtered_documents)
-    render_review_items_table(filtered_documents)
+    render_duplicate_application_warnings(filtered_documents)
+    render_review_items_table(filtered_documents, config, cmdb_rows)
     render_document_details(filtered_documents, config, cmdb_rows)
 
 
@@ -149,13 +156,37 @@ def render_document_status_table(documents: list[dict]) -> None:
         st.info("Keine Dokumente fuer den aktuellen Filter gefunden.")
 
 
-def render_review_items_table(documents: list[dict]) -> None:
+def render_review_items_table(documents: list[dict], config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
     review_rows = build_review_rows(documents)
     st.markdown("**Review-Items**")
-    if review_rows:
-        st.dataframe(review_rows, width="stretch")
-    else:
+    if not review_rows:
         st.success("Keine Review-Items fuer den aktuellen Filter gefunden.")
+        return
+
+    header_columns = st.columns([2, 3, 3, 1, 1, 1, 2])
+    header_columns[0].markdown("**Prozess**")
+    header_columns[1].markdown("**Anwendung im Prozess**")
+    header_columns[2].markdown("**Anwendung in der CMDB**")
+    header_columns[3].markdown("**Bewertung**")
+    header_columns[4].markdown("**Bestaetigen**")
+    header_columns[5].markdown("**Ablehnen**")
+    header_columns[6].markdown("**Manuell anlegen**")
+
+    for review_row in review_rows:
+        render_review_item_actions(review_row, config, cmdb_rows)
+
+
+def render_duplicate_application_warnings(documents: list[dict]) -> None:
+    warnings = build_duplicate_application_warnings(documents)
+    if not warnings:
+        return
+
+    st.markdown("**Hinweise zur Prozessnotation**")
+    for warning in warnings:
+        variants = "; ".join(warning.get("varianten", []))
+        st.warning(
+            f"Im Prozess '{warning.get('prozess', '')}' scheint dieselbe Anwendung mehrfach unterschiedlich notiert zu sein: {variants}"
+        )
 
 
 def render_document_details(documents: list[dict], config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
@@ -184,12 +215,15 @@ def render_document_details(documents: list[dict], config: AppConfig, cmdb_rows:
                 else:
                     st.write({"review_items": detail["review_items"]})
 
-            st.markdown("Applications")
-            st.json(detail["applications"])
-            st.markdown("Matches")
-            st.json(detail["matches"])
             render_review_actions(detail, config, cmdb_rows)
             render_manual_link_form(detail, config, cmdb_rows)
+            with st.expander("Technische Details", expanded=False):
+                st.markdown("Raw Applications")
+                st.json(detail["raw_applications"])
+                st.markdown("Applications")
+                st.json(detail["applications"])
+                st.markdown("Matches")
+                st.json(detail["matches"])
 
 
 def render_review_actions(detail: dict, config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
@@ -198,31 +232,34 @@ def render_review_actions(detail: dict, config: AppConfig, cmdb_rows: list[dict[
     if not matches:
         return
 
-    st.markdown("Aktionen")
-    cmdb_options = build_cmdb_option_labels(cmdb_rows, config.cmdb_uuid_column, config.cmdb_name_column)
+    st.markdown("Pruefbare Verknuepfungen")
+    header_columns = st.columns([2, 3, 3, 1, 1, 1])
+    header_columns[0].markdown("**Prozess**")
+    header_columns[1].markdown("**Anwendung im Prozess**")
+    header_columns[2].markdown("**Anwendung in der CMDB**")
+    header_columns[3].markdown("**Bewertung**")
+    header_columns[4].markdown("**Bestaetigen**")
+    header_columns[5].markdown("**Ablehnen**")
+
     for index, match in enumerate(matches):
         application_name = match.get("application_name", "")
         matched_name = match.get("matched_name") or ""
         cmdb_id = match.get("cmdb_id")
         source = match.get("source", "")
+        confidence = match.get("confidence", "")
+        if source == "rejected":
+            continue
 
-        action_columns = st.columns([3, 1, 1])
-        action_columns[0].write(
-            {
-                "application_name": application_name,
-                "matched_name": matched_name,
-                "cmdb_id": cmdb_id,
-                "source": source,
-                "confidence": match.get("confidence", ""),
-            }
-        )
+        action_columns = st.columns([2, 3, 3, 1, 1, 1])
+        action_columns[0].write(process_name)
+        action_columns[1].write(application_name)
+        action_columns[2].write(matched_name or "-")
+        action_columns[3].write(confidence)
 
         confirm_key = f"confirm::{detail['file_hash']}::{index}"
-        correct_select_key = f"correct-select::{detail['file_hash']}::{index}"
-        correct_key = f"correct::{detail['file_hash']}::{index}"
         reject_key = f"reject::{detail['file_hash']}::{index}"
 
-        if cmdb_id and action_columns[1].button("Bestaetigen", key=confirm_key, width="stretch"):
+        if cmdb_id and action_columns[4].button("Bestaetigen", key=confirm_key, width="stretch"):
             knowledge_base = load_knowledge_base()
             updated_kb = confirm_link(
                 knowledge_base,
@@ -237,47 +274,101 @@ def render_review_actions(detail: dict, config: AppConfig, cmdb_rows: list[dict[
             st.success(f"Link fuer '{application_name}' bestaetigt.")
             st.rerun()
 
-        if action_columns[2].button("Ablehnen", key=reject_key, width="stretch"):
+        if action_columns[5].button("Ablehnen", key=reject_key, width="stretch"):
             knowledge_base = load_knowledge_base()
             updated_kb = reject_link(
                 knowledge_base,
                 process_name=process_name,
                 application_name=application_name,
+                cmdb_id=cmdb_id,
             )
             save_knowledge_base(updated_kb)
             run_pipeline(config)
             st.success(f"Link fuer '{application_name}' abgelehnt.")
             st.rerun()
 
-        if cmdb_options:
-            selected_label = st.selectbox(
-                f"Korrigiertes CMDB-Ziel fuer {application_name}",
-                options=cmdb_options,
-                key=correct_select_key,
+
+def render_review_item_actions(review_row: dict, config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
+    process_name = review_row.get("prozess", "")
+    application_name = review_row.get("anwendung_im_prozess", "")
+    matched_name = review_row.get("anwendung_in_cmdb", "")
+    cmdb_id = review_row.get("cmdb_id")
+    row_id = review_row.get("row_id", "")
+
+    row_columns = st.columns([2, 3, 3, 1, 1, 1, 2])
+    row_columns[0].write(process_name)
+    row_columns[1].write(application_name)
+    row_columns[2].write(matched_name)
+    row_columns[3].write(review_row.get("confidence", ""))
+
+    confirm_key = f"review-confirm::{row_id}"
+    reject_key = f"review-reject::{row_id}"
+    manual_select_key = f"review-manual-select::{row_id}"
+    manual_submit_key = f"review-manual-submit::{row_id}"
+
+    if cmdb_id and row_columns[4].button("Bestaetigen", key=confirm_key, width="stretch"):
+        knowledge_base = load_knowledge_base()
+        updated_kb = confirm_link(
+            knowledge_base,
+            process_name=process_name,
+            application_name=application_name,
+            cmdb_id=cmdb_id,
+            matched_name=matched_name or application_name,
+            source="manuell_bestaetigt",
+        )
+        save_knowledge_base(updated_kb)
+        run_pipeline(config)
+        st.success(f"Link fuer '{application_name}' bestaetigt.")
+        st.rerun()
+
+    if row_columns[5].button("Ablehnen", key=reject_key, width="stretch"):
+        knowledge_base = load_knowledge_base()
+        updated_kb = reject_link(
+            knowledge_base,
+            process_name=process_name,
+            application_name=application_name,
+            cmdb_id=cmdb_id,
+        )
+        save_knowledge_base(updated_kb)
+        run_pipeline(config)
+        st.success(f"Link fuer '{application_name}' abgelehnt.")
+        st.rerun()
+
+    cmdb_options = build_cmdb_option_labels(cmdb_rows, config.cmdb_uuid_column, config.cmdb_name_column)
+    if not cmdb_options:
+        row_columns[6].write("-")
+        return
+
+    with row_columns[6].popover("Manuell anlegen", use_container_width=True):
+        selected_label = st.selectbox(
+            "CMDB-Ziel",
+            options=cmdb_options,
+            key=manual_select_key,
+            label_visibility="collapsed",
+        )
+        if st.button("Speichern", key=manual_submit_key, width="stretch"):
+            selected_row = find_cmdb_row_by_label(
+                cmdb_rows,
+                selected_label,
+                config.cmdb_uuid_column,
+                config.cmdb_name_column,
             )
-            if st.button(f"Korrigieren: {application_name}", key=correct_key, width="stretch"):
-                selected_row = find_cmdb_row_by_label(
-                    cmdb_rows,
-                    selected_label,
-                    config.cmdb_uuid_column,
-                    config.cmdb_name_column,
-                )
-                if selected_row is None:
-                    st.error("Ausgewaehltes CMDB-Ziel konnte nicht aufgeloest werden.")
-                else:
-                    knowledge_base = load_knowledge_base()
-                    updated_kb = confirm_link(
-                        knowledge_base,
-                        process_name=process_name,
-                        application_name=application_name,
-                        cmdb_id=selected_row.get(config.cmdb_uuid_column, ""),
-                        matched_name=selected_row.get(config.cmdb_name_column, application_name),
-                        source="manuell_korrigiert",
-                    )
-                    save_knowledge_base(updated_kb)
-                    run_pipeline(config)
-                    st.success(f"Link fuer '{application_name}' wurde korrigiert.")
-                    st.rerun()
+            if selected_row is None:
+                st.error("Ausgewaehltes CMDB-Ziel konnte nicht aufgeloest werden.")
+                return
+            knowledge_base = load_knowledge_base()
+            updated_kb = confirm_link(
+                knowledge_base,
+                process_name=process_name,
+                application_name=application_name,
+                cmdb_id=selected_row.get(config.cmdb_uuid_column, ""),
+                matched_name=selected_row.get(config.cmdb_name_column, application_name),
+                source="manueller_link",
+            )
+            save_knowledge_base(updated_kb)
+            run_pipeline(config)
+            st.success(f"Manueller Link fuer '{application_name}' gespeichert.")
+            st.rerun()
 
 
 def render_manual_link_form(detail: dict, config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
@@ -338,6 +429,7 @@ def render_config_tab(config_path: Path) -> None:
     st.subheader("Anwendungskonfig")
     config = load_config(config_path)
     ensure_config_session_defaults(config)
+    sync_config_session_defaults(config)
 
     with st.expander("Import", expanded=False):
         render_import_section(config)
@@ -425,6 +517,11 @@ def ensure_config_session_defaults(config: AppConfig) -> None:
         update_config_session_defaults(config)
 
 
+def sync_config_session_defaults(config: AppConfig) -> None:
+    if st.session_state.get("config_input_path") in {"data/input", ".\\data\\input"} and config.input_path != st.session_state.get("config_input_path"):
+        st.session_state["config_input_path"] = config.input_path
+
+
 def update_config_session_defaults(config: AppConfig) -> None:
     st.session_state["config_llm_base_url"] = config.llm_base_url
     st.session_state["config_llm_model"] = config.llm_model
@@ -462,6 +559,7 @@ def render_path_picker_controls() -> None:
 
 def render_import_section(config: AppConfig) -> None:
     st.markdown("**Import**")
+    ensure_import_session_defaults(config)
 
     input_dir = resolve_project_path(config.input_path)
     cmdb_path = resolve_input_cmdb_path(config)
@@ -479,7 +577,13 @@ def render_import_section(config: AppConfig) -> None:
         key="cmdb_upload",
     )
 
-    save_column, run_column = st.columns(2)
+    mode_column, save_column, run_column = st.columns([1, 1, 1])
+    with mode_column:
+        selected_run_mode = st.selectbox(
+            "Importmodus",
+            options=["initial", "full", "delta"],
+            key="import_run_mode",
+        )
     with save_column:
         if st.button("Importdateien speichern", width="stretch"):
             saved_files: list[str] = []
@@ -511,6 +615,7 @@ def render_import_section(config: AppConfig) -> None:
                     runtime_config = AppConfig(
                         **{
                             **asdict(config),
+                            "last_run_mode": selected_run_mode,
                             "cmdb_filename": st.session_state.get("active_cmdb_filename", config.cmdb_filename),
                         }
                     )
@@ -560,6 +665,13 @@ def ensure_active_cmdb_selection(config: AppConfig, cmdb_files: list[Path]) -> N
         st.session_state["active_cmdb_filename"] = config.cmdb_filename
     if available_filenames and st.session_state["active_cmdb_filename"] not in available_filenames:
         st.session_state["active_cmdb_filename"] = available_filenames[0]
+
+
+def ensure_import_session_defaults(config: AppConfig) -> None:
+    if "import_run_mode" not in st.session_state:
+        st.session_state["import_run_mode"] = config.last_run_mode
+    if st.session_state.get("import_run_mode") not in {"initial", "full", "delta"}:
+        st.session_state["import_run_mode"] = config.last_run_mode
 
 
 def main() -> None:

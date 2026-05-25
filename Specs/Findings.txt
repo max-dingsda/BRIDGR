@@ -2,6 +2,7 @@
 2. In Tab3 sollten die auswählbaren Pfade zusätzlich zur manuellen Eingabe einen klickbaren  Auswahldialog ermöglichen - erledigt
 3. warum ist die input struktur geteilt in /input für prozesse und /data für cmdb einträge? aus benutzersicht ergibt es keinen sinn. für den benutzer sollte es nur einen pfad geben wo er seinen input ablegt, egal ob es aus dem prozessmanagementtool oder der cmdb kommt - erledigt
 4. im konfigurations-tab sollten die bereiche für konfig und import in der reihenfolge getauscht werden. ausser beim initialen load wird i.d.r eher in import veranlasst als eine konfig-änderung. wenn technisch möglich, wäre es auch schön, die bereiche einklappbar (und inital eingeklappt) zu machen. - erledigt
-5. Dort wo die Pipeline gestartet wird gehört auch eine Möglichkeit hin, denn Importmodus (Initial, Full, Delta) festzulegen
-6. das auswahlmenü für prozesse öffnet sich in /data/input, sollte aber /input sein
-7. das eingabefeld auf der seite "Kommunikation" sollte, wenn im fokus, auf drücken der ENTER-Taste reagieren
+5. Dort wo die Pipeline gestartet wird gehört auch eine Möglichkeit hin, denn Importmodus (Initial, Full, Delta) festzulegen - erledigt
+6. das auswahlmenü für prozesse öffnet sich in /data/input, sollte aber /input sein - erledigt
+7. das eingabefeld auf der seite "Kommunikation" sollte, wenn im fokus, auf drücken der ENTER-Taste reagieren - erledigt
+8. Ein UI-Aktion zu leeren der KB gesamt, confirmed, oder rejected wäre hilfreich, um das manuelle editieren der JSON files zu vermeiden, was grad bei grossen prozessmodellen und/oder CMDBs sehr aufwändig werden kann

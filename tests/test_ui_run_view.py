@@ -1,4 +1,5 @@
 from ui_run_view import (
+    build_duplicate_application_warnings,
     build_document_details,
     build_document_status_rows,
     build_review_rows,
@@ -21,10 +22,15 @@ def sample_run() -> dict:
                     "process_id": "proc_001",
                     "org_unit": "Vertrieb",
                     "follows_after": ["Angebot"],
+                    "raw_applications": [{"name": "SAP Sales", "confidence": "stark"}],
                     "applications": [{"name": "SAP Sales", "confidence": "stark"}],
                 },
-                "matches": [{"cmdb_id": "cmdb-1"}, {"cmdb_id": None}],
-                "review_items": [{"process_name": "Auftragsabwicklung", "application_name": "Legacy Tool", "reason": "unmatched"}],
+                "matches": [
+                    {"cmdb_id": "cmdb-1", "confidence": "stark", "source": "fuzzy", "application_name": "SAP Sales", "matched_name": "SAP Sales"},
+                    {"cmdb_id": "cmdb-2", "confidence": "schwach", "source": "fuzzy", "application_name": "Legacy Tool", "matched_name": "Legacy Suite"},
+                    {"cmdb_id": None, "confidence": "schwach", "source": "unmatched", "application_name": "Unknown Tool", "matched_name": None},
+                ],
+                "review_items": [{"process_name": "Auftragsabwicklung", "application_name": "Legacy Tool", "reason": "fuzzy"}],
             },
             {
                 "source_path": "Input/b.bpmn",
@@ -58,7 +64,7 @@ def test_filter_documents_filters_by_status() -> None:
 def test_build_document_status_rows_exposes_match_counts() -> None:
     rows = build_document_status_rows(sample_run()["documents"])
 
-    assert rows[0]["matched"] == 1
+    assert rows[0]["matched"] == 2
     assert rows[0]["unmatched"] == 1
     assert rows[1]["error_message"] == "Invalid BPMN XML"
 
@@ -68,11 +74,25 @@ def test_build_review_rows_flattens_review_items() -> None:
 
     assert rows == [
         {
+            "row_id": "hash-a:1",
             "source_path": "Input/a.bpmn",
-            "process_name": "Auftragsabwicklung",
-            "application_name": "Legacy Tool",
-            "reason": "unmatched",
-        }
+            "prozess": "Auftragsabwicklung",
+            "anwendung_im_prozess": "Legacy Tool",
+            "anwendung_in_cmdb": "Legacy Suite",
+            "confidence": "schwach",
+            "quelle": "fuzzy",
+            "cmdb_id": "cmdb-2",
+        },
+        {
+            "row_id": "hash-a:2",
+            "source_path": "Input/a.bpmn",
+            "prozess": "Auftragsabwicklung",
+            "anwendung_im_prozess": "Unknown Tool",
+            "anwendung_in_cmdb": "-",
+            "confidence": "schwach",
+            "quelle": "unmatched",
+            "cmdb_id": None,
+        },
     ]
 
 
@@ -80,4 +100,30 @@ def test_build_document_details_includes_error_and_process_context() -> None:
     details = build_document_details(sample_run()["documents"])
 
     assert details[0]["process_id"] == "proc_001"
+    assert details[0]["raw_applications"][0]["name"] == "SAP Sales"
     assert details[1]["error_message"] == "Invalid BPMN XML"
+
+
+def test_build_duplicate_application_warnings_detects_variant_spellings() -> None:
+    run = sample_run()
+    run["documents"][0]["extracted_process"]["applications"] = [
+        {"name": "ProductBacklog (com.camunda.examples.incidentmanagement.ProductBacklog)", "confidence": "stark"},
+    ]
+    run["documents"][0]["extracted_process"]["raw_applications"] = [
+        {"name": "ProductBacklog (com.camunda.examples.incidentmanagement.ProductBacklog)", "confidence": "stark"},
+        {"name": "com.camunda.examples.incidentmanagement.ProductBacklog (addTicketOperation)", "confidence": "stark"},
+        {"name": "Mail System", "confidence": "stark"},
+    ]
+
+    warnings = build_duplicate_application_warnings(run["documents"])
+
+    assert warnings == [
+        {
+            "prozess": "Auftragsabwicklung",
+            "normalisiert": "product backlog",
+            "varianten": [
+                "ProductBacklog (com.camunda.examples.incidentmanagement.ProductBacklog)",
+                "com.camunda.examples.incidentmanagement.ProductBacklog (addTicketOperation)",
+            ],
+        }
+    ]

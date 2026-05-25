@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from skills.match import normalize_name_for_matching
+
 
 def summarize_run(latest_run: dict) -> dict[str, int | str]:
     documents = latest_run.get("documents", [])
@@ -44,13 +46,22 @@ def build_document_status_rows(documents: list[dict]) -> list[dict]:
 def build_review_rows(documents: list[dict]) -> list[dict]:
     review_rows = []
     for document in documents:
-        for item in document.get("review_items", []):
+        extracted_process = document.get("extracted_process") or {}
+        for index, match in enumerate(document.get("matches", [])):
+            if match.get("source") == "rejected":
+                continue
+            if match.get("confidence") != "schwach" and match.get("cmdb_id"):
+                continue
             review_rows.append(
                 {
+                    "row_id": f"{document.get('file_hash', '')}:{index}",
                     "source_path": document.get("source_path", ""),
-                    "process_name": item.get("process_name", ""),
-                    "application_name": item.get("application_name", ""),
-                    "reason": item.get("reason", ""),
+                    "prozess": extracted_process.get("process_name", ""),
+                    "anwendung_im_prozess": match.get("application_name", ""),
+                    "anwendung_in_cmdb": match.get("matched_name", "") or "-",
+                    "confidence": match.get("confidence", ""),
+                    "quelle": match.get("source", ""),
+                    "cmdb_id": match.get("cmdb_id"),
                 }
             )
     return review_rows
@@ -67,6 +78,7 @@ def build_document_details(documents: list[dict]) -> list[dict]:
                 "process_id": extracted_process.get("process_id", ""),
                 "org_unit": extracted_process.get("org_unit", ""),
                 "follows_after": extracted_process.get("follows_after", []),
+                "raw_applications": extracted_process.get("raw_applications", []),
                 "applications": extracted_process.get("applications", []),
                 "matches": document.get("matches", []),
                 "review_items": document.get("review_items", []),
@@ -75,3 +87,30 @@ def build_document_details(documents: list[dict]) -> list[dict]:
             }
         )
     return details
+
+
+def build_duplicate_application_warnings(documents: list[dict]) -> list[dict]:
+    warnings: list[dict] = []
+    for document in documents:
+        extracted_process = document.get("extracted_process") or {}
+        process_name = extracted_process.get("process_name", "")
+        grouped_names: dict[str, set[str]] = {}
+        raw_applications = extracted_process.get("raw_applications") or extracted_process.get("applications", [])
+        for application in raw_applications:
+            application_name = application.get("name", "")
+            normalized_name = normalize_name_for_matching(application_name)
+            if not normalized_name:
+                continue
+            grouped_names.setdefault(normalized_name, set()).add(application_name)
+
+        for normalized_name, variants in grouped_names.items():
+            if len(variants) < 2:
+                continue
+            warnings.append(
+                {
+                    "prozess": process_name,
+                    "normalisiert": normalized_name,
+                    "varianten": sorted(variants),
+                }
+            )
+    return warnings

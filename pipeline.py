@@ -20,7 +20,7 @@ from run_artifacts import (
 from skills.extract.extract_base import ExtractedProcess
 from skills.extract.extract_bpmn import BpmnExtractor, BpmnExtractorError
 from skills.graph_writer import GraphWritePayload, GraphWriter
-from skills.match import MatchResult, match_application
+from skills.match import MatchResult, match_application_candidates
 from skills.review import ReviewItem, collect_review_items
 
 
@@ -142,19 +142,20 @@ def run_document(
             error_message=str(exc),
         )
 
-    matches = [
-        match_application(
-            application_name=application.name,
-            process_name=extracted_process.process_name,
-            cmdb_rows=cmdb_rows,
-            confirmed_links=knowledge_base.confirmed,
-            rejected_links=knowledge_base.rejected,
-            threshold=config.fuzzy_threshold,
-            uuid_column=config.cmdb_uuid_column,
-            name_column=config.cmdb_name_column,
+    matches: list[MatchResult] = []
+    for application in extracted_process.applications:
+        matches.extend(
+            match_application_candidates(
+                application_name=application.name,
+                process_name=extracted_process.process_name,
+                cmdb_rows=cmdb_rows,
+                confirmed_links=knowledge_base.confirmed,
+                rejected_links=knowledge_base.rejected,
+                threshold=config.fuzzy_threshold,
+                uuid_column=config.cmdb_uuid_column,
+                name_column=config.cmdb_name_column,
+            )
         )
-        for application in extracted_process.applications
-    ]
     matches.extend(build_manual_matches(extracted_process.process_name, extracted_process.applications, knowledge_base.confirmed))
     review_items = collect_review_items(extracted_process, matches)
     graph_payload = graph_writer.build_payload(extracted_process, matches)
