@@ -25,8 +25,11 @@ from run_artifacts import (
     save_import_state,
     write_latest_run,
 )
-from skills.extract.extract_base import ExtractedProcess
+from skills.extract.extract_base import ExtractedProcess, Extractor
 from skills.extract.extract_bpmn import BpmnExtractor, BpmnExtractorError
+from skills.extract.extract_docx import DocxExtractor, DocxExtractorError
+from skills.extract.extract_pdf import PdfExtractor, PdfExtractorError
+from skills.extract.extract_txt import TextExtractor, TextExtractorError
 from skills.graph_writer import GraphWritePayload, GraphWriter
 from skills.match import MatchResult, match_application_candidates
 from skills.review import ReviewItem, collect_review_items
@@ -69,7 +72,6 @@ def run_pipeline(config: AppConfig, input_paths: list[Path] | None = None) -> Pi
             api_key_env=config.llm_api_key_env,
         )
     )
-    extractor = BpmnExtractor(prompt_path=resolve_project_path("prompts/extract_bpmn.md"), llm_client=llm_client)
     graph_writer = GraphWriter()
     neo4j_client = build_neo4j_client(config)
 
@@ -95,6 +97,7 @@ def run_pipeline(config: AppConfig, input_paths: list[Path] | None = None) -> Pi
             )
             continue
 
+        extractor = build_extractor_for_path(path, llm_client)
         document_result = run_document(path, file_hash, extractor, config, knowledge_base, cmdb_rows, graph_writer)
         document_results.append(document_result)
         if document_result.graph_payload is not None:
@@ -131,10 +134,35 @@ def list_bpmn_files(root_path: Path) -> list[Path]:
     return list_process_files(root_path)
 
 
+def build_extractor_for_path(source_path: Path, llm_client: OpenAICompatibleClient) -> Extractor:
+    suffix = source_path.suffix.lower()
+    if suffix in {".bpmn", ".xml"}:
+        return BpmnExtractor(
+            prompt_path=resolve_project_path("prompts/extract_bpmn.md"),
+            llm_client=llm_client,
+        )
+    if suffix == ".txt":
+        return TextExtractor(
+            prompt_path=resolve_project_path("prompts/extract_generic.md"),
+            llm_client=llm_client,
+        )
+    if suffix == ".docx":
+        return DocxExtractor(
+            prompt_path=resolve_project_path("prompts/extract_generic.md"),
+            llm_client=llm_client,
+        )
+    if suffix == ".pdf":
+        return PdfExtractor(
+            prompt_path=resolve_project_path("prompts/extract_generic.md"),
+            llm_client=llm_client,
+        )
+    raise ValueError(f"Unsupported process document format: {source_path.suffix}")
+
+
 def run_document(
     source_path: Path,
     file_hash: str,
-    extractor: BpmnExtractor,
+    extractor: Extractor,
     config: AppConfig,
     knowledge_base: KnowledgeBase,
     cmdb_rows: list[dict[str, str]],
@@ -142,7 +170,7 @@ def run_document(
 ) -> DocumentRunResult:
     try:
         extracted_process = extractor.extract(source_path)
-    except BpmnExtractorError as exc:
+    except (BpmnExtractorError, TextExtractorError, DocxExtractorError, PdfExtractorError) as exc:
         return DocumentRunResult(
             source_path=str(source_path),
             file_hash=file_hash,

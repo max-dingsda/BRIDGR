@@ -1,8 +1,12 @@
 import streamlit as st
 
 from app import (
+    CHAT_MESSAGES_STATE_KEY,
+    CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY,
+    CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY,
     NEO4J_CLIENT_CONFIG_STATE_KEY,
     NEO4J_CLIENT_STATE_KEY,
+    ensure_query_chat_defaults,
     ensure_import_session_defaults,
     get_session_neo4j_client,
     reset_session_neo4j_client,
@@ -95,3 +99,13 @@ def test_reset_session_neo4j_client_warns_when_close_fails(monkeypatch) -> None:
 
     assert warnings == ["Neo4j-Client konnte nicht sauber geschlossen werden: close failed"]
     assert NEO4J_CLIENT_STATE_KEY not in st.session_state
+
+
+def test_ensure_query_chat_defaults_initializes_chat_state() -> None:
+    st.session_state.clear()
+
+    ensure_query_chat_defaults()
+
+    assert st.session_state[CHAT_MESSAGES_STATE_KEY] == []
+    assert st.session_state[CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY] == []
+    assert st.session_state[CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY] == ""

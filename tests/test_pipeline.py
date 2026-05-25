@@ -4,10 +4,13 @@ import pytest
 
 from app_config import AppConfig
 from neo4j_utils import Neo4jServiceUnavailableError
-from pipeline import list_bpmn_files, run_document, run_pipeline, should_skip_file
+from pipeline import build_extractor_for_path, list_bpmn_files, run_document, run_pipeline, should_skip_file
 from run_artifacts import LATEST_RUN_FILENAME, STATE_FILENAME
 from skills.graph_writer import GraphWriter
 from skills.extract.extract_bpmn import BpmnExtractor
+from skills.extract.extract_docx import DocxExtractor
+from skills.extract.extract_pdf import PdfExtractor
+from skills.extract.extract_txt import TextExtractor
 from knowledge_base import KnowledgeBase
 
 
@@ -25,14 +28,47 @@ class FakeLlmClient:
         }
 
 
-def test_list_bpmn_files_only_returns_bpmn_files(tmp_path: Path) -> None:
+def test_list_bpmn_files_returns_supported_process_documents(tmp_path: Path) -> None:
     (tmp_path / "a.bpmn").write_text("<definitions />", encoding="utf-8")
     (tmp_path / "c.xml").write_text("<definitions />", encoding="utf-8")
-    (tmp_path / "b.txt").write_text("ignored", encoding="utf-8")
+    (tmp_path / "b.txt").write_text("incident text", encoding="utf-8")
 
     result = list_bpmn_files(tmp_path)
 
-    assert result == [tmp_path / "a.bpmn", tmp_path / "c.xml"]
+    assert result == [tmp_path / "a.bpmn", tmp_path / "b.txt", tmp_path / "c.xml"]
+
+
+def test_build_extractor_for_path_uses_text_extractor_for_txt(monkeypatch, tmp_path: Path) -> None:
+    prompt_path = tmp_path / "prompts" / "extract_generic.md"
+    prompt_path.parent.mkdir()
+    prompt_path.write_text("prompt", encoding="utf-8")
+    monkeypatch.setattr("app_config.PROJECT_ROOT", tmp_path)
+
+    extractor = build_extractor_for_path(tmp_path / "process.txt", object())
+
+    assert isinstance(extractor, TextExtractor)
+
+
+def test_build_extractor_for_path_uses_docx_extractor_for_docx(monkeypatch, tmp_path: Path) -> None:
+    prompt_path = tmp_path / "prompts" / "extract_generic.md"
+    prompt_path.parent.mkdir()
+    prompt_path.write_text("prompt", encoding="utf-8")
+    monkeypatch.setattr("app_config.PROJECT_ROOT", tmp_path)
+
+    extractor = build_extractor_for_path(tmp_path / "process.docx", object())
+
+    assert isinstance(extractor, DocxExtractor)
+
+
+def test_build_extractor_for_path_uses_pdf_extractor_for_pdf(monkeypatch, tmp_path: Path) -> None:
+    prompt_path = tmp_path / "prompts" / "extract_generic.md"
+    prompt_path.parent.mkdir()
+    prompt_path.write_text("prompt", encoding="utf-8")
+    monkeypatch.setattr("app_config.PROJECT_ROOT", tmp_path)
+
+    extractor = build_extractor_for_path(tmp_path / "process.pdf", object())
+
+    assert isinstance(extractor, PdfExtractor)
 
 
 def test_run_document_builds_matches_and_review_items(tmp_path: Path) -> None:

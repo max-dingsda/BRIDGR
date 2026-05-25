@@ -53,6 +53,9 @@ from ui_run_view import (
 
 NEO4J_CLIENT_STATE_KEY = "neo4j_client"
 NEO4J_CLIENT_CONFIG_STATE_KEY = "neo4j_client_config"
+CHAT_MESSAGES_STATE_KEY = "chat_messages"
+CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY = "chat_pending_application_options"
+CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY = "chat_pending_original_question"
 
 
 def build_neo4j_client_key(config: AppConfig) -> tuple[str, str, str, str]:
@@ -103,52 +106,121 @@ def get_session_neo4j_client(config: AppConfig) -> Neo4jClient:
 def render_query_tab() -> None:
     st.subheader("Kommunikation")
     config = load_config(Path("config.json"))
-    with st.form("query_form"):
-        question = st.text_input(
-            "Frage an den Wissensgraphen",
-            placeholder="Welche Anwendungen unterstuetzt Prozess X?",
-        )
-        submitted = st.form_submit_button("Senden")
-    if submitted:
-        if not question:
-            st.warning("Bitte zuerst eine Frage eingeben.")
-            return
-        if not config.llm_model:
-            st.warning("Bitte zuerst ein LLM-Modell konfigurieren.")
-            return
-        if not config.neo4j_password:
-            st.warning("Bitte zuerst die Neo4j-Zugangsdaten konfigurieren.")
-            return
-        try:
-            llm_client = OpenAICompatibleClient(
-                LlmClientConfig(
-                    base_url=config.llm_base_url,
-                    model=config.llm_model,
-                    api_key_env=config.llm_api_key_env,
-                )
-            )
-            neo4j_client = get_session_neo4j_client(config)
-            answer_text, cypher_query, rows = answer_question(
-                question=question,
-                llm_client=llm_client,
-                neo4j_client=neo4j_client,
-                cypher_prompt_path=resolve_project_path("prompts/cypher_gen.md"),
-                answer_prompt_path=resolve_project_path("prompts/answer_query.md"),
-            )
-        except (LlmClientError, Neo4jConnectionError, Neo4jQueryError, QueryValidationError) as exc:
-            st.error(str(exc))
-            return
+    ensure_query_chat_defaults()
+    render_query_chat_messages()
 
-        st.markdown("**Antwort**")
-        st.write(answer_text)
-        st.markdown("**Ergebnis**")
-        if rows:
-            st.dataframe(rows, width="stretch")
-        else:
-            st.info("Keine Treffer gefunden.")
-        with st.expander("Technische Details", expanded=False):
-            st.markdown("**Cypher**")
-            st.code(cypher_query, language="cypher")
+    question = st.chat_input("Frage an den Wissensgraphen")
+    if not question:
+        return
+    if not config.llm_model:
+        st.warning("Bitte zuerst ein LLM-Modell konfigurieren.")
+        return
+    if not config.neo4j_password:
+        st.warning("Bitte zuerst die Neo4j-Zugangsdaten konfigurieren.")
+        return
+
+    append_chat_message("user", question)
+    pending_options = st.session_state.get(CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY, [])
+    if pending_options:
+        handle_query_clarification(question, config, pending_options)
+    else:
+        run_query_chat_turn(question, config)
+    st.rerun()
+
+
+def ensure_query_chat_defaults() -> None:
+    st.session_state.setdefault(CHAT_MESSAGES_STATE_KEY, [])
+    st.session_state.setdefault(CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY, [])
+    st.session_state.setdefault(CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY, "")
+
+
+def append_chat_message(role: str, content: str, cypher_query: str = "", rows: list[dict] | None = None) -> None:
+    st.session_state[CHAT_MESSAGES_STATE_KEY].append(
+        {
+            "role": role,
+            "content": content,
+            "cypher_query": cypher_query,
+            "rows": rows or [],
+        }
+    )
+
+
+def render_query_chat_messages() -> None:
+    for message in st.session_state.get(CHAT_MESSAGES_STATE_KEY, []):
+        with st.chat_message(message["role"]):
+            st.write(message["content"])
+            rows = message.get("rows", [])
+            if rows:
+                st.markdown("**Ergebnis**")
+                st.dataframe(rows, width="stretch")
+            elif message["role"] == "assistant" and message.get("cypher_query"):
+                st.info("Keine Treffer gefunden.")
+            if message.get("cypher_query"):
+                with st.expander("Technische Details", expanded=False):
+                    st.markdown("**Cypher**")
+                    st.code(message["cypher_query"], language="cypher")
+
+
+def handle_query_clarification(user_message: str, config: AppConfig, options: list[str]) -> None:
+    from query_layer import resolve_application_clarification
+
+    resolved_option = resolve_application_clarification(user_message, options)
+    if resolved_option is None:
+        append_chat_message(
+            "assistant",
+            "Ich konnte Ihre Praezisierung noch nicht eindeutig zuordnen. Bitte nennen Sie genau eine dieser Anwendungen: "
+            + ", ".join(options),
+        )
+        return
+
+    original_question = st.session_state.get(CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY, "")
+    clarified_question = (
+        f"{original_question}\n"
+        f"Die Rueckfrage wurde so praezisiert: Gemeint ist genau die Anwendung \"{resolved_option}\"."
+    )
+    st.session_state[CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY] = []
+    st.session_state[CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY] = ""
+    run_query_chat_turn(clarified_question, config)
+
+
+def run_query_chat_turn(question: str, config: AppConfig) -> None:
+    from query_layer import find_application_ambiguity_options
+
+    try:
+        llm_client = OpenAICompatibleClient(
+            LlmClientConfig(
+                base_url=config.llm_base_url,
+                model=config.llm_model,
+                api_key_env=config.llm_api_key_env,
+            )
+        )
+        neo4j_client = get_session_neo4j_client(config)
+        answer_text, cypher_query, rows = answer_question(
+            question=question,
+            llm_client=llm_client,
+            neo4j_client=neo4j_client,
+            cypher_prompt_path=resolve_project_path("prompts/cypher_gen.md"),
+            answer_prompt_path=resolve_project_path("prompts/answer_query.md"),
+        )
+    except (LlmClientError, Neo4jConnectionError, Neo4jQueryError, QueryValidationError) as exc:
+        append_chat_message("assistant", str(exc))
+        return
+
+    ambiguity_options = find_application_ambiguity_options(question, rows)
+    if ambiguity_options:
+        st.session_state[CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY] = ambiguity_options
+        st.session_state[CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY] = question
+        append_chat_message(
+            "assistant",
+            "Ich habe mehrere passende Anwendungen gefunden: "
+            + ", ".join(ambiguity_options)
+            + ". Welche meinen Sie?",
+            cypher_query=cypher_query,
+            rows=rows,
+        )
+        return
+
+    append_chat_message("assistant", answer_text, cypher_query=cypher_query, rows=rows)
 
 
 def render_review_tab() -> None:
@@ -713,8 +785,8 @@ def render_import_section(config: AppConfig) -> None:
     cmdb_path = resolve_input_cmdb_path(config)
 
     uploaded_process_files = st.file_uploader(
-        "BPMN- oder XML-Dateien importieren",
-        type=["bpmn", "xml"],
+        "Prozessdateien importieren",
+        type=["bpmn", "xml", "txt", "docx", "pdf"],
         accept_multiple_files=True,
         key="process_upload",
     )
@@ -781,7 +853,7 @@ def render_import_section(config: AppConfig) -> None:
     if current_process_files:
         st.write([str(path) for path in current_process_files])
     else:
-        st.info("Noch keine BPMN-/XML-Dateien im Input-Pfad vorhanden.")
+        st.info("Noch keine Prozessdateien im Input-Pfad vorhanden.")
 
     st.caption("Verfuegbare CMDB-Dateien im Input-Pfad")
     if current_cmdb_files:

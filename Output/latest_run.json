@@ -39,26 +39,20 @@
           "application_name": "Product Backlog Interface",
           "cmdb_id": "ce0f0193-e253-4c97-a004-2473f6b6ba8e",
           "matched_name": "Product Backlog System",
-          "confidence": "schwach",
-          "source": "fuzzy",
+          "confidence": "stark",
+          "source": "knowledge_base",
           "score": 1.0
         },
         {
           "application_name": "Mail Interface",
           "cmdb_id": "744b30b1-b138-4e67-849d-37cdee4c1482",
-          "matched_name": "Mail Interface",
+          "matched_name": "Mail System",
           "confidence": "stark",
-          "source": "fuzzy",
+          "source": "knowledge_base",
           "score": 1.0
         }
       ],
-      "review_items": [
-        {
-          "process_name": "Incident Management",
-          "application_name": "Product Backlog Interface",
-          "reason": "fuzzy"
-        }
-      ],
+      "review_items": [],
       "graph_payload": {
         "process": {
           "process_name": "Incident Management",
@@ -92,16 +86,16 @@
             "application_name": "Product Backlog Interface",
             "cmdb_id": "ce0f0193-e253-4c97-a004-2473f6b6ba8e",
             "matched_name": "Product Backlog System",
-            "confidence": "schwach",
-            "source": "fuzzy",
+            "confidence": "stark",
+            "source": "knowledge_base",
             "score": 1.0
           },
           {
             "application_name": "Mail Interface",
             "cmdb_id": "744b30b1-b138-4e67-849d-37cdee4c1482",
-            "matched_name": "Mail Interface",
+            "matched_name": "Mail System",
             "confidence": "stark",
-            "source": "fuzzy",
+            "source": "knowledge_base",
             "score": 1.0
           }
         ]
@@ -115,7 +109,7 @@
       "extracted_process": {
         "process_name": "Seller process",
         "process_id": "sellerProcess",
-        "org_unit": "The Seller",
+        "org_unit": "",
         "follows_after": [],
         "raw_applications": [
           {
@@ -144,36 +138,25 @@
           "application_name": "Seller Service Interface",
           "cmdb_id": "0985937e-7a75-4f39-ab27-918714c464a7",
           "matched_name": "Seller Service",
-          "confidence": "schwach",
-          "source": "fuzzy",
+          "confidence": "stark",
+          "source": "knowledge_base",
           "score": 1.0
         },
         {
           "application_name": "Shipper Service Interface",
           "cmdb_id": "ac2f45d2-0f21-4018-bc44-5fb16bb2c321",
           "matched_name": "Shipper Service",
-          "confidence": "schwach",
-          "source": "fuzzy",
+          "confidence": "stark",
+          "source": "knowledge_base",
           "score": 1.0
         }
       ],
-      "review_items": [
-        {
-          "process_name": "Seller process",
-          "application_name": "Seller Service Interface",
-          "reason": "fuzzy"
-        },
-        {
-          "process_name": "Seller process",
-          "application_name": "Shipper Service Interface",
-          "reason": "fuzzy"
-        }
-      ],
+      "review_items": [],
       "graph_payload": {
         "process": {
           "process_name": "Seller process",
           "process_id": "sellerProcess",
-          "org_unit": "The Seller",
+          "org_unit": "",
           "follows_after": [],
           "raw_applications": [
             {
@@ -202,15 +185,504 @@
             "application_name": "Seller Service Interface",
             "cmdb_id": "0985937e-7a75-4f39-ab27-918714c464a7",
             "matched_name": "Seller Service",
-            "confidence": "schwach",
-            "source": "fuzzy",
+            "confidence": "stark",
+            "source": "knowledge_base",
             "score": 1.0
           },
           {
             "application_name": "Shipper Service Interface",
             "cmdb_id": "ac2f45d2-0f21-4018-bc44-5fb16bb2c321",
             "matched_name": "Shipper Service",
-            "confidence": "schwach",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          }
+        ]
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt",
+      "file_hash": "8e723080256da6574fd6add8f32b45b9c7991584a28979c4824fe70ba0bc25ed",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Bestellabwicklung",
+        "process_id": "Prozess_Bestellabwicklung",
+        "org_unit": "",
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "SAP SD",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP WM",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP FI",
+            "confidence": "stark"
+          },
+          {
+            "name": "Mail System",
+            "confidence": "schwach"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP SD",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP WM",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP FI",
+            "confidence": "stark"
+          },
+          {
+            "name": "Mail System",
+            "confidence": "schwach"
+          }
+        ],
+        "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt"
+      },
+      "matches": [
+        {
+          "application_name": "SAP SD",
+          "cmdb_id": "ea428972-5468-4726-a1ca-212e12f3bda2",
+          "matched_name": "SAP SD",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "SAP WM",
+          "cmdb_id": "7104519e-2f7d-4a6e-a54f-6fb6b76ed5c2",
+          "matched_name": "SAP WM",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "SAP FI",
+          "cmdb_id": "4718e8ad-f02b-4aae-9f4c-40ac0af0b9e1",
+          "matched_name": "SAP FI",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "Mail System",
+          "cmdb_id": "bee0ede7-4331-442e-9427-94adf46413da",
+          "matched_name": "Mail Interface",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        }
+      ],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Bestellabwicklung",
+          "process_id": "Prozess_Bestellabwicklung",
+          "org_unit": "",
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "SAP SD",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP WM",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP FI",
+              "confidence": "stark"
+            },
+            {
+              "name": "Mail System",
+              "confidence": "schwach"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP SD",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP WM",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP FI",
+              "confidence": "stark"
+            },
+            {
+              "name": "Mail System",
+              "confidence": "schwach"
+            }
+          ],
+          "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt"
+        },
+        "matches": [
+          {
+            "application_name": "SAP SD",
+            "cmdb_id": "ea428972-5468-4726-a1ca-212e12f3bda2",
+            "matched_name": "SAP SD",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "SAP WM",
+            "cmdb_id": "7104519e-2f7d-4a6e-a54f-6fb6b76ed5c2",
+            "matched_name": "SAP WM",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "SAP FI",
+            "cmdb_id": "4718e8ad-f02b-4aae-9f4c-40ac0af0b9e1",
+            "matched_name": "SAP FI",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "Mail System",
+            "cmdb_id": "bee0ede7-4331-442e-9427-94adf46413da",
+            "matched_name": "Mail Interface",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          }
+        ]
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx",
+      "file_hash": "5b104886bdcf7e14832b5b3f646256f5f41b4b8d115fe8a4eb28febbcf58e59c",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Lieferantenmanagement",
+        "process_id": "Prozess_Lieferantenmanagement",
+        "org_unit": "",
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "SAP SRM",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Excel",
+            "confidence": "stark"
+          },
+          {
+            "name": "DocuSign",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP SRM",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Excel",
+            "confidence": "stark"
+          },
+          {
+            "name": "DocuSign",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx"
+      },
+      "matches": [
+        {
+          "application_name": "SAP SRM",
+          "cmdb_id": "c49b35b5-9247-4ebf-9531-f1947c17e080",
+          "matched_name": "SAP SRM",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "Microsoft Excel",
+          "cmdb_id": "38638b1f-c743-47e0-92d5-13ede756ff68",
+          "matched_name": "Microsoft Excel",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "DocuSign",
+          "cmdb_id": "87e563a7-a509-41fe-8874-b76197445fc8",
+          "matched_name": "DocuSign",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        }
+      ],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Lieferantenmanagement",
+          "process_id": "Prozess_Lieferantenmanagement",
+          "org_unit": "",
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "SAP SRM",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Excel",
+              "confidence": "stark"
+            },
+            {
+              "name": "DocuSign",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP SRM",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Excel",
+              "confidence": "stark"
+            },
+            {
+              "name": "DocuSign",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx"
+        },
+        "matches": [
+          {
+            "application_name": "SAP SRM",
+            "cmdb_id": "c49b35b5-9247-4ebf-9531-f1947c17e080",
+            "matched_name": "SAP SRM",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "Microsoft Excel",
+            "cmdb_id": "38638b1f-c743-47e0-92d5-13ede756ff68",
+            "matched_name": "Microsoft Excel",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "DocuSign",
+            "cmdb_id": "87e563a7-a509-41fe-8874-b76197445fc8",
+            "matched_name": "DocuSign",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          }
+        ]
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf",
+      "file_hash": "1677e512c8538a8e778c5d12d4ca2d0e92d5ce4ef9b037bc4da6d764e4ddcdd8",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Reklamationsbearbeitung",
+        "process_id": "Prozess_Reklamationsbearbeitung",
+        "org_unit": "",
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "Microsoft Outlook",
+            "confidence": "stark"
+          },
+          {
+            "name": "Jira Service Management",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Teams",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP SD",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Excel",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Microsoft Outlook",
+            "confidence": "stark"
+          },
+          {
+            "name": "Jira Service Management",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Teams",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP SD",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Excel",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf"
+      },
+      "matches": [
+        {
+          "application_name": "Microsoft Outlook",
+          "cmdb_id": "72ce06ef-25c5-4d8d-941f-d9ba8836f4af",
+          "matched_name": "Microsoft Outlook",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "Jira Service Management",
+          "cmdb_id": "d9dfe63d-1555-4534-8f03-44eec015b11e",
+          "matched_name": "Jira Service Management",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "Microsoft Teams",
+          "cmdb_id": "e12d16db-4533-474a-866e-ce4f7c341166",
+          "matched_name": "Microsoft Teams",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "SAP SD",
+          "cmdb_id": "ea428972-5468-4726-a1ca-212e12f3bda2",
+          "matched_name": "SAP SD",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "Microsoft Excel",
+          "cmdb_id": "38638b1f-c743-47e0-92d5-13ede756ff68",
+          "matched_name": "Microsoft Excel",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        }
+      ],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Reklamationsbearbeitung",
+          "process_id": "Prozess_Reklamationsbearbeitung",
+          "org_unit": "",
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "Microsoft Outlook",
+              "confidence": "stark"
+            },
+            {
+              "name": "Jira Service Management",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Teams",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP SD",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Excel",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Microsoft Outlook",
+              "confidence": "stark"
+            },
+            {
+              "name": "Jira Service Management",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Teams",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP SD",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Excel",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf"
+        },
+        "matches": [
+          {
+            "application_name": "Microsoft Outlook",
+            "cmdb_id": "72ce06ef-25c5-4d8d-941f-d9ba8836f4af",
+            "matched_name": "Microsoft Outlook",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "Jira Service Management",
+            "cmdb_id": "d9dfe63d-1555-4534-8f03-44eec015b11e",
+            "matched_name": "Jira Service Management",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "Microsoft Teams",
+            "cmdb_id": "e12d16db-4533-474a-866e-ce4f7c341166",
+            "matched_name": "Microsoft Teams",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "SAP SD",
+            "cmdb_id": "ea428972-5468-4726-a1ca-212e12f3bda2",
+            "matched_name": "SAP SD",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "Microsoft Excel",
+            "cmdb_id": "38638b1f-c743-47e0-92d5-13ede756ff68",
+            "matched_name": "Microsoft Excel",
+            "confidence": "stark",
             "source": "fuzzy",
             "score": 1.0
           }

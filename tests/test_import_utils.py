@@ -3,14 +3,15 @@ from pathlib import Path
 from import_utils import list_cmdb_files, list_process_files, sanitize_uploaded_name, save_uploaded_file
 
 
-def test_list_process_files_returns_bpmn_and_xml(tmp_path: Path) -> None:
+def test_list_process_files_returns_supported_process_documents(tmp_path: Path) -> None:
     (tmp_path / "a.bpmn").write_text("a", encoding="utf-8")
     (tmp_path / "b.xml").write_text("b", encoding="utf-8")
-    (tmp_path / "c.csv").write_text("c", encoding="utf-8")
+    (tmp_path / "c.txt").write_text("c", encoding="utf-8")
+    (tmp_path / "d.csv").write_text("c", encoding="utf-8")
 
     result = list_process_files(tmp_path)
 
-    assert result == [tmp_path / "a.bpmn", tmp_path / "b.xml"]
+    assert result == [tmp_path / "a.bpmn", tmp_path / "b.xml", tmp_path / "c.txt"]
 
 
 def test_save_uploaded_file_creates_parent_directories(tmp_path: Path) -> None:

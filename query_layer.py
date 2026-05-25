@@ -65,3 +65,47 @@ def answer_question(
         prompt_path=answer_prompt_path,
     )
     return answer_text, cypher_query, rows
+
+
+def find_application_ambiguity_options(question: str, rows: list[dict]) -> list[str]:
+    application_names = sorted(
+        {
+            str(row.get("application", "")).strip()
+            for row in rows
+            if str(row.get("application", "")).strip()
+        }
+    )
+    if len(application_names) < 2:
+        return []
+    if not should_request_application_clarification(question):
+        return []
+    return application_names
+
+
+def should_request_application_clarification(question: str) -> bool:
+    normalized_question = question.casefold()
+    plural_markers = [
+        "welche",
+        "alle",
+        "liste",
+        "anwendungen",
+        "produkte",
+        "mehrere",
+    ]
+    return not any(marker in normalized_question for marker in plural_markers)
+
+
+def resolve_application_clarification(user_message: str, options: list[str]) -> str | None:
+    normalized_message = user_message.casefold().strip()
+    exact_matches = [option for option in options if option.casefold() == normalized_message]
+    if len(exact_matches) == 1:
+        return exact_matches[0]
+
+    partial_matches = [
+        option
+        for option in options
+        if normalized_message and normalized_message in option.casefold()
+    ]
+    if len(partial_matches) == 1:
+        return partial_matches[0]
+    return None

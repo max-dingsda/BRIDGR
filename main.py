@@ -12,7 +12,7 @@ from pipeline import run_pipeline
 
 def build_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run a minimal BRIDGR extraction flow.")
-    parser.add_argument("--file", type=Path, help="Path to a BPMN file to process.")
+    parser.add_argument("--file", type=Path, help="Path to a process document to process.")
     parser.add_argument(
         "--config",
         type=Path,

@@ -1,6 +1,10 @@
 from pathlib import Path
 
-from query_layer import answer_question
+from query_layer import (
+    answer_question,
+    find_application_ambiguity_options,
+    resolve_application_clarification,
+)
 
 
 class FakeLlmClient:
@@ -115,3 +119,33 @@ def test_answer_question_returns_fallback_text_for_empty_results(tmp_path: Path)
     assert answer_text == "Ich habe dazu aktuell keine passenden Informationen im Wissensgraphen gefunden."
     assert cypher_query == "MATCH (p:Prozess) RETURN p.name AS process_name"
     assert rows == []
+
+
+def test_find_application_ambiguity_options_returns_multiple_application_names_for_singular_question() -> None:
+    rows = [
+        {"application": "Adobe Reader", "process": "Bestellabwicklung"},
+        {"application": "Adobe Professional", "process": "Rechnungseingang"},
+    ]
+
+    options = find_application_ambiguity_options("Wird Adobe genutzt?", rows)
+
+    assert options == ["Adobe Professional", "Adobe Reader"]
+
+
+def test_find_application_ambiguity_options_skips_plural_questions() -> None:
+    rows = [
+        {"application": "Adobe Reader", "process": "Bestellabwicklung"},
+        {"application": "Adobe Professional", "process": "Rechnungseingang"},
+    ]
+
+    options = find_application_ambiguity_options("Welche Adobe Produkte werden genutzt?", rows)
+
+    assert options == []
+
+
+def test_resolve_application_clarification_accepts_exact_and_partial_match() -> None:
+    options = ["Adobe Reader", "Adobe Professional"]
+
+    assert resolve_application_clarification("Adobe Reader", options) == "Adobe Reader"
+    assert resolve_application_clarification("professional", options) == "Adobe Professional"
+    assert resolve_application_clarification("Adobe", options) is None

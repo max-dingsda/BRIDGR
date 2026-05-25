@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 
-SUPPORTED_PROCESS_SUFFIXES = {".bpmn", ".xml"}
+SUPPORTED_PROCESS_SUFFIXES = {".bpmn", ".xml", ".txt", ".docx", ".pdf"}
 SUPPORTED_CMDB_SUFFIXES = {".csv"}
 
 

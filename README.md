@@ -1,14 +1,15 @@
-# BRIDGR
+﻿# BRIDGR
 
 BRIDGR verbindet Prozessdokumentation mit CMDB-Daten, um einen EA-Wissensgraphen aufzubauen und spaeter ueber eine natuerlichsprachliche Oberflaeche abfragbar zu machen.
 
 Der aktuelle Architektur-Referenzstand fuer die Umsetzung ist:
-- `Specs/Bridgr_Architektur_v11.md`
+- `Specs/Bridgr_Architektur_v12.md`
 
 ## Zielbild
 
-BRIDGR soll fuer v1:
-- BPMN-Dateien einlesen
+BRIDGR soll fuer v1 bzw. den naechsten Ausbaupfad:
+- Prozessdokumente in BPMN, TXT, DOCX und PDF einlesen
+- formatabhaengig Text gewinnen und ueber denselben LLM-zentrierten Extraktionspfad verarbeiten
 - Anwendungsreferenzen per LLM extrahieren
 - gegen eine CMDB matchen
 - unsichere oder offene Links im UI reviewbar machen
@@ -16,28 +17,33 @@ BRIDGR soll fuer v1:
 
 ## Aktueller Stand
 
-Das Projekt ist noch im Aufbau, hat aber bereits ein erstes funktionsfaehiges Scaffold:
+Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikalen Schnitt:
 - OpenAI-kompatibler LLM-Client
-- BPMN-Extraktion ueber Prompt + JSON-Output mit Rohsicht und deduplizierter Arbeitssicht fuer Anwendungen
+- BPMN-, TXT-, DOCX- und PDF-Verarbeitung ueber einen gemeinsamen semantischen Extraktionspfad
+- Rohsicht und deduplizierte Arbeitssicht fuer extrahierte Anwendungen
 - CMDB-Matching mit KB-First-Logik, mehreren Kandidaten und Fuzzy Matching
 - Neo4j-Write-Pfad fuer Prozesse, Orgeinheiten und bestaetigte bzw. starke Anwendungslinks
-- natuerlichsprachlicher Query-Layer mit LLM -> Cypher -> Neo4j -> Antwort
+- natuerlichsprachlicher Query-Layer mit Session-Chat, LLM -> Cypher -> Neo4j -> Antwort und Rueckfrage bei Mehrdeutigkeiten
 - persistente Knowledge Base
 - Streamlit-UI mit 3 Tabs
 - persistente Laufartefakte in `Output/`
 - aktionsfaehige Review-Liste fuer `Bestaetigen`, `Ablehnen` und `manuellen Link anlegen`
 - Hinweise auf uneinheitliche Prozessnotation bei mehrfach extrahierten Rohvarianten
 
+Wichtige Einordnung:
+- Die Spezifikation `v0.12` oeffnet den Scope fuer unstrukturierte Prozessbeschreibungen.
+- Die aktuelle Implementierung unterstuetzt bereits BPMN, TXT, DOCX und PDF ueber einen gemeinsamen semantischen Extraktionspfad.
+
 Noch nicht umgesetzt:
 - separate Read-only-DB-Identitaet fuer den Query-Layer
-- robustere Query-Generierung und Antwortformulierung
+- robustere Query-Generierung und Antwortformulierung bei generischen Suchbegriffen
 - vollstaendige Laufmodus- und Importhistorienlogik gemaess spaeterem Zielausbau
 
 ## Projektstruktur
 
 ```text
 BRIDGR/
-├── Input/                  # BPMN-Eingaben des Benutzers
+├── Input/                  # Prozessdokumente und CMDB-Dateien des Benutzers
 ├── Output/                 # erzeugte Laufartefakte und spaetere Exportziele
 ├── prompts/                # LLM-Prompts
 ├── skills/                 # Fachlogik fuer Extract, Match, Review, Graph
@@ -52,7 +58,7 @@ BRIDGR/
 ## Input und Output
 
 Reservierte Ordner:
-- `Input/`: Hier legt der Benutzer zu importierende BPMN-Dateien ab.
+- `Input/`: Hier legt der Benutzer zu importierende Prozessdokumente und CMDB-Dateien ab.
 - `Output/`: Hier legt BRIDGR erzeugte Artefakte ab. Aktuell sind das vor allem Laufartefakte; spaeter soll der Ordner auch fuer menschenlesbare Exporte verwendet werden.
 
 Aktuell relevante Output-Dateien:
@@ -71,7 +77,7 @@ Wichtige Felder:
 - `neo4j_user`: Neo4j-Benutzer
 - `neo4j_password`: Neo4j-Passwort
 - `neo4j_database`: optionaler Neo4j-Datenbankname, fuer Aura typischerweise die Instanz-ID
-- `input_path`: gemeinsamer Eingabeordner fuer BPMN/XML und CMDB-Dateien
+- `input_path`: gemeinsamer Eingabeordner fuer Prozessdokumente und CMDB-Dateien
 - `cmdb_filename`: aktive CMDB-Datei innerhalb des Eingabeordners
 - `output_path`: Ziel fuer Laufartefakte
 - `last_run_mode`: Standardlaufmodus fuer die Pipeline
@@ -126,7 +132,6 @@ python -m pip install -r requirements-dev.txt
 
 Hinweis:
 - Eine editable Installation ueber `python -m pip install -e .[dev]` ist fuer BRIDGR aktuell nicht noetig.
-- Da das Projekt in einem OneDrive-Pfad liegen kann, ist die direkte Installation ueber `requirements*.txt` robuster als ein Packaging-Setup im Editable-Modus.
 - `streamlit` ist aktuell bewusst unter `1.57` gehalten. Die 1.57er-Linie fuehrt durch die neue Starlette-basierte Serverumstellung lokal zu Import-/Kompatibilitaetsproblemen.
 
 ### 2. Streamlit starten
@@ -143,10 +148,10 @@ Gesamten konfigurierten Input-Ordner verarbeiten:
 python main.py
 ```
 
-Einzelne BPMN-Datei testen:
+Einzelnes Prozessdokument testen:
 
 ```powershell
-python main.py --file Input\beispiel.bpmn
+python main.py --file Input\beispiel.txt
 ```
 
 ## Aktuelle UI-Funktionen
@@ -154,7 +159,8 @@ python main.py --file Input\beispiel.bpmn
 ### Tab 1 - Kommunikation
 
 Aktuell verfuegbar:
-- natuerliche Frage eingeben
+- Session-Chat fuer natuerliche Fragen
+- Rueckfrage bei mehrdeutigen Anwendungsreferenzen
 - Cypher per LLM generieren
 - Read-only-Validierung auf verbotene Write-Tokens
 - Query gegen Neo4j ausfuehren
@@ -172,6 +178,7 @@ Aktuell verfuegbar:
 - Dokumentdetails mit Prozesskontext und technischen Rohdaten
 - Hinweise auf moegliche Mehrfachnotation derselben Anwendung innerhalb eines Prozesses
 - nur starke oder KB-bestaetigte Links in Neo4j schreiben; schwache fuzzy-Kandidaten bleiben im Review
+- Knowledge Base gezielt leeren und danach konsistent neu einspielen
 
 ### Tab 3 - Anwendungskonfig
 
@@ -182,6 +189,7 @@ Aktuell verfuegbar:
 - Neo4j-URL, User, Passwort und optionalen Datenbanknamen setzen
 - gemeinsamen Input- und Output-Pfad setzen
 - aktive CMDB-Datei innerhalb des Input-Ordners waehlen
+- Prozessdateien in BPMN, XML, TXT, DOCX und PDF importieren
 - Fuzzy-Threshold setzen
 - Importmodus direkt beim Starten der Pipeline waehlen
 - Modellliste ueber `/v1/models` abrufen
@@ -197,10 +205,11 @@ python -m pytest
 Der aktuelle Teststand deckt unter anderem ab:
 - `.env`-Loading
 - BPMN-Extraktion, Deduplizierung und XML-Fehlerfall
+- TXT-, DOCX- und PDF-Textgewinnung
 - Prozess-ID-Extraktion
 - Matching inkl. Mehrfachkandidaten und abgelehnter Links
 - Read-only-Cypher-Validierung
-- Query-Layer-Happy-Path inkl. natuerlicher Antwort
+- Query-Layer-Happy-Path inkl. natuerlicher Antwort und Mehrdeutigkeitsbehandlung
 - Pipeline-Happy-Path, Delta-Skip und Laufartefakte
 - Aufbereitung der UI-Statusdaten und Warnhinweise
 - KB-Aktionen fuer kandidatenspezifisches Bestaetigen und Ablehnen
