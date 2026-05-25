@@ -6,14 +6,39 @@ from pathlib import Path
 
 import streamlit as st
 
-from app_config import AppConfig, load_config, resolve_input_cmdb_path, resolve_project_path, resolve_runtime_output_path, save_config
-from cmdb import build_cmdb_option_labels, find_cmdb_row_by_label, load_cmdb_rows
+from app_config import (
+    AppConfig,
+    is_legacy_input_path,
+    load_config,
+    resolve_input_cmdb_path,
+    resolve_project_path,
+    resolve_runtime_output_path,
+    save_config,
+)
+from cmdb import CmdbLoadError, build_cmdb_option_labels, find_cmdb_row_by_label, load_cmdb_rows
+from constants import (
+    DOCUMENT_STATUS_OPTIONS,
+    MATCH_SOURCE_REJECTED,
+)
 from dialog_utils import pick_directory, pick_file
 from env_loader import load_env_files
 from import_utils import list_cmdb_files, list_process_files, sanitize_uploaded_name, save_uploaded_file
-from knowledge_base import confirm_link, load_knowledge_base, reject_link, save_knowledge_base
+from input_validation import validate_manual_application_name
+from knowledge_base import (
+    clear_knowledge_base_sections,
+    confirm_link,
+    load_knowledge_base,
+    reject_link,
+    save_knowledge_base,
+)
 from llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleClient
-from neo4j_utils import Neo4jClient, Neo4jConfig, Neo4jConnectionError, QueryValidationError
+from neo4j_utils import (
+    Neo4jClient,
+    Neo4jConfig,
+    Neo4jConnectionError,
+    Neo4jQueryError,
+    QueryValidationError,
+)
 from pipeline import run_pipeline
 from query_layer import answer_question
 from run_artifacts import load_latest_run
@@ -25,6 +50,54 @@ from ui_run_view import (
     filter_documents,
     summarize_run,
 )
+
+NEO4J_CLIENT_STATE_KEY = "neo4j_client"
+NEO4J_CLIENT_CONFIG_STATE_KEY = "neo4j_client_config"
+
+
+def build_neo4j_client_key(config: AppConfig) -> tuple[str, str, str, str]:
+    return (
+        config.neo4j_url,
+        config.neo4j_user,
+        config.neo4j_password,
+        config.neo4j_database,
+    )
+
+
+def reset_session_neo4j_client(show_warning: bool = False) -> None:
+    client = st.session_state.pop(NEO4J_CLIENT_STATE_KEY, None)
+    st.session_state.pop(NEO4J_CLIENT_CONFIG_STATE_KEY, None)
+    if client is None:
+        return
+    try:
+        client.close()
+    except Exception as exc:
+        if show_warning:
+            st.warning(f"Neo4j-Client konnte nicht sauber geschlossen werden: {exc}")
+
+
+def get_session_neo4j_client(config: AppConfig) -> Neo4jClient:
+    if not config.neo4j_password:
+        raise Neo4jConnectionError("Bitte zuerst die Neo4j-Zugangsdaten konfigurieren.")
+
+    desired_key = build_neo4j_client_key(config)
+    cached_key = st.session_state.get(NEO4J_CLIENT_CONFIG_STATE_KEY)
+    cached_client = st.session_state.get(NEO4J_CLIENT_STATE_KEY)
+    if cached_client is not None and cached_key == desired_key:
+        return cached_client
+
+    reset_session_neo4j_client(show_warning=True)
+    client = Neo4jClient(
+        Neo4jConfig(
+            url=config.neo4j_url,
+            user=config.neo4j_user,
+            password=config.neo4j_password,
+            database=config.neo4j_database,
+        )
+    )
+    st.session_state[NEO4J_CLIENT_STATE_KEY] = client
+    st.session_state[NEO4J_CLIENT_CONFIG_STATE_KEY] = desired_key
+    return client
 
 
 def render_query_tab() -> None:
@@ -54,14 +127,7 @@ def render_query_tab() -> None:
                     api_key_env=config.llm_api_key_env,
                 )
             )
-            neo4j_client = Neo4jClient(
-                Neo4jConfig(
-                    url=config.neo4j_url,
-                    user=config.neo4j_user,
-                    password=config.neo4j_password,
-                    database=config.neo4j_database,
-                )
-            )
+            neo4j_client = get_session_neo4j_client(config)
             answer_text, cypher_query, rows = answer_question(
                 question=question,
                 llm_client=llm_client,
@@ -69,14 +135,9 @@ def render_query_tab() -> None:
                 cypher_prompt_path=resolve_project_path("prompts/cypher_gen.md"),
                 answer_prompt_path=resolve_project_path("prompts/answer_query.md"),
             )
-        except (LlmClientError, Neo4jConnectionError, QueryValidationError) as exc:
+        except (LlmClientError, Neo4jConnectionError, Neo4jQueryError, QueryValidationError) as exc:
             st.error(str(exc))
             return
-        finally:
-            try:
-                neo4j_client.close()
-            except Exception:
-                pass
 
         st.markdown("**Antwort**")
         st.write(answer_text)
@@ -123,15 +184,24 @@ def render_review_tab() -> None:
     render_latest_run_summary(latest_run)
     selected_statuses = st.multiselect(
         "Statusfilter",
-        options=["processed", "skipped_unchanged", "no_matches", "error"],
-        default=["processed", "skipped_unchanged", "no_matches", "error"],
+        options=DOCUMENT_STATUS_OPTIONS,
+        default=DOCUMENT_STATUS_OPTIONS,
     )
     filtered_documents = filter_documents(latest_run, selected_statuses)
-    cmdb_rows = load_cmdb_rows(resolve_input_cmdb_path(config))
+    try:
+        cmdb_rows = load_cmdb_rows(
+            resolve_input_cmdb_path(config),
+            config.cmdb_uuid_column,
+            config.cmdb_name_column,
+        )
+    except CmdbLoadError as exc:
+        st.error(str(exc))
+        return
     render_document_status_table(filtered_documents)
     render_duplicate_application_warnings(filtered_documents)
     render_review_items_table(filtered_documents, config, cmdb_rows)
     render_document_details(filtered_documents, config, cmdb_rows)
+    render_knowledge_base_tools(config)
 
 
 def render_latest_run_summary(latest_run: dict) -> None:
@@ -247,7 +317,7 @@ def render_review_actions(detail: dict, config: AppConfig, cmdb_rows: list[dict[
         cmdb_id = match.get("cmdb_id")
         source = match.get("source", "")
         confidence = match.get("confidence", "")
-        if source == "rejected":
+        if source == MATCH_SOURCE_REJECTED:
             continue
 
         action_columns = st.columns([2, 3, 3, 1, 1, 1])
@@ -409,7 +479,14 @@ def render_manual_link_form(detail: dict, config: AppConfig, cmdb_rows: list[dic
             st.error("Ausgewaehltes CMDB-Ziel konnte nicht aufgeloest werden.")
             return
 
-        application_name = manual_application_name.strip() or selected_row.get(config.cmdb_name_column, "")
+        if manual_application_name.strip():
+            try:
+                application_name = validate_manual_application_name(manual_application_name)
+            except ValueError as exc:
+                st.error(str(exc))
+                return
+        else:
+            application_name = selected_row.get(config.cmdb_name_column, "")
         knowledge_base = load_knowledge_base()
         updated_kb = confirm_link(
             knowledge_base,
@@ -423,6 +500,47 @@ def render_manual_link_form(detail: dict, config: AppConfig, cmdb_rows: list[dic
         run_pipeline(config)
         st.success(f"Manueller Link fuer '{application_name}' gespeichert.")
         st.rerun()
+
+
+def render_knowledge_base_tools(config: AppConfig) -> None:
+    with st.expander("Knowledge Base verwalten", expanded=False):
+        st.caption("Hilft beim Zuruecksetzen von Testentscheidungen ohne manuelles Bearbeiten von `knowledge_base/kb.json`.")
+        action_columns = st.columns(3)
+
+        if action_columns[0].button("KB komplett leeren", key="kb-clear-all", width="stretch"):
+            clear_knowledge_base_and_refresh(
+                config,
+                sections={"confirmed", "rejected", "disambiguation", "process_identity"},
+                success_message="Die gesamte Knowledge Base wurde geleert.",
+            )
+
+        if action_columns[1].button("Nur confirmed leeren", key="kb-clear-confirmed", width="stretch"):
+            clear_knowledge_base_and_refresh(
+                config,
+                sections={"confirmed"},
+                success_message="Die bestaetigten KB-Eintraege wurden geleert.",
+            )
+
+        if action_columns[2].button("Nur rejected leeren", key="kb-clear-rejected", width="stretch"):
+            clear_knowledge_base_and_refresh(
+                config,
+                sections={"rejected"},
+                success_message="Die abgelehnten KB-Eintraege wurden geleert.",
+            )
+
+
+def clear_knowledge_base_and_refresh(config: AppConfig, sections: set[str], success_message: str) -> None:
+    knowledge_base = load_knowledge_base()
+    updated_kb = clear_knowledge_base_sections(knowledge_base, sections)
+    save_knowledge_base(updated_kb)
+    reset_session_neo4j_client(show_warning=True)
+    try:
+        run_pipeline(config)
+    except Exception as exc:
+        st.warning(f"{success_message} Der anschliessende Pipeline-Lauf ist fehlgeschlagen: {exc}")
+    else:
+        st.success(f"{success_message} Die Pipeline wurde anschliessend neu ausgefuehrt.")
+    st.rerun()
 
 
 def render_config_tab(config_path: Path) -> None:
@@ -447,8 +565,26 @@ def render_config_tab(config_path: Path) -> None:
             output_path = st.text_input("Output Path", value=st.session_state["config_output_path"])
             cmdb_uuid_column = st.text_input("CMDB UUID Column", value=config.cmdb_uuid_column)
             cmdb_name_column = st.text_input("CMDB Name Column", value=config.cmdb_name_column)
-            neo4j_url = st.text_input("Neo4j URL", value=config.neo4j_url)
-            neo4j_user = st.text_input("Neo4j User", value=config.neo4j_user)
+            neo4j_url = st.text_input(
+                "Neo4j URL",
+                value="" if os.getenv("NEO4J_URI") else config.neo4j_url,
+                placeholder=config.neo4j_url or "",
+            )
+            if os.getenv("NEO4J_URI"):
+                st.caption(
+                    "NEO4J_URI ist aus der Umgebung geladen. Das Feld dient nur zur manuellen Ueberschreibung "
+                    "und wird leer gelassen, damit der Env-Wert nicht nach `config.json` geschrieben wird."
+                )
+            neo4j_user = st.text_input(
+                "Neo4j User",
+                value="" if os.getenv("NEO4J_USERNAME") else config.neo4j_user,
+                placeholder=config.neo4j_user or "",
+            )
+            if os.getenv("NEO4J_USERNAME"):
+                st.caption(
+                    "NEO4J_USERNAME ist aus der Umgebung geladen. Das Feld dient nur zur manuellen Ueberschreibung "
+                    "und wird leer gelassen, damit der Env-Wert nicht nach `config.json` geschrieben wird."
+                )
             neo4j_password = st.text_input("Neo4j Password", value="", type="password")
             if os.getenv("NEO4J_PASSWORD"):
                 st.caption(
@@ -456,7 +592,16 @@ def render_config_tab(config_path: Path) -> None:
                     "dieses Feld ist nur fuer eine manuelle Ueberschreibung gedacht und wird nicht automatisch "
                     "mit dem Env-Wert befuellt oder nach `config.json` geschrieben."
                 )
-            neo4j_database = st.text_input("Neo4j Database", value=config.neo4j_database)
+            neo4j_database = st.text_input(
+                "Neo4j Database",
+                value="" if os.getenv("NEO4J_DATABASE") else config.neo4j_database,
+                placeholder=config.neo4j_database or "",
+            )
+            if os.getenv("NEO4J_DATABASE"):
+                st.caption(
+                    "NEO4J_DATABASE ist aus der Umgebung geladen. Das Feld dient nur zur manuellen Ueberschreibung "
+                    "und wird leer gelassen, damit der Env-Wert nicht nach `config.json` geschrieben wird."
+                )
             fuzzy_threshold = st.number_input(
                 "Fuzzy Threshold",
                 min_value=0.0,
@@ -472,15 +617,16 @@ def render_config_tab(config_path: Path) -> None:
             submitted = st.form_submit_button("Save Config")
 
         if submitted:
+            previous_client_key = build_neo4j_client_key(config)
             updated_config = AppConfig(
                 llm_base_url=llm_base_url,
                 llm_model=llm_model,
                 llm_api_key_env=llm_api_key_env,
                 llm_context_window=int(llm_context_window),
-                neo4j_url=neo4j_url,
-                neo4j_user=neo4j_user,
+                neo4j_url=neo4j_url.strip(),
+                neo4j_user=neo4j_user.strip(),
                 neo4j_password=neo4j_password.strip(),
-                neo4j_database=neo4j_database,
+                neo4j_database=neo4j_database.strip(),
                 fuzzy_threshold=float(fuzzy_threshold),
                 cmdb_uuid_column=cmdb_uuid_column,
                 cmdb_name_column=cmdb_name_column,
@@ -490,6 +636,8 @@ def render_config_tab(config_path: Path) -> None:
                 last_run_mode=last_run_mode,
             )
             save_config(updated_config, config_path)
+            if build_neo4j_client_key(updated_config) != previous_client_key:
+                reset_session_neo4j_client(show_warning=True)
             update_config_session_defaults(updated_config)
             st.success("Configuration saved.")
 
@@ -518,7 +666,7 @@ def ensure_config_session_defaults(config: AppConfig) -> None:
 
 
 def sync_config_session_defaults(config: AppConfig) -> None:
-    if st.session_state.get("config_input_path") in {"data/input", ".\\data\\input"} and config.input_path != st.session_state.get("config_input_path"):
+    if is_legacy_input_path(st.session_state.get("config_input_path", "")) and config.input_path != st.session_state.get("config_input_path"):
         st.session_state["config_input_path"] = config.input_path
 
 

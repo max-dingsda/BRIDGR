@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from app_config import resolve_runtime_output_path
+from app_config import is_legacy_input_path, resolve_runtime_output_path
 
 
 def test_resolve_runtime_output_path_uses_project_path_when_writable(tmp_path: Path, monkeypatch) -> None:
@@ -24,3 +24,9 @@ def test_resolve_runtime_output_path_falls_back_when_project_path_is_unwritable(
 
     assert resolved_path == fallback_root / "BRIDGR" / "Output"
     assert used_fallback is True
+
+
+def test_is_legacy_input_path_handles_windows_and_posix_spellings() -> None:
+    assert is_legacy_input_path("data/input") is True
+    assert is_legacy_input_path(".\\data\\input") is True
+    assert is_legacy_input_path("Input") is False

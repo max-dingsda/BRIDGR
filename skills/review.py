@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from constants import CONFIDENCE_WEAK, MATCH_SOURCE_REJECTED
 from skills.extract.extract_base import ExtractedProcess
 from skills.match import MatchResult
 
@@ -16,9 +17,9 @@ class ReviewItem:
 def collect_review_items(process: ExtractedProcess, matches: list[MatchResult]) -> list[ReviewItem]:
     review_items: list[ReviewItem] = []
     for match in matches:
-        if match.source == "rejected":
+        if match.source == MATCH_SOURCE_REJECTED:
             continue
-        if match.confidence == "schwach" or match.cmdb_id is None:
+        if match.confidence == CONFIDENCE_WEAK or match.cmdb_id is None:
             review_items.append(
                 ReviewItem(
                     process_name=process.process_name,

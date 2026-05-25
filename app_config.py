@@ -12,6 +12,7 @@ DEFAULT_CONFIG_PATH = Path("config.json")
 DEFAULT_LLM_BASE_URL = "http://localhost:11434/v1"
 DEFAULT_NEO4J_URL = "bolt://localhost:7687"
 DEFAULT_NEO4J_USER = "neo4j"
+LEGACY_INPUT_PATH = Path("data/input")
 
 
 @dataclass(slots=True)
@@ -93,6 +94,13 @@ def save_config(config: AppConfig, path: Path | None = None) -> None:
 
 
 def resolve_project_path(path_value: str | Path) -> Path:
+    """Return an absolute project path.
+
+    This helper resolves relative paths against the current working directory
+    first and falls back to the project root. The returned path may still not
+    exist.
+    """
+
     candidate_path = Path(path_value)
     if candidate_path.is_absolute():
         return candidate_path
@@ -103,10 +111,22 @@ def resolve_project_path(path_value: str | Path) -> Path:
 
 
 def resolve_input_cmdb_path(config: AppConfig) -> Path:
+    """Return the absolute path to the configured CMDB file.
+
+    The returned path may not exist yet and should be validated by the caller
+    before reading.
+    """
+
     return resolve_project_path(config.input_path) / config.cmdb_filename
 
 
 def resolve_runtime_output_path(path_value: str | Path) -> tuple[Path, bool]:
+    """Return a writable output directory and whether a fallback was used.
+
+    Unlike `resolve_project_path`, this helper guarantees that the returned
+    directory is writable or raises `OSError`.
+    """
+
     preferred_path = resolve_project_path(path_value)
     if is_directory_writable(preferred_path):
         return preferred_path, False
@@ -129,3 +149,15 @@ def is_directory_writable(path: Path) -> bool:
         return True
     except OSError:
         return False
+
+
+def normalize_path_value(path_value: str | Path) -> str:
+    """Normalize a path value for stable comparisons across slash styles."""
+
+    return Path(path_value).as_posix().rstrip("/").lower()
+
+
+def is_legacy_input_path(path_value: str | Path) -> bool:
+    """Return whether the given path still points to the pre-Input legacy folder."""
+
+    return normalize_path_value(path_value) == normalize_path_value(LEGACY_INPUT_PATH)

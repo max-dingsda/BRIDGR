@@ -4,13 +4,32 @@ import csv
 from pathlib import Path
 
 
-def load_cmdb_rows(path: Path) -> list[dict[str, str]]:
-    if not path.exists():
-        return []
+class CmdbLoadError(RuntimeError):
+    pass
 
-    with path.open("r", encoding="utf-8", newline="") as handle:
-        reader = csv.DictReader(handle)
-        return [dict(row) for row in reader]
+
+def load_cmdb_rows(path: Path, uuid_column: str, name_column: str) -> list[dict[str, str]]:
+    if not path.exists():
+        raise CmdbLoadError(f"CMDB-Datei wurde nicht gefunden: {path}")
+
+    try:
+        with path.open("r", encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            if reader.fieldnames is None:
+                raise CmdbLoadError("CMDB-Datei enthält keine Header-Zeile.")
+
+            missing_columns = [
+                column_name
+                for column_name in (uuid_column, name_column)
+                if column_name not in reader.fieldnames
+            ]
+            if missing_columns:
+                missing_text = ", ".join(missing_columns)
+                raise CmdbLoadError(f"CMDB-Datei enthält Pflichtspalten nicht: {missing_text}")
+
+            return [dict(row) for row in reader]
+    except csv.Error as exc:
+        raise CmdbLoadError(f"CMDB-Datei konnte nicht gelesen werden: {path}") from exc
 
 
 def build_cmdb_option_labels(

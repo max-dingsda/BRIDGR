@@ -5,8 +5,16 @@ from pathlib import Path
 
 from app_config import AppConfig, resolve_input_cmdb_path, resolve_project_path, resolve_runtime_output_path
 from cmdb import load_cmdb_rows
+from constants import (
+    CONFIDENCE_STRONG,
+    DOCUMENT_STATUS_ERROR,
+    DOCUMENT_STATUS_NO_MATCHES,
+    DOCUMENT_STATUS_PROCESSED,
+    DOCUMENT_STATUS_SKIPPED_UNCHANGED,
+    MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL,
+)
 from import_utils import list_process_files
-from knowledge_base import KnowledgeBase, load_knowledge_base
+from knowledge_base import ConfirmedLink, KnowledgeBase, load_knowledge_base
 from llm_client import LlmClientConfig, OpenAICompatibleClient
 from neo4j_utils import Neo4jClient, Neo4jConfig, Neo4jConnectionError
 from run_artifacts import (
@@ -47,7 +55,11 @@ class PipelineRunResult:
 def run_pipeline(config: AppConfig, input_paths: list[Path] | None = None) -> PipelineRunResult:
     output_path, used_output_fallback = resolve_runtime_output_path(config.output_path)
     knowledge_base = load_knowledge_base()
-    cmdb_rows = load_cmdb_rows(resolve_input_cmdb_path(config))
+    cmdb_rows = load_cmdb_rows(
+        resolve_input_cmdb_path(config),
+        config.cmdb_uuid_column,
+        config.cmdb_name_column,
+    )
     import_state = load_import_state(output_path)
     previous_hashes = {document.source_path: document.file_hash for document in import_state.documents}
     llm_client = OpenAICompatibleClient(
@@ -71,7 +83,7 @@ def run_pipeline(config: AppConfig, input_paths: list[Path] | None = None) -> Pi
                 DocumentRunResult(
                     source_path=str(path),
                     file_hash=file_hash,
-                    status="skipped_unchanged",
+                    status=DOCUMENT_STATUS_SKIPPED_UNCHANGED,
                     extracted_process=None,
                     matches=[],
                     review_items=[],
@@ -134,7 +146,7 @@ def run_document(
         return DocumentRunResult(
             source_path=str(source_path),
             file_hash=file_hash,
-            status="error",
+            status=DOCUMENT_STATUS_ERROR,
             extracted_process=None,
             matches=[],
             review_items=[],
@@ -159,7 +171,7 @@ def run_document(
     matches.extend(build_manual_matches(extracted_process.process_name, extracted_process.applications, knowledge_base.confirmed))
     review_items = collect_review_items(extracted_process, matches)
     graph_payload = graph_writer.build_payload(extracted_process, matches)
-    status = "no_matches" if not extracted_process.applications else "processed"
+    status = DOCUMENT_STATUS_NO_MATCHES if not extracted_process.applications else DOCUMENT_STATUS_PROCESSED
     return DocumentRunResult(
         source_path=str(source_path),
         file_hash=file_hash,
@@ -188,7 +200,7 @@ def should_skip_file(
 def build_manual_matches(
     process_name: str,
     extracted_applications: list,
-    confirmed_links: list[dict[str, str]],
+    confirmed_links: list[ConfirmedLink],
 ) -> list[MatchResult]:
     extracted_names = {application.name for application in extracted_applications}
     manual_matches: list[MatchResult] = []
@@ -203,8 +215,8 @@ def build_manual_matches(
                 application_name=application_name,
                 cmdb_id=link.get("cmdb_id"),
                 matched_name=link.get("resolved_to", application_name),
-                confidence="stark",
-                source="knowledge_base_manual",
+                confidence=CONFIDENCE_STRONG,
+                source=MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL,
             )
         )
     return manual_matches

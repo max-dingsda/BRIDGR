@@ -4,6 +4,16 @@ from dataclasses import dataclass
 from difflib import SequenceMatcher
 import re
 
+from constants import (
+    CONFIDENCE_STRONG,
+    CONFIDENCE_WEAK,
+    MATCH_SOURCE_FUZZY,
+    MATCH_SOURCE_KNOWLEDGE_BASE,
+    MATCH_SOURCE_REJECTED,
+    MATCH_SOURCE_UNMATCHED,
+)
+from knowledge_base import ConfirmedLink, RejectedLink
+
 
 @dataclass(slots=True)
 class MatchResult:
@@ -19,8 +29,8 @@ def match_application(
     application_name: str,
     process_name: str,
     cmdb_rows: list[dict[str, str]],
-    confirmed_links: list[dict[str, str]],
-    rejected_links: list[dict[str, str]],
+    confirmed_links: list[ConfirmedLink],
+    rejected_links: list[RejectedLink],
     threshold: float,
     uuid_column: str,
     name_column: str,
@@ -42,8 +52,8 @@ def match_application_candidates(
     application_name: str,
     process_name: str,
     cmdb_rows: list[dict[str, str]],
-    confirmed_links: list[dict[str, str]],
-    rejected_links: list[dict[str, str]],
+    confirmed_links: list[ConfirmedLink],
+    rejected_links: list[RejectedLink],
     threshold: float,
     uuid_column: str,
     name_column: str,
@@ -53,8 +63,8 @@ def match_application_candidates(
             application_name=application_name,
             cmdb_id=link.get("cmdb_id"),
             matched_name=link.get("resolved_to", application_name),
-            confidence="stark",
-            source="knowledge_base",
+            confidence=CONFIDENCE_STRONG,
+            source=MATCH_SOURCE_KNOWLEDGE_BASE,
             score=1.0,
         )
         for link in confirmed_links
@@ -69,8 +79,8 @@ def match_application_candidates(
                 application_name=application_name,
                 cmdb_id=None,
                 matched_name=None,
-                confidence="schwach",
-                source="rejected",
+                confidence=CONFIDENCE_WEAK,
+                source=MATCH_SOURCE_REJECTED,
             )
         ]
 
@@ -91,8 +101,8 @@ def match_application_candidates(
             application_name=application_name,
             cmdb_id=None,
             matched_name=None,
-            confidence="schwach",
-            source="unmatched",
+            confidence=CONFIDENCE_WEAK,
+            source=MATCH_SOURCE_UNMATCHED,
         )
     ]
 
@@ -101,7 +111,7 @@ def build_fuzzy_candidates(
     application_name: str,
     process_name: str,
     cmdb_rows: list[dict[str, str]],
-    rejected_links: list[dict[str, str]],
+    rejected_links: list[RejectedLink],
     threshold: float,
     uuid_column: str,
     name_column: str,
@@ -126,7 +136,7 @@ def build_fuzzy_candidates(
                 cmdb_id=cmdb_id,
                 matched_name=candidate_name,
                 confidence=classify_match_confidence(raw_score, normalized_score),
-                source="fuzzy",
+                source=MATCH_SOURCE_FUZZY,
                 score=score,
             )
         )
@@ -162,10 +172,10 @@ def normalize_name_for_matching(value: str) -> str:
 
 def classify_match_confidence(raw_score: float, normalized_score: float) -> str:
     if raw_score >= 0.95:
-        return "stark"
+        return CONFIDENCE_STRONG
     if raw_score >= 0.85 and normalized_score >= 0.95:
-        return "stark"
-    return "schwach"
+        return CONFIDENCE_STRONG
+    return CONFIDENCE_WEAK
 
 
 def compute_containment_score(left: str, right: str) -> float:
@@ -181,7 +191,7 @@ def compute_containment_score(left: str, right: str) -> float:
 def is_application_rejected(
     process_name: str,
     application_name: str,
-    rejected_links: list[dict[str, str]],
+    rejected_links: list[RejectedLink],
 ) -> bool:
     return any(
         link.get("prozess") == process_name
@@ -195,7 +205,7 @@ def is_candidate_rejected(
     process_name: str,
     application_name: str,
     cmdb_id: str | None,
-    rejected_links: list[dict[str, str]],
+    rejected_links: list[RejectedLink],
 ) -> bool:
     return any(
         link.get("prozess") == process_name

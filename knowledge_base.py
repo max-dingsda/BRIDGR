@@ -5,18 +5,37 @@ from dataclasses import asdict
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, TypedDict
 
 
 DEFAULT_KB_PATH = Path("knowledge_base/kb.json")
 
 
+class ConfirmedLink(TypedDict):
+    prozess: str
+    anwendung_name: str
+    cmdb_id: str
+    resolved_to: str
+    bestaetigt_am: str
+    quelle: str
+
+
+class RejectedLink(TypedDict):
+    prozess: str
+    anwendung_name: str
+    cmdb_id: str | None
+    abgelehnt_am: str
+
+
 @dataclass(slots=True)
 class KnowledgeBase:
-    confirmed: list[dict[str, Any]]
-    rejected: list[dict[str, Any]]
+    confirmed: list[ConfirmedLink]
+    rejected: list[RejectedLink]
     disambiguation: list[dict[str, Any]]
     process_identity: list[dict[str, Any]]
+
+
+KnowledgeBaseSection = Literal["confirmed", "rejected", "disambiguation", "process_identity"]
 
 
 def load_knowledge_base(path: Path | None = None) -> KnowledgeBase:
@@ -129,4 +148,16 @@ def reject_link(
         rejected=updated_rejected,
         disambiguation=knowledge_base.disambiguation,
         process_identity=knowledge_base.process_identity,
+    )
+
+
+def clear_knowledge_base_sections(
+    knowledge_base: KnowledgeBase,
+    sections: set[KnowledgeBaseSection],
+) -> KnowledgeBase:
+    return KnowledgeBase(
+        confirmed=[] if "confirmed" in sections else knowledge_base.confirmed,
+        rejected=[] if "rejected" in sections else knowledge_base.rejected,
+        disambiguation=[] if "disambiguation" in sections else knowledge_base.disambiguation,
+        process_identity=[] if "process_identity" in sections else knowledge_base.process_identity,
     )

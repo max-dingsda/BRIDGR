@@ -1,4 +1,10 @@
-from knowledge_base import KnowledgeBase, confirm_link, reject_link
+import json
+from pathlib import Path
+
+import pytest
+
+from knowledge_base import KnowledgeBase, clear_knowledge_base_sections, confirm_link, reject_link
+from knowledge_base import load_knowledge_base
 
 
 def test_confirm_link_adds_confirmed_entry_and_removes_rejection() -> None:
@@ -81,3 +87,27 @@ def test_reject_link_can_reject_single_candidate_without_removing_other_confirma
     assert len(updated.confirmed) == 1
     assert updated.confirmed[0]["cmdb_id"] == "cmdb-2"
     assert updated.rejected[0]["cmdb_id"] == "cmdb-1"
+
+
+def test_load_knowledge_base_raises_for_corrupt_json(tmp_path: Path) -> None:
+    kb_path = tmp_path / "kb.json"
+    kb_path.write_text("{broken", encoding="utf-8")
+
+    with pytest.raises(json.JSONDecodeError):
+        load_knowledge_base(kb_path)
+
+
+def test_clear_knowledge_base_sections_resets_only_selected_parts() -> None:
+    knowledge_base = KnowledgeBase(
+        confirmed=[{"prozess": "A", "anwendung_name": "App", "cmdb_id": "1", "resolved_to": "App", "bestaetigt_am": "2026-05-25", "quelle": "manuell"}],
+        rejected=[{"prozess": "A", "anwendung_name": "App", "cmdb_id": "1", "abgelehnt_am": "2026-05-25"}],
+        disambiguation=[{"name": "Adobe"}],
+        process_identity=[{"name_a": "A", "name_b": "B"}],
+    )
+
+    cleared = clear_knowledge_base_sections(knowledge_base, {"confirmed", "rejected"})
+
+    assert cleared.confirmed == []
+    assert cleared.rejected == []
+    assert cleared.disambiguation == [{"name": "Adobe"}]
+    assert cleared.process_identity == [{"name_a": "A", "name_b": "B"}]

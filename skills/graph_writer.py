@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from constants import CONFIDENCE_STRONG, MATCH_SOURCE_KNOWLEDGE_BASE, MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL
 from neo4j_utils import Neo4jClient
 from skills.extract.extract_base import ExtractedProcess
 from skills.match import MatchResult
@@ -69,7 +70,10 @@ class GraphWriter:
         for match in payload.matches:
             if not match.cmdb_id:
                 continue
-            if match.confidence != "stark" and match.source not in {"knowledge_base", "knowledge_base_manual"}:
+            if match.confidence != CONFIDENCE_STRONG and match.source not in {
+                MATCH_SOURCE_KNOWLEDGE_BASE,
+                MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL,
+            }:
                 continue
             client.execute_write(
                 """

@@ -1,5 +1,13 @@
 from __future__ import annotations
 
+from constants import (
+    CONFIDENCE_WEAK,
+    DOCUMENT_STATUS_ERROR,
+    DOCUMENT_STATUS_NO_MATCHES,
+    DOCUMENT_STATUS_PROCESSED,
+    DOCUMENT_STATUS_SKIPPED_UNCHANGED,
+    MATCH_SOURCE_REJECTED,
+)
 from skills.match import normalize_name_for_matching
 
 
@@ -8,10 +16,10 @@ def summarize_run(latest_run: dict) -> dict[str, int | str]:
     return {
         "run_mode": str(latest_run.get("run_mode", "-")),
         "documents": len(documents),
-        "processed": sum(1 for document in documents if document.get("status") == "processed"),
-        "skipped": sum(1 for document in documents if document.get("status") == "skipped_unchanged"),
-        "no_matches": sum(1 for document in documents if document.get("status") == "no_matches"),
-        "errors": sum(1 for document in documents if document.get("status") == "error"),
+        "processed": sum(1 for document in documents if document.get("status") == DOCUMENT_STATUS_PROCESSED),
+        "skipped": sum(1 for document in documents if document.get("status") == DOCUMENT_STATUS_SKIPPED_UNCHANGED),
+        "no_matches": sum(1 for document in documents if document.get("status") == DOCUMENT_STATUS_NO_MATCHES),
+        "errors": sum(1 for document in documents if document.get("status") == DOCUMENT_STATUS_ERROR),
     }
 
 
@@ -48,9 +56,9 @@ def build_review_rows(documents: list[dict]) -> list[dict]:
     for document in documents:
         extracted_process = document.get("extracted_process") or {}
         for index, match in enumerate(document.get("matches", [])):
-            if match.get("source") == "rejected":
+            if match.get("source") == MATCH_SOURCE_REJECTED:
                 continue
-            if match.get("confidence") != "schwach" and match.get("cmdb_id"):
+            if match.get("confidence") != CONFIDENCE_WEAK and match.get("cmdb_id"):
                 continue
             review_rows.append(
                 {

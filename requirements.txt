@@ -1,2 +1,3 @@
 streamlit>=1.45,<1.57
 neo4j>=5.0,<6.0
+requests>=2.31,<3.0

@@ -10,6 +10,7 @@ requires-python = ">=3.10"
 dependencies = [
     "streamlit>=1.45,<2.0",
     "neo4j>=5.0,<6.0",
+    "requests>=2.31,<3.0",
 ]
 
 [project.optional-dependencies]
@@ -25,6 +26,7 @@ py-modules = [
     "app",
     "app_config",
     "cmdb",
+    "constants",
     "env_loader",
     "knowledge_base",
     "llm_client",

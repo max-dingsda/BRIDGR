@@ -1,0 +1,135 @@
+import json
+
+import pytest
+import requests
+
+from llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleClient, _extract_json_object
+
+
+class FakeResponse:
+    def __init__(self, payload=None, status_code: int = 200, text: str = "") -> None:
+        self._payload = payload
+        self.status_code = status_code
+        self.text = text
+
+    def raise_for_status(self) -> None:
+        if self.status_code >= 400:
+            raise requests.HTTPError(response=self)
+
+    def json(self):
+        if isinstance(self._payload, Exception):
+            raise self._payload
+        return self._payload
+
+
+class FakeSession:
+    def __init__(self, responses=None, exception: Exception | None = None) -> None:
+        self.responses = list(responses or [])
+        self.exception = exception
+        self.calls = []
+
+    def request(self, **kwargs):
+        self.calls.append(kwargs)
+        if self.exception is not None:
+            raise self.exception
+        return self.responses.pop(0)
+
+
+def build_client(monkeypatch: pytest.MonkeyPatch, session: FakeSession) -> OpenAICompatibleClient:
+    monkeypatch.setattr("llm_client.requests.Session", lambda: session)
+    return OpenAICompatibleClient(
+        LlmClientConfig(
+            base_url="https://example.test/v1",
+            model="gpt-test",
+            api_key_env="",
+            timeout_seconds=15,
+        )
+    )
+
+
+def test_generate_text_uses_session_request(monkeypatch: pytest.MonkeyPatch) -> None:
+    session = FakeSession(
+        responses=[FakeResponse(payload={"choices": [{"message": {"content": "Hallo"}}]})]
+    )
+    client = build_client(monkeypatch, session)
+
+    result = client.generate_text("system", "user")
+
+    assert result == "Hallo"
+    assert session.calls == [
+        {
+            "method": "POST",
+            "url": "https://example.test/v1/chat/completions",
+            "headers": {"Content-Type": "application/json"},
+            "json": {
+                "model": "gpt-test",
+                "messages": [
+                    {"role": "system", "content": "system"},
+                    {"role": "user", "content": "user"},
+                ],
+            },
+            "timeout": 15,
+        }
+    ]
+
+
+def test_list_models_returns_model_ids(monkeypatch: pytest.MonkeyPatch) -> None:
+    session = FakeSession(responses=[FakeResponse(payload={"data": [{"id": "gpt-a"}, {"id": "gpt-b"}]})])
+    client = build_client(monkeypatch, session)
+
+    result = client.list_models()
+
+    assert result == ["gpt-a", "gpt-b"]
+
+
+def test_request_raises_helpful_error_for_http_failures(monkeypatch: pytest.MonkeyPatch) -> None:
+    session = FakeSession(responses=[FakeResponse(payload={}, status_code=401, text="unauthorized")])
+    client = build_client(monkeypatch, session)
+
+    with pytest.raises(LlmClientError, match="status 401: unauthorized"):
+        client.list_models()
+
+
+def test_request_raises_helpful_error_for_transport_failures(monkeypatch: pytest.MonkeyPatch) -> None:
+    session = FakeSession(exception=requests.ConnectionError("boom"))
+    client = build_client(monkeypatch, session)
+
+    with pytest.raises(LlmClientError, match="could not be reached"):
+        client.list_models()
+
+
+def test_request_rejects_invalid_json_response(monkeypatch: pytest.MonkeyPatch) -> None:
+    session = FakeSession(responses=[FakeResponse(payload=json.JSONDecodeError("bad", "x", 0))])
+    client = build_client(monkeypatch, session)
+
+    with pytest.raises(LlmClientError, match="not valid JSON"):
+        client.list_models()
+
+
+def test_generate_json_extracts_json_object_from_markdown_wrapped_response(monkeypatch: pytest.MonkeyPatch) -> None:
+    session = FakeSession(
+        responses=[
+            FakeResponse(
+                payload={
+                    "choices": [
+                        {
+                            "message": {
+                                "content": '```json\n{"prozess":"A","anwendungen":[]}\n```'
+                            }
+                        }
+                    ]
+                }
+            )
+        ]
+    )
+    client = build_client(monkeypatch, session)
+
+    result = client.generate_json("system", "user")
+
+    assert result == {"prozess": "A", "anwendungen": []}
+
+
+def test_extract_json_object_handles_nested_json_without_regex() -> None:
+    extracted = _extract_json_object('prefix {"outer":{"inner":[1,2,3]}} suffix')
+
+    assert extracted == '{"outer":{"inner":[1,2,3]}}'
