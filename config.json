@@ -1,0 +1,15 @@
+{
+  "llm_base_url": "https://api.openai.com/v1",
+  "llm_model": "gpt-5.4-nano",
+  "llm_api_key_env": "OPENAI_API_KEY",
+  "llm_context_window": 131072,
+  "neo4j_url": "bolt://localhost:7687",
+  "neo4j_user": "neo4j",
+  "fuzzy_threshold": 0.85,
+  "cmdb_uuid_column": "app_id",
+  "cmdb_name_column": "application_name",
+  "process_input_path": "Input",
+  "cmdb_path": "data/cmdb.csv",
+  "output_path": "Output",
+  "last_run_mode": "delta"
+}

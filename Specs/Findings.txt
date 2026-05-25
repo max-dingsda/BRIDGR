@@ -1,0 +1,2 @@
+1. Die Tabs sollten nur Ihre Namen enthalten, nicht die Bezeichnung "Tab1" etc.
+2. In Tab3 sollten die auswählbaren Pfade zusätzlich zur manuellen Eingabe einen klickbaren  Auswahldialog ermöglichen

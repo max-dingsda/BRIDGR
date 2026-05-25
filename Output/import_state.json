@@ -1,0 +1,19 @@
+{
+  "documents": [
+    {
+      "source_path": "C:\\dev\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml",
+      "file_hash": "903817dbe1e49fd03bbd57c83d595e3ed4853b2cf4f542cbbfd5e4136c8f7019",
+      "process_id": ""
+    },
+    {
+      "source_path": "C:\\dev\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml",
+      "file_hash": "3fa404b4fe7dd61e706187522097669db6a737f2ce61b8ef612f59bcde09b9bd",
+      "process_id": ""
+    },
+    {
+      "source_path": "C:\\dev\\BRIDGR\\Input\\omg bpmn example1.xml",
+      "file_hash": "dbf4b7d3abfbd10c7bc89e4d22ff4bb3af52291c395fea4e870b79fa11caa2ac",
+      "process_id": ""
+    }
+  ]
+}
