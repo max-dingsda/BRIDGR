@@ -70,6 +70,7 @@ def run_pipeline(config: AppConfig, input_paths: list[Path] | None = None) -> Pi
             base_url=config.llm_base_url,
             model=config.llm_model,
             api_key_env=config.llm_api_key_env,
+            timeout_seconds=config.llm_timeout_seconds,
         )
     )
     graph_writer = GraphWriter()

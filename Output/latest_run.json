@@ -1,16 +1,16 @@
 {
   "run_mode": "initial",
-  "output_path": "C:\\dev\\BRIDGR\\Output",
+  "output_path": "F:\\workspace\\BRIDGR\\Output",
   "used_output_fallback": false,
   "documents": [
     {
-      "source_path": "C:\\dev\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml",
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml",
       "file_hash": "903817dbe1e49fd03bbd57c83d595e3ed4853b2cf4f542cbbfd5e4136c8f7019",
       "status": "processed",
       "extracted_process": {
         "process_name": "Incident Management",
         "process_id": "WFP-1-1",
-        "org_unit": "",
+        "org_unit": null,
         "follows_after": [],
         "raw_applications": [
           {
@@ -32,7 +32,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "C:\\dev\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml"
       },
       "matches": [
         {
@@ -57,7 +57,7 @@
         "process": {
           "process_name": "Incident Management",
           "process_id": "WFP-1-1",
-          "org_unit": "",
+          "org_unit": null,
           "follows_after": [],
           "raw_applications": [
             {
@@ -79,7 +79,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "C:\\dev\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml"
         },
         "matches": [
           {
@@ -103,13 +103,13 @@
       "error_message": null
     },
     {
-      "source_path": "C:\\dev\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml",
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml",
       "file_hash": "3fa404b4fe7dd61e706187522097669db6a737f2ce61b8ef612f59bcde09b9bd",
       "status": "processed",
       "extracted_process": {
         "process_name": "Seller process",
         "process_id": "sellerProcess",
-        "org_unit": "",
+        "org_unit": "N/A",
         "follows_after": [],
         "raw_applications": [
           {
@@ -131,7 +131,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "C:\\dev\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml"
       },
       "matches": [
         {
@@ -156,7 +156,7 @@
         "process": {
           "process_name": "Seller process",
           "process_id": "sellerProcess",
-          "org_unit": "",
+          "org_unit": "N/A",
           "follows_after": [],
           "raw_applications": [
             {
@@ -178,7 +178,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "C:\\dev\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml"
         },
         "matches": [
           {
@@ -202,7 +202,7 @@
       "error_message": null
     },
     {
-      "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt",
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt",
       "file_hash": "8e723080256da6574fd6add8f32b45b9c7991584a28979c4824fe70ba0bc25ed",
       "status": "processed",
       "extracted_process": {
@@ -222,10 +222,6 @@
           {
             "name": "SAP FI",
             "confidence": "stark"
-          },
-          {
-            "name": "Mail System",
-            "confidence": "schwach"
           }
         ],
         "applications": [
@@ -240,13 +236,9 @@
           {
             "name": "SAP FI",
             "confidence": "stark"
-          },
-          {
-            "name": "Mail System",
-            "confidence": "schwach"
           }
         ],
-        "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt"
       },
       "matches": [
         {
@@ -278,8 +270,8 @@
           "cmdb_id": "bee0ede7-4331-442e-9427-94adf46413da",
           "matched_name": "Mail Interface",
           "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "source": "knowledge_base_manual",
+          "score": 0.0
         }
       ],
       "review_items": [],
@@ -301,10 +293,6 @@
             {
               "name": "SAP FI",
               "confidence": "stark"
-            },
-            {
-              "name": "Mail System",
-              "confidence": "schwach"
             }
           ],
           "applications": [
@@ -319,13 +307,9 @@
             {
               "name": "SAP FI",
               "confidence": "stark"
-            },
-            {
-              "name": "Mail System",
-              "confidence": "schwach"
             }
           ],
-          "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt"
         },
         "matches": [
           {
@@ -357,15 +341,15 @@
             "cmdb_id": "bee0ede7-4331-442e-9427-94adf46413da",
             "matched_name": "Mail Interface",
             "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "source": "knowledge_base_manual",
+            "score": 0.0
           }
         ]
       },
       "error_message": null
     },
     {
-      "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx",
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx",
       "file_hash": "5b104886bdcf7e14832b5b3f646256f5f41b4b8d115fe8a4eb28febbcf58e59c",
       "status": "processed",
       "extracted_process": {
@@ -401,7 +385,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx"
       },
       "matches": [
         {
@@ -464,7 +448,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx"
         },
         "matches": [
           {
@@ -496,7 +480,7 @@
       "error_message": null
     },
     {
-      "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf",
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf",
       "file_hash": "1677e512c8538a8e778c5d12d4ca2d0e92d5ce4ef9b037bc4da6d764e4ddcdd8",
       "status": "processed",
       "extracted_process": {
@@ -548,7 +532,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf"
       },
       "matches": [
         {
@@ -643,7 +627,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf"
         },
         "matches": [
           {

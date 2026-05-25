@@ -17,7 +17,7 @@ class LlmClientConfig:
     base_url: str
     model: str
     api_key_env: str = ""
-    timeout_seconds: int = 60
+    timeout_seconds: int = 300
 
 
 class OpenAICompatibleClient:

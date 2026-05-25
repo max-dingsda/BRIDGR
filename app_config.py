@@ -21,6 +21,7 @@ class AppConfig:
     llm_model: str = ""
     llm_api_key_env: str = ""
     llm_context_window: int = 131072
+    llm_timeout_seconds: int = 300
     neo4j_url: str = DEFAULT_NEO4J_URL
     neo4j_user: str = DEFAULT_NEO4J_USER
     neo4j_password: str = ""

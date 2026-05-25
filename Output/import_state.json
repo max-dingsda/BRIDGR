@@ -1,27 +1,27 @@
 {
   "documents": [
     {
-      "source_path": "C:\\dev\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml",
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml",
       "file_hash": "903817dbe1e49fd03bbd57c83d595e3ed4853b2cf4f542cbbfd5e4136c8f7019",
       "process_id": "WFP-1-1"
     },
     {
-      "source_path": "C:\\dev\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml",
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml",
       "file_hash": "3fa404b4fe7dd61e706187522097669db6a737f2ce61b8ef612f59bcde09b9bd",
       "process_id": "sellerProcess"
     },
     {
-      "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt",
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt",
       "file_hash": "8e723080256da6574fd6add8f32b45b9c7991584a28979c4824fe70ba0bc25ed",
       "process_id": "Prozess_Bestellabwicklung"
     },
     {
-      "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx",
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx",
       "file_hash": "5b104886bdcf7e14832b5b3f646256f5f41b4b8d115fe8a4eb28febbcf58e59c",
       "process_id": "Prozess_Lieferantenmanagement"
     },
     {
-      "source_path": "C:\\dev\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf",
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf",
       "file_hash": "1677e512c8538a8e778c5d12d4ca2d0e92d5ce4ef9b037bc4da6d764e4ddcdd8",
       "process_id": "Prozess_Reklamationsbearbeitung"
     }

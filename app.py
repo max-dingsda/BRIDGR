@@ -192,6 +192,7 @@ def run_query_chat_turn(question: str, config: AppConfig) -> None:
                 base_url=config.llm_base_url,
                 model=config.llm_model,
                 api_key_env=config.llm_api_key_env,
+                timeout_seconds=config.llm_timeout_seconds,
             )
         )
         neo4j_client = get_session_neo4j_client(config)
