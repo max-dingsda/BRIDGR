@@ -9,6 +9,7 @@ description = "BRIDGR scaffold for BPMN to EA knowledge graph processing."
 requires-python = ">=3.10"
 dependencies = [
     "streamlit>=1.45,<2.0",
+    "neo4j>=5.0,<6.0",
 ]
 
 [project.optional-dependencies]
@@ -28,7 +29,9 @@ py-modules = [
     "knowledge_base",
     "llm_client",
     "main",
+    "neo4j_utils",
     "pipeline",
+    "query_layer",
     "run_artifacts",
     "ui_run_view",
 ]

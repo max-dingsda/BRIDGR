@@ -1,36 +1,200 @@
 {
-  "run_mode": "delta",
+  "run_mode": "initial",
   "output_path": "C:\\dev\\BRIDGR\\Output",
   "used_output_fallback": false,
   "documents": [
     {
       "source_path": "C:\\dev\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml",
       "file_hash": "903817dbe1e49fd03bbd57c83d595e3ed4853b2cf4f542cbbfd5e4136c8f7019",
-      "status": "skipped_unchanged",
-      "extracted_process": null,
-      "matches": [],
-      "review_items": [],
-      "graph_payload": null,
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Incident Management",
+        "process_id": "WFP-1-1",
+        "org_unit": "",
+        "follows_after": [],
+        "applications": [
+          {
+            "name": "Trouble Ticket System",
+            "confidence": "stark"
+          },
+          {
+            "name": "com.camunda.examples.incidentmanagement.ProductBacklog (addTicket)",
+            "confidence": "stark"
+          },
+          {
+            "name": "com.camunda.examples.incidentmanagement.Mail (sendMailToIssueReporterOperation)",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "C:\\dev\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml"
+      },
+      "matches": [
+        {
+          "application_name": "Trouble Ticket System",
+          "cmdb_id": "0cbf0519-9d73-4451-b6f2-6f1a3715cd3e",
+          "matched_name": "Trouble Ticket System",
+          "confidence": "stark",
+          "source": "fuzzy"
+        },
+        {
+          "application_name": "com.camunda.examples.incidentmanagement.ProductBacklog (addTicket)",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched"
+        },
+        {
+          "application_name": "com.camunda.examples.incidentmanagement.Mail (sendMailToIssueReporterOperation)",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched"
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Incident Management",
+          "application_name": "com.camunda.examples.incidentmanagement.ProductBacklog (addTicket)",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Incident Management",
+          "application_name": "com.camunda.examples.incidentmanagement.Mail (sendMailToIssueReporterOperation)",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Incident Management",
+          "process_id": "WFP-1-1",
+          "org_unit": "",
+          "follows_after": [],
+          "applications": [
+            {
+              "name": "Trouble Ticket System",
+              "confidence": "stark"
+            },
+            {
+              "name": "com.camunda.examples.incidentmanagement.ProductBacklog (addTicket)",
+              "confidence": "stark"
+            },
+            {
+              "name": "com.camunda.examples.incidentmanagement.Mail (sendMailToIssueReporterOperation)",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "C:\\dev\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml"
+        },
+        "matches": [
+          {
+            "application_name": "Trouble Ticket System",
+            "cmdb_id": "0cbf0519-9d73-4451-b6f2-6f1a3715cd3e",
+            "matched_name": "Trouble Ticket System",
+            "confidence": "stark",
+            "source": "fuzzy"
+          },
+          {
+            "application_name": "com.camunda.examples.incidentmanagement.ProductBacklog (addTicket)",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched"
+          },
+          {
+            "application_name": "com.camunda.examples.incidentmanagement.Mail (sendMailToIssueReporterOperation)",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched"
+          }
+        ]
+      },
       "error_message": null
     },
     {
       "source_path": "C:\\dev\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml",
       "file_hash": "3fa404b4fe7dd61e706187522097669db6a737f2ce61b8ef612f59bcde09b9bd",
-      "status": "skipped_unchanged",
-      "extracted_process": null,
-      "matches": [],
-      "review_items": [],
-      "graph_payload": null,
-      "error_message": null
-    },
-    {
-      "source_path": "C:\\dev\\BRIDGR\\Input\\omg bpmn example1.xml",
-      "file_hash": "dbf4b7d3abfbd10c7bc89e4d22ff4bb3af52291c395fea4e870b79fa11caa2ac",
-      "status": "skipped_unchanged",
-      "extracted_process": null,
-      "matches": [],
-      "review_items": [],
-      "graph_payload": null,
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Seller process",
+        "process_id": "sellerProcess",
+        "org_unit": "Seller",
+        "follows_after": [],
+        "applications": [
+          {
+            "name": "sellerServiceInterface (requestQuoteOp, orderOp)",
+            "confidence": "stark"
+          },
+          {
+            "name": "shipperServiceInterface (requestShippingOp)",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "C:\\dev\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml"
+      },
+      "matches": [
+        {
+          "application_name": "sellerServiceInterface (requestQuoteOp, orderOp)",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched"
+        },
+        {
+          "application_name": "shipperServiceInterface (requestShippingOp)",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched"
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Seller process",
+          "application_name": "sellerServiceInterface (requestQuoteOp, orderOp)",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Seller process",
+          "application_name": "shipperServiceInterface (requestShippingOp)",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Seller process",
+          "process_id": "sellerProcess",
+          "org_unit": "Seller",
+          "follows_after": [],
+          "applications": [
+            {
+              "name": "sellerServiceInterface (requestQuoteOp, orderOp)",
+              "confidence": "stark"
+            },
+            {
+              "name": "shipperServiceInterface (requestShippingOp)",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "C:\\dev\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml"
+        },
+        "matches": [
+          {
+            "application_name": "sellerServiceInterface (requestQuoteOp, orderOp)",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched"
+          },
+          {
+            "application_name": "shipperServiceInterface (requestShippingOp)",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched"
+          }
+        ]
+      },
       "error_message": null
     }
   ]

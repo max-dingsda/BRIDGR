@@ -80,16 +80,14 @@ def test_run_pipeline_writes_artifacts_and_skips_unchanged_delta_files(tmp_path:
     input_dir = tmp_path / "Input"
     output_dir = tmp_path / "Output"
     prompts_dir = tmp_path / "prompts"
-    data_dir = tmp_path / "data"
     input_dir.mkdir()
     output_dir.mkdir()
     prompts_dir.mkdir()
-    data_dir.mkdir()
 
     bpmn_path = input_dir / "process.bpmn"
     bpmn_path.write_text("<definitions><process id='proc_001' /></definitions>", encoding="utf-8")
+    (input_dir / "cmdb.csv").write_text("app_id,application_name\ncmdb-1,SAP Sales\n", encoding="utf-8")
     (prompts_dir / "extract_bpmn.md").write_text("prompt", encoding="utf-8")
-    (data_dir / "cmdb.csv").write_text("app_id,application_name\ncmdb-1,SAP Sales\n", encoding="utf-8")
 
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr("app_config.PROJECT_ROOT", tmp_path)
@@ -110,13 +108,25 @@ def test_run_pipeline_writes_artifacts_and_skips_unchanged_delta_files(tmp_path:
                 "anwendungen": [{"name": "SAP Sales", "konfidenz": "stark"}],
             }
 
+    class FakeNeo4jClient:
+        def close(self) -> None:
+            return None
+
+        def execute_write(self, query: str, parameters=None):
+            return []
+
+        def ensure_constraints(self) -> None:
+            return None
+
     monkeypatch.setattr("pipeline.OpenAICompatibleClient", PipelineLlmClient)
+    monkeypatch.setattr("pipeline.build_neo4j_client", lambda config: FakeNeo4jClient())
 
     config = AppConfig(
         llm_base_url="http://localhost:11434/v1",
         llm_model="test-model",
-        process_input_path="Input",
-        cmdb_path="data/cmdb.csv",
+        neo4j_password="test-password",
+        input_path="Input",
+        cmdb_filename="cmdb.csv",
         output_path="Output",
         last_run_mode="delta",
     )

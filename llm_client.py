@@ -29,24 +29,35 @@ class OpenAICompatibleClient:
         return [model["id"] for model in models if "id" in model]
 
     def generate_json(self, system_prompt: str, user_prompt: str) -> dict[str, Any]:
+        content = self._generate_content(system_prompt, user_prompt, {"type": "json_object"})
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError as exc:
+            raise LlmClientError("LLM response content was not valid JSON.") from exc
+
+    def generate_text(self, system_prompt: str, user_prompt: str) -> str:
+        return self._generate_content(system_prompt, user_prompt)
+
+    def _generate_content(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        response_format: dict[str, Any] | None = None,
+    ) -> str:
         payload = {
             "model": self._config.model,
-            "response_format": {"type": "json_object"},
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
         }
+        if response_format is not None:
+            payload["response_format"] = response_format
         response = self._request("POST", "/chat/completions", payload)
         try:
-            content = response["choices"][0]["message"]["content"]
+            return response["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError) as exc:
             raise LlmClientError("LLM response did not contain a chat completion message.") from exc
-
-        try:
-            return json.loads(content)
-        except json.JSONDecodeError as exc:
-            raise LlmClientError("LLM response content was not valid JSON.") from exc
 
     def _request(self, method: str, path: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
         base_url = self._config.base_url.rstrip("/")
@@ -80,4 +91,3 @@ class OpenAICompatibleClient:
         if not self._config.api_key_env:
             return ""
         return os.getenv(self._config.api_key_env, "")
-

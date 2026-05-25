@@ -4,6 +4,7 @@ from pathlib import Path
 
 
 SUPPORTED_PROCESS_SUFFIXES = {".bpmn", ".xml"}
+SUPPORTED_CMDB_SUFFIXES = {".csv"}
 
 
 def list_process_files(root_path: Path) -> list[Path]:
@@ -23,3 +24,13 @@ def save_uploaded_file(target_path: Path, content: bytes) -> None:
 
 def sanitize_uploaded_name(filename: str) -> str:
     return Path(filename).name
+
+
+def list_cmdb_files(root_path: Path) -> list[Path]:
+    if not root_path.exists():
+        return []
+    return sorted(
+        path
+        for path in root_path.rglob("*")
+        if path.is_file() and path.suffix.lower() in SUPPORTED_CMDB_SUFFIXES
+    )

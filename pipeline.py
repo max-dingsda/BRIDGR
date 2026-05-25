@@ -3,11 +3,12 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from app_config import AppConfig, resolve_project_path, resolve_runtime_output_path
+from app_config import AppConfig, resolve_input_cmdb_path, resolve_project_path, resolve_runtime_output_path
 from cmdb import load_cmdb_rows
 from import_utils import list_process_files
 from knowledge_base import KnowledgeBase, load_knowledge_base
 from llm_client import LlmClientConfig, OpenAICompatibleClient
+from neo4j_utils import Neo4jClient, Neo4jConfig, Neo4jConnectionError
 from run_artifacts import (
     DocumentState,
     ImportState,
@@ -46,7 +47,7 @@ class PipelineRunResult:
 def run_pipeline(config: AppConfig, input_paths: list[Path] | None = None) -> PipelineRunResult:
     output_path, used_output_fallback = resolve_runtime_output_path(config.output_path)
     knowledge_base = load_knowledge_base()
-    cmdb_rows = load_cmdb_rows(resolve_project_path(config.cmdb_path))
+    cmdb_rows = load_cmdb_rows(resolve_input_cmdb_path(config))
     import_state = load_import_state(output_path)
     previous_hashes = {document.source_path: document.file_hash for document in import_state.documents}
     llm_client = OpenAICompatibleClient(
@@ -58,8 +59,9 @@ def run_pipeline(config: AppConfig, input_paths: list[Path] | None = None) -> Pi
     )
     extractor = BpmnExtractor(prompt_path=resolve_project_path("prompts/extract_bpmn.md"), llm_client=llm_client)
     graph_writer = GraphWriter()
+    neo4j_client = build_neo4j_client(config)
 
-    candidate_paths = input_paths or list_bpmn_files(resolve_project_path(config.process_input_path))
+    candidate_paths = input_paths or list_bpmn_files(resolve_project_path(config.input_path))
     document_results = []
     next_state_documents: list[DocumentState] = []
     for path in candidate_paths:
@@ -83,6 +85,8 @@ def run_pipeline(config: AppConfig, input_paths: list[Path] | None = None) -> Pi
 
         document_result = run_document(path, file_hash, extractor, config, knowledge_base, cmdb_rows, graph_writer)
         document_results.append(document_result)
+        if document_result.graph_payload is not None:
+            graph_writer.write_payload(neo4j_client, document_result.graph_payload)
         next_state_documents.append(
             DocumentState(
                 source_path=str(path),
@@ -107,6 +111,7 @@ def run_pipeline(config: AppConfig, input_paths: list[Path] | None = None) -> Pi
         },
         output_path,
     )
+    neo4j_client.close()
     return run_result
 
 
@@ -202,3 +207,16 @@ def build_manual_matches(
             )
         )
     return manual_matches
+
+
+def build_neo4j_client(config: AppConfig) -> Neo4jClient:
+    if not config.neo4j_password:
+        raise Neo4jConnectionError("Neo4j password is not configured.")
+    return Neo4jClient(
+        Neo4jConfig(
+            url=config.neo4j_url,
+            user=config.neo4j_user,
+            password=config.neo4j_password,
+            database=config.neo4j_database,
+        )
+    )

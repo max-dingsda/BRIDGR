@@ -20,14 +20,16 @@ Das Projekt ist noch im Aufbau, hat aber bereits ein erstes funktionsfaehiges Sc
 - OpenAI-kompatibler LLM-Client
 - BPMN-Extraktion ueber Prompt + JSON-Output
 - CMDB-Matching mit KB-First-Logik und Fuzzy Matching
+- Neo4j-Write-Pfad fuer Prozesse, Orgeinheiten und Anwendungen
+- minimaler Query-Layer mit LLM->Cypher->Neo4j
 - persistente Knowledge Base
 - Streamlit-UI mit 3 Tabs
 - persistente Laufartefakte in `Output/`
 - Review-Aktionen fuer `Bestaetigen`, `Ablehnen`, `Korrigieren` und `manuellen Link anlegen`
 
 Noch nicht umgesetzt:
-- Neo4j-Schreiblogik als echter Datenbank-Write
-- Query-Layer fuer Tab 1
+- separate Read-only-DB-Identitaet fuer den Query-Layer
+- robustere Query-Generierung und Antwortformulierung
 - vollstaendige Laufmodus- und Importhistorienlogik gemaess spaeterem Zielausbau
 
 ## Projektstruktur
@@ -64,8 +66,12 @@ Wichtige Felder:
 - `llm_base_url`: OpenAI-kompatibler Endpoint
 - `llm_model`: zu verwendendes Modell
 - `llm_api_key_env`: Name der Umgebungsvariable fuer den API-Key
-- `process_input_path`: Standardpfad fuer BPMN-Dateien
-- `cmdb_path`: Pfad zur CMDB-Datei
+- `neo4j_url`: Neo4j-Bolt-URL
+- `neo4j_user`: Neo4j-Benutzer
+- `neo4j_password`: Neo4j-Passwort
+- `neo4j_database`: optionaler Neo4j-Datenbankname, fuer Aura typischerweise die Instanz-ID
+- `input_path`: gemeinsamer Eingabeordner fuer BPMN/XML und CMDB-Dateien
+- `cmdb_filename`: aktive CMDB-Datei innerhalb des Eingabeordners
 - `output_path`: Ziel fuer Laufartefakte
 
 Beispiel:
@@ -75,8 +81,11 @@ Beispiel:
   "llm_base_url": "http://localhost:11434/v1",
   "llm_model": "",
   "llm_api_key_env": "OPENAI_API_KEY",
-  "process_input_path": "Input",
-  "cmdb_path": "data/cmdb.csv",
+  "neo4j_url": "bolt://localhost:7687",
+  "neo4j_user": "neo4j",
+  "neo4j_password": "",
+  "input_path": "Input",
+  "cmdb_filename": "cmdb.csv",
   "output_path": "Output"
 }
 ```
@@ -91,6 +100,12 @@ Unterstuetzte Pfade fuer `.env`-Dateien:
 
 Aktuell erwartet das Projekt fuer Webprovider typischerweise:
 - `OPENAI_API_KEY`
+- `NEO4J_URI`
+- `NEO4J_USERNAME`
+- `NEO4J_PASSWORD`
+- `NEO4J_DATABASE`
+
+Fuer Neo4j-Aura koennen die Zugangsdaten direkt ueber `.env` kommen. Wenn in `config.json` noch die lokalen Defaults (`bolt://localhost:7687`, `neo4j`) stehen, werden die gesetzten `NEO4J_*`-Variablen automatisch bevorzugt. Das Passwort aus `NEO4J_PASSWORD` wird in der UI verwendet, aber beim Speichern nicht stillschweigend nach `config.json` zurueckgeschrieben.
 
 Eine Vorlage liegt in:
 - `Specs/.env.example`
@@ -136,7 +151,12 @@ python main.py --file Input\beispiel.bpmn
 
 ### Tab 1 - Kommunikation
 
-Aktuell nur Platzhalter fuer den spaeteren Query-Layer.
+Aktuell verfuegbar:
+- natuerliche Frage eingeben
+- Cypher per LLM generieren
+- Read-only-Validierung auf verbotene Write-Tokens
+- Query gegen Neo4j ausfuehren
+- generierten Cypher und Ergebnis anzeigen
 
 ### Tab 2 - Link Editing
 
@@ -156,7 +176,9 @@ Aktuell verfuegbar:
 - LLM-Endpoint konfigurieren
 - Modellnamen setzen
 - API-Key-Umgebungsvariable setzen
-- Input-, CMDB- und Output-Pfade setzen
+- Neo4j-URL, User und Passwort setzen
+- gemeinsamen Input- und Output-Pfad setzen
+- aktive CMDB-Datei innerhalb des Input-Ordners waehlen
 - Fuzzy-Threshold setzen
 - Modus speichern
 - Modellliste ueber `/v1/models` abrufen
@@ -174,6 +196,8 @@ Der aktuelle Teststand deckt unter anderem ab:
 - BPMN-Extraktion und XML-Fehlerfall
 - Prozess-ID-Extraktion
 - Matching inkl. abgelehnter Links
+- Read-only-Cypher-Validierung
+- Query-Layer-Happy-Path
 - Pipeline-Happy-Path, Delta-Skip und Laufartefakte
 - Aufbereitung der UI-Statusdaten
 - KB-Aktionen fuer Bestaetigen und Ablehnen
