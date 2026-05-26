@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import asdict
+from datetime import UTC, datetime
+import json
 import os
 from pathlib import Path
+from time import perf_counter
 
 import streamlit as st
 
@@ -15,6 +18,7 @@ from app_config import (
     resolve_runtime_output_path,
     save_config,
 )
+from bpmn_transformer import BpmnTransformError, transform_bpmn_for_import
 from cmdb import CmdbLoadError, build_cmdb_option_labels, find_cmdb_row_by_label, load_cmdb_rows
 from constants import (
     DOCUMENT_STATUS_OPTIONS,
@@ -40,7 +44,7 @@ from neo4j_utils import (
     QueryValidationError,
 )
 from pipeline import run_pipeline
-from query_layer import answer_question
+from query_layer import build_natural_language_answer, generate_cypher_from_question
 from run_artifacts import load_latest_run
 from ui_run_view import (
     build_duplicate_application_warnings,
@@ -53,6 +57,10 @@ from ui_run_view import (
 
 NEO4J_CLIENT_STATE_KEY = "neo4j_client"
 NEO4J_CLIENT_CONFIG_STATE_KEY = "neo4j_client_config"
+NEO4J_CONNECTION_STATUS_STATE_KEY = "neo4j_connection_status"
+NEO4J_CONNECTION_STATUS_CONFIG_STATE_KEY = "neo4j_connection_status_config"
+LLM_STATUS_STATE_KEY = "llm_status"
+LLM_STATUS_CONFIG_STATE_KEY = "llm_status_config"
 CHAT_MESSAGES_STATE_KEY = "chat_messages"
 CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY = "chat_pending_application_options"
 CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY = "chat_pending_original_question"
@@ -101,6 +109,111 @@ def get_session_neo4j_client(config: AppConfig) -> Neo4jClient:
     st.session_state[NEO4J_CLIENT_STATE_KEY] = client
     st.session_state[NEO4J_CLIENT_CONFIG_STATE_KEY] = desired_key
     return client
+
+
+def get_neo4j_connection_status(config: AppConfig, force_refresh: bool = False) -> tuple[bool, str]:
+    desired_key = build_neo4j_client_key(config)
+    cached_key = st.session_state.get(NEO4J_CONNECTION_STATUS_CONFIG_STATE_KEY)
+    cached_status = st.session_state.get(NEO4J_CONNECTION_STATUS_STATE_KEY)
+
+    if not force_refresh and cached_key == desired_key and cached_status is not None:
+        return cached_status
+
+    if not config.neo4j_password:
+        status = (False, "Neo4j-Verbindung nicht pruefbar: Passwort fehlt.")
+    else:
+        try:
+            client = get_session_neo4j_client(config)
+            client.execute_read("RETURN 1 AS ok")
+        except (Neo4jConnectionError, Neo4jQueryError) as exc:
+            status = (False, f"Neo4j nicht erreichbar: {exc}")
+        else:
+            database_label = config.neo4j_database or "default"
+            status = (True, f"Neo4j erreichbar ({config.neo4j_url}, DB: {database_label}).")
+
+    st.session_state[NEO4J_CONNECTION_STATUS_CONFIG_STATE_KEY] = desired_key
+    st.session_state[NEO4J_CONNECTION_STATUS_STATE_KEY] = status
+    return status
+
+
+def get_llm_status(config: AppConfig, force_refresh: bool = False) -> tuple[str, str]:
+    desired_key = (
+        config.llm_base_url,
+        config.llm_model,
+        config.llm_api_key_env,
+        config.llm_timeout_seconds,
+    )
+    cached_key = st.session_state.get(LLM_STATUS_CONFIG_STATE_KEY)
+    cached_status = st.session_state.get(LLM_STATUS_STATE_KEY)
+
+    if not force_refresh and cached_key == desired_key and cached_status is not None:
+        return cached_status
+
+    if not config.llm_base_url:
+        status = ("error", "LLM nicht pruefbar: Base URL fehlt.")
+    elif not config.llm_model:
+        status = ("warning", "LLM-Endpoint erreichbar noch nicht geprueft: Modellname fehlt.")
+    else:
+        try:
+            client = OpenAICompatibleClient(
+                LlmClientConfig(
+                    base_url=config.llm_base_url,
+                    model=config.llm_model,
+                    api_key_env=config.llm_api_key_env,
+                    timeout_seconds=config.llm_timeout_seconds,
+                )
+            )
+            models = client.list_models()
+        except LlmClientError as exc:
+            status = ("error", f"LLM nicht erreichbar: {exc}")
+        else:
+            if config.llm_model in models:
+                status = (
+                    "success",
+                    f"LLM erreichbar. Modell `{config.llm_model}` ist verfuegbar; der erste Aufruf kann bei Ollama trotzdem Ladezeit haben.",
+                )
+            else:
+                available_models = ", ".join(models[:5])
+                suffix = " ..." if len(models) > 5 else ""
+                available_note = f" Verfuegbar: {available_models}{suffix}." if models else ""
+                status = (
+                    "warning",
+                    f"LLM-Endpoint erreichbar, aber Modell `{config.llm_model}` ist nicht verfuegbar.{available_note}",
+                )
+
+    st.session_state[LLM_STATUS_CONFIG_STATE_KEY] = desired_key
+    st.session_state[LLM_STATUS_STATE_KEY] = status
+    return status
+
+
+def write_debug_log(config: AppConfig, event: str, details: dict) -> None:
+    if not config.debug_mode:
+        return
+
+    try:
+        output_dir, _ = resolve_runtime_output_path(config.output_path)
+        log_path = output_dir / "debug.log"
+        entry = {
+            "timestamp": datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z"),
+            "event": event,
+            "details": details,
+        }
+        with log_path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(entry, ensure_ascii=False))
+            handle.write("\n")
+    except OSError:
+        return
+
+
+def format_duration(seconds: float) -> str:
+    total_seconds = max(0, int(round(seconds)))
+    minutes, remaining_seconds = divmod(total_seconds, 60)
+    hours, remaining_minutes = divmod(minutes, 60)
+    if hours:
+        return f"{hours}h {remaining_minutes}m {remaining_seconds}s"
+    if minutes:
+        return f"{minutes}m {remaining_seconds}s"
+    return f"{remaining_seconds}s"
 
 
 def render_query_tab() -> None:
@@ -186,6 +299,7 @@ def handle_query_clarification(user_message: str, config: AppConfig, options: li
 def run_query_chat_turn(question: str, config: AppConfig) -> None:
     from query_layer import find_application_ambiguity_options
 
+    cypher_query = ""
     try:
         llm_client = OpenAICompatibleClient(
             LlmClientConfig(
@@ -196,15 +310,30 @@ def run_query_chat_turn(question: str, config: AppConfig) -> None:
             )
         )
         neo4j_client = get_session_neo4j_client(config)
-        answer_text, cypher_query, rows = answer_question(
+        cypher_query = generate_cypher_from_question(
             question=question,
             llm_client=llm_client,
-            neo4j_client=neo4j_client,
-            cypher_prompt_path=resolve_project_path("prompts/cypher_gen.md"),
-            answer_prompt_path=resolve_project_path("prompts/answer_query.md"),
+            prompt_path=resolve_project_path("prompts/cypher_gen.md"),
+        )
+        rows = neo4j_client.execute_read(cypher_query)
+        answer_text = build_natural_language_answer(
+            question=question,
+            cypher_query=cypher_query,
+            rows=rows,
+            llm_client=llm_client,
+            prompt_path=resolve_project_path("prompts/answer_query.md"),
         )
     except (LlmClientError, Neo4jConnectionError, Neo4jQueryError, QueryValidationError) as exc:
-        append_chat_message("assistant", str(exc))
+        write_debug_log(
+            config,
+            "query_error",
+            {
+                "question": question,
+                "cypher_query": cypher_query,
+                "error": str(exc),
+            },
+        )
+        append_chat_message("assistant", str(exc), cypher_query=cypher_query)
         return
 
     ambiguity_options = find_application_ambiguity_options(question, rows)
@@ -235,11 +364,15 @@ def render_review_tab() -> None:
                 st.warning("Bitte zuerst ein LLM-Modell in Anwendungskonfig konfigurieren.")
             else:
                 try:
+                    started_at = perf_counter()
                     run_pipeline(config)
+                    duration_text = format_duration(perf_counter() - started_at)
                 except Exception as exc:
                     st.error(str(exc))
                 else:
-                    st.success("Preview-Lauf abgeschlossen. Artefakte im Output-Ordner wurden aktualisiert.")
+                    st.success(
+                        f"Preview-Lauf abgeschlossen in {duration_text}. Artefakte im Output-Ordner wurden aktualisiert."
+                    )
     with info_column:
         st.caption("Die Ansicht liest den letzten gespeicherten Lauf aus `Output/latest_run.json`.")
 
@@ -633,6 +766,7 @@ def render_config_tab(config_path: Path) -> None:
             llm_model = st.text_input("LLM Model", value=st.session_state["config_llm_model"])
             llm_api_key_env = st.text_input("API Key Env Var", value=st.session_state["config_llm_api_key_env"])
             llm_context_window = st.number_input("Context Window", min_value=1, value=st.session_state["config_llm_context_window"])
+            llm_timeout_seconds = st.number_input("LLM Timeout Seconds", min_value=1, value=int(config.llm_timeout_seconds))
             input_path = st.text_input("Input Path", value=st.session_state["config_input_path"])
             cmdb_filename = st.text_input("CMDB Filename", value=st.session_state["config_cmdb_filename"])
             output_path = st.text_input("Output Path", value=st.session_state["config_output_path"])
@@ -640,40 +774,36 @@ def render_config_tab(config_path: Path) -> None:
             cmdb_name_column = st.text_input("CMDB Name Column", value=config.cmdb_name_column)
             neo4j_url = st.text_input(
                 "Neo4j URL",
-                value="" if os.getenv("NEO4J_URI") else config.neo4j_url,
-                placeholder=config.neo4j_url or "",
+                value=st.session_state["config_neo4j_url"],
             )
             if os.getenv("NEO4J_URI"):
                 st.caption(
-                    "NEO4J_URI ist aus der Umgebung geladen. Das Feld dient nur zur manuellen Ueberschreibung "
-                    "und wird leer gelassen, damit der Env-Wert nicht nach `config.json` geschrieben wird."
+                    "NEO4J_URI wurde aus der Umgebung geladen. Der aktuell wirksame Wert ist im Feld sichtbar "
+                    "und kann hier dauerhaft ueberschrieben werden."
                 )
             neo4j_user = st.text_input(
                 "Neo4j User",
-                value="" if os.getenv("NEO4J_USERNAME") else config.neo4j_user,
-                placeholder=config.neo4j_user or "",
+                value=st.session_state["config_neo4j_user"],
             )
             if os.getenv("NEO4J_USERNAME"):
                 st.caption(
-                    "NEO4J_USERNAME ist aus der Umgebung geladen. Das Feld dient nur zur manuellen Ueberschreibung "
-                    "und wird leer gelassen, damit der Env-Wert nicht nach `config.json` geschrieben wird."
+                    "NEO4J_USERNAME wurde aus der Umgebung geladen. Der aktuell wirksame Wert ist im Feld sichtbar "
+                    "und kann hier dauerhaft ueberschrieben werden."
                 )
-            neo4j_password = st.text_input("Neo4j Password", value="", type="password")
+            neo4j_password = st.text_input("Neo4j Password", value=st.session_state["config_neo4j_password"], type="password")
             if os.getenv("NEO4J_PASSWORD"):
                 st.caption(
-                    "Das Feld bleibt absichtlich leer. BRIDGR nutzt aktuell `NEO4J_PASSWORD` aus der Umgebung; "
-                    "dieses Feld ist nur fuer eine manuelle Ueberschreibung gedacht und wird nicht automatisch "
-                    "mit dem Env-Wert befuellt oder nach `config.json` geschrieben."
+                    "NEO4J_PASSWORD wurde aus der Umgebung geladen. Der aktuell wirksame Wert bleibt beim Speichern "
+                    "erhalten, bis Sie ihn hier explizit aendern."
                 )
             neo4j_database = st.text_input(
                 "Neo4j Database",
-                value="" if os.getenv("NEO4J_DATABASE") else config.neo4j_database,
-                placeholder=config.neo4j_database or "",
+                value=st.session_state["config_neo4j_database"],
             )
             if os.getenv("NEO4J_DATABASE"):
                 st.caption(
-                    "NEO4J_DATABASE ist aus der Umgebung geladen. Das Feld dient nur zur manuellen Ueberschreibung "
-                    "und wird leer gelassen, damit der Env-Wert nicht nach `config.json` geschrieben wird."
+                    "NEO4J_DATABASE wurde aus der Umgebung geladen. Der aktuell wirksame Wert ist im Feld sichtbar "
+                    "und kann hier dauerhaft ueberschrieben werden."
                 )
             fuzzy_threshold = st.number_input(
                 "Fuzzy Threshold",
@@ -682,6 +812,7 @@ def render_config_tab(config_path: Path) -> None:
                 value=float(config.fuzzy_threshold),
                 step=0.01,
             )
+            debug_mode = st.checkbox("Debug Mode", value=config.debug_mode)
             last_run_mode = st.selectbox(
                 "Last Run Mode",
                 ["initial", "full", "delta"],
@@ -696,6 +827,7 @@ def render_config_tab(config_path: Path) -> None:
                 llm_model=llm_model,
                 llm_api_key_env=llm_api_key_env,
                 llm_context_window=int(llm_context_window),
+                llm_timeout_seconds=int(llm_timeout_seconds),
                 neo4j_url=neo4j_url.strip(),
                 neo4j_user=neo4j_user.strip(),
                 neo4j_password=neo4j_password.strip(),
@@ -707,12 +839,23 @@ def render_config_tab(config_path: Path) -> None:
                 cmdb_filename=cmdb_filename,
                 output_path=output_path,
                 last_run_mode=last_run_mode,
+                debug_mode=debug_mode,
             )
             save_config(updated_config, config_path)
             if build_neo4j_client_key(updated_config) != previous_client_key:
                 reset_session_neo4j_client(show_warning=True)
             update_config_session_defaults(updated_config)
             st.success("Configuration saved.")
+
+        refresh_neo4j_status = st.button("Neo4j-Verbindung neu pruefen")
+        connection_ok, connection_message = get_neo4j_connection_status(
+            load_config(config_path),
+            force_refresh=refresh_neo4j_status,
+        )
+        if connection_ok:
+            st.success(connection_message)
+        else:
+            st.error(connection_message)
 
         if st.button("Refresh Models"):
             client = OpenAICompatibleClient(
@@ -729,6 +872,18 @@ def render_config_tab(config_path: Path) -> None:
             else:
                 st.write({"models": models})
 
+        refresh_llm_status = st.button("LLM-Verbindung neu pruefen")
+        llm_status_level, llm_status_message = get_llm_status(
+            load_config(config_path),
+            force_refresh=refresh_llm_status,
+        )
+        if llm_status_level == "success":
+            st.success(llm_status_message)
+        elif llm_status_level == "warning":
+            st.warning(llm_status_message)
+        else:
+            st.error(llm_status_message)
+
         st.caption("Current config")
         st.json(asdict(load_config(config_path)))
 
@@ -741,6 +896,14 @@ def ensure_config_session_defaults(config: AppConfig) -> None:
 def sync_config_session_defaults(config: AppConfig) -> None:
     if is_legacy_input_path(st.session_state.get("config_input_path", "")) and config.input_path != st.session_state.get("config_input_path"):
         st.session_state["config_input_path"] = config.input_path
+    if st.session_state.get("config_neo4j_url") != config.neo4j_url:
+        st.session_state["config_neo4j_url"] = config.neo4j_url
+    if st.session_state.get("config_neo4j_user") != config.neo4j_user:
+        st.session_state["config_neo4j_user"] = config.neo4j_user
+    if st.session_state.get("config_neo4j_password") != config.neo4j_password:
+        st.session_state["config_neo4j_password"] = config.neo4j_password
+    if st.session_state.get("config_neo4j_database") != config.neo4j_database:
+        st.session_state["config_neo4j_database"] = config.neo4j_database
 
 
 def update_config_session_defaults(config: AppConfig) -> None:
@@ -751,6 +914,10 @@ def update_config_session_defaults(config: AppConfig) -> None:
     st.session_state["config_input_path"] = config.input_path
     st.session_state["config_cmdb_filename"] = config.cmdb_filename
     st.session_state["config_output_path"] = config.output_path
+    st.session_state["config_neo4j_url"] = config.neo4j_url
+    st.session_state["config_neo4j_user"] = config.neo4j_user
+    st.session_state["config_neo4j_password"] = config.neo4j_password
+    st.session_state["config_neo4j_database"] = config.neo4j_database
 
 
 def render_path_picker_controls() -> None:
@@ -784,6 +951,11 @@ def render_import_section(config: AppConfig) -> None:
 
     input_dir = resolve_project_path(config.input_path)
     cmdb_path = resolve_input_cmdb_path(config)
+    available_bpmn_files = [
+        path
+        for path in list_process_files(input_dir)
+        if path.suffix.lower() in {".bpmn", ".xml"}
+    ]
 
     uploaded_process_files = st.file_uploader(
         "Prozessdateien importieren",
@@ -798,7 +970,7 @@ def render_import_section(config: AppConfig) -> None:
         key="cmdb_upload",
     )
 
-    mode_column, save_column, run_column = st.columns([1, 1, 1])
+    mode_column, save_column, transform_column, run_column = st.columns([1, 1, 1, 1])
     with mode_column:
         selected_run_mode = st.selectbox(
             "Importmodus",
@@ -827,6 +999,38 @@ def render_import_section(config: AppConfig) -> None:
             else:
                 st.info("Keine neuen Dateien zum Speichern ausgewaehlt.")
 
+    with transform_column:
+        selected_transform_filenames = st.multiselect(
+            "BPMN fuer Transformation",
+            options=[path.name for path in available_bpmn_files],
+            default=[],
+            key="transform_bpmn_selection",
+        )
+        if st.button("BPMN transformieren", width="stretch"):
+            if not available_bpmn_files:
+                st.info("Keine BPMN/XML-Dateien im aktuellen Input-Pfad gefunden.")
+            elif not selected_transform_filenames:
+                st.info("Bitte waehlen Sie mindestens eine BPMN/XML-Datei fuer die Transformation aus.")
+            else:
+                selected_bpmn_files = [
+                    path
+                    for path in available_bpmn_files
+                    if path.name in selected_transform_filenames
+                ]
+                transformed_paths: list[str] = []
+                try:
+                    for bpmn_file in selected_bpmn_files:
+                        transformed_batch = transform_bpmn_for_import(bpmn_file, input_dir)
+                        transformed_paths.extend(str(path) for path in transformed_batch)
+                except BpmnTransformError as exc:
+                    st.error(str(exc))
+                else:
+                    st.success(
+                        f"{len(transformed_paths)} Transform-Datei(en) erzeugt. "
+                        f"Die neuen Dateien liegen unter `{input_dir / 'transformed'}`."
+                    )
+                    st.write(transformed_paths)
+
     with run_column:
         if st.button("Pipeline starten", width="stretch"):
             if not config.llm_model:
@@ -840,11 +1044,13 @@ def render_import_section(config: AppConfig) -> None:
                             "cmdb_filename": st.session_state.get("active_cmdb_filename", config.cmdb_filename),
                         }
                     )
+                    started_at = perf_counter()
                     run_pipeline(runtime_config)
+                    duration_text = format_duration(perf_counter() - started_at)
                 except Exception as exc:
                     st.error(str(exc))
                 else:
-                    st.success("Pipeline-Lauf abgeschlossen. Ergebnisse liegen im Output-Ordner.")
+                    st.success(f"Pipeline-Lauf abgeschlossen in {duration_text}. Ergebnisse liegen im Output-Ordner.")
 
     current_process_files = list_process_files(input_dir)
     current_cmdb_files = list_cmdb_files(input_dir)

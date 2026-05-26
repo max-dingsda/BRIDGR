@@ -3,16 +3,17 @@
   "llm_model": "gemma4:e4b",
   "llm_api_key_env": "",
   "llm_context_window": 131072,
-  "llm_timeout_seconds": 300,
-  "neo4j_url": "neo4j+s://233d05a2.databases.neo4j.io",
-  "neo4j_user": "233d05a2",
-  "neo4j_password": "63WWh0XJAS5_imme3vgfpLhB74CWRBEolkaqGn3mv1s",
-  "neo4j_database": "233d05a2",
+  "llm_timeout_seconds": 900,
+  "neo4j_url": "neo4j://127.0.0.1:7687",
+  "neo4j_user": "neo4j",
+  "neo4j_password": "neo4j!bridgr",
+  "neo4j_database": "bridgr-architecture",
   "fuzzy_threshold": 0.85,
   "cmdb_uuid_column": "app_id",
   "cmdb_name_column": "application_name",
   "input_path": "Input",
   "cmdb_filename": "fake_cmdb.csv",
   "output_path": "Output",
-  "last_run_mode": "initial"
+  "last_run_mode": "initial",
+  "debug_mode": true
 }

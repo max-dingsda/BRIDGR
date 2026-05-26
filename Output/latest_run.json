@@ -10,31 +10,47 @@
       "extracted_process": {
         "process_name": "Incident Management",
         "process_id": "WFP-1-1",
-        "org_unit": null,
+        "org_unit": "",
         "follows_after": [],
         "raw_applications": [
           {
+            "name": "Trouble Ticket System",
+            "confidence": "explizit"
+          },
+          {
             "name": "Product Backlog Interface",
-            "confidence": "stark"
+            "confidence": "explizit"
           },
           {
             "name": "Mail Interface",
-            "confidence": "stark"
+            "confidence": "explizit"
           }
         ],
         "applications": [
           {
+            "name": "Trouble Ticket System",
+            "confidence": "explizit"
+          },
+          {
             "name": "Product Backlog Interface",
-            "confidence": "stark"
+            "confidence": "explizit"
           },
           {
             "name": "Mail Interface",
-            "confidence": "stark"
+            "confidence": "explizit"
           }
         ],
         "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml"
       },
       "matches": [
+        {
+          "application_name": "Trouble Ticket System",
+          "cmdb_id": "0cbf0519-9d73-4451-b6f2-6f1a3715cd3e",
+          "matched_name": "Trouble Ticket System",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
         {
           "application_name": "Product Backlog Interface",
           "cmdb_id": "ce0f0193-e253-4c97-a004-2473f6b6ba8e",
@@ -57,31 +73,47 @@
         "process": {
           "process_name": "Incident Management",
           "process_id": "WFP-1-1",
-          "org_unit": null,
+          "org_unit": "",
           "follows_after": [],
           "raw_applications": [
             {
+              "name": "Trouble Ticket System",
+              "confidence": "explizit"
+            },
+            {
               "name": "Product Backlog Interface",
-              "confidence": "stark"
+              "confidence": "explizit"
             },
             {
               "name": "Mail Interface",
-              "confidence": "stark"
+              "confidence": "explizit"
             }
           ],
           "applications": [
             {
+              "name": "Trouble Ticket System",
+              "confidence": "explizit"
+            },
+            {
               "name": "Product Backlog Interface",
-              "confidence": "stark"
+              "confidence": "explizit"
             },
             {
               "name": "Mail Interface",
-              "confidence": "stark"
+              "confidence": "explizit"
             }
           ],
           "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml"
         },
         "matches": [
+          {
+            "application_name": "Trouble Ticket System",
+            "cmdb_id": "0cbf0519-9d73-4451-b6f2-6f1a3715cd3e",
+            "matched_name": "Trouble Ticket System",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
           {
             "application_name": "Product Backlog Interface",
             "cmdb_id": "ce0f0193-e253-4c97-a004-2473f6b6ba8e",
@@ -105,32 +137,27 @@
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml",
       "file_hash": "3fa404b4fe7dd61e706187522097669db6a737f2ce61b8ef612f59bcde09b9bd",
-      "status": "processed",
+      "status": "no_matches",
       "extracted_process": {
         "process_name": "Seller process",
         "process_id": "sellerProcess",
-        "org_unit": "N/A",
+        "org_unit": "",
         "follows_after": [],
         "raw_applications": [
           {
-            "name": "Seller Service Interface",
-            "confidence": "stark"
+            "name": "Request Quote Operation",
+            "confidence": "explicit"
           },
           {
-            "name": "Shipper Service Interface",
-            "confidence": "stark"
-          }
-        ],
-        "applications": [
-          {
-            "name": "Seller Service Interface",
-            "confidence": "stark"
+            "name": "Order Operation",
+            "confidence": "explicit"
           },
           {
-            "name": "Shipper Service Interface",
-            "confidence": "stark"
+            "name": "Request Shipping Operation",
+            "confidence": "implicit"
           }
         ],
+        "applications": [],
         "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml"
       },
       "matches": [
@@ -139,16 +166,16 @@
           "cmdb_id": "0985937e-7a75-4f39-ab27-918714c464a7",
           "matched_name": "Seller Service",
           "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "source": "knowledge_base_manual",
+          "score": 0.0
         },
         {
           "application_name": "Shipper Service Interface",
           "cmdb_id": "ac2f45d2-0f21-4018-bc44-5fb16bb2c321",
           "matched_name": "Shipper Service",
           "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "source": "knowledge_base_manual",
+          "score": 0.0
         }
       ],
       "review_items": [],
@@ -156,28 +183,23 @@
         "process": {
           "process_name": "Seller process",
           "process_id": "sellerProcess",
-          "org_unit": "N/A",
+          "org_unit": "",
           "follows_after": [],
           "raw_applications": [
             {
-              "name": "Seller Service Interface",
-              "confidence": "stark"
+              "name": "Request Quote Operation",
+              "confidence": "explicit"
             },
             {
-              "name": "Shipper Service Interface",
-              "confidence": "stark"
-            }
-          ],
-          "applications": [
-            {
-              "name": "Seller Service Interface",
-              "confidence": "stark"
+              "name": "Order Operation",
+              "confidence": "explicit"
             },
             {
-              "name": "Shipper Service Interface",
-              "confidence": "stark"
+              "name": "Request Shipping Operation",
+              "confidence": "implicit"
             }
           ],
+          "applications": [],
           "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml"
         },
         "matches": [
@@ -186,16 +208,16 @@
             "cmdb_id": "0985937e-7a75-4f39-ab27-918714c464a7",
             "matched_name": "Seller Service",
             "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "source": "knowledge_base_manual",
+            "score": 0.0
           },
           {
             "application_name": "Shipper Service Interface",
             "cmdb_id": "ac2f45d2-0f21-4018-bc44-5fb16bb2c321",
             "matched_name": "Shipper Service",
             "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "source": "knowledge_base_manual",
+            "score": 0.0
           }
         ]
       },
@@ -218,10 +240,6 @@
           {
             "name": "SAP WM",
             "confidence": "stark"
-          },
-          {
-            "name": "SAP FI",
-            "confidence": "stark"
           }
         ],
         "applications": [
@@ -231,10 +249,6 @@
           },
           {
             "name": "SAP WM",
-            "confidence": "stark"
-          },
-          {
-            "name": "SAP FI",
             "confidence": "stark"
           }
         ],
@@ -253,14 +267,6 @@
           "application_name": "SAP WM",
           "cmdb_id": "7104519e-2f7d-4a6e-a54f-6fb6b76ed5c2",
           "matched_name": "SAP WM",
-          "confidence": "stark",
-          "source": "fuzzy",
-          "score": 1.0
-        },
-        {
-          "application_name": "SAP FI",
-          "cmdb_id": "4718e8ad-f02b-4aae-9f4c-40ac0af0b9e1",
-          "matched_name": "SAP FI",
           "confidence": "stark",
           "source": "fuzzy",
           "score": 1.0
@@ -289,10 +295,6 @@
             {
               "name": "SAP WM",
               "confidence": "stark"
-            },
-            {
-              "name": "SAP FI",
-              "confidence": "stark"
             }
           ],
           "applications": [
@@ -302,10 +304,6 @@
             },
             {
               "name": "SAP WM",
-              "confidence": "stark"
-            },
-            {
-              "name": "SAP FI",
               "confidence": "stark"
             }
           ],
@@ -329,14 +327,6 @@
             "score": 1.0
           },
           {
-            "application_name": "SAP FI",
-            "cmdb_id": "4718e8ad-f02b-4aae-9f4c-40ac0af0b9e1",
-            "matched_name": "SAP FI",
-            "confidence": "stark",
-            "source": "fuzzy",
-            "score": 1.0
-          },
-          {
             "application_name": "Mail System",
             "cmdb_id": "bee0ede7-4331-442e-9427-94adf46413da",
             "matched_name": "Mail Interface",
@@ -355,7 +345,7 @@
       "extracted_process": {
         "process_name": "Lieferantenmanagement",
         "process_id": "Prozess_Lieferantenmanagement",
-        "org_unit": "",
+        "org_unit": "Einkauf, Qualitaetsmanagement",
         "follows_after": [],
         "raw_applications": [
           {
@@ -418,7 +408,7 @@
         "process": {
           "process_name": "Lieferantenmanagement",
           "process_id": "Prozess_Lieferantenmanagement",
-          "org_unit": "",
+          "org_unit": "Einkauf, Qualitaetsmanagement",
           "follows_after": [],
           "raw_applications": [
             {
@@ -486,7 +476,7 @@
       "extracted_process": {
         "process_name": "Reklamationsbearbeitung",
         "process_id": "Prozess_Reklamationsbearbeitung",
-        "org_unit": "",
+        "org_unit": "Kundendienst, Produktion, Buchhaltung",
         "follows_after": [],
         "raw_applications": [
           {
@@ -499,11 +489,11 @@
           },
           {
             "name": "Microsoft Teams",
-            "confidence": "stark"
+            "confidence": "keine Angabe in der Beschreibung"
           },
           {
             "name": "SAP SD",
-            "confidence": "stark"
+            "confidence": "keine Angabe in der Beschreibung"
           },
           {
             "name": "Microsoft Excel",
@@ -521,11 +511,11 @@
           },
           {
             "name": "Microsoft Teams",
-            "confidence": "stark"
+            "confidence": "keine Angabe in der Beschreibung"
           },
           {
             "name": "SAP SD",
-            "confidence": "stark"
+            "confidence": "keine Angabe in der Beschreibung"
           },
           {
             "name": "Microsoft Excel",
@@ -581,7 +571,7 @@
         "process": {
           "process_name": "Reklamationsbearbeitung",
           "process_id": "Prozess_Reklamationsbearbeitung",
-          "org_unit": "",
+          "org_unit": "Kundendienst, Produktion, Buchhaltung",
           "follows_after": [],
           "raw_applications": [
             {
@@ -594,11 +584,11 @@
             },
             {
               "name": "Microsoft Teams",
-              "confidence": "stark"
+              "confidence": "keine Angabe in der Beschreibung"
             },
             {
               "name": "SAP SD",
-              "confidence": "stark"
+              "confidence": "keine Angabe in der Beschreibung"
             },
             {
               "name": "Microsoft Excel",
@@ -616,11 +606,11 @@
             },
             {
               "name": "Microsoft Teams",
-              "confidence": "stark"
+              "confidence": "keine Angabe in der Beschreibung"
             },
             {
               "name": "SAP SD",
-              "confidence": "stark"
+              "confidence": "keine Angabe in der Beschreibung"
             },
             {
               "name": "Microsoft Excel",

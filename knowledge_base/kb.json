@@ -1,46 +1,5 @@
 {
-  "confirmed": [
-    {
-      "prozess": "Incident Management",
-      "anwendung_name": "Mail Interface",
-      "cmdb_id": "744b30b1-b138-4e67-849d-37cdee4c1482",
-      "resolved_to": "Mail System",
-      "bestaetigt_am": "2026-05-25",
-      "quelle": "manuell_bestaetigt"
-    },
-    {
-      "prozess": "Seller process",
-      "anwendung_name": "Seller Service Interface",
-      "cmdb_id": "0985937e-7a75-4f39-ab27-918714c464a7",
-      "resolved_to": "Seller Service",
-      "bestaetigt_am": "2026-05-25",
-      "quelle": "manuell_bestaetigt"
-    },
-    {
-      "prozess": "Bestellabwicklung",
-      "anwendung_name": "Mail System",
-      "cmdb_id": "bee0ede7-4331-442e-9427-94adf46413da",
-      "resolved_to": "Mail Interface",
-      "bestaetigt_am": "2026-05-25",
-      "quelle": "manuell_bestaetigt"
-    },
-    {
-      "prozess": "Seller process",
-      "anwendung_name": "Shipper Service Interface",
-      "cmdb_id": "ac2f45d2-0f21-4018-bc44-5fb16bb2c321",
-      "resolved_to": "Shipper Service",
-      "bestaetigt_am": "2026-05-25",
-      "quelle": "manuell_bestaetigt"
-    },
-    {
-      "prozess": "Incident Management",
-      "anwendung_name": "Product Backlog Interface",
-      "cmdb_id": "ce0f0193-e253-4c97-a004-2473f6b6ba8e",
-      "resolved_to": "Product Backlog System",
-      "bestaetigt_am": "2026-05-25",
-      "quelle": "manuell_bestaetigt"
-    }
-  ],
+  "confirmed": [],
   "rejected": [],
   "disambiguation": [],
   "process_identity": []

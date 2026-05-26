@@ -20,7 +20,7 @@ def test_load_config_uses_neo4j_env_fallbacks(tmp_path: Path, monkeypatch) -> No
     assert config.neo4j_database == "neo4j"
 
 
-def test_load_config_prefers_neo4j_env_over_local_defaults(tmp_path: Path, monkeypatch) -> None:
+def test_load_config_keeps_explicit_local_neo4j_values_even_if_they_match_defaults(tmp_path: Path, monkeypatch) -> None:
     config_path = tmp_path / "config.json"
     config_path.write_text(
         json.dumps(
@@ -40,8 +40,8 @@ def test_load_config_prefers_neo4j_env_over_local_defaults(tmp_path: Path, monke
 
     config = load_config(config_path)
 
-    assert config.neo4j_url == "neo4j+s://example.databases.neo4j.io"
-    assert config.neo4j_user == "tester"
+    assert config.neo4j_url == "bolt://localhost:7687"
+    assert config.neo4j_user == "neo4j"
     assert config.neo4j_password == "secret"
     assert config.neo4j_database == "aura-db"
 

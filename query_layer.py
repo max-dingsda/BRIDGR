@@ -3,12 +3,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from graph_schema import build_query_schema_reference
 from llm_client import OpenAICompatibleClient
 from neo4j_utils import Neo4jClient
 
 
 def generate_cypher_from_question(question: str, llm_client: OpenAICompatibleClient, prompt_path: Path) -> str:
-    system_prompt = prompt_path.read_text(encoding="utf-8")
+    system_prompt = prompt_path.read_text(encoding="utf-8").rstrip() + "\n\n" + build_query_schema_reference()
     raw_response = llm_client.generate_text(system_prompt=system_prompt, user_prompt=question)
     return sanitize_cypher_response(raw_response)
 

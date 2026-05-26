@@ -222,3 +222,7 @@ agents.md
 claude.md
 openPoints*
 Specs/openPoints*
+BPMN-Gesamt.bpmn
+Input/*
+*graphify*
+graphify-out/*

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import re
 from typing import Any
 
 
@@ -123,6 +124,75 @@ def validate_read_only_cypher(query: str) -> None:
     for token in READ_ONLY_FORBIDDEN_TOKENS:
         if token in normalized_query:
             raise QueryValidationError(f"Cypher query contains forbidden token: {token}")
+    _validate_query_structure(normalized_query)
+
+
+def _validate_query_structure(normalized_query: str) -> None:
+    if _has_match_after_return_without_transition(normalized_query):
+        raise QueryValidationError(
+            "Cypher query appears to contain multiple statements. Use a single query and continue after RETURN only with UNION, "
+            "or move intermediate results with WITH."
+        )
+    if "UNION" in normalized_query:
+        _validate_union_return_columns(normalized_query)
+
+
+def _has_match_after_return_without_transition(normalized_query: str) -> bool:
+    tokens = normalized_query.split()
+    seen_return = False
+    index = 0
+    while index < len(tokens):
+        token = tokens[index]
+        next_token = tokens[index + 1] if index + 1 < len(tokens) else ""
+        combined_token = f"{token} {next_token}".strip()
+
+        if token == "RETURN":
+            seen_return = True
+            index += 1
+            continue
+        if token == "WITH":
+            seen_return = False
+        elif token == "UNION":
+            seen_return = False
+        elif seen_return and (token == "MATCH" or combined_token == "OPTIONAL MATCH"):
+            return True
+        index += 1
+    return False
+
+
+def _validate_union_return_columns(normalized_query: str) -> None:
+    branches = [branch.strip() for branch in re.split(r"\bUNION(?: ALL)?\b", normalized_query) if branch.strip()]
+    if len(branches) < 2:
+        return
+
+    expected_aliases = _extract_return_aliases(branches[0])
+    if not expected_aliases:
+        return
+
+    for branch in branches[1:]:
+        branch_aliases = _extract_return_aliases(branch)
+        if branch_aliases != expected_aliases:
+            raise QueryValidationError(
+                "Cypher UNION branches must return the same column aliases in the same order."
+            )
+
+
+def _extract_return_aliases(branch: str) -> list[str]:
+    return_match = re.search(r"\bRETURN\b\s+(.+)$", branch)
+    if return_match is None:
+        return []
+
+    aliases: list[str] = []
+    for item in return_match.group(1).split(","):
+        normalized_item = item.strip()
+        alias_match = re.search(r"\bAS\s+([A-Z_][A-Z0-9_]*)$", normalized_item)
+        if alias_match is not None:
+            aliases.append(alias_match.group(1))
+            continue
+        bare_identifier_match = re.search(r"([A-Z_][A-Z0-9_]*)$", normalized_item)
+        if bare_identifier_match is not None:
+            aliases.append(bare_identifier_match.group(1))
+    return aliases
 
 
 def _strip_cypher_strings_and_comments(query: str) -> str:

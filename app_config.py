@@ -21,7 +21,7 @@ class AppConfig:
     llm_model: str = ""
     llm_api_key_env: str = ""
     llm_context_window: int = 131072
-    llm_timeout_seconds: int = 300
+    llm_timeout_seconds: int = 900
     neo4j_url: str = DEFAULT_NEO4J_URL
     neo4j_user: str = DEFAULT_NEO4J_USER
     neo4j_password: str = ""
@@ -33,6 +33,7 @@ class AppConfig:
     cmdb_filename: str = "cmdb.csv"
     output_path: str = "Output"
     last_run_mode: str = "delta"
+    debug_mode: bool = False
 
 
 def load_config(path: Path | None = None) -> AppConfig:
@@ -81,7 +82,7 @@ def load_config(path: Path | None = None) -> AppConfig:
 def resolve_env_backed_value(config_value: str | None, env_name: str, default: str) -> str:
     env_value = os.getenv(env_name, "").strip()
     normalized_config = (config_value or "").strip()
-    if env_value and (not normalized_config or normalized_config == default):
+    if env_value and not normalized_config:
         return env_value
     return normalized_config or default
 

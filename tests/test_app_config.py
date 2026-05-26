@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from app_config import is_legacy_input_path, resolve_runtime_output_path
+from app_config import AppConfig, is_legacy_input_path, resolve_runtime_output_path, save_config
 
 
 def test_resolve_runtime_output_path_uses_project_path_when_writable(tmp_path: Path, monkeypatch) -> None:
@@ -30,3 +30,11 @@ def test_is_legacy_input_path_handles_windows_and_posix_spellings() -> None:
     assert is_legacy_input_path("data/input") is True
     assert is_legacy_input_path(".\\data\\input") is True
     assert is_legacy_input_path("Input") is False
+
+
+def test_save_config_persists_debug_mode(tmp_path: Path) -> None:
+    config_path = tmp_path / "config.json"
+
+    save_config(AppConfig(debug_mode=True), config_path)
+
+    assert '"debug_mode": true' in config_path.read_text(encoding="utf-8")

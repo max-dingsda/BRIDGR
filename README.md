@@ -20,6 +20,7 @@ BRIDGR soll fuer v1 bzw. den naechsten Ausbaupfad:
 Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikalen Schnitt:
 - OpenAI-kompatibler LLM-Client
 - BPMN-, TXT-, DOCX- und PDF-Verarbeitung ueber einen gemeinsamen semantischen Extraktionspfad
+- BPMN-Transformer fuer sehr grosse BPMN/XML-Dateien als vorbereitender, LLM-freier Reduktionsschritt
 - Rohsicht und deduplizierte Arbeitssicht fuer extrahierte Anwendungen
 - CMDB-Matching mit KB-First-Logik, mehreren Kandidaten und Fuzzy Matching
 - Neo4j-Write-Pfad fuer Prozesse, Orgeinheiten und bestaetigte bzw. starke Anwendungslinks
@@ -27,6 +28,7 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - persistente Knowledge Base
 - Streamlit-UI mit 3 Tabs
 - persistente Laufartefakte in `Output/`
+- optionales `debug.log` fuer Query-/LLM-Diagnose im Output-Ordner
 - aktionsfaehige Review-Liste fuer `Bestaetigen`, `Ablehnen` und `manuellen Link anlegen`
 - Hinweise auf uneinheitliche Prozessnotation bei mehrfach extrahierten Rohvarianten
 
@@ -64,6 +66,7 @@ Reservierte Ordner:
 Aktuell relevante Output-Dateien:
 - `Output/import_state.json`: Dateihashes und letzter bekannter Dokumentzustand
 - `Output/latest_run.json`: letzter gespeicherter Preview-/Importlauf fuer die UI
+- `Output/debug.log`: optionale JSONL-Diagnoseausgabe bei aktiviertem Debug-Modus
 
 ## Konfiguration
 
@@ -73,6 +76,7 @@ Wichtige Felder:
 - `llm_base_url`: OpenAI-kompatibler Endpoint
 - `llm_model`: zu verwendendes Modell
 - `llm_api_key_env`: Name der Umgebungsvariable fuer den API-Key
+- `llm_timeout_seconds`: Timeout fuer Requests an den LLM-Endpoint
 - `neo4j_url`: Neo4j-Bolt-URL
 - `neo4j_user`: Neo4j-Benutzer
 - `neo4j_password`: Neo4j-Passwort
@@ -81,6 +85,7 @@ Wichtige Felder:
 - `cmdb_filename`: aktive CMDB-Datei innerhalb des Eingabeordners
 - `output_path`: Ziel fuer Laufartefakte
 - `last_run_mode`: Standardlaufmodus fuer die Pipeline
+- `debug_mode`: schreibt bei aktivierter Diagnose zusaetzliche Ereignisse nach `Output/debug.log`
 
 Beispiel:
 
@@ -89,6 +94,7 @@ Beispiel:
   "llm_base_url": "http://localhost:11434/v1",
   "llm_model": "",
   "llm_api_key_env": "OPENAI_API_KEY",
+  "llm_timeout_seconds": 900,
   "neo4j_url": "bolt://localhost:7687",
   "neo4j_user": "neo4j",
   "neo4j_password": "",
@@ -186,13 +192,60 @@ Aktuell verfuegbar:
 - LLM-Endpoint konfigurieren
 - Modellnamen setzen
 - API-Key-Umgebungsvariable setzen
+- LLM-Timeout konfigurieren
 - Neo4j-URL, User, Passwort und optionalen Datenbanknamen setzen
 - gemeinsamen Input- und Output-Pfad setzen
 - aktive CMDB-Datei innerhalb des Input-Ordners waehlen
 - Prozessdateien in BPMN, XML, TXT, DOCX und PDF importieren
+- einzelne BPMN/XML-Dateien vor dem eigentlichen Import in kompakte Transform-Dateien ueberfuehren
 - Fuzzy-Threshold setzen
+- Debug-Modus aktivieren
 - Importmodus direkt beim Starten der Pipeline waehlen
 - Modellliste ueber `/v1/models` abrufen
+- Neo4j-Erreichbarkeit anhand der aktuell wirksamen Konfiguration pruefen
+- LLM-Erreichbarkeit und Modellverfuegbarkeit getrennt pruefen
+- Laufzeit erfolgreicher Pipeline-Laeufe direkt in der UI anzeigen
+
+## BPMN-Transformer fuer grosse Modelle
+
+Der BPMN-Transformer ist ein vorbereitender Schritt fuer sehr grosse oder sehr technische BPMN/XML-Dateien.
+
+Problem:
+- grosse Gesamtprozessmodelle enthalten sehr viel XML-Rauschen
+- lokale Modelle laufen bei Roh-BPMN leichter in Timeouts oder liefern kein gueltiges JSON
+- fuer den Initialload in Unternehmen sind grosse BPMN-Dateien eher die Regel als die Ausnahme
+
+Loesung:
+- der Transformer liest die ausgewaehlte BPMN/XML-Datei ohne LLM
+- er extrahiert daraus kompakte Prozesshinweise: Prozessnamen, Lane-Bezeichner und modellnahe Anwendungsreferenzen
+- das Ergebnis wird als Textdatei unter `Input/transformed/` gespeichert
+
+Dateiname:
+- `<originalname>__bridgr_transform.txt`
+
+Nutzung:
+1. grosse BPMN/XML-Datei in den aktuellen `Input Path` legen
+2. in Tab 3 unter `Import` die gewuenschte BPMN/XML-Datei bei `BPMN fuer Transformation` auswaehlen
+3. `BPMN transformieren` ausloesen
+4. den `Input Path` auf `Input/transformed/` umstellen oder die erzeugte Datei gezielt fuer weitere Imports nutzen
+
+Ziel:
+- weniger Kontext fuer das LLM
+- deutlich kleinere Eingabedateien
+- stabilere Extraktion bei lokal laufenden Modellen
+- besser kontrollierbarer Initialload fuer grosse Unternehmens-BPMNs
+
+Wichtige Einordnung:
+- der Transformer ersetzt keine fachliche BPMN-Auswertung
+- er ist bewusst eine pragmatische Vorreduktion fuer den LLM-zentrierten Importpfad
+- Roh-BPMN und transformierte Datei koennen parallel im Projekt bestehen
+
+## Debug-Modus
+
+Wenn `Debug Mode` in Tab 3 aktiviert ist:
+- schreibt BRIDGR Diagnoseereignisse nach `Output/debug.log`
+- Query-Fehler enthalten Frage, Fehlermeldung und den erzeugten Cypher
+- die Datei ist als JSONL aufgebaut und fuer lokale Fehlersuche gedacht
 
 ## Tests
 

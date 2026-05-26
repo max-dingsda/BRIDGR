@@ -1,8 +1,10 @@
 from pathlib import Path
 
+from graph_schema import build_query_schema_reference
 from query_layer import (
     answer_question,
     find_application_ambiguity_options,
+    generate_cypher_from_question,
     resolve_application_clarification,
 )
 
@@ -17,6 +19,15 @@ class FakeLlmClient:
 class FakeNeo4jClient:
     def execute_read(self, query: str, parameters=None):
         return [{"process_name": "Auftragsabwicklung"}]
+
+
+class PromptCapturingLlmClient:
+    def __init__(self) -> None:
+        self.system_prompt = ""
+
+    def generate_text(self, system_prompt: str, user_prompt: str) -> str:
+        self.system_prompt = system_prompt
+        return "MATCH (p:Prozess) RETURN p.name AS process"
 
 
 def test_answer_question_returns_cypher_and_rows(tmp_path: Path) -> None:
@@ -36,6 +47,25 @@ def test_answer_question_returns_cypher_and_rows(tmp_path: Path) -> None:
     assert answer_text == "Es gibt den Prozess Auftragsabwicklung im Wissensgraphen."
     assert "MATCH" in cypher_query
     assert rows == [{"process_name": "Auftragsabwicklung"}]
+
+
+def test_generate_cypher_from_question_appends_runtime_schema_reference(tmp_path: Path) -> None:
+    cypher_prompt_path = tmp_path / "cypher_gen.md"
+    cypher_prompt_path.write_text(
+        "Apply all explicit filters from the question directly in Cypher whenever possible.",
+        encoding="utf-8",
+    )
+    llm_client = PromptCapturingLlmClient()
+
+    cypher_query = generate_cypher_from_question(
+        question="Welche Prozesse gibt es?",
+        llm_client=llm_client,
+        prompt_path=cypher_prompt_path,
+    )
+
+    assert cypher_query == "MATCH (p:Prozess) RETURN p.name AS process"
+    assert build_query_schema_reference() in llm_client.system_prompt
+    assert "Apply all explicit filters from the question directly in Cypher whenever possible." in llm_client.system_prompt
 
 
 class FenceLlmClient:
