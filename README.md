@@ -26,7 +26,7 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - Neo4j-Write-Pfad fuer Prozesse, Orgeinheiten und bestaetigte bzw. starke Anwendungslinks
 - natuerlichsprachlicher Query-Layer mit Session-Chat, LLM -> Cypher -> Neo4j -> Antwort und Rueckfrage bei Mehrdeutigkeiten
 - persistente Knowledge Base
-- Streamlit-UI mit 3 Tabs
+- Streamlit-UI mit 4 Tabs
 - persistente Laufartefakte in `Output/`
 - optionales `debug.log` fuer Query-/LLM-Diagnose im Output-Ordner
 - aktionsfaehige Review-Liste fuer `Bestaetigen`, `Ablehnen` und `manuellen Link anlegen`
@@ -205,6 +205,21 @@ Aktuell verfuegbar:
 - Neo4j-Erreichbarkeit anhand der aktuell wirksamen Konfiguration pruefen
 - LLM-Erreichbarkeit und Modellverfuegbarkeit getrennt pruefen
 - Laufzeit erfolgreicher Pipeline-Laeufe direkt in der UI anzeigen
+
+### Tab 4 - Organisation
+
+Aktuell verfuegbar:
+- bekannte Organisationseinheiten manuell pflegen
+- Organisationseinheiten direkt als `:OrgEinheit` nach Neo4j synchronisieren
+- offene Kandidaten aus unstrukturierten Dokumenten anzeigen
+- Kandidaten auf bestehende Organisationseinheiten mappen
+- Kandidaten als neue Organisationseinheit uebernehmen
+- Kandidaten abweisen
+- bei gemappten oder uebernommenen Kandidaten betroffene Prozesse im letzten Lauf gezielt neu bewerten und `VERANTWORTET`-Beziehungen in Neo4j nachziehen
+
+Wichtige Einordnung:
+- manuell angelegte Organisationseinheiten koennen zunaechst ohne Prozessbezug im Graph existieren
+- fuer bereits vor dem Sync-Mechanismus gepflegte Altbestaende gibt es aktuell noch keinen separaten Sammel-Button; das ist als spaeterer Ausbaupunkt festgehalten
 
 ## BPMN-Transformer fuer grosse Modelle
 

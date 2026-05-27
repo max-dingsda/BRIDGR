@@ -9,6 +9,7 @@ from typing import Any
 
 STATE_FILENAME = "import_state.json"
 LATEST_RUN_FILENAME = "latest_run.json"
+LAST_IMPORT_SELECTION_FILENAME = "last_import_selection.json"
 
 
 @dataclass(slots=True)
@@ -74,3 +75,20 @@ def write_latest_run(payload: dict[str, Any], output_path: Path) -> None:
     with run_path.open("w", encoding="utf-8") as handle:
         json.dump(payload, handle, indent=2, ensure_ascii=False)
         handle.write("\n")
+
+
+def save_last_import_selection(source_paths: list[str], output_path: Path) -> None:
+    output_path.mkdir(parents=True, exist_ok=True)
+    selection_path = output_path / LAST_IMPORT_SELECTION_FILENAME
+    with selection_path.open("w", encoding="utf-8") as handle:
+        json.dump({"source_paths": source_paths}, handle, indent=2, ensure_ascii=False)
+        handle.write("\n")
+
+
+def load_last_import_selection(output_path: Path) -> list[str]:
+    selection_path = output_path / LAST_IMPORT_SELECTION_FILENAME
+    if not selection_path.exists():
+        return []
+    with selection_path.open("r", encoding="utf-8") as handle:
+        payload = json.load(handle)
+    return list(payload.get("source_paths", []))

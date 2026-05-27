@@ -13,7 +13,7 @@
   "cmdb_name_column": "application_name",
   "input_path": "Input",
   "cmdb_filename": "fake_cmdb.csv",
-  "output_path": "Output",
+  "output_path": "F:/workspace/BRIDGR/Output",
   "last_run_mode": "initial",
   "debug_mode": true
 }

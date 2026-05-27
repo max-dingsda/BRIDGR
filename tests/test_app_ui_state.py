@@ -24,9 +24,12 @@ from app import (
     get_pipeline_run_tracker,
     get_llm_status,
     get_neo4j_connection_status,
+    persist_org_candidate_mapping_refresh,
+    persist_org_unit_node,
     get_session_neo4j_client,
     reset_query_chat_state,
     reset_session_neo4j_client,
+    rerun_single_document_from_artifact,
     run_query_chat_turn,
     set_run_feedback,
     update_pipeline_run_tracker,
@@ -35,6 +38,8 @@ from app import (
     write_debug_log,
 )
 from app_config import AppConfig
+from skills.extract.extract_base import ApplicationReference
+from knowledge_base import KnowledgeBase
 
 
 def test_ensure_import_session_defaults_uses_config_mode() -> None:
@@ -383,6 +388,107 @@ def test_write_debug_log_creates_jsonl_entry(tmp_path, monkeypatch) -> None:
     log_content = (tmp_path / "debug.log").read_text(encoding="utf-8")
     assert '"event": "query_error"' in log_content
     assert '"question": "Welche Prozesse gibt es?"' in log_content
+
+
+def test_persist_org_unit_node_merges_org_unit_node(monkeypatch) -> None:
+    captured = {}
+
+    class FakeNeo4jClient:
+        def execute_write(self, query: str, parameters: dict | None = None) -> list[dict]:
+            captured["query"] = query
+            captured["parameters"] = parameters
+            return []
+
+    monkeypatch.setattr("app.get_session_neo4j_client", lambda _config: FakeNeo4jClient())
+
+    persist_org_unit_node(AppConfig(neo4j_password="secret"), "  People   &  Culture  ")
+
+    assert "MERGE (:OrgEinheit {name: $org_unit_name})" in captured["query"]
+    assert captured["parameters"] == {"org_unit_name": "People & Culture"}
+
+
+def test_persist_org_candidate_mapping_refresh_syncs_org_unit_node_without_latest_run(monkeypatch) -> None:
+    synced_org_units = []
+
+    monkeypatch.setattr(
+        "app.load_knowledge_base",
+        lambda: KnowledgeBase(
+            confirmed=[],
+            rejected=[],
+            disambiguation=[],
+            process_identity=[],
+            org_units=[],
+            org_unit_candidates=[
+                {
+                    "candidate_name": "People & Culture",
+                    "normalized_name": "people & culture",
+                    "source_paths": ["Input/process.txt"],
+                    "process_names": ["Abwesenheit bearbeiten"],
+                    "role_names": [],
+                    "status": "mapped",
+                    "mapped_org_unit": "People & Culture",
+                    "first_seen": "2026-05-27",
+                    "last_seen": "2026-05-27",
+                }
+            ],
+        ),
+    )
+    monkeypatch.setattr("app.persist_org_unit_node", lambda _config, name: synced_org_units.append(name))
+    monkeypatch.setattr("app.resolve_runtime_output_path", lambda _path: (None, False))
+    monkeypatch.setattr("app.load_latest_run", lambda _path: None)
+
+    refreshed_count = persist_org_candidate_mapping_refresh(AppConfig(neo4j_password="secret"), "People & Culture")
+
+    assert refreshed_count == 0
+    assert synced_org_units == ["People & Culture"]
+
+
+def test_rerun_single_document_from_artifact_applies_org_unit_candidate_mapping() -> None:
+    knowledge_base = KnowledgeBase(
+        confirmed=[],
+        rejected=[],
+        disambiguation=[],
+        process_identity=[],
+        org_units=[{"name": "QM", "created_at": "2026-05-27", "source": "manual"}],
+        org_unit_candidates=[
+            {
+                "candidate_name": "Qualitaetsmanagement",
+                "normalized_name": "qualitaetsmanagement",
+                "source_paths": ["Input/process.txt"],
+                "process_names": ["Pruefen"],
+                "role_names": [],
+                "status": "mapped",
+                "mapped_org_unit": "QM",
+                "first_seen": "2026-05-27",
+                "last_seen": "2026-05-27",
+            }
+        ],
+    )
+    document = {
+        "source_path": "Input/process.txt",
+        "extracted_process": {
+            "process_name": "Pruefen",
+            "process_id": "proc-1",
+            "org_unit": "",
+            "roles": [],
+            "org_units": [],
+            "org_unit_candidates": ["Qualitaetsmanagement"],
+            "follows_after": [],
+            "raw_applications": [],
+            "applications": [],
+            "source_path": "Input/process.txt",
+        },
+        "matches": [],
+        "review_items": [],
+        "graph_payload": {},
+        "status": "no_matches",
+    }
+
+    refreshed = rerun_single_document_from_artifact(document, AppConfig(), [], knowledge_base)
+
+    assert refreshed["extracted_process"]["org_units"] == ["QM"]
+    assert refreshed["extracted_process"]["org_unit"] == "QM"
+    assert refreshed["graph_payload"]["process"]["org_units"] == ["QM"]
 
 
 def test_run_query_chat_turn_logs_cypher_on_query_error(tmp_path, monkeypatch) -> None:

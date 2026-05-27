@@ -37,6 +37,7 @@ from knowledge_base import (
     clear_knowledge_base_sections,
     confirm_link,
     map_org_unit_candidate,
+    normalize_org_unit_name,
     load_knowledge_base,
     reject_org_unit_candidate,
     reject_link,
@@ -50,9 +51,14 @@ from neo4j_utils import (
     Neo4jQueryError,
     QueryValidationError,
 )
-from pipeline import run_pipeline
+from pipeline import apply_org_unit_mapping, build_manual_matches, run_pipeline
 from query_layer import build_natural_language_answer, generate_cypher_from_question
-from run_artifacts import load_latest_run
+from run_artifacts import load_latest_run, write_latest_run
+from run_artifacts import load_last_import_selection, save_last_import_selection
+from skills.extract.extract_base import ApplicationReference, ExtractedProcess
+from skills.graph_writer import GraphWriter
+from skills.match import MatchResult, match_application_candidates
+from skills.review import collect_review_items
 from ui_run_view import (
     build_duplicate_application_warnings,
     build_document_details,
@@ -123,6 +129,22 @@ def get_session_neo4j_client(config: AppConfig) -> Neo4jClient:
     st.session_state[NEO4J_CLIENT_STATE_KEY] = client
     st.session_state[NEO4J_CLIENT_CONFIG_STATE_KEY] = desired_key
     return client
+
+
+def persist_org_unit_node(config: AppConfig, org_unit_name: str) -> None:
+    cleaned_name = " ".join(org_unit_name.strip().split())
+    if not cleaned_name:
+        return
+
+    neo4j_client = get_session_neo4j_client(config)
+    neo4j_client.execute_write(
+        """
+        MERGE (:OrgEinheit {name: $org_unit_name})
+        """,
+        {
+            "org_unit_name": cleaned_name,
+        },
+    )
 
 
 def get_neo4j_connection_status(config: AppConfig, force_refresh: bool = False) -> tuple[bool, str]:
@@ -333,7 +355,6 @@ def start_async_pipeline_run(
     threading.Thread(target=worker, daemon=True).start()
 
 
-@st.fragment(run_every=1)
 def render_active_pipeline_run_monitor(
     run_state_key: str,
     feedback_state_key: str,
@@ -361,20 +382,70 @@ def render_active_pipeline_run_monitor(
             )
         else:
             st.info("Lauf gestartet. Die Anzahl der zu bearbeitenden Dateien wird ermittelt.")
+        sleep(1)
+        st.rerun()
         return
 
     st.session_state.pop(run_state_key, None)
     clear_pipeline_run_tracker(active_run_id)
     if status == "success":
         duration_seconds = float(tracker.get("duration_seconds") or 0.0)
-        set_run_feedback(
-            feedback_state_key,
-            "success",
-            str(tracker.get("success_message_template", "")).format(duration=format_duration(duration_seconds)),
+        success_message = str(tracker.get("success_message_template", "")).format(
+            duration=format_duration(duration_seconds)
         )
+        set_run_feedback(feedback_state_key, "success", success_message)
+        st.success(success_message)
     else:
-        set_run_feedback(feedback_state_key, "error", str(tracker.get("error_message", "Unbekannter Fehler.")))
-    st.rerun()
+        error_message = str(tracker.get("error_message", "Unbekannter Fehler."))
+        set_run_feedback(feedback_state_key, "error", error_message)
+        st.error(error_message)
+
+
+def run_pipeline_with_live_feedback(
+    config: AppConfig,
+    feedback_state_key: str,
+    success_message_template: str,
+    input_paths: list[Path] | None = None,
+) -> None:
+    clear_run_feedback(feedback_state_key)
+    progress_placeholder = st.empty()
+    status_placeholder = st.empty()
+    started_at = perf_counter()
+
+    def progress_callback(progress: dict) -> None:
+        total = max(0, int(progress.get("total", 0)))
+        completed = max(0, int(progress.get("completed", 0)))
+        source_path = progress.get("source_path", "")
+        document_status = progress.get("status", "")
+        source_name = Path(source_path).name if source_path else "-"
+        if total > 0:
+            progress_placeholder.progress(min(1.0, completed / total))
+            status_placeholder.info(
+                f"{completed} von {total} Dateien bearbeitet. Aktuell/zuletzt: `{source_name}` ({document_status or 'unbekannt'})."
+            )
+        else:
+            status_placeholder.info("Lauf gestartet. Die Anzahl der zu bearbeitenden Dateien wird ermittelt.")
+
+    try:
+        run_pipeline(
+            config,
+            input_paths=input_paths,
+            progress_callback=progress_callback,
+        )
+    except Exception as exc:
+        progress_placeholder.empty()
+        status_placeholder.empty()
+        error_message = str(exc)
+        set_run_feedback(feedback_state_key, "error", error_message)
+        st.error(error_message)
+        return
+
+    progress_placeholder.empty()
+    status_placeholder.empty()
+    duration = format_duration(perf_counter() - started_at)
+    success_message = success_message_template.format(duration=duration)
+    set_run_feedback(feedback_state_key, "success", success_message)
+    st.success(success_message)
 
 
 def render_query_tab() -> None:
@@ -530,26 +601,60 @@ def render_review_tab() -> None:
     st.subheader("Link Editing")
     config = load_config(Path("config.json"))
     render_run_feedback(REVIEW_RUN_FEEDBACK_STATE_KEY)
-    render_active_pipeline_run_monitor(ACTIVE_REVIEW_RUN_ID_STATE_KEY, REVIEW_RUN_FEEDBACK_STATE_KEY)
-    preview_running = bool(st.session_state.get(ACTIVE_REVIEW_RUN_ID_STATE_KEY))
+
+    input_dir = resolve_project_path(config.input_path)
+    current_process_files = list_process_files(input_dir)
+    process_file_labels = {path.relative_to(input_dir).as_posix(): path for path in current_process_files}
+    runtime_output_path, used_output_fallback = resolve_runtime_output_path(config.output_path)
+    last_import_source_paths = load_last_import_selection(runtime_output_path)
+    last_import_labels = [
+        path.relative_to(input_dir).as_posix()
+        for path in current_process_files
+        if str(path) in last_import_source_paths
+    ]
 
     action_column, info_column = st.columns([1, 2])
     with action_column:
-        if st.button("Pipeline Preview starten", key="review_preview", width="stretch", disabled=preview_running):
+        preview_scope = st.radio(
+            "Preview-Umfang",
+            options=["Nur letzter Import", "Dateien manuell waehlen"],
+            key="review_scope_mode",
+        )
+        selected_preview_filenames: list[str] = []
+        if preview_scope == "Nur letzter Import":
+            if last_import_labels:
+                st.caption(f"{len(last_import_labels)} Datei(en) aus dem letzten Import werden fuer die Preview verwendet.")
+                st.write(last_import_labels)
+                selected_preview_filenames = last_import_labels
+            else:
+                st.info("Es liegt noch keine gespeicherte Auswahl aus dem letzten Import vor.")
+        else:
+            selected_preview_filenames = st.multiselect(
+                "Dateien fuer Preview",
+                options=list(process_file_labels.keys()),
+                default=[],
+                key="review_process_selection",
+            )
+        if st.button("Pipeline Preview starten", key="review_preview", width="stretch"):
             if not config.llm_model:
                 st.warning("Bitte zuerst ein LLM-Modell in Anwendungskonfig konfigurieren.")
+            elif not selected_preview_filenames:
+                st.info("Bitte waehlen Sie mindestens eine Prozessdatei fuer die Preview aus.")
             else:
-                start_async_pipeline_run(
+                selected_input_paths = [
+                    process_file_labels[label]
+                    for label in selected_preview_filenames
+                ]
+                run_pipeline_with_live_feedback(
                     config,
-                    run_state_key=ACTIVE_REVIEW_RUN_ID_STATE_KEY,
                     feedback_state_key=REVIEW_RUN_FEEDBACK_STATE_KEY,
                     success_message_template="Preview-Lauf abgeschlossen in {duration}. Artefakte im Output-Ordner wurden aktualisiert.",
+                    input_paths=selected_input_paths,
                 )
                 st.rerun()
     with info_column:
         st.caption("Die Ansicht liest den letzten gespeicherten Lauf aus `Output/latest_run.json`.")
 
-    runtime_output_path, used_output_fallback = resolve_runtime_output_path(config.output_path)
     latest_run = load_latest_run(runtime_output_path)
     if latest_run is None:
         if used_output_fallback:
@@ -594,6 +699,235 @@ def render_latest_run_summary(latest_run: dict) -> None:
     metric_columns[4].metric("Errors", int(summary["errors"]))
     if summary["no_matches"]:
         st.caption(f"Documents without application matches: {summary['no_matches']}")
+
+
+def reconstruct_extracted_process(payload: dict) -> ExtractedProcess:
+    return ExtractedProcess(
+        process_name=payload.get("process_name", ""),
+        process_id=payload.get("process_id", ""),
+        org_unit=payload.get("org_unit", ""),
+        roles=list(payload.get("roles", [])),
+        org_units=list(payload.get("org_units", [])),
+        org_unit_candidates=list(payload.get("org_unit_candidates", [])),
+        follows_after=list(payload.get("follows_after", [])),
+        raw_applications=[
+            ApplicationReference(
+                name=item.get("name", ""),
+                confidence=item.get("confidence", ""),
+            )
+            for item in payload.get("raw_applications", [])
+        ],
+        applications=[
+            ApplicationReference(
+                name=item.get("name", ""),
+                confidence=item.get("confidence", ""),
+            )
+            for item in payload.get("applications", [])
+        ],
+        source_path=payload.get("source_path", ""),
+    )
+
+
+def reconstruct_match_result(payload: dict) -> MatchResult:
+    return MatchResult(
+        application_name=payload.get("application_name", ""),
+        cmdb_id=payload.get("cmdb_id"),
+        matched_name=payload.get("matched_name"),
+        confidence=payload.get("confidence", ""),
+        source=payload.get("source", ""),
+        score=float(payload.get("score", 0.0) or 0.0),
+    )
+
+
+def rerun_single_document_from_artifact(
+    document: dict,
+    config: AppConfig,
+    cmdb_rows: list[dict[str, str]],
+    knowledge_base,
+) -> dict:
+    extracted_process = reconstruct_extracted_process(document.get("extracted_process") or {})
+    extracted_process = apply_org_unit_mapping(extracted_process, knowledge_base)
+    matches: list[MatchResult] = []
+    for application in extracted_process.applications:
+        matches.extend(
+            match_application_candidates(
+                application_name=application.name,
+                process_name=extracted_process.process_name,
+                cmdb_rows=cmdb_rows,
+                confirmed_links=knowledge_base.confirmed,
+                rejected_links=knowledge_base.rejected,
+                threshold=config.fuzzy_threshold,
+                uuid_column=config.cmdb_uuid_column,
+                name_column=config.cmdb_name_column,
+            )
+        )
+    matches.extend(build_manual_matches(extracted_process.process_name, extracted_process.applications, knowledge_base.confirmed))
+    review_items = collect_review_items(extracted_process, matches)
+    graph_payload = GraphWriter().build_payload(extracted_process, matches)
+    document["extracted_process"] = {
+        "process_name": extracted_process.process_name,
+        "process_id": extracted_process.process_id,
+        "org_unit": extracted_process.org_unit,
+        "roles": list(extracted_process.roles),
+        "org_units": list(extracted_process.org_units),
+        "org_unit_candidates": list(extracted_process.org_unit_candidates),
+        "follows_after": list(extracted_process.follows_after),
+        "raw_applications": [asdict(application) for application in extracted_process.raw_applications],
+        "applications": [asdict(application) for application in extracted_process.applications],
+        "source_path": extracted_process.source_path,
+    }
+    document["matches"] = [asdict(match) for match in matches]
+    document["review_items"] = [asdict(review_item) for review_item in review_items]
+    document["graph_payload"] = {
+        "process": {
+            "process_name": graph_payload.process.process_name,
+            "process_id": graph_payload.process.process_id,
+            "org_unit": graph_payload.process.org_unit,
+            "roles": list(graph_payload.process.roles),
+            "org_units": list(graph_payload.process.org_units),
+            "org_unit_candidates": list(graph_payload.process.org_unit_candidates),
+            "follows_after": list(graph_payload.process.follows_after),
+            "raw_applications": [asdict(application) for application in graph_payload.process.raw_applications],
+            "applications": [asdict(application) for application in graph_payload.process.applications],
+            "source_path": graph_payload.process.source_path,
+        },
+        "matches": [asdict(match) for match in matches],
+    }
+    document["status"] = "no_matches" if not extracted_process.applications else "processed"
+    return document
+
+
+def persist_single_document_refresh(
+    config: AppConfig,
+    source_path: str,
+    cmdb_rows: list[dict[str, str]],
+) -> None:
+    runtime_output_path, _ = resolve_runtime_output_path(config.output_path)
+    latest_run = load_latest_run(runtime_output_path)
+    if latest_run is None:
+        return
+    knowledge_base = load_knowledge_base()
+    updated_documents: list[dict] = []
+    updated_document_for_graph: dict | None = None
+    for document in latest_run.get("documents", []):
+        if document.get("source_path") != source_path:
+            updated_documents.append(document)
+            continue
+        refreshed_document = rerun_single_document_from_artifact(document, config, cmdb_rows, knowledge_base)
+        updated_documents.append(refreshed_document)
+        updated_document_for_graph = refreshed_document
+
+    latest_run["documents"] = updated_documents
+    write_latest_run(latest_run, runtime_output_path)
+
+    if updated_document_for_graph is None:
+        return
+
+    graph_payload = updated_document_for_graph.get("graph_payload") or {}
+    process_payload = graph_payload.get("process") or {}
+    matches_payload = graph_payload.get("matches") or []
+    process = reconstruct_extracted_process(process_payload)
+    matches = [reconstruct_match_result(match_payload) for match_payload in matches_payload]
+    graph_writer = GraphWriter()
+    neo4j_client = get_session_neo4j_client(config)
+    graph_writer.write_payload(neo4j_client, graph_writer.build_payload(process, matches))
+
+
+def persist_latest_run_refresh(
+    config: AppConfig,
+    cmdb_rows: list[dict[str, str]],
+) -> int:
+    runtime_output_path, _ = resolve_runtime_output_path(config.output_path)
+    latest_run = load_latest_run(runtime_output_path)
+    if latest_run is None:
+        return 0
+
+    knowledge_base = load_knowledge_base()
+    updated_documents: list[dict] = []
+    graph_writer = GraphWriter()
+    neo4j_client = get_session_neo4j_client(config)
+    refreshed_count = 0
+
+    for document in latest_run.get("documents", []):
+        refreshed_document = rerun_single_document_from_artifact(document, config, cmdb_rows, knowledge_base)
+        updated_documents.append(refreshed_document)
+
+        graph_payload = refreshed_document.get("graph_payload") or {}
+        process_payload = graph_payload.get("process") or {}
+        matches_payload = graph_payload.get("matches") or []
+        process = reconstruct_extracted_process(process_payload)
+        matches = [reconstruct_match_result(match_payload) for match_payload in matches_payload]
+        graph_writer.write_payload(neo4j_client, graph_writer.build_payload(process, matches))
+        refreshed_count += 1
+
+    latest_run["documents"] = updated_documents
+    write_latest_run(latest_run, runtime_output_path)
+    return refreshed_count
+
+
+def persist_org_candidate_mapping_refresh(
+    config: AppConfig,
+    candidate_name: str,
+) -> int:
+    knowledge_base = load_knowledge_base()
+    candidate_entry = next(
+        (
+            entry
+            for entry in knowledge_base.org_unit_candidates
+            if entry.get("candidate_name", "") == candidate_name
+            or entry.get("normalized_name", "") == normalize_org_unit_name(candidate_name)
+        ),
+        None,
+    )
+    if candidate_entry is None:
+        return 0
+
+    mapped_org_unit = candidate_entry.get("mapped_org_unit", "").strip()
+    if mapped_org_unit:
+        persist_org_unit_node(config, mapped_org_unit)
+
+    runtime_output_path, _ = resolve_runtime_output_path(config.output_path)
+    latest_run = load_latest_run(runtime_output_path)
+    if latest_run is None:
+        return 0
+
+    try:
+        cmdb_rows = load_cmdb_rows(
+            resolve_input_cmdb_path(config),
+            config.cmdb_uuid_column,
+            config.cmdb_name_column,
+        )
+    except CmdbLoadError:
+        cmdb_rows = []
+
+    target_source_paths = set(candidate_entry.get("source_paths", []))
+    target_process_names = set(candidate_entry.get("process_names", []))
+    refreshed_count = 0
+    updated_documents: list[dict] = []
+    graph_writer = GraphWriter()
+    neo4j_client = get_session_neo4j_client(config)
+
+    for document in latest_run.get("documents", []):
+        extracted_process_payload = document.get("extracted_process") or {}
+        source_path = document.get("source_path", "")
+        process_name = extracted_process_payload.get("process_name", "")
+        if source_path not in target_source_paths and process_name not in target_process_names:
+            updated_documents.append(document)
+            continue
+
+        refreshed_document = rerun_single_document_from_artifact(document, config, cmdb_rows, knowledge_base)
+        updated_documents.append(refreshed_document)
+        graph_payload = refreshed_document.get("graph_payload") or {}
+        process_payload = graph_payload.get("process") or {}
+        matches_payload = graph_payload.get("matches") or []
+        process = reconstruct_extracted_process(process_payload)
+        matches = [reconstruct_match_result(match_payload) for match_payload in matches_payload]
+        graph_writer.write_payload(neo4j_client, graph_writer.build_payload(process, matches))
+        refreshed_count += 1
+
+    latest_run["documents"] = updated_documents
+    write_latest_run(latest_run, runtime_output_path)
+    return refreshed_count
 
 
 def render_document_status_table(documents: list[dict]) -> None:
@@ -677,6 +1011,7 @@ def render_document_details(documents: list[dict], config: AppConfig, cmdb_rows:
 
 def render_review_actions(detail: dict, config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
     process_name = detail["process_name"]
+    source_path = detail["source_path"]
     matches = detail["matches"]
     if not matches:
         return
@@ -719,7 +1054,7 @@ def render_review_actions(detail: dict, config: AppConfig, cmdb_rows: list[dict[
                 source="manuell_bestaetigt",
             )
             save_knowledge_base(updated_kb)
-            run_pipeline(config)
+            persist_single_document_refresh(config, source_path, cmdb_rows)
             st.success(f"Link fuer '{application_name}' bestaetigt.")
             st.rerun()
 
@@ -732,13 +1067,14 @@ def render_review_actions(detail: dict, config: AppConfig, cmdb_rows: list[dict[
                 cmdb_id=cmdb_id,
             )
             save_knowledge_base(updated_kb)
-            run_pipeline(config)
+            persist_single_document_refresh(config, source_path, cmdb_rows)
             st.success(f"Link fuer '{application_name}' abgelehnt.")
             st.rerun()
 
 
 def render_review_item_actions(review_row: dict, config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
     process_name = review_row.get("prozess", "")
+    source_path = review_row.get("source_path", "")
     application_name = review_row.get("anwendung_im_prozess", "")
     matched_name = review_row.get("anwendung_in_cmdb", "")
     cmdb_id = review_row.get("cmdb_id")
@@ -766,7 +1102,7 @@ def render_review_item_actions(review_row: dict, config: AppConfig, cmdb_rows: l
             source="manuell_bestaetigt",
         )
         save_knowledge_base(updated_kb)
-        run_pipeline(config)
+        persist_single_document_refresh(config, source_path, cmdb_rows)
         st.success(f"Link fuer '{application_name}' bestaetigt.")
         st.rerun()
 
@@ -779,7 +1115,7 @@ def render_review_item_actions(review_row: dict, config: AppConfig, cmdb_rows: l
             cmdb_id=cmdb_id,
         )
         save_knowledge_base(updated_kb)
-        run_pipeline(config)
+        persist_single_document_refresh(config, source_path, cmdb_rows)
         st.success(f"Link fuer '{application_name}' abgelehnt.")
         st.rerun()
 
@@ -815,13 +1151,14 @@ def render_review_item_actions(review_row: dict, config: AppConfig, cmdb_rows: l
                 source="manueller_link",
             )
             save_knowledge_base(updated_kb)
-            run_pipeline(config)
+            persist_single_document_refresh(config, source_path, cmdb_rows)
             st.success(f"Manueller Link fuer '{application_name}' gespeichert.")
             st.rerun()
 
 
 def render_manual_link_form(detail: dict, config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
     process_name = detail["process_name"]
+    source_path = detail["source_path"]
     if not process_name:
         return
 
@@ -876,7 +1213,7 @@ def render_manual_link_form(detail: dict, config: AppConfig, cmdb_rows: list[dic
             source="manueller_link",
         )
         save_knowledge_base(updated_kb)
-        run_pipeline(config)
+        persist_single_document_refresh(config, source_path, cmdb_rows)
         st.success(f"Manueller Link fuer '{application_name}' gespeichert.")
         st.rerun()
 
@@ -912,18 +1249,33 @@ def clear_knowledge_base_and_refresh(config: AppConfig, sections: set[str], succ
     knowledge_base = load_knowledge_base()
     updated_kb = clear_knowledge_base_sections(knowledge_base, sections)
     save_knowledge_base(updated_kb)
-    reset_session_neo4j_client(show_warning=True)
+
     try:
-        run_pipeline(config)
+        cmdb_rows = load_cmdb_rows(
+            resolve_input_cmdb_path(config),
+            config.cmdb_uuid_column,
+            config.cmdb_name_column,
+        )
+    except CmdbLoadError as exc:
+        st.warning(f"{success_message} Die Aktualisierung des letzten Laufs ist fehlgeschlagen: {exc}")
+        st.rerun()
+        return
+
+    try:
+        refreshed_count = persist_latest_run_refresh(config, cmdb_rows)
     except Exception as exc:
-        st.warning(f"{success_message} Der anschliessende Pipeline-Lauf ist fehlgeschlagen: {exc}")
+        st.warning(f"{success_message} Die Aktualisierung des letzten Laufs ist fehlgeschlagen: {exc}")
     else:
-        st.success(f"{success_message} Die Pipeline wurde anschliessend neu ausgefuehrt.")
+        if refreshed_count:
+            st.success(f"{success_message} {refreshed_count} Dokument(e) aus dem letzten Lauf wurden neu bewertet.")
+        else:
+            st.success(success_message)
     st.rerun()
 
 
 def render_organization_tab() -> None:
     st.subheader("Organisation")
+    config = load_config(Path("config.json"))
     knowledge_base = load_knowledge_base()
 
     st.markdown("**Organisationseinheiten**")
@@ -949,7 +1301,12 @@ def render_organization_tab() -> None:
     if add_submitted:
         updated_kb = add_org_unit(knowledge_base, new_org_unit_name, source="manual")
         save_knowledge_base(updated_kb)
-        st.success("Organisationseinheit gespeichert.")
+        try:
+            persist_org_unit_node(config, new_org_unit_name)
+        except (Neo4jConnectionError, Neo4jQueryError) as exc:
+            st.warning(f"Organisationseinheit wurde in BRIDGR gespeichert, konnte aber nicht nach Neo4j synchronisiert werden: {exc}")
+        else:
+            st.success("Organisationseinheit gespeichert und nach Neo4j synchronisiert.")
         st.rerun()
 
     st.markdown("**Kandidaten**")
@@ -986,7 +1343,11 @@ def render_organization_tab() -> None:
                     else:
                         updated_kb = map_org_unit_candidate(knowledge_base, candidate_name, selected_target)
                         save_knowledge_base(updated_kb)
-                        st.success("Kandidat wurde gemappt.")
+                        refreshed_count = persist_org_candidate_mapping_refresh(config, candidate_name)
+                        if refreshed_count:
+                            st.success(f"Kandidat wurde gemappt und {refreshed_count} betroffene Prozesse im Graph aktualisiert.")
+                        else:
+                            st.success("Kandidat wurde gemappt.")
                         st.rerun()
 
                 proposed_name = action_columns[2].text_input(
@@ -997,7 +1358,13 @@ def render_organization_tab() -> None:
                 if action_columns[3].button("Uebernehmen", key=f"org-candidate-accept::{candidate_key}", width="stretch"):
                     updated_kb = accept_org_unit_candidate_as_new(knowledge_base, candidate_name, proposed_name)
                     save_knowledge_base(updated_kb)
-                    st.success("Kandidat wurde als neue Organisationseinheit uebernommen.")
+                    refreshed_count = persist_org_candidate_mapping_refresh(config, candidate_name)
+                    if refreshed_count:
+                        st.success(
+                            f"Kandidat wurde als neue Organisationseinheit uebernommen und {refreshed_count} betroffene Prozesse im Graph aktualisiert."
+                        )
+                    else:
+                        st.success("Kandidat wurde als neue Organisationseinheit uebernommen.")
                     st.rerun()
 
                 if action_columns[4].button("Abweisen", key=f"org-candidate-reject::{candidate_key}", width="stretch"):
@@ -1229,8 +1596,10 @@ def render_path_picker_controls() -> None:
 def render_import_section(config: AppConfig) -> None:
     st.markdown("**Import**")
     ensure_import_session_defaults(config)
+    render_run_feedback(IMPORT_RUN_FEEDBACK_STATE_KEY)
 
     input_dir = resolve_project_path(config.input_path)
+    runtime_output_path, used_output_fallback = resolve_runtime_output_path(config.output_path)
     cmdb_path = resolve_input_cmdb_path(config)
     current_process_files = list_process_files(input_dir)
     process_file_labels = {path.relative_to(input_dir).as_posix(): path for path in current_process_files}
@@ -1320,10 +1689,7 @@ def render_import_section(config: AppConfig) -> None:
                     st.write(transformed_paths)
 
     with run_column:
-        render_run_feedback(IMPORT_RUN_FEEDBACK_STATE_KEY)
-        render_active_pipeline_run_monitor(ACTIVE_IMPORT_RUN_ID_STATE_KEY, IMPORT_RUN_FEEDBACK_STATE_KEY)
-        import_running = bool(st.session_state.get(ACTIVE_IMPORT_RUN_ID_STATE_KEY))
-        if st.button("Pipeline starten", width="stretch", disabled=import_running):
+        if st.button("Pipeline starten", width="stretch"):
             if not config.llm_model:
                 st.warning("Bitte zuerst ein LLM-Modell konfigurieren.")
             else:
@@ -1349,14 +1715,16 @@ def render_import_section(config: AppConfig) -> None:
                         "cmdb_filename": st.session_state.get("active_cmdb_filename", config.cmdb_filename),
                     }
                 )
-                start_async_pipeline_run(
+                save_last_import_selection(
+                    [str(path) for path in explicit_input_paths],
+                    runtime_output_path,
+                )
+                run_pipeline_with_live_feedback(
                     runtime_config,
-                    run_state_key=ACTIVE_IMPORT_RUN_ID_STATE_KEY,
                     feedback_state_key=IMPORT_RUN_FEEDBACK_STATE_KEY,
                     success_message_template="Pipeline-Lauf abgeschlossen in {duration}. Ergebnisse liegen im Output-Ordner.",
                     input_paths=explicit_input_paths,
                 )
-                st.rerun()
 
     current_cmdb_files = list_cmdb_files(input_dir)
     ensure_active_cmdb_selection(config, current_cmdb_files)
@@ -1383,7 +1751,6 @@ def render_import_section(config: AppConfig) -> None:
     else:
         st.info("Noch keine CMDB-Datei im Input-Pfad vorhanden.")
 
-    runtime_output_path, used_output_fallback = resolve_runtime_output_path(config.output_path)
     st.caption(f"Konfigurierter Output-Pfad: `{resolve_project_path(config.output_path)}`")
     if used_output_fallback:
         st.warning(f"Der konfigurierte Output-Pfad ist aktuell nicht beschreibbar. Artefakte werden nach `{runtime_output_path}` geschrieben.")

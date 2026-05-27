@@ -46,7 +46,7 @@ Der Input-Pfad bleibt eine Ablage- und Auswahlhilfe. Verarbeitet werden im UI-Pf
 | Bereich | In Scope | Out of Scope |
 |---|---|---|
 | Eingabeformate | BPMN, TXT, DOCX, PDF | Weitere Formate |
-| UI | Streamlit Web-UI (3 produktive Tabs, 4. Tab `Organisation` als naechster Ausbauschritt vorgesehen) | CLI-Review |
+| UI | Streamlit Web-UI (4 Tabs inkl. `Organisation`) | CLI-Review |
 | Review | Tab 2 im Web-UI | Externes Ticketing |
 | Lauf-Modi | Initial, Full Update, Delta Update | Parallele Agent-Pipeline |
 | Query-Layer | Tab 1 (NL -> Cypher -> Antwort) | Schreibender Query-Layer |
@@ -291,14 +291,15 @@ Mit v0.13 gilt zusaetzlich:
 - verarbeitet werden im UI-Lauf die explizit ausgewaehlten Prozessdateien
 - transformierte BPMN-Dateien koennen direkt aus dem UI erzeugt und anschliessend gezielt importiert werden
 
-Geplanter naechster UI-Ausbau:
+Aktueller UI-Stand:
 
-- ein zusaetzlicher Tab `Organisation`
+- ein zusaetzlicher Tab `Organisation` ist implementiert
 - dort pflegt der Benutzer im ersten Wurf manuell bekannte Organisationseinheiten
 - diese Liste dient als Referenz fuer den konservativen 1:1-Abgleich zwischen extrahierter `rolle` und `org_einheit`
-- derselbe Tab enthaelt zusaetzlich einen Bereich `Kandidaten`, in dem moegliche Organisationseinheiten aus Prozessdokumenten gesammelt werden
-- fuer Kandidaten sind im ersten Wurf drei Aktionen vorgesehen: auf bestehende Organisationseinheit mappen, als neue Organisationseinheit uebernehmen oder abweisen
+- derselbe Tab enthaelt zusaetzlich einen Bereich `Kandidaten`, in dem moegliche Organisationseinheiten aus unstrukturierten Prozessdokumenten gesammelt werden
+- fuer Kandidaten stehen die Aktionen zur Verfuegung: auf bestehende Organisationseinheit mappen, als neue Organisationseinheit uebernehmen oder abweisen
 - erst nach einer solchen Benutzerentscheidung duerfen Kandidaten Einfluss auf `org_einheit` im produktiven Graph nehmen
+- manuell angelegte Organisationseinheiten werden direkt als `:OrgEinheit` nach Neo4j synchronisiert; Beziehungen zu Prozessen entstehen erst dort, wo ein Kandidat oder ein 1:1-Match gegen einen konkreten Prozess vorliegt
 - die Pflege ueber Importe aus Organigrammen oder anderen Quellen bleibt ausdruecklich als spaetere Erweiterung offen
 
 ---

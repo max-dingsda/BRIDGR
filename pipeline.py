@@ -179,6 +179,7 @@ def run_pipeline(
                 "status": "",
             }
         )
+    graph_writer.cleanup_process_placeholders(neo4j_client)
     neo4j_client.close()
     return run_result
 

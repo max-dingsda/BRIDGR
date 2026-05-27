@@ -1,15 +1,97 @@
 {
-  "confirmed": [
-    {
-      "prozess": "Anforderung sichten",
-      "anwendung_name": "Email",
-      "cmdb_id": "744b30b1-b138-4e67-849d-37cdee4c1482",
-      "resolved_to": "Mail System",
-      "bestaetigt_am": "2026-05-27",
-      "quelle": "manuell_bestaetigt"
-    }
-  ],
+  "confirmed": [],
   "rejected": [],
   "disambiguation": [],
-  "process_identity": []
+  "process_identity": [],
+  "org_units": [
+    {
+      "name": "QM",
+      "created_at": "2026-05-27",
+      "source": "manual"
+    },
+    {
+      "name": "Customer Service Team",
+      "created_at": "2026-05-27",
+      "source": "manual"
+    },
+    {
+      "name": "Sales",
+      "created_at": "2026-05-27",
+      "source": "manual"
+    },
+    {
+      "name": "Team Accounting",
+      "created_at": "2026-05-27",
+      "source": "candidate"
+    },
+    {
+      "name": "Team Logistik",
+      "created_at": "2026-05-27",
+      "source": "candidate"
+    }
+  ],
+  "org_unit_candidates": [
+    {
+      "candidate_name": "Qualitaetsmanagement",
+      "normalized_name": "qualitaetsmanagement",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx"
+      ],
+      "process_names": [
+        "Lieferantenmanagement"
+      ],
+      "role_names": [
+        "Einkauf"
+      ],
+      "status": "mapped",
+      "mapped_org_unit": "QM",
+      "first_seen": "2026-05-27",
+      "last_seen": "2026-05-27"
+    },
+    {
+      "candidate_name": "Team Logistik",
+      "normalized_name": "team logistik",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt"
+      ],
+      "process_names": [
+        "Bestellabwicklung"
+      ],
+      "role_names": [],
+      "status": "mapped",
+      "mapped_org_unit": "Team Logistik",
+      "first_seen": "2026-05-27",
+      "last_seen": "2026-05-27"
+    },
+    {
+      "candidate_name": "Bereich OPS",
+      "normalized_name": "bereich ops",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt"
+      ],
+      "process_names": [
+        "Bestellabwicklung"
+      ],
+      "role_names": [],
+      "status": "mapped",
+      "mapped_org_unit": "Customer Service Team",
+      "first_seen": "2026-05-27",
+      "last_seen": "2026-05-27"
+    },
+    {
+      "candidate_name": "Team Accounting",
+      "normalized_name": "team accounting",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt"
+      ],
+      "process_names": [
+        "Bestellabwicklung"
+      ],
+      "role_names": [],
+      "status": "mapped",
+      "mapped_org_unit": "Team Accounting",
+      "first_seen": "2026-05-27",
+      "last_seen": "2026-05-27"
+    }
+  ]
 }

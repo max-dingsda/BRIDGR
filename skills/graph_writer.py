@@ -21,16 +21,7 @@ class GraphWriter:
     def write_payload(self, client: Neo4jClient, payload: GraphWritePayload) -> None:
         client.ensure_constraints()
         process = payload.process
-        client.execute_write(
-            """
-            MERGE (p:Prozess {prozess_id: $process_id})
-            SET p.name = $process_name
-            """,
-            {
-                "process_id": process.process_id,
-                "process_name": process.process_name,
-            },
-        )
+        self._upsert_process_node(client, process.process_id, process.process_name)
         client.execute_write(
             """
             MATCH (p:Prozess {prozess_id: $process_id})-[r:NUTZT]->(:Anwendung)
@@ -90,6 +81,8 @@ class GraphWriter:
                 """
                 MERGE (current:Prozess {prozess_id: $process_id})
                 MERGE (previous:Prozess {name: $previous_process_name})
+                ON CREATE SET previous.placeholder = true
+                SET previous.placeholder = coalesce(previous.placeholder, true)
                 MERGE (current)-[:FOLGT_AUF]->(previous)
                 """,
                 {
@@ -121,3 +114,110 @@ class GraphWriter:
                     "confidence": match.confidence,
                 },
             )
+
+    def cleanup_process_placeholders(self, client: Neo4jClient) -> None:
+        client.execute_write(
+            """
+            MATCH (p:Prozess {placeholder: true})
+            DETACH DELETE p
+            """
+        )
+
+    def _upsert_process_node(self, client: Neo4jClient, process_id: str, process_name: str) -> None:
+        placeholder_rows = client.execute_write(
+            """
+            MATCH (p:Prozess {name: $process_name, placeholder: true})
+            RETURN elementId(p) AS element_id
+            """,
+            {
+                "process_name": process_name,
+            },
+        )
+        process_rows = client.execute_write(
+            """
+            MATCH (p:Prozess {prozess_id: $process_id})
+            RETURN elementId(p) AS element_id
+            """,
+            {
+                "process_id": process_id,
+            },
+        )
+
+        if process_rows:
+            client.execute_write(
+                """
+                MATCH (p:Prozess {prozess_id: $process_id})
+                SET p.name = $process_name,
+                    p.placeholder = false
+                """,
+                {
+                    "process_id": process_id,
+                    "process_name": process_name,
+                },
+            )
+            self._resolve_duplicate_placeholders(client, process_id, process_name)
+            return
+
+        if len(placeholder_rows) == 1:
+            client.execute_write(
+                """
+                MATCH (p)
+                WHERE elementId(p) = $element_id
+                SET p.prozess_id = $process_id,
+                    p.name = $process_name,
+                    p.placeholder = false
+                """,
+                {
+                    "element_id": placeholder_rows[0]["element_id"],
+                    "process_id": process_id,
+                    "process_name": process_name,
+                },
+            )
+            return
+
+        client.execute_write(
+            """
+            MERGE (p:Prozess {prozess_id: $process_id})
+            SET p.name = $process_name,
+                p.placeholder = false
+            """,
+            {
+                "process_id": process_id,
+                "process_name": process_name,
+            },
+        )
+
+    def _resolve_duplicate_placeholders(self, client: Neo4jClient, process_id: str, process_name: str) -> None:
+        client.execute_write(
+            """
+            MATCH (real:Prozess {prozess_id: $process_id})
+            MATCH (placeholder:Prozess {name: $process_name, placeholder: true})
+            WHERE elementId(real) <> elementId(placeholder)
+            OPTIONAL MATCH (source:Prozess)-[:FOLGT_AUF]->(placeholder)
+            WITH real, placeholder, collect(DISTINCT source) AS sources
+            FOREACH (src IN sources |
+                MERGE (src)-[:FOLGT_AUF]->(real)
+            )
+            """,
+            {
+                "process_id": process_id,
+                "process_name": process_name,
+            },
+        )
+        client.execute_write(
+            """
+            MATCH (real:Prozess {prozess_id: $process_id})
+            MATCH (placeholder:Prozess {name: $process_name, placeholder: true})
+            WHERE elementId(real) <> elementId(placeholder)
+            OPTIONAL MATCH (placeholder)-[:FOLGT_AUF]->(target:Prozess)
+            WITH real, placeholder, collect(DISTINCT target) AS targets
+            FOREACH (dst IN targets |
+                MERGE (real)-[:FOLGT_AUF]->(dst)
+            )
+            DETACH DELETE placeholder
+            """,
+            {
+                "process_id": process_id,
+                "process_name": process_name,
+            },
+        )

@@ -205,17 +205,23 @@ def test_run_pipeline_writes_artifacts_and_skips_unchanged_delta_files(tmp_path:
             }
 
     class FakeNeo4jClient:
+        def __init__(self) -> None:
+            self.cleanup_called = False
+
         def close(self) -> None:
             return None
 
         def execute_write(self, query: str, parameters=None):
+            if "MATCH (p:Prozess {placeholder: true})" in query:
+                self.cleanup_called = True
             return []
 
         def ensure_constraints(self) -> None:
             return None
 
     monkeypatch.setattr("pipeline.OpenAICompatibleClient", PipelineLlmClient)
-    monkeypatch.setattr("pipeline.build_neo4j_client", lambda config: FakeNeo4jClient())
+    fake_client = FakeNeo4jClient()
+    monkeypatch.setattr("pipeline.build_neo4j_client", lambda config: fake_client)
 
     config = AppConfig(
         llm_base_url="http://localhost:11434/v1",
@@ -236,6 +242,7 @@ def test_run_pipeline_writes_artifacts_and_skips_unchanged_delta_files(tmp_path:
     assert second_run.documents[0].status == "skipped_unchanged"
     assert (output_dir / STATE_FILENAME).exists()
     assert (output_dir / LATEST_RUN_FILENAME).exists()
+    assert fake_client.cleanup_called is True
 
 
 def test_run_pipeline_reports_progress_updates(tmp_path: Path, monkeypatch) -> None:
