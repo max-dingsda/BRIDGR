@@ -6,6 +6,8 @@ import json
 import os
 from pathlib import Path
 from time import perf_counter
+import threading
+from uuid import uuid4
 
 import streamlit as st
 
@@ -24,14 +26,19 @@ from constants import (
     DOCUMENT_STATUS_OPTIONS,
     MATCH_SOURCE_REJECTED,
 )
+import debug_utils
 from dialog_utils import pick_directory, pick_file
 from env_loader import load_env_files
 from import_utils import list_cmdb_files, list_process_files, sanitize_uploaded_name, save_uploaded_file
 from input_validation import validate_manual_application_name
 from knowledge_base import (
+    accept_org_unit_candidate_as_new,
+    add_org_unit,
     clear_knowledge_base_sections,
     confirm_link,
+    map_org_unit_candidate,
     load_knowledge_base,
+    reject_org_unit_candidate,
     reject_link,
     save_knowledge_base,
 )
@@ -64,6 +71,13 @@ LLM_STATUS_CONFIG_STATE_KEY = "llm_status_config"
 CHAT_MESSAGES_STATE_KEY = "chat_messages"
 CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY = "chat_pending_application_options"
 CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY = "chat_pending_original_question"
+REVIEW_RUN_FEEDBACK_STATE_KEY = "review_run_feedback"
+IMPORT_RUN_FEEDBACK_STATE_KEY = "import_run_feedback"
+ACTIVE_REVIEW_RUN_ID_STATE_KEY = "active_review_run_id"
+ACTIVE_IMPORT_RUN_ID_STATE_KEY = "active_import_run_id"
+
+PIPELINE_RUN_TRACKER_LOCK = threading.Lock()
+PIPELINE_RUN_TRACKER: dict[str, dict] = {}
 
 
 def build_neo4j_client_key(config: AppConfig) -> tuple[str, str, str, str]:
@@ -161,6 +175,7 @@ def get_llm_status(config: AppConfig, force_refresh: bool = False) -> tuple[str,
                     model=config.llm_model,
                     api_key_env=config.llm_api_key_env,
                     timeout_seconds=config.llm_timeout_seconds,
+                    debug_logger=lambda event, details: write_debug_log(config, event, details),
                 )
             )
             models = client.list_models()
@@ -187,22 +202,12 @@ def get_llm_status(config: AppConfig, force_refresh: bool = False) -> tuple[str,
 
 
 def write_debug_log(config: AppConfig, event: str, details: dict) -> None:
-    if not config.debug_mode:
-        return
-
+    original_resolver = debug_utils.resolve_runtime_output_path
     try:
-        output_dir, _ = resolve_runtime_output_path(config.output_path)
-        log_path = output_dir / "debug.log"
-        entry = {
-            "timestamp": datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z"),
-            "event": event,
-            "details": details,
-        }
-        with log_path.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(entry, ensure_ascii=False))
-            handle.write("\n")
-    except OSError:
-        return
+        debug_utils.resolve_runtime_output_path = resolve_runtime_output_path
+        debug_utils.write_debug_log(config, event, details)
+    finally:
+        debug_utils.resolve_runtime_output_path = original_resolver
 
 
 def format_duration(seconds: float) -> str:
@@ -216,10 +221,171 @@ def format_duration(seconds: float) -> str:
     return f"{remaining_seconds}s"
 
 
+def clear_run_feedback(state_key: str) -> None:
+    st.session_state.pop(state_key, None)
+
+
+def render_run_feedback(state_key: str) -> None:
+    feedback = st.session_state.get(state_key)
+    if not feedback:
+        return
+
+    level = feedback.get("level", "info")
+    message = feedback.get("message", "")
+    if level == "success":
+        st.success(message)
+    elif level == "error":
+        st.error(message)
+    elif level == "warning":
+        st.warning(message)
+    else:
+        st.info(message)
+
+
+def set_run_feedback(state_key: str, level: str, message: str) -> None:
+    st.session_state[state_key] = {"level": level, "message": message}
+
+
+def create_pipeline_run_tracker(success_message_template: str) -> str:
+    run_id = uuid4().hex
+    with PIPELINE_RUN_TRACKER_LOCK:
+        PIPELINE_RUN_TRACKER[run_id] = {
+            "status": "running",
+            "completed": 0,
+            "total": 0,
+            "source_path": "",
+            "document_status": "",
+            "duration_seconds": None,
+            "error_message": "",
+            "success_message_template": success_message_template,
+        }
+    return run_id
+
+
+def update_pipeline_run_tracker(run_id: str, progress: dict) -> None:
+    with PIPELINE_RUN_TRACKER_LOCK:
+        tracker = PIPELINE_RUN_TRACKER.get(run_id)
+        if tracker is None:
+            return
+        tracker["completed"] = max(0, int(progress.get("completed", 0)))
+        tracker["total"] = max(0, int(progress.get("total", 0)))
+        tracker["source_path"] = progress.get("source_path", "")
+        tracker["document_status"] = progress.get("status", "")
+
+
+def finish_pipeline_run_tracker(run_id: str, duration_seconds: float) -> None:
+    with PIPELINE_RUN_TRACKER_LOCK:
+        tracker = PIPELINE_RUN_TRACKER.get(run_id)
+        if tracker is None:
+            return
+        tracker["status"] = "success"
+        tracker["duration_seconds"] = duration_seconds
+
+
+def fail_pipeline_run_tracker(run_id: str, error_message: str) -> None:
+    with PIPELINE_RUN_TRACKER_LOCK:
+        tracker = PIPELINE_RUN_TRACKER.get(run_id)
+        if tracker is None:
+            return
+        tracker["status"] = "error"
+        tracker["error_message"] = error_message
+
+
+def get_pipeline_run_tracker(run_id: str) -> dict | None:
+    with PIPELINE_RUN_TRACKER_LOCK:
+        tracker = PIPELINE_RUN_TRACKER.get(run_id)
+        if tracker is None:
+            return None
+        return dict(tracker)
+
+
+def clear_pipeline_run_tracker(run_id: str) -> None:
+    with PIPELINE_RUN_TRACKER_LOCK:
+        PIPELINE_RUN_TRACKER.pop(run_id, None)
+
+
+def start_async_pipeline_run(
+    config: AppConfig,
+    run_state_key: str,
+    feedback_state_key: str,
+    success_message_template: str,
+    input_paths: list[Path] | None = None,
+) -> None:
+    clear_run_feedback(feedback_state_key)
+    run_id = create_pipeline_run_tracker(success_message_template)
+    st.session_state[run_state_key] = run_id
+    config_copy = AppConfig(**asdict(config))
+    input_paths_copy = list(input_paths) if input_paths is not None else None
+
+    def worker() -> None:
+        started_at = perf_counter()
+        try:
+            run_pipeline(
+                config_copy,
+                input_paths=input_paths_copy,
+                progress_callback=lambda progress: update_pipeline_run_tracker(run_id, progress),
+            )
+        except Exception as exc:
+            fail_pipeline_run_tracker(run_id, str(exc))
+            return
+        finish_pipeline_run_tracker(run_id, perf_counter() - started_at)
+
+    threading.Thread(target=worker, daemon=True).start()
+
+
+@st.fragment(run_every=1)
+def render_active_pipeline_run_monitor(
+    run_state_key: str,
+    feedback_state_key: str,
+) -> None:
+    active_run_id = st.session_state.get(run_state_key)
+    if not active_run_id:
+        return
+
+    tracker = get_pipeline_run_tracker(active_run_id)
+    if tracker is None:
+        st.session_state.pop(run_state_key, None)
+        return
+
+    status = tracker.get("status", "running")
+    if status == "running":
+        total = max(0, int(tracker.get("total", 0)))
+        completed = max(0, int(tracker.get("completed", 0)))
+        source_path = tracker.get("source_path", "")
+        document_status = tracker.get("document_status", "")
+        source_name = Path(source_path).name if source_path else "-"
+        if total > 0:
+            st.progress(min(1.0, completed / total))
+            st.info(
+                f"{completed} von {total} Dateien bearbeitet. Aktuell/zuletzt: `{source_name}` ({document_status or 'unbekannt'})."
+            )
+        else:
+            st.info("Lauf gestartet. Die Anzahl der zu bearbeitenden Dateien wird ermittelt.")
+        return
+
+    st.session_state.pop(run_state_key, None)
+    clear_pipeline_run_tracker(active_run_id)
+    if status == "success":
+        duration_seconds = float(tracker.get("duration_seconds") or 0.0)
+        set_run_feedback(
+            feedback_state_key,
+            "success",
+            str(tracker.get("success_message_template", "")).format(duration=format_duration(duration_seconds)),
+        )
+    else:
+        set_run_feedback(feedback_state_key, "error", str(tracker.get("error_message", "Unbekannter Fehler.")))
+    st.rerun()
+
+
 def render_query_tab() -> None:
     st.subheader("Kommunikation")
     config = load_config(Path("config.json"))
     ensure_query_chat_defaults()
+    action_column, _ = st.columns([1, 5])
+    with action_column:
+        if st.button("Neues Gespraech", key="chat-reset", width="stretch"):
+            reset_query_chat_state()
+            st.rerun()
     render_query_chat_messages()
 
     question = st.chat_input("Frage an den Wissensgraphen")
@@ -245,6 +411,12 @@ def ensure_query_chat_defaults() -> None:
     st.session_state.setdefault(CHAT_MESSAGES_STATE_KEY, [])
     st.session_state.setdefault(CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY, [])
     st.session_state.setdefault(CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY, "")
+
+
+def reset_query_chat_state() -> None:
+    st.session_state[CHAT_MESSAGES_STATE_KEY] = []
+    st.session_state[CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY] = []
+    st.session_state[CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY] = ""
 
 
 def append_chat_message(role: str, content: str, cypher_query: str = "", rows: list[dict] | None = None) -> None:
@@ -307,6 +479,7 @@ def run_query_chat_turn(question: str, config: AppConfig) -> None:
                 model=config.llm_model,
                 api_key_env=config.llm_api_key_env,
                 timeout_seconds=config.llm_timeout_seconds,
+                debug_logger=lambda event, details: write_debug_log(config, event, details),
             )
         )
         neo4j_client = get_session_neo4j_client(config)
@@ -356,23 +529,23 @@ def run_query_chat_turn(question: str, config: AppConfig) -> None:
 def render_review_tab() -> None:
     st.subheader("Link Editing")
     config = load_config(Path("config.json"))
+    render_run_feedback(REVIEW_RUN_FEEDBACK_STATE_KEY)
+    render_active_pipeline_run_monitor(ACTIVE_REVIEW_RUN_ID_STATE_KEY, REVIEW_RUN_FEEDBACK_STATE_KEY)
+    preview_running = bool(st.session_state.get(ACTIVE_REVIEW_RUN_ID_STATE_KEY))
 
     action_column, info_column = st.columns([1, 2])
     with action_column:
-        if st.button("Pipeline Preview starten", key="review_preview", width="stretch"):
+        if st.button("Pipeline Preview starten", key="review_preview", width="stretch", disabled=preview_running):
             if not config.llm_model:
                 st.warning("Bitte zuerst ein LLM-Modell in Anwendungskonfig konfigurieren.")
             else:
-                try:
-                    started_at = perf_counter()
-                    run_pipeline(config)
-                    duration_text = format_duration(perf_counter() - started_at)
-                except Exception as exc:
-                    st.error(str(exc))
-                else:
-                    st.success(
-                        f"Preview-Lauf abgeschlossen in {duration_text}. Artefakte im Output-Ordner wurden aktualisiert."
-                    )
+                start_async_pipeline_run(
+                    config,
+                    run_state_key=ACTIVE_REVIEW_RUN_ID_STATE_KEY,
+                    feedback_state_key=REVIEW_RUN_FEEDBACK_STATE_KEY,
+                    success_message_template="Preview-Lauf abgeschlossen in {duration}. Artefakte im Output-Ordner wurden aktualisiert.",
+                )
+                st.rerun()
     with info_column:
         st.caption("Die Ansicht liest den letzten gespeicherten Lauf aus `Output/latest_run.json`.")
 
@@ -532,8 +705,8 @@ def render_review_actions(detail: dict, config: AppConfig, cmdb_rows: list[dict[
         action_columns[2].write(matched_name or "-")
         action_columns[3].write(confidence)
 
-        confirm_key = f"confirm::{detail['file_hash']}::{index}"
-        reject_key = f"reject::{detail['file_hash']}::{index}"
+        confirm_key = f"confirm::{detail['detail_id']}::{index}"
+        reject_key = f"reject::{detail['detail_id']}::{index}"
 
         if cmdb_id and action_columns[4].button("Bestaetigen", key=confirm_key, width="stretch"):
             knowledge_base = load_knowledge_base()
@@ -658,9 +831,9 @@ def render_manual_link_form(detail: dict, config: AppConfig, cmdb_rows: list[dic
         return
 
     st.markdown("Manuellen Link anlegen")
-    manual_name_key = f"manual-name::{detail['file_hash']}"
-    manual_target_key = f"manual-target::{detail['file_hash']}"
-    manual_submit_key = f"manual-submit::{detail['file_hash']}"
+    manual_name_key = f"manual-name::{detail['detail_id']}"
+    manual_target_key = f"manual-target::{detail['detail_id']}"
+    manual_submit_key = f"manual-submit::{detail['detail_id']}"
 
     manual_application_name = st.text_input(
         "Bezeichnung im Prozesskontext",
@@ -747,6 +920,113 @@ def clear_knowledge_base_and_refresh(config: AppConfig, sections: set[str], succ
     else:
         st.success(f"{success_message} Die Pipeline wurde anschliessend neu ausgefuehrt.")
     st.rerun()
+
+
+def render_organization_tab() -> None:
+    st.subheader("Organisation")
+    knowledge_base = load_knowledge_base()
+
+    st.markdown("**Organisationseinheiten**")
+    org_units = sorted(knowledge_base.org_units, key=lambda entry: entry.get("name", "").casefold())
+    if org_units:
+        st.dataframe(
+            [
+                {
+                    "Name": entry.get("name", ""),
+                    "Quelle": entry.get("source", ""),
+                    "Angelegt am": entry.get("created_at", ""),
+                }
+                for entry in org_units
+            ],
+            width="stretch",
+        )
+    else:
+        st.info("Noch keine Organisationseinheiten gepflegt.")
+
+    with st.form("organization-add-form"):
+        new_org_unit_name = st.text_input("Neue Organisationseinheit")
+        add_submitted = st.form_submit_button("Organisationseinheit hinzufuegen")
+    if add_submitted:
+        updated_kb = add_org_unit(knowledge_base, new_org_unit_name, source="manual")
+        save_knowledge_base(updated_kb)
+        st.success("Organisationseinheit gespeichert.")
+        st.rerun()
+
+    st.markdown("**Kandidaten**")
+    open_candidates = [
+        entry
+        for entry in knowledge_base.org_unit_candidates
+        if entry.get("status", "open") == "open"
+    ]
+    if not open_candidates:
+        st.info("Aktuell liegen keine offenen Kandidaten vor.")
+    else:
+        existing_org_unit_options = [entry.get("name", "") for entry in org_units if entry.get("name")]
+        for candidate in sorted(open_candidates, key=lambda entry: entry.get("candidate_name", "").casefold()):
+            candidate_name = candidate.get("candidate_name", "")
+            candidate_key = candidate.get("normalized_name", candidate_name.casefold())
+            with st.container(border=True):
+                st.markdown(f"**{candidate_name}**")
+                process_names = ", ".join(candidate.get("process_names", [])) or "-"
+                role_names = ", ".join(candidate.get("role_names", [])) or "-"
+                source_paths = ", ".join(Path(path).name for path in candidate.get("source_paths", [])) or "-"
+                st.caption(f"Prozesse: {process_names}")
+                st.caption(f"Rollen: {role_names}")
+                st.caption(f"Quellen: {source_paths}")
+
+                action_columns = st.columns([2, 1, 2, 1, 1])
+                selected_target = action_columns[0].selectbox(
+                    "Bestehende Org-Einheit",
+                    options=[""] + existing_org_unit_options,
+                    key=f"org-candidate-select::{candidate_key}",
+                )
+                if action_columns[1].button("Mappen", key=f"org-candidate-map::{candidate_key}", width="stretch"):
+                    if not selected_target:
+                        st.warning("Bitte zuerst eine bestehende Organisationseinheit auswaehlen.")
+                    else:
+                        updated_kb = map_org_unit_candidate(knowledge_base, candidate_name, selected_target)
+                        save_knowledge_base(updated_kb)
+                        st.success("Kandidat wurde gemappt.")
+                        st.rerun()
+
+                proposed_name = action_columns[2].text_input(
+                    "Als neue Org-Einheit uebernehmen",
+                    value=candidate_name,
+                    key=f"org-candidate-new::{candidate_key}",
+                )
+                if action_columns[3].button("Uebernehmen", key=f"org-candidate-accept::{candidate_key}", width="stretch"):
+                    updated_kb = accept_org_unit_candidate_as_new(knowledge_base, candidate_name, proposed_name)
+                    save_knowledge_base(updated_kb)
+                    st.success("Kandidat wurde als neue Organisationseinheit uebernommen.")
+                    st.rerun()
+
+                if action_columns[4].button("Abweisen", key=f"org-candidate-reject::{candidate_key}", width="stretch"):
+                    updated_kb = reject_org_unit_candidate(knowledge_base, candidate_name)
+                    save_knowledge_base(updated_kb)
+                    st.success("Kandidat wurde abgewiesen.")
+                    st.rerun()
+
+    with st.expander("Bereits entschiedene Kandidaten", expanded=False):
+        decided_candidates = [
+            entry
+            for entry in knowledge_base.org_unit_candidates
+            if entry.get("status", "open") != "open"
+        ]
+        if not decided_candidates:
+            st.info("Noch keine entschiedenen Kandidaten vorhanden.")
+        else:
+            st.dataframe(
+                [
+                    {
+                        "Kandidat": entry.get("candidate_name", ""),
+                        "Status": entry.get("status", ""),
+                        "Gemappt auf": entry.get("mapped_org_unit", ""),
+                        "Zuletzt gesehen": entry.get("last_seen", ""),
+                    }
+                    for entry in decided_candidates
+                ],
+                width="stretch",
+            )
 
 
 def render_config_tab(config_path: Path) -> None:
@@ -863,6 +1143,7 @@ def render_config_tab(config_path: Path) -> None:
                     base_url=st.session_state["config_llm_base_url"],
                     model=st.session_state["config_llm_model"],
                     api_key_env=st.session_state["config_llm_api_key_env"],
+                    debug_logger=lambda event, details: write_debug_log(load_config(config_path), event, details),
                 )
             )
             try:
@@ -951,9 +1232,11 @@ def render_import_section(config: AppConfig) -> None:
 
     input_dir = resolve_project_path(config.input_path)
     cmdb_path = resolve_input_cmdb_path(config)
+    current_process_files = list_process_files(input_dir)
+    process_file_labels = {path.relative_to(input_dir).as_posix(): path for path in current_process_files}
     available_bpmn_files = [
         path
-        for path in list_process_files(input_dir)
+        for path in current_process_files
         if path.suffix.lower() in {".bpmn", ".xml"}
     ]
 
@@ -976,6 +1259,12 @@ def render_import_section(config: AppConfig) -> None:
             "Importmodus",
             options=["initial", "full", "delta"],
             key="import_run_mode",
+        )
+        selected_import_filenames = st.multiselect(
+            "Dateien fuer Import",
+            options=list(process_file_labels.keys()),
+            default=[],
+            key="import_process_selection",
         )
     with save_column:
         if st.button("Importdateien speichern", width="stretch"):
@@ -1002,7 +1291,7 @@ def render_import_section(config: AppConfig) -> None:
     with transform_column:
         selected_transform_filenames = st.multiselect(
             "BPMN fuer Transformation",
-            options=[path.name for path in available_bpmn_files],
+            options=[path.relative_to(input_dir).as_posix() for path in available_bpmn_files],
             default=[],
             key="transform_bpmn_selection",
         )
@@ -1013,9 +1302,8 @@ def render_import_section(config: AppConfig) -> None:
                 st.info("Bitte waehlen Sie mindestens eine BPMN/XML-Datei fuer die Transformation aus.")
             else:
                 selected_bpmn_files = [
-                    path
-                    for path in available_bpmn_files
-                    if path.name in selected_transform_filenames
+                    process_file_labels[label]
+                    for label in selected_transform_filenames
                 ]
                 transformed_paths: list[str] = []
                 try:
@@ -1032,27 +1320,44 @@ def render_import_section(config: AppConfig) -> None:
                     st.write(transformed_paths)
 
     with run_column:
-        if st.button("Pipeline starten", width="stretch"):
+        render_run_feedback(IMPORT_RUN_FEEDBACK_STATE_KEY)
+        render_active_pipeline_run_monitor(ACTIVE_IMPORT_RUN_ID_STATE_KEY, IMPORT_RUN_FEEDBACK_STATE_KEY)
+        import_running = bool(st.session_state.get(ACTIVE_IMPORT_RUN_ID_STATE_KEY))
+        if st.button("Pipeline starten", width="stretch", disabled=import_running):
             if not config.llm_model:
                 st.warning("Bitte zuerst ein LLM-Modell konfigurieren.")
             else:
-                try:
-                    runtime_config = AppConfig(
-                        **{
-                            **asdict(config),
-                            "last_run_mode": selected_run_mode,
-                            "cmdb_filename": st.session_state.get("active_cmdb_filename", config.cmdb_filename),
-                        }
-                    )
-                    started_at = perf_counter()
-                    run_pipeline(runtime_config)
-                    duration_text = format_duration(perf_counter() - started_at)
-                except Exception as exc:
-                    st.error(str(exc))
-                else:
-                    st.success(f"Pipeline-Lauf abgeschlossen in {duration_text}. Ergebnisse liegen im Output-Ordner.")
+                uploaded_runtime_paths: list[Path] = []
+                for uploaded_file in uploaded_process_files or []:
+                    target_path = input_dir / sanitize_uploaded_name(uploaded_file.name)
+                    save_uploaded_file(target_path, uploaded_file.getvalue())
+                    uploaded_runtime_paths.append(target_path)
 
-    current_process_files = list_process_files(input_dir)
+                selected_input_paths = [
+                    process_file_labels[label]
+                    for label in selected_import_filenames
+                ]
+                explicit_input_paths = uploaded_runtime_paths + selected_input_paths
+                if not explicit_input_paths:
+                    st.info("Bitte waehlen Sie mindestens eine Prozessdatei fuer den Import aus.")
+                    return
+
+                runtime_config = AppConfig(
+                    **{
+                        **asdict(config),
+                        "last_run_mode": selected_run_mode,
+                        "cmdb_filename": st.session_state.get("active_cmdb_filename", config.cmdb_filename),
+                    }
+                )
+                start_async_pipeline_run(
+                    runtime_config,
+                    run_state_key=ACTIVE_IMPORT_RUN_ID_STATE_KEY,
+                    feedback_state_key=IMPORT_RUN_FEEDBACK_STATE_KEY,
+                    success_message_template="Pipeline-Lauf abgeschlossen in {duration}. Ergebnisse liegen im Output-Ordner.",
+                    input_paths=explicit_input_paths,
+                )
+                st.rerun()
+
     current_cmdb_files = list_cmdb_files(input_dir)
     ensure_active_cmdb_selection(config, current_cmdb_files)
 
@@ -1105,7 +1410,7 @@ def main() -> None:
     load_env_files()
     st.set_page_config(page_title="BRIDGR", layout="wide")
     st.title("BRIDGR")
-    tabs = st.tabs(["Kommunikation", "Link Editing", "Anwendungskonfig"])
+    tabs = st.tabs(["Kommunikation", "Link Editing", "Anwendungskonfig", "Organisation"])
     config_path = Path("config.json")
 
     with tabs[0]:
@@ -1114,6 +1419,8 @@ def main() -> None:
         render_review_tab()
     with tabs[2]:
         render_config_tab(config_path)
+    with tabs[3]:
+        render_organization_tab()
 
 
 if __name__ == "__main__":

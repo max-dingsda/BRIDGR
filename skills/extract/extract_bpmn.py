@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import inspect
 from pathlib import Path
 import re
 from xml.etree import ElementTree
@@ -22,9 +23,10 @@ class BpmnExtractor:
         bpmn_xml = source_path.read_text(encoding="utf-8")
         self._validate_xml(bpmn_xml, source_path)
         prompt = self._prompt_path.read_text(encoding="utf-8")
-        payload = self._llm_client.generate_json(
+        payload = self._generate_json_with_required_keys(
             system_prompt=prompt,
             user_prompt=bpmn_xml,
+            required_keys={"prozess", "prozess_id", "org_einheit", "anwendungen"},
         )
         return self._to_domain_model(payload, source_path)
 
@@ -44,10 +46,14 @@ class BpmnExtractor:
                 for item in payload["anwendungen"]
             ]
             applications = self._deduplicate_applications(payload["anwendungen"])
+            role_value = str(payload.get("rolle") or payload.get("org_einheit") or "").strip()
             return ExtractedProcess(
                 process_name=payload["prozess"],
                 process_id=payload["prozess_id"],
-                org_unit=payload["org_einheit"],
+                org_unit="",
+                roles=[role_value] if role_value else [],
+                org_units=[],
+                org_unit_candidates=[],
                 follows_after=list(payload.get("folgt_auf", [])),
                 raw_applications=raw_applications,
                 applications=applications,
@@ -56,6 +62,24 @@ class BpmnExtractor:
         except (KeyError, TypeError) as exc:
             serialized_payload = json.dumps(payload, ensure_ascii=False)
             raise BpmnExtractorError(f"LLM extraction payload did not match the expected schema: {serialized_payload}") from exc
+
+    def _generate_json_with_required_keys(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        required_keys: set[str],
+    ) -> dict:
+        generate_json = self._llm_client.generate_json
+        if "required_keys" in inspect.signature(generate_json).parameters:
+            return generate_json(
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                required_keys=required_keys,
+            )
+        return generate_json(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+        )
 
     def _deduplicate_applications(self, raw_applications: list[dict]) -> list[ApplicationReference]:
         grouped_applications: dict[str, dict] = {}

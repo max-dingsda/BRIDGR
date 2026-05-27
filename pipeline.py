@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -13,8 +14,10 @@ from constants import (
     DOCUMENT_STATUS_SKIPPED_UNCHANGED,
     MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL,
 )
+from debug_utils import write_debug_log
 from import_utils import list_process_files
 from knowledge_base import ConfirmedLink, KnowledgeBase, load_knowledge_base
+from knowledge_base import normalize_org_unit_name, save_knowledge_base, upsert_org_unit_candidate
 from llm_client import LlmClientConfig, OpenAICompatibleClient
 from neo4j_utils import Neo4jClient, Neo4jConfig, Neo4jConnectionError
 from run_artifacts import (
@@ -55,7 +58,11 @@ class PipelineRunResult:
     documents: list[DocumentRunResult]
 
 
-def run_pipeline(config: AppConfig, input_paths: list[Path] | None = None) -> PipelineRunResult:
+def run_pipeline(
+    config: AppConfig,
+    input_paths: list[Path] | None = None,
+    progress_callback: Callable[[dict], None] | None = None,
+) -> PipelineRunResult:
     output_path, used_output_fallback = resolve_runtime_output_path(config.output_path)
     knowledge_base = load_knowledge_base()
     cmdb_rows = load_cmdb_rows(
@@ -71,15 +78,27 @@ def run_pipeline(config: AppConfig, input_paths: list[Path] | None = None) -> Pi
             model=config.llm_model,
             api_key_env=config.llm_api_key_env,
             timeout_seconds=config.llm_timeout_seconds,
+            debug_logger=lambda event, details: write_debug_log(config, event, details),
         )
     )
     graph_writer = GraphWriter()
     neo4j_client = build_neo4j_client(config)
 
     candidate_paths = input_paths or list_bpmn_files(resolve_project_path(config.input_path))
+    total_documents = len(candidate_paths)
+    if progress_callback is not None:
+        progress_callback(
+            {
+                "phase": "start",
+                "completed": 0,
+                "total": total_documents,
+                "source_path": "",
+                "status": "",
+            }
+        )
     document_results = []
     next_state_documents: list[DocumentState] = []
-    for path in candidate_paths:
+    for index, path in enumerate(candidate_paths, start=1):
         file_hash = compute_file_hash(path)
         if should_skip_file(config.last_run_mode, input_paths, path, file_hash, previous_hashes):
             document_results.append(
@@ -96,10 +115,22 @@ def run_pipeline(config: AppConfig, input_paths: list[Path] | None = None) -> Pi
             next_state_documents.append(
                 DocumentState(source_path=str(path), file_hash=file_hash, process_id="")
             )
+            if progress_callback is not None:
+                progress_callback(
+                    {
+                        "phase": "document",
+                        "completed": index,
+                        "total": total_documents,
+                        "source_path": str(path),
+                        "status": DOCUMENT_STATUS_SKIPPED_UNCHANGED,
+                    }
+                )
             continue
 
         extractor = build_extractor_for_path(path, llm_client)
         document_result = run_document(path, file_hash, extractor, config, knowledge_base, cmdb_rows, graph_writer)
+        if document_result.extracted_process is not None:
+            knowledge_base = update_organization_knowledge(knowledge_base, document_result.extracted_process)
         document_results.append(document_result)
         if document_result.graph_payload is not None:
             graph_writer.write_payload(neo4j_client, document_result.graph_payload)
@@ -110,6 +141,16 @@ def run_pipeline(config: AppConfig, input_paths: list[Path] | None = None) -> Pi
                 process_id=document_result.extracted_process.process_id if document_result.extracted_process else "",
             )
         )
+        if progress_callback is not None:
+            progress_callback(
+                {
+                    "phase": "document",
+                    "completed": index,
+                    "total": total_documents,
+                    "source_path": str(path),
+                    "status": document_result.status,
+                }
+            )
 
     run_result = PipelineRunResult(
         run_mode=config.last_run_mode,
@@ -117,6 +158,7 @@ def run_pipeline(config: AppConfig, input_paths: list[Path] | None = None) -> Pi
         used_output_fallback=used_output_fallback,
         documents=document_results,
     )
+    save_knowledge_base(knowledge_base)
     save_import_state(ImportState(documents=next_state_documents), output_path)
     write_latest_run(
         {
@@ -127,6 +169,16 @@ def run_pipeline(config: AppConfig, input_paths: list[Path] | None = None) -> Pi
         },
         output_path,
     )
+    if progress_callback is not None:
+        progress_callback(
+            {
+                "phase": "done",
+                "completed": total_documents,
+                "total": total_documents,
+                "source_path": "",
+                "status": "",
+            }
+        )
     neo4j_client.close()
     return run_result
 
@@ -171,6 +223,7 @@ def run_document(
 ) -> DocumentRunResult:
     try:
         extracted_process = extractor.extract(source_path)
+        extracted_process = apply_org_unit_mapping(extracted_process, knowledge_base)
     except (BpmnExtractorError, TextExtractorError, DocxExtractorError, PdfExtractorError) as exc:
         return DocumentRunResult(
             source_path=str(source_path),
@@ -236,6 +289,8 @@ def build_manual_matches(
     for link in confirmed_links:
         if link.get("prozess") != process_name:
             continue
+        if link.get("quelle") != "manueller_link":
+            continue
         application_name = link.get("anwendung_name", "")
         if application_name in extracted_names:
             continue
@@ -249,6 +304,72 @@ def build_manual_matches(
             )
         )
     return manual_matches
+
+
+def apply_org_unit_mapping(
+    extracted_process: ExtractedProcess,
+    knowledge_base: KnowledgeBase,
+) -> ExtractedProcess:
+    matched_org_units = resolve_org_units(extracted_process, knowledge_base)
+    return ExtractedProcess(
+        process_name=extracted_process.process_name,
+        process_id=extracted_process.process_id,
+        org_unit=matched_org_units[0] if len(matched_org_units) == 1 else "",
+        roles=list(extracted_process.roles),
+        org_units=matched_org_units,
+        org_unit_candidates=list(extracted_process.org_unit_candidates),
+        follows_after=list(extracted_process.follows_after),
+        raw_applications=list(extracted_process.raw_applications),
+        applications=list(extracted_process.applications),
+        source_path=extracted_process.source_path,
+    )
+
+
+def resolve_org_units(
+    extracted_process: ExtractedProcess,
+    knowledge_base: KnowledgeBase,
+) -> list[str]:
+    org_units_by_name = {
+        normalize_org_unit_name(entry.get("name", "")): entry.get("name", "")
+        for entry in knowledge_base.org_units
+        if entry.get("name")
+    }
+    resolved_org_units: list[str] = []
+    for role_name in extracted_process.roles:
+        normalized_role = normalize_org_unit_name(role_name)
+        matched_name = org_units_by_name.get(normalized_role)
+        if not matched_name or matched_name in resolved_org_units:
+            continue
+        resolved_org_units.append(matched_name)
+
+    mapped_candidates = {
+        entry.get("normalized_name", ""): entry.get("mapped_org_unit", "")
+        for entry in knowledge_base.org_unit_candidates
+        if entry.get("status") == "mapped" and entry.get("mapped_org_unit")
+    }
+    for candidate_name in extracted_process.org_unit_candidates:
+        mapped_name = mapped_candidates.get(normalize_org_unit_name(candidate_name), "")
+        if not mapped_name or mapped_name in resolved_org_units:
+            continue
+        resolved_org_units.append(mapped_name)
+    return resolved_org_units
+
+
+def update_organization_knowledge(
+    knowledge_base: KnowledgeBase,
+    extracted_process: ExtractedProcess,
+) -> KnowledgeBase:
+    updated = knowledge_base
+    primary_role = extracted_process.roles[0] if extracted_process.roles else ""
+    for candidate_name in extracted_process.org_unit_candidates:
+        updated = upsert_org_unit_candidate(
+            updated,
+            candidate_name=candidate_name,
+            source_path=extracted_process.source_path,
+            process_name=extracted_process.process_name,
+            role_name=primary_role,
+        )
+    return updated
 
 
 def build_neo4j_client(config: AppConfig) -> Neo4jClient:

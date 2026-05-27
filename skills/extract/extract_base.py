@@ -16,6 +16,9 @@ class ExtractedProcess:
     process_name: str
     process_id: str
     org_unit: str
+    roles: list[str]
+    org_units: list[str]
+    org_unit_candidates: list[str]
     follows_after: list[str]
     raw_applications: list[ApplicationReference]
     applications: list[ApplicationReference]

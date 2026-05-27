@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Callable
 
 import requests
 
@@ -18,9 +18,12 @@ class LlmClientConfig:
     model: str
     api_key_env: str = ""
     timeout_seconds: int = 300
+    debug_logger: Callable[[str, dict[str, Any]], None] | None = None
 
 
 class OpenAICompatibleClient:
+    _JSON_REPAIR_MAX_ATTEMPTS = 3
+
     def __init__(self, config: LlmClientConfig) -> None:
         self._config = config
         self._session = requests.Session()
@@ -30,21 +33,90 @@ class OpenAICompatibleClient:
         models = payload.get("data", [])
         return [model["id"] for model in models if "id" in model]
 
-    def generate_json(self, system_prompt: str, user_prompt: str) -> dict[str, Any]:
-        content = self._generate_content(system_prompt, user_prompt, {"type": "json_object"})
-        try:
-            return json.loads(content)
-        except json.JSONDecodeError as exc:
-            extracted_content = _extract_json_object(content)
-            if extracted_content is None:
-                raise LlmClientError("LLM response content was not valid JSON.") from exc
+    def generate_json(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        required_keys: set[str] | None = None,
+    ) -> dict[str, Any]:
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ]
+        last_error_message = "LLM response content was not valid JSON."
+
+        for attempt_index in range(self._JSON_REPAIR_MAX_ATTEMPTS):
+            self._log_debug(
+                "llm_request",
+                {
+                    "attempt": attempt_index + 1,
+                    "model": self._config.model,
+                    "response_format": {"type": "json_object"},
+                    "messages": messages,
+                },
+            )
+            content = self._generate_content_from_messages(messages, {"type": "json_object"})
+            self._log_debug(
+                "llm_response",
+                {
+                    "attempt": attempt_index + 1,
+                    "model": self._config.model,
+                    "content": content,
+                },
+            )
             try:
-                return json.loads(extracted_content)
-            except json.JSONDecodeError as nested_exc:
-                raise LlmClientError("LLM response content was not valid JSON.") from nested_exc
+                payload = _parse_json_content(content)
+                self._validate_required_keys(payload, required_keys)
+                return payload
+            except LlmClientError as exc:
+                last_error_message = str(exc)
+                self._log_debug(
+                    "llm_response_invalid",
+                    {
+                        "attempt": attempt_index + 1,
+                        "model": self._config.model,
+                        "error": last_error_message,
+                        "content": content,
+                    },
+                )
+                if attempt_index == self._JSON_REPAIR_MAX_ATTEMPTS - 1:
+                    raise
+                messages.extend(
+                    [
+                        {"role": "assistant", "content": content},
+                        {
+                            "role": "user",
+                            "content": self._build_json_repair_instruction(required_keys, last_error_message),
+                        },
+                    ]
+                )
+
+        raise LlmClientError(last_error_message)
 
     def generate_text(self, system_prompt: str, user_prompt: str) -> str:
-        return self._generate_content(system_prompt, user_prompt)
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ]
+        self._log_debug(
+            "llm_request",
+            {
+                "attempt": 1,
+                "model": self._config.model,
+                "response_format": None,
+                "messages": messages,
+            },
+        )
+        content = self._generate_content_from_messages(messages)
+        self._log_debug(
+            "llm_response",
+            {
+                "attempt": 1,
+                "model": self._config.model,
+                "content": content,
+            },
+        )
+        return content
 
     def _generate_content(
         self,
@@ -52,12 +124,20 @@ class OpenAICompatibleClient:
         user_prompt: str,
         response_format: dict[str, Any] | None = None,
     ) -> str:
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ]
+        return self._generate_content_from_messages(messages, response_format)
+
+    def _generate_content_from_messages(
+        self,
+        messages: list[dict[str, str]],
+        response_format: dict[str, Any] | None = None,
+    ) -> str:
         payload = {
             "model": self._config.model,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
+            "messages": messages,
         }
         if response_format is not None:
             payload["response_format"] = response_format
@@ -101,6 +181,37 @@ class OpenAICompatibleClient:
             return ""
         return os.getenv(self._config.api_key_env, "")
 
+    def _log_debug(self, event: str, details: dict[str, Any]) -> None:
+        if self._config.debug_logger is None:
+            return
+        try:
+            self._config.debug_logger(event, details)
+        except Exception:
+            return
+
+    def _validate_required_keys(self, payload: dict[str, Any], required_keys: set[str] | None) -> None:
+        if required_keys is None:
+            return
+        missing_keys = sorted(key for key in required_keys if key not in payload)
+        if missing_keys:
+            raise LlmClientError(
+                "LLM JSON response was missing required keys: " + ", ".join(missing_keys)
+            )
+
+    def _build_json_repair_instruction(self, required_keys: set[str] | None, error_message: str) -> str:
+        required_keys_text = ""
+        if required_keys:
+            required_keys_text = (
+                " The JSON object must include these top-level keys: "
+                + ", ".join(sorted(required_keys))
+                + "."
+            )
+        return (
+            "Repair your previous answer and return only one valid JSON object with no Markdown, no explanation, "
+            "and no surrounding text."
+            f"{required_keys_text} Previous issue: {error_message}"
+        )
+
 
 def _extract_json_object(content: str) -> str | None:
     start_index = None
@@ -140,9 +251,27 @@ def _extract_json_object(content: str) -> str | None:
     return None
 
 
+def _parse_json_content(content: str) -> dict[str, Any]:
+    try:
+        payload = json.loads(content)
+    except json.JSONDecodeError as exc:
+        extracted_content = _extract_json_object(content)
+        if extracted_content is None:
+            raise LlmClientError("LLM response content was not valid JSON.") from exc
+        try:
+            payload = json.loads(extracted_content)
+        except json.JSONDecodeError as nested_exc:
+            raise LlmClientError("LLM response content was not valid JSON.") from nested_exc
+
+    if not isinstance(payload, dict):
+        raise LlmClientError("LLM JSON response was not an object.")
+    return payload
+
+
 __all__ = [
     "LlmClientConfig",
     "LlmClientError",
     "OpenAICompatibleClient",
     "_extract_json_object",
+    "_parse_json_content",
 ]

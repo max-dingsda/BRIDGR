@@ -129,6 +129,132 @@ def test_generate_json_extracts_json_object_from_markdown_wrapped_response(monke
     assert result == {"prozess": "A", "anwendungen": []}
 
 
+def test_generate_json_retries_after_invalid_json_content(monkeypatch: pytest.MonkeyPatch) -> None:
+    session = FakeSession(
+        responses=[
+            FakeResponse(
+                payload={
+                    "choices": [
+                        {
+                            "message": {
+                                "content": '{"prozess":"A","anwendungen":['
+                            }
+                        }
+                    ]
+                }
+            ),
+            FakeResponse(
+                payload={
+                    "choices": [
+                        {
+                            "message": {
+                                "content": '{"prozess":"A","org_einheit":"","anwendungen":[]}'
+                            }
+                        }
+                    ]
+                }
+            ),
+        ]
+    )
+    client = build_client(monkeypatch, session)
+
+    result = client.generate_json("system", "user", required_keys={"prozess", "org_einheit", "anwendungen"})
+
+    assert result == {"prozess": "A", "org_einheit": "", "anwendungen": []}
+    assert len(session.calls) == 2
+    second_messages = session.calls[1]["json"]["messages"]
+    assert second_messages[-2]["role"] == "assistant"
+    assert second_messages[-1]["role"] == "user"
+    assert "Repair your previous answer" in second_messages[-1]["content"]
+
+
+def test_generate_json_retries_after_missing_required_keys(monkeypatch: pytest.MonkeyPatch) -> None:
+    session = FakeSession(
+        responses=[
+            FakeResponse(
+                payload={
+                    "choices": [
+                        {
+                            "message": {
+                                "content": '{"prozess":"A","anwendungen":[]}'
+                            }
+                        }
+                    ]
+                }
+            ),
+            FakeResponse(
+                payload={
+                    "choices": [
+                        {
+                            "message": {
+                                "content": '{"prozess":"A","org_einheit":"","anwendungen":[]}'
+                            }
+                        }
+                    ]
+                }
+            ),
+        ]
+    )
+    client = build_client(monkeypatch, session)
+
+    result = client.generate_json("system", "user", required_keys={"prozess", "org_einheit", "anwendungen"})
+
+    assert result == {"prozess": "A", "org_einheit": "", "anwendungen": []}
+    assert len(session.calls) == 2
+
+
+def test_generate_json_raises_after_exhausting_repair_attempts(monkeypatch: pytest.MonkeyPatch) -> None:
+    session = FakeSession(
+        responses=[
+            FakeResponse(payload={"choices": [{"message": {"content": "not json"}}]}),
+            FakeResponse(payload={"choices": [{"message": {"content": "still not json"}}]}),
+            FakeResponse(payload={"choices": [{"message": {"content": "again not json"}}]}),
+        ]
+    )
+    client = build_client(monkeypatch, session)
+
+    with pytest.raises(LlmClientError, match="not valid JSON"):
+        client.generate_json("system", "user")
+
+    assert len(session.calls) == 3
+
+
+def test_generate_json_logs_requests_and_responses(monkeypatch: pytest.MonkeyPatch) -> None:
+    session = FakeSession(
+        responses=[
+            FakeResponse(
+                payload={
+                    "choices": [
+                        {
+                            "message": {
+                                "content": '{"prozess":"A","org_einheit":"","anwendungen":[]}'
+                            }
+                        }
+                    ]
+                }
+            )
+        ]
+    )
+    logged_events = []
+    monkeypatch.setattr("llm_client.requests.Session", lambda: session)
+    client = OpenAICompatibleClient(
+        LlmClientConfig(
+            base_url="https://example.test/v1",
+            model="gpt-test",
+            timeout_seconds=15,
+            debug_logger=lambda event, details: logged_events.append((event, details)),
+        )
+    )
+
+    result = client.generate_json("system", "user", required_keys={"prozess", "org_einheit", "anwendungen"})
+
+    assert result == {"prozess": "A", "org_einheit": "", "anwendungen": []}
+    assert logged_events[0][0] == "llm_request"
+    assert logged_events[1][0] == "llm_response"
+    assert logged_events[0][1]["messages"][0]["content"] == "system"
+    assert logged_events[1][1]["content"] == '{"prozess":"A","org_einheit":"","anwendungen":[]}'
+
+
 def test_extract_json_object_handles_nested_json_without_regex() -> None:
     extracted = _extract_json_object('prefix {"outer":{"inner":[1,2,3]}} suffix')
 

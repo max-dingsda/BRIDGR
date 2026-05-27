@@ -3,7 +3,7 @@
 BRIDGR verbindet Prozessdokumentation mit CMDB-Daten, um einen EA-Wissensgraphen aufzubauen und spaeter ueber eine natuerlichsprachliche Oberflaeche abfragbar zu machen.
 
 Der aktuelle Architektur-Referenzstand fuer die Umsetzung ist:
-- `Specs/Bridgr_Architektur_v12.md`
+- `Specs/Bridgr_Architektur_v13.md`
 
 ## Zielbild
 
@@ -33,7 +33,7 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - Hinweise auf uneinheitliche Prozessnotation bei mehrfach extrahierten Rohvarianten
 
 Wichtige Einordnung:
-- Die Spezifikation `v0.12` oeffnet den Scope fuer unstrukturierte Prozessbeschreibungen.
+- Die Spezifikation `v0.13` oeffnet den Scope fuer unstrukturierte Prozessbeschreibungen und dokumentiert zusaetzlich den Transformationspfad fuer grosse BPMN/XML-Dateien.
 - Die aktuelle Implementierung unterstuetzt bereits BPMN, TXT, DOCX und PDF ueber einen gemeinsamen semantischen Extraktionspfad.
 
 Noch nicht umgesetzt:

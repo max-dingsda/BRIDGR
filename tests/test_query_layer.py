@@ -162,6 +162,26 @@ def test_find_application_ambiguity_options_returns_multiple_application_names_f
     assert options == ["Adobe Professional", "Adobe Reader"]
 
 
+def test_find_application_ambiguity_options_accepts_application_name_alias() -> None:
+    rows = [
+        {"application_name": "Mail System", "process": "Incident Management"},
+        {"application_name": "Newsletter Mailer", "process": "Marketing"},
+    ]
+
+    options = find_application_ambiguity_options("Wird mail genutzt?", rows)
+
+    assert options == ["Mail System", "Newsletter Mailer"]
+
+
+def test_cypher_prompt_requires_concrete_application_for_name_filters(tmp_path: Path) -> None:
+    prompt_path = tmp_path / "cypher_gen.md"
+    prompt_path.write_text(Path("prompts/cypher_gen.md").read_text(encoding="utf-8"), encoding="utf-8")
+
+    prompt_text = prompt_path.read_text(encoding="utf-8")
+
+    assert "return the concrete matched application as `application`" in prompt_text
+
+
 def test_find_application_ambiguity_options_skips_plural_questions() -> None:
     rows = [
         {"application": "Adobe Reader", "process": "Bestellabwicklung"},

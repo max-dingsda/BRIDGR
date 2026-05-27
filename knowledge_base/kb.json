@@ -1,5 +1,14 @@
 {
-  "confirmed": [],
+  "confirmed": [
+    {
+      "prozess": "Anforderung sichten",
+      "anwendung_name": "Email",
+      "cmdb_id": "744b30b1-b138-4e67-849d-37cdee4c1482",
+      "resolved_to": "Mail System",
+      "bestaetigt_am": "2026-05-27",
+      "quelle": "manuell_bestaetigt"
+    }
+  ],
   "rejected": [],
   "disambiguation": [],
   "process_identity": []

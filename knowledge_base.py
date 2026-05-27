@@ -27,15 +27,46 @@ class RejectedLink(TypedDict):
     abgelehnt_am: str
 
 
+class OrgUnitEntry(TypedDict):
+    name: str
+    created_at: str
+    source: str
+
+
+class OrgUnitCandidate(TypedDict):
+    candidate_name: str
+    normalized_name: str
+    source_paths: list[str]
+    process_names: list[str]
+    role_names: list[str]
+    status: str
+    mapped_org_unit: str
+    first_seen: str
+    last_seen: str
+
+
 @dataclass(slots=True)
 class KnowledgeBase:
     confirmed: list[ConfirmedLink]
     rejected: list[RejectedLink]
     disambiguation: list[dict[str, Any]]
     process_identity: list[dict[str, Any]]
+    org_units: list[OrgUnitEntry]
+    org_unit_candidates: list[OrgUnitCandidate]
 
 
-KnowledgeBaseSection = Literal["confirmed", "rejected", "disambiguation", "process_identity"]
+KnowledgeBaseSection = Literal[
+    "confirmed",
+    "rejected",
+    "disambiguation",
+    "process_identity",
+    "org_units",
+    "org_unit_candidates",
+]
+
+
+def normalize_org_unit_name(value: str) -> str:
+    return " ".join(value.strip().casefold().split())
 
 
 def load_knowledge_base(path: Path | None = None) -> KnowledgeBase:
@@ -46,6 +77,8 @@ def load_knowledge_base(path: Path | None = None) -> KnowledgeBase:
             rejected=[],
             disambiguation=[],
             process_identity=[],
+            org_units=[],
+            org_unit_candidates=[],
         )
 
     with kb_path.open("r", encoding="utf-8") as handle:
@@ -56,6 +89,8 @@ def load_knowledge_base(path: Path | None = None) -> KnowledgeBase:
         rejected=list(payload.get("rejected", [])),
         disambiguation=list(payload.get("disambiguation", [])),
         process_identity=list(payload.get("process_identity", [])),
+        org_units=list(payload.get("org_units", [])),
+        org_unit_candidates=list(payload.get("org_unit_candidates", [])),
     )
 
 
@@ -108,6 +143,8 @@ def confirm_link(
         rejected=updated_rejected,
         disambiguation=knowledge_base.disambiguation,
         process_identity=knowledge_base.process_identity,
+        org_units=knowledge_base.org_units,
+        org_unit_candidates=knowledge_base.org_unit_candidates,
     )
 
 
@@ -148,6 +185,159 @@ def reject_link(
         rejected=updated_rejected,
         disambiguation=knowledge_base.disambiguation,
         process_identity=knowledge_base.process_identity,
+        org_units=knowledge_base.org_units,
+        org_unit_candidates=knowledge_base.org_unit_candidates,
+    )
+
+
+def add_org_unit(
+    knowledge_base: KnowledgeBase,
+    name: str,
+    source: str = "manual",
+) -> KnowledgeBase:
+    cleaned_name = " ".join(name.strip().split())
+    if not cleaned_name:
+        return knowledge_base
+
+    normalized_name = normalize_org_unit_name(cleaned_name)
+    for entry in knowledge_base.org_units:
+        if normalize_org_unit_name(entry.get("name", "")) == normalized_name:
+            return knowledge_base
+
+    updated_org_units = list(knowledge_base.org_units)
+    updated_org_units.append(
+        {
+            "name": cleaned_name,
+            "created_at": date.today().isoformat(),
+            "source": source,
+        }
+    )
+    return KnowledgeBase(
+        confirmed=knowledge_base.confirmed,
+        rejected=knowledge_base.rejected,
+        disambiguation=knowledge_base.disambiguation,
+        process_identity=knowledge_base.process_identity,
+        org_units=updated_org_units,
+        org_unit_candidates=knowledge_base.org_unit_candidates,
+    )
+
+
+def upsert_org_unit_candidate(
+    knowledge_base: KnowledgeBase,
+    candidate_name: str,
+    source_path: str,
+    process_name: str,
+    role_name: str = "",
+) -> KnowledgeBase:
+    cleaned_name = " ".join(candidate_name.strip().split())
+    if not cleaned_name:
+        return knowledge_base
+
+    normalized_name = normalize_org_unit_name(cleaned_name)
+    if any(normalize_org_unit_name(entry.get("name", "")) == normalized_name for entry in knowledge_base.org_units):
+        return knowledge_base
+
+    updated_candidates = list(knowledge_base.org_unit_candidates)
+    today = date.today().isoformat()
+    for entry in updated_candidates:
+        if entry.get("normalized_name") != normalized_name:
+            continue
+        if source_path and source_path not in entry["source_paths"]:
+            entry["source_paths"].append(source_path)
+        if process_name and process_name not in entry["process_names"]:
+            entry["process_names"].append(process_name)
+        if role_name and role_name not in entry["role_names"]:
+            entry["role_names"].append(role_name)
+        if entry.get("status") == "open":
+            entry["last_seen"] = today
+        return KnowledgeBase(
+            confirmed=knowledge_base.confirmed,
+            rejected=knowledge_base.rejected,
+            disambiguation=knowledge_base.disambiguation,
+            process_identity=knowledge_base.process_identity,
+            org_units=knowledge_base.org_units,
+            org_unit_candidates=updated_candidates,
+        )
+
+    updated_candidates.append(
+        {
+            "candidate_name": cleaned_name,
+            "normalized_name": normalized_name,
+            "source_paths": [source_path] if source_path else [],
+            "process_names": [process_name] if process_name else [],
+            "role_names": [role_name] if role_name else [],
+            "status": "open",
+            "mapped_org_unit": "",
+            "first_seen": today,
+            "last_seen": today,
+        }
+    )
+    return KnowledgeBase(
+        confirmed=knowledge_base.confirmed,
+        rejected=knowledge_base.rejected,
+        disambiguation=knowledge_base.disambiguation,
+        process_identity=knowledge_base.process_identity,
+        org_units=knowledge_base.org_units,
+        org_unit_candidates=updated_candidates,
+    )
+
+
+def map_org_unit_candidate(
+    knowledge_base: KnowledgeBase,
+    candidate_name: str,
+    target_org_unit: str,
+) -> KnowledgeBase:
+    normalized_candidate = normalize_org_unit_name(candidate_name)
+    normalized_target = normalize_org_unit_name(target_org_unit)
+    updated = add_org_unit(knowledge_base, target_org_unit, source="manual")
+    updated_candidates = list(updated.org_unit_candidates)
+    for entry in updated_candidates:
+        if entry.get("normalized_name") != normalized_candidate:
+            continue
+        entry["status"] = "mapped"
+        entry["mapped_org_unit"] = target_org_unit.strip()
+        entry["last_seen"] = date.today().isoformat()
+        break
+    return KnowledgeBase(
+        confirmed=updated.confirmed,
+        rejected=updated.rejected,
+        disambiguation=updated.disambiguation,
+        process_identity=updated.process_identity,
+        org_units=updated.org_units,
+        org_unit_candidates=updated_candidates,
+    )
+
+
+def accept_org_unit_candidate_as_new(
+    knowledge_base: KnowledgeBase,
+    candidate_name: str,
+    target_name: str | None = None,
+) -> KnowledgeBase:
+    resolved_name = (target_name or candidate_name).strip()
+    updated = add_org_unit(knowledge_base, resolved_name, source="candidate")
+    return map_org_unit_candidate(updated, candidate_name, resolved_name)
+
+
+def reject_org_unit_candidate(
+    knowledge_base: KnowledgeBase,
+    candidate_name: str,
+) -> KnowledgeBase:
+    normalized_candidate = normalize_org_unit_name(candidate_name)
+    updated_candidates = list(knowledge_base.org_unit_candidates)
+    for entry in updated_candidates:
+        if entry.get("normalized_name") != normalized_candidate:
+            continue
+        entry["status"] = "rejected"
+        entry["mapped_org_unit"] = ""
+        entry["last_seen"] = date.today().isoformat()
+        break
+    return KnowledgeBase(
+        confirmed=knowledge_base.confirmed,
+        rejected=knowledge_base.rejected,
+        disambiguation=knowledge_base.disambiguation,
+        process_identity=knowledge_base.process_identity,
+        org_units=knowledge_base.org_units,
+        org_unit_candidates=updated_candidates,
     )
 
 
@@ -160,4 +350,6 @@ def clear_knowledge_base_sections(
         rejected=[] if "rejected" in sections else knowledge_base.rejected,
         disambiguation=[] if "disambiguation" in sections else knowledge_base.disambiguation,
         process_identity=[] if "process_identity" in sections else knowledge_base.process_identity,
+        org_units=[] if "org_units" in sections else knowledge_base.org_units,
+        org_unit_candidates=[] if "org_unit_candidates" in sections else knowledge_base.org_unit_candidates,
     )

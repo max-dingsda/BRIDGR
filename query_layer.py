@@ -71,9 +71,10 @@ def answer_question(
 def find_application_ambiguity_options(question: str, rows: list[dict]) -> list[str]:
     application_names = sorted(
         {
-            str(row.get("application", "")).strip()
+            application_name
             for row in rows
-            if str(row.get("application", "")).strip()
+            for application_name in [_extract_application_name_from_row(row)]
+            if application_name
         }
     )
     if len(application_names) < 2:
@@ -110,3 +111,11 @@ def resolve_application_clarification(user_message: str, options: list[str]) -> 
     if len(partial_matches) == 1:
         return partial_matches[0]
     return None
+
+
+def _extract_application_name_from_row(row: dict) -> str:
+    for key in ("application", "application_name", "anwendung", "anwendung_name"):
+        value = str(row.get(key, "")).strip()
+        if value:
+            return value
+    return ""

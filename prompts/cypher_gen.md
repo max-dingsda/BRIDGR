@@ -15,6 +15,7 @@ Rules:
 - Use only simple technical aliases such as `process`, `application`, `org_unit`, `process_count`, or `application_count`.
 - Never use quoted aliases and never use spaces, parentheses, or punctuation in aliases.
 - If a question uses only part of an application, process, or org-unit name, prefer a case-insensitive partial match with `toLower(... ) CONTAINS toLower('...')` instead of exact equality.
+- If a question filters by a full or partial application name, return the concrete matched application as `application` in addition to other relevant columns unless the user explicitly asks only for a count.
 - Apply all explicit filters from the question directly in Cypher whenever possible.
 - Do not return a broader result set and rely on the final answer step to filter rows afterward.
 - For yes/no questions like "Ist X fuer irgendeinen Prozess relevant?" return the matching rows that justify the answer.
@@ -36,8 +37,8 @@ Question: Ist outlook fuer irgendeinen Prozess relevant?
 Cypher:
 MATCH (p:Prozess)-[:NUTZT]->(a:Anwendung)
 WHERE toLower(a.name) CONTAINS toLower('outlook')
-RETURN DISTINCT p.name AS process
-ORDER BY process
+RETURN DISTINCT p.name AS process, a.name AS application
+ORDER BY process, application
 
 Question: Gibt es einen Prozess mit bestell im Namen?
 Cypher:

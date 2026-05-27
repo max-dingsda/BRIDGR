@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+
 from constants import (
     CONFIDENCE_WEAK,
     DOCUMENT_STATUS_ERROR,
@@ -9,6 +11,11 @@ from constants import (
     MATCH_SOURCE_REJECTED,
 )
 from skills.match import normalize_name_for_matching
+
+
+def _stable_ui_id(*parts: object) -> str:
+    material = "||".join(str(part) for part in parts)
+    return hashlib.sha256(material.encode("utf-8")).hexdigest()
 
 
 def summarize_run(latest_run: dict) -> dict[str, int | str]:
@@ -62,7 +69,14 @@ def build_review_rows(documents: list[dict]) -> list[dict]:
                 continue
             review_rows.append(
                 {
-                    "row_id": f"{document.get('file_hash', '')}:{index}",
+                    "row_id": _stable_ui_id(
+                        document.get("source_path", ""),
+                        document.get("file_hash", ""),
+                        index,
+                        match.get("application_name", ""),
+                        match.get("matched_name", ""),
+                        match.get("cmdb_id", ""),
+                    ),
                     "source_path": document.get("source_path", ""),
                     "prozess": extracted_process.get("process_name", ""),
                     "anwendung_im_prozess": match.get("application_name", ""),
@@ -81,7 +95,13 @@ def build_document_details(documents: list[dict]) -> list[dict]:
         extracted_process = document.get("extracted_process") or {}
         details.append(
             {
+                "detail_id": _stable_ui_id(
+                    document.get("source_path", ""),
+                    document.get("file_hash", ""),
+                    extracted_process.get("process_name", ""),
+                ),
                 "title": f"{document.get('status', 'unknown')}: {document.get('source_path', '')}",
+                "source_path": document.get("source_path", ""),
                 "process_name": extracted_process.get("process_name", ""),
                 "process_id": extracted_process.get("process_id", ""),
                 "org_unit": extracted_process.get("org_unit", ""),

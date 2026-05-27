@@ -40,8 +40,26 @@ class GraphWriter:
                 "process_id": process.process_id,
             },
         )
+        client.execute_write(
+            """
+            MATCH (:OrgEinheit)-[r:VERANTWORTET]->(p:Prozess {prozess_id: $process_id})
+            DELETE r
+            """,
+            {
+                "process_id": process.process_id,
+            },
+        )
+        client.execute_write(
+            """
+            MATCH (:Rolle)-[r:BETEILIGT_AN]->(p:Prozess {prozess_id: $process_id})
+            DELETE r
+            """,
+            {
+                "process_id": process.process_id,
+            },
+        )
 
-        if process.org_unit:
+        for org_unit_name in process.org_units:
             client.execute_write(
                 """
                 MERGE (o:OrgEinheit {name: $org_unit})
@@ -49,7 +67,20 @@ class GraphWriter:
                 MERGE (o)-[:VERANTWORTET]->(p)
                 """,
                 {
-                    "org_unit": process.org_unit,
+                    "org_unit": org_unit_name,
+                    "process_id": process.process_id,
+                },
+            )
+
+        for role_name in process.roles:
+            client.execute_write(
+                """
+                MERGE (r:Rolle {name: $role_name})
+                MERGE (p:Prozess {prozess_id: $process_id})
+                MERGE (r)-[:BETEILIGT_AN]->(p)
+                """,
+                {
+                    "role_name": role_name,
                     "process_id": process.process_id,
                 },
             )

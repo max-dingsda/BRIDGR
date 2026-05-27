@@ -29,6 +29,9 @@ def test_bpmn_extractor_returns_domain_model(tmp_path: Path) -> None:
 
     assert result.process_name == "Auftragsabwicklung"
     assert result.process_id == "proc_001"
+    assert result.roles == ["Vertrieb"]
+    assert result.org_units == []
+    assert result.org_unit_candidates == []
     assert result.raw_applications[0].name == "SAP SD"
     assert result.applications[0].name == "SAP SD"
 

@@ -1,22 +1,35 @@
 import streamlit as st
 
 from app import (
+    ACTIVE_IMPORT_RUN_ID_STATE_KEY,
+    ACTIVE_REVIEW_RUN_ID_STATE_KEY,
     CHAT_MESSAGES_STATE_KEY,
     CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY,
     CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY,
+    clear_pipeline_run_tracker,
+    IMPORT_RUN_FEEDBACK_STATE_KEY,
     LLM_STATUS_CONFIG_STATE_KEY,
     LLM_STATUS_STATE_KEY,
     NEO4J_CLIENT_CONFIG_STATE_KEY,
     NEO4J_CONNECTION_STATUS_CONFIG_STATE_KEY,
     NEO4J_CONNECTION_STATUS_STATE_KEY,
     NEO4J_CLIENT_STATE_KEY,
+    REVIEW_RUN_FEEDBACK_STATE_KEY,
+    clear_run_feedback,
+    create_pipeline_run_tracker,
     ensure_query_chat_defaults,
     ensure_import_session_defaults,
+    fail_pipeline_run_tracker,
+    finish_pipeline_run_tracker,
+    get_pipeline_run_tracker,
     get_llm_status,
     get_neo4j_connection_status,
     get_session_neo4j_client,
+    reset_query_chat_state,
     reset_session_neo4j_client,
     run_query_chat_turn,
+    set_run_feedback,
+    update_pipeline_run_tracker,
     update_config_session_defaults,
     sync_config_session_defaults,
     write_debug_log,
@@ -30,6 +43,69 @@ def test_ensure_import_session_defaults_uses_config_mode() -> None:
     ensure_import_session_defaults(AppConfig(last_run_mode="full"))
 
     assert st.session_state["import_run_mode"] == "full"
+
+
+def test_run_feedback_state_can_be_set_and_cleared() -> None:
+    st.session_state.clear()
+
+    set_run_feedback(REVIEW_RUN_FEEDBACK_STATE_KEY, "success", "ok")
+    set_run_feedback(IMPORT_RUN_FEEDBACK_STATE_KEY, "error", "boom")
+
+    assert st.session_state[REVIEW_RUN_FEEDBACK_STATE_KEY] == {"level": "success", "message": "ok"}
+    assert st.session_state[IMPORT_RUN_FEEDBACK_STATE_KEY] == {"level": "error", "message": "boom"}
+
+    clear_run_feedback(REVIEW_RUN_FEEDBACK_STATE_KEY)
+    clear_run_feedback(IMPORT_RUN_FEEDBACK_STATE_KEY)
+
+    assert REVIEW_RUN_FEEDBACK_STATE_KEY not in st.session_state
+    assert IMPORT_RUN_FEEDBACK_STATE_KEY not in st.session_state
+
+
+def test_pipeline_run_tracker_lifecycle() -> None:
+    run_id = create_pipeline_run_tracker("done in {duration}")
+
+    assert get_pipeline_run_tracker(run_id) == {
+        "status": "running",
+        "completed": 0,
+        "total": 0,
+        "source_path": "",
+        "document_status": "",
+        "duration_seconds": None,
+        "error_message": "",
+        "success_message_template": "done in {duration}",
+    }
+
+    update_pipeline_run_tracker(
+        run_id,
+        {
+            "completed": 2,
+            "total": 5,
+            "source_path": "Input/process.txt",
+            "status": "processed",
+        },
+    )
+    assert get_pipeline_run_tracker(run_id)["completed"] == 2
+    assert get_pipeline_run_tracker(run_id)["total"] == 5
+    assert get_pipeline_run_tracker(run_id)["source_path"] == "Input/process.txt"
+    assert get_pipeline_run_tracker(run_id)["document_status"] == "processed"
+
+    finish_pipeline_run_tracker(run_id, 12.5)
+    assert get_pipeline_run_tracker(run_id)["status"] == "success"
+    assert get_pipeline_run_tracker(run_id)["duration_seconds"] == 12.5
+
+    clear_pipeline_run_tracker(run_id)
+    assert get_pipeline_run_tracker(run_id) is None
+
+
+def test_pipeline_run_tracker_can_store_error_state() -> None:
+    run_id = create_pipeline_run_tracker("done in {duration}")
+
+    fail_pipeline_run_tracker(run_id, "boom")
+
+    assert get_pipeline_run_tracker(run_id)["status"] == "error"
+    assert get_pipeline_run_tracker(run_id)["error_message"] == "boom"
+
+    clear_pipeline_run_tracker(run_id)
 
 
 def test_sync_config_session_defaults_replaces_legacy_input_path() -> None:
@@ -154,6 +230,19 @@ def test_ensure_query_chat_defaults_initializes_chat_state() -> None:
     st.session_state.clear()
 
     ensure_query_chat_defaults()
+
+    assert st.session_state[CHAT_MESSAGES_STATE_KEY] == []
+    assert st.session_state[CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY] == []
+    assert st.session_state[CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY] == ""
+
+
+def test_reset_query_chat_state_clears_messages_and_pending_clarification() -> None:
+    st.session_state.clear()
+    st.session_state[CHAT_MESSAGES_STATE_KEY] = [{"role": "user", "content": "test"}]
+    st.session_state[CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY] = ["Mail", "Outlook"]
+    st.session_state[CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY] = "Welche Mail-Anwendung?"
+
+    reset_query_chat_state()
 
     assert st.session_state[CHAT_MESSAGES_STATE_KEY] == []
     assert st.session_state[CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY] == []
