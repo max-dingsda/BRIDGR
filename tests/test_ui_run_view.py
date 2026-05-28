@@ -3,6 +3,7 @@ from ui_run_view import (
     build_document_details,
     build_document_status_rows,
     build_review_rows,
+    deduplicate_documents,
     filter_documents,
     summarize_run,
 )
@@ -10,7 +11,7 @@ from ui_run_view import (
 
 def sample_run() -> dict:
     return {
-        "run_mode": "delta",
+        "run_mode": "partial",
         "documents": [
             {
                 "source_path": "Input/a.bpmn",
@@ -48,7 +49,7 @@ def sample_run() -> dict:
 def test_summarize_run_counts_statuses() -> None:
     summary = summarize_run(sample_run())
 
-    assert summary["run_mode"] == "delta"
+    assert summary["run_mode"] == "partial"
     assert summary["documents"] == 2
     assert summary["processed"] == 1
     assert summary["errors"] == 1
@@ -126,6 +127,16 @@ def test_build_document_details_uses_unique_ids_for_duplicate_hashes() -> None:
 
     assert len(details) == 3
     assert len({detail["detail_id"] for detail in details}) == 3
+
+
+def test_deduplicate_documents_removes_exact_duplicate_entries() -> None:
+    run = sample_run()
+    duplicate_document = dict(run["documents"][0])
+    run["documents"].append(duplicate_document)
+
+    deduplicated = deduplicate_documents(run["documents"])
+
+    assert len(deduplicated) == 2
 
 
 def test_build_duplicate_application_warnings_detects_variant_spellings() -> None:

@@ -55,6 +55,30 @@
       "resolved_to": "Product Backlog System",
       "bestaetigt_am": "2026-05-28",
       "quelle": "manueller_link"
+    },
+    {
+      "prozess": "aus ICW-Datenmodell generieren",
+      "anwendung_name": ".NETCore-API generieren",
+      "cmdb_id": "c49b35b5-9247-4ebf-9531-f1947c17e080",
+      "resolved_to": "SAP SRM",
+      "bestaetigt_am": "2026-05-28",
+      "quelle": "manueller_link"
+    },
+    {
+      "prozess": "aus ICW-Datenmodell generieren",
+      "anwendung_name": "C#-API generieren",
+      "cmdb_id": "c49b35b5-9247-4ebf-9531-f1947c17e080",
+      "resolved_to": "SAP SRM",
+      "bestaetigt_am": "2026-05-28",
+      "quelle": "manueller_link"
+    },
+    {
+      "prozess": "Kündigungsprozess Bpanda Cloud durchführen",
+      "anwendung_name": "Kündigungsprozess Bpanda Cloud durchführen",
+      "cmdb_id": "0cbf0519-9d73-4451-b6f2-6f1a3715cd3e",
+      "resolved_to": "Trouble Ticket System",
+      "bestaetigt_am": "2026-05-28",
+      "quelle": "manueller_link"
     }
   ],
   "rejected": [],
@@ -135,7 +159,8 @@
         "Bestellabwicklung"
       ],
       "role_names": [
-        "Vertriebsmitarbeiter"
+        "Vertriebsmitarbeiter",
+        "Vertriebsmitarbeiter, Lagermitarbeiter, Versandmitarbeiter, Buchhalter"
       ],
       "status": "mapped",
       "mapped_org_unit": "Customer Service Team",
@@ -188,6 +213,55 @@
       ],
       "status": "mapped",
       "mapped_org_unit": "Buchhaltung",
+      "first_seen": "2026-05-28",
+      "last_seen": "2026-05-28"
+    },
+    {
+      "candidate_name": "Stammdatenteam",
+      "normalized_name": "stammdatenteam",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx"
+      ],
+      "process_names": [
+        "Lieferantenmanagement"
+      ],
+      "role_names": [
+        "Einkauf"
+      ],
+      "status": "mapped",
+      "mapped_org_unit": "Customer Service Team",
+      "first_seen": "2026-05-28",
+      "last_seen": "2026-05-28"
+    },
+    {
+      "candidate_name": "Abteilungsleiter Einkauf",
+      "normalized_name": "abteilungsleiter einkauf",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx"
+      ],
+      "process_names": [
+        "Lieferantenmanagement"
+      ],
+      "role_names": [
+        "Einkauf"
+      ],
+      "status": "mapped",
+      "mapped_org_unit": "Buchhaltung",
+      "first_seen": "2026-05-28",
+      "last_seen": "2026-05-28"
+    },
+    {
+      "candidate_name": "Abteilung SALES",
+      "normalized_name": "abteilung sales",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt"
+      ],
+      "process_names": [
+        "Bestellabwicklung"
+      ],
+      "role_names": [],
+      "status": "mapped",
+      "mapped_org_unit": "Sales",
       "first_seen": "2026-05-28",
       "last_seen": "2026-05-28"
     }

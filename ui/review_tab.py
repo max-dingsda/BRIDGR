@@ -1,0 +1,416 @@
+from __future__ import annotations
+
+from dataclasses import asdict
+from pathlib import Path
+
+import streamlit as st
+
+from app_config import AppConfig, load_config, resolve_input_cmdb_path, resolve_runtime_output_path
+from cmdb import CmdbLoadError, build_cmdb_option_labels, find_cmdb_row_by_label, load_cmdb_rows
+from constants import DOCUMENT_STATUS_OPTIONS, MATCH_SOURCE_REJECTED
+from input_validation import validate_manual_application_name
+from knowledge_base import load_knowledge_base
+from run_artifacts import load_last_import_context, load_latest_run
+from services.review_service import (
+    clear_knowledge_base_and_refresh,
+    confirm_review_link,
+    reject_review_link,
+    save_manual_link,
+)
+from services.runtime_service import (
+    REVIEW_RUN_FEEDBACK_STATE_KEY,
+    apply_pending_review_scope_defaults,
+    render_run_feedback,
+)
+from ui_run_view import (
+    build_document_details,
+    build_document_status_rows,
+    build_duplicate_application_warnings,
+    build_review_rows,
+    filter_documents,
+    summarize_run,
+)
+
+
+def render_latest_run_summary(latest_run: dict, documents: list[dict]) -> None:
+    summary = summarize_run(latest_run, documents)
+    metric_columns = st.columns(5)
+    metric_columns[0].metric("Run Mode", str(summary["run_mode"]))
+    metric_columns[1].metric("Documents", int(summary["documents"]))
+    metric_columns[2].metric("Processed", int(summary["processed"]))
+    metric_columns[3].metric("Skipped", int(summary["skipped"]))
+    metric_columns[4].metric("Errors", int(summary["errors"]))
+    if summary["no_matches"]:
+        st.caption(f"Documents without application matches: {summary['no_matches']}")
+
+
+def render_document_status_table(documents: list[dict]) -> None:
+    rows = build_document_status_rows(documents)
+    st.markdown("**Dokumentstatus**")
+    if rows:
+        st.dataframe(rows, width="stretch")
+    else:
+        st.info("Keine Dokumente fuer den aktuellen Filter gefunden.")
+
+
+def render_duplicate_application_warnings(documents: list[dict]) -> None:
+    warnings = build_duplicate_application_warnings(documents)
+    if not warnings:
+        return
+    st.markdown("**Hinweise zur Prozessnotation**")
+    for warning in warnings:
+        variants = "; ".join(warning.get("varianten", []))
+        st.warning(
+            f"Im Prozess '{warning.get('prozess', '')}' scheint dieselbe Anwendung mehrfach unterschiedlich notiert zu sein: {variants}"
+        )
+
+
+def _resolve_cmdb_rows(config: AppConfig) -> list[dict[str, str]]:
+    return load_cmdb_rows(
+        resolve_input_cmdb_path(config),
+        config.cmdb_uuid_column,
+        config.cmdb_name_column,
+    )
+
+
+def render_review_item_actions(review_row: dict, config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
+    process_name = review_row.get("prozess", "")
+    source_path = review_row.get("source_path", "")
+    application_name = review_row.get("anwendung_im_prozess", "")
+    matched_name = review_row.get("anwendung_in_cmdb", "")
+    cmdb_id = review_row.get("cmdb_id")
+    row_id = review_row.get("row_id", "")
+
+    row_columns = st.columns([2, 3, 3, 1, 1, 1, 2])
+    row_columns[0].write(process_name)
+    row_columns[1].write(application_name)
+    row_columns[2].write(matched_name)
+    row_columns[3].write(review_row.get("confidence", ""))
+
+    if cmdb_id and row_columns[4].button("Bestaetigen", key=f"review-confirm::{row_id}", width="stretch"):
+        st.success(confirm_review_link(config, process_name, application_name, cmdb_id, matched_name, source_path, cmdb_rows))
+        st.rerun()
+
+    if row_columns[5].button("Ablehnen", key=f"review-reject::{row_id}", width="stretch"):
+        st.success(reject_review_link(config, process_name, application_name, cmdb_id, source_path, cmdb_rows))
+        st.rerun()
+
+    cmdb_options = build_cmdb_option_labels(cmdb_rows, config.cmdb_uuid_column, config.cmdb_name_column)
+    if not cmdb_options:
+        row_columns[6].write("-")
+        return
+
+    with row_columns[6].popover("Manuell anlegen", use_container_width=True):
+        selected_label = st.selectbox(
+            "CMDB-Ziel",
+            options=cmdb_options,
+            key=f"review-manual-select::{row_id}",
+            label_visibility="collapsed",
+        )
+        if st.button("Speichern", key=f"review-manual-submit::{row_id}", width="stretch"):
+            selected_row = find_cmdb_row_by_label(
+                cmdb_rows,
+                selected_label,
+                config.cmdb_uuid_column,
+                config.cmdb_name_column,
+            )
+            if selected_row is None:
+                st.error("Ausgewaehltes CMDB-Ziel konnte nicht aufgeloest werden.")
+                return
+            st.success(
+                save_manual_link(
+                    config,
+                    process_name,
+                    application_name,
+                    selected_row.get(config.cmdb_uuid_column, ""),
+                    selected_row.get(config.cmdb_name_column, application_name),
+                    source_path,
+                    cmdb_rows,
+                )
+            )
+            st.rerun()
+
+
+def render_review_items_table(documents: list[dict], config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
+    review_rows = build_review_rows(documents)
+    st.markdown("**Review-Items**")
+    if not review_rows:
+        st.success("Keine Review-Items fuer den aktuellen Filter gefunden.")
+        return
+
+    header_columns = st.columns([2, 3, 3, 1, 1, 1, 2])
+    header_columns[0].markdown("**Prozess**")
+    header_columns[1].markdown("**Anwendung im Prozess**")
+    header_columns[2].markdown("**Anwendung in der CMDB**")
+    header_columns[3].markdown("**Bewertung**")
+    header_columns[4].markdown("**Bestaetigen**")
+    header_columns[5].markdown("**Ablehnen**")
+    header_columns[6].markdown("**Manuell anlegen**")
+
+    for review_row in review_rows:
+        render_review_item_actions(review_row, config, cmdb_rows)
+
+
+def render_review_actions(detail: dict, config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
+    process_name = detail["process_name"]
+    source_path = detail["source_path"]
+    matches = detail["matches"]
+    if not matches:
+        return
+
+    st.markdown("Pruefbare Verknuepfungen")
+    header_columns = st.columns([2, 3, 3, 1, 1, 1])
+    header_columns[0].markdown("**Prozess**")
+    header_columns[1].markdown("**Anwendung im Prozess**")
+    header_columns[2].markdown("**Anwendung in der CMDB**")
+    header_columns[3].markdown("**Bewertung**")
+    header_columns[4].markdown("**Bestaetigen**")
+    header_columns[5].markdown("**Ablehnen**")
+
+    for index, match in enumerate(matches):
+        application_name = match.get("application_name", "")
+        matched_name = match.get("matched_name") or ""
+        cmdb_id = match.get("cmdb_id")
+        source = match.get("source", "")
+        confidence = match.get("confidence", "")
+        if source == MATCH_SOURCE_REJECTED:
+            continue
+
+        action_columns = st.columns([2, 3, 3, 1, 1, 1])
+        action_columns[0].write(process_name)
+        action_columns[1].write(application_name)
+        action_columns[2].write(matched_name or "-")
+        action_columns[3].write(confidence)
+
+        if cmdb_id and action_columns[4].button("Bestaetigen", key=f"confirm::{detail['detail_id']}::{index}", width="stretch"):
+            st.success(confirm_review_link(config, process_name, application_name, cmdb_id, matched_name, source_path, cmdb_rows))
+            st.rerun()
+
+        if action_columns[5].button("Ablehnen", key=f"reject::{detail['detail_id']}::{index}", width="stretch"):
+            st.success(reject_review_link(config, process_name, application_name, cmdb_id, source_path, cmdb_rows))
+            st.rerun()
+
+
+def render_manual_link_form(detail: dict, config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
+    process_name = detail["process_name"]
+    source_path = detail["source_path"]
+    if not process_name:
+        return
+
+    cmdb_options = build_cmdb_option_labels(cmdb_rows, config.cmdb_uuid_column, config.cmdb_name_column)
+    if not cmdb_options:
+        st.info("Keine CMDB-Eintraege fuer manuellen Link verfuegbar.")
+        return
+
+    st.markdown("Manuellen Link anlegen")
+    manual_application_name = st.text_input(
+        "Bezeichnung im Prozesskontext",
+        value="",
+        key=f"manual-name::{detail['detail_id']}",
+        placeholder="z.B. SAP Sales oder Vertragssystem",
+    )
+    selected_label = st.selectbox("CMDB-Ziel", options=cmdb_options, key=f"manual-target::{detail['detail_id']}")
+
+    if st.button("Manuellen Link speichern", key=f"manual-submit::{detail['detail_id']}", width="stretch"):
+        selected_row = find_cmdb_row_by_label(
+            cmdb_rows,
+            selected_label,
+            config.cmdb_uuid_column,
+            config.cmdb_name_column,
+        )
+        if selected_row is None:
+            st.error("Ausgewaehltes CMDB-Ziel konnte nicht aufgeloest werden.")
+            return
+
+        if manual_application_name.strip():
+            try:
+                application_name = validate_manual_application_name(manual_application_name)
+            except ValueError as exc:
+                st.error(str(exc))
+                return
+        else:
+            application_name = selected_row.get(config.cmdb_name_column, "")
+
+        st.success(
+            save_manual_link(
+                config,
+                process_name,
+                application_name,
+                selected_row.get(config.cmdb_uuid_column, ""),
+                selected_row.get(config.cmdb_name_column, application_name),
+                source_path,
+                cmdb_rows,
+            )
+        )
+        st.rerun()
+
+
+def render_document_details(documents: list[dict], config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
+    st.markdown("**Dokumentdetails**")
+    details = build_document_details(documents)
+    if not details:
+        st.info("Keine Detaildaten fuer den aktuellen Filter vorhanden.")
+        return
+
+    for detail in details:
+        with st.expander(detail["title"]):
+            left_column, right_column = st.columns(2)
+            with left_column:
+                st.write(
+                    {
+                        "process_name": detail["process_name"],
+                        "process_id": detail["process_id"],
+                        "org_unit": detail["org_unit"],
+                        "follows_after": detail["follows_after"],
+                        "file_hash": detail["file_hash"],
+                    }
+                )
+            with right_column:
+                if detail["error_message"]:
+                    st.error(detail["error_message"])
+                else:
+                    st.write({"review_items": detail["review_items"]})
+
+            render_review_actions(detail, config, cmdb_rows)
+            render_manual_link_form(detail, config, cmdb_rows)
+            with st.expander("Technische Details", expanded=False):
+                st.markdown("Raw Applications")
+                st.json(detail["raw_applications"])
+                st.markdown("Applications")
+                st.json(detail["applications"])
+                st.markdown("Matches")
+                st.json(detail["matches"])
+
+
+def render_knowledge_base_tools(config: AppConfig) -> None:
+    with st.expander("Knowledge Base verwalten", expanded=False):
+        st.caption("Hilft beim Zuruecksetzen von Testentscheidungen ohne manuelles Bearbeiten von `knowledge_base/kb.json`.")
+        action_columns = st.columns(3)
+
+        if action_columns[0].button("KB komplett leeren", key="kb-clear-all", width="stretch"):
+            level, message = clear_knowledge_base_and_refresh(
+                config,
+                sections={"confirmed", "rejected", "disambiguation", "process_identity"},
+                success_message="Die gesamte Knowledge Base wurde geleert.",
+            )
+            getattr(st, level)(message)
+            st.rerun()
+
+        if action_columns[1].button("Nur confirmed leeren", key="kb-clear-confirmed", width="stretch"):
+            level, message = clear_knowledge_base_and_refresh(
+                config,
+                sections={"confirmed"},
+                success_message="Die bestaetigten KB-Eintraege wurden geleert.",
+            )
+            getattr(st, level)(message)
+            st.rerun()
+
+        if action_columns[2].button("Nur rejected leeren", key="kb-clear-rejected", width="stretch"):
+            level, message = clear_knowledge_base_and_refresh(
+                config,
+                sections={"rejected"},
+                success_message="Die abgelehnten KB-Eintraege wurden geleert.",
+            )
+            getattr(st, level)(message)
+            st.rerun()
+
+
+def render_review_tab() -> None:
+    st.subheader("Link Editing")
+    config = load_config(Path("config.json"))
+    apply_pending_review_scope_defaults()
+    render_run_feedback(REVIEW_RUN_FEEDBACK_STATE_KEY)
+    st.caption(
+        "Hier bearbeiten Sie bereits bekannte schwache oder offene Zuordnungen. "
+        "Es wird kein neuer Import aus der Inbox gestartet."
+    )
+
+    runtime_output_path, used_output_fallback = resolve_runtime_output_path(config.output_path)
+    last_import_context = load_last_import_context(runtime_output_path)
+    last_import_source_paths = last_import_context.get("source_paths", [])
+    last_import_labels = last_import_context.get("display_paths", [])
+    last_import_archive_path = last_import_context.get("archive_path", "")
+
+    action_column, info_column = st.columns([1, 2])
+    with action_column:
+        review_scope = st.radio(
+            "Review-Umfang",
+            options=["Nur letzter Import", "Dateien manuell waehlen"],
+            key="review_scope_mode",
+        )
+        selected_review_source_paths: list[str] = []
+        if review_scope == "Nur letzter Import":
+            if last_import_labels:
+                st.caption(f"{len(last_import_labels)} Datei(en) aus dem letzten Import stehen fuer die Review zur Verfuegung.")
+                st.dataframe([{"Datei": label} for label in last_import_labels], width="stretch")
+                if last_import_archive_path:
+                    st.caption(f"Archivpfad des letzten Imports: `{last_import_archive_path}`")
+                selected_review_source_paths = list(last_import_source_paths)
+            else:
+                st.info("Es liegt noch keine gespeicherte Auswahl aus dem letzten Import vor.")
+        else:
+            latest_run = load_latest_run(runtime_output_path) or {}
+            manual_review_options = sorted(
+                {
+                    document.get("source_path", "")
+                    for document in latest_run.get("documents", [])
+                    if document.get("source_path")
+                }
+            )
+            selected_review_source_paths = st.multiselect(
+                "Dateien fuer Review",
+                options=manual_review_options,
+                default=[],
+                key="review_process_selection",
+                format_func=lambda value: Path(value).name,
+            )
+    with info_column:
+        st.caption(
+            "Die Ansicht liest den letzten gespeicherten Lauf aus `Output/latest_run.json` "
+            "und zeigt offene bzw. schwache Matching-Faelle zur Bearbeitung."
+        )
+
+    latest_run = load_latest_run(runtime_output_path)
+    if latest_run is None:
+        if used_output_fallback:
+            st.warning(f"Der konfigurierte Output-Pfad ist nicht beschreibbar. Laufartefakte werden nach `{runtime_output_path}` umgeleitet.")
+        st.info("Noch kein gespeicherter Pipeline-Lauf vorhanden.")
+        return
+
+    if latest_run.get("used_output_fallback"):
+        st.warning(f"Laufartefakte werden aktuell nach `{latest_run.get('output_path', runtime_output_path)}` geschrieben.")
+
+    selected_statuses = st.multiselect("Statusfilter", options=DOCUMENT_STATUS_OPTIONS, default=DOCUMENT_STATUS_OPTIONS)
+    filtered_documents = filter_documents(latest_run, selected_statuses)
+    active_scope_paths = selected_review_source_paths
+    if active_scope_paths:
+        filtered_documents = [
+            document
+            for document in filtered_documents
+            if document.get("source_path", "") in active_scope_paths
+        ]
+    elif review_scope == "Dateien manuell waehlen":
+        st.info("Bitte waehlen Sie mindestens eine Prozessdatei fuer die Review aus.")
+        filtered_documents = []
+    render_latest_run_summary(latest_run, filtered_documents)
+    try:
+        cmdb_rows = _resolve_cmdb_rows(config)
+    except CmdbLoadError as exc:
+        st.error(str(exc))
+        return
+    render_document_status_table(filtered_documents)
+    candidate_count = len(
+        [
+            entry
+            for entry in load_knowledge_base().org_unit_candidates
+            if entry.get("status", "open") == "open"
+        ]
+    )
+    if candidate_count:
+        st.info(
+            f"Es liegen {candidate_count} offene Organisationseinheiten-Kandidat(en) vor. Diese muessen im Tab `Organisation` bestaetigt, gemappt oder abgewiesen werden."
+        )
+    render_duplicate_application_warnings(filtered_documents)
+    render_review_items_table(filtered_documents, config, cmdb_rows)
+    render_document_details(filtered_documents, config, cmdb_rows)
+    render_knowledge_base_tools(config)

@@ -18,23 +18,39 @@ def _stable_ui_id(*parts: object) -> str:
     return hashlib.sha256(material.encode("utf-8")).hexdigest()
 
 
-def summarize_run(latest_run: dict) -> dict[str, int | str]:
-    documents = latest_run.get("documents", [])
+def summarize_run(latest_run: dict, documents: list[dict] | None = None) -> dict[str, int | str]:
+    summary_documents = deduplicate_documents(documents if documents is not None else latest_run.get("documents", []))
     return {
         "run_mode": str(latest_run.get("run_mode", "-")),
-        "documents": len(documents),
-        "processed": sum(1 for document in documents if document.get("status") == DOCUMENT_STATUS_PROCESSED),
-        "skipped": sum(1 for document in documents if document.get("status") == DOCUMENT_STATUS_SKIPPED_UNCHANGED),
-        "no_matches": sum(1 for document in documents if document.get("status") == DOCUMENT_STATUS_NO_MATCHES),
-        "errors": sum(1 for document in documents if document.get("status") == DOCUMENT_STATUS_ERROR),
+        "documents": len(summary_documents),
+        "processed": sum(1 for document in summary_documents if document.get("status") == DOCUMENT_STATUS_PROCESSED),
+        "skipped": sum(1 for document in summary_documents if document.get("status") == DOCUMENT_STATUS_SKIPPED_UNCHANGED),
+        "no_matches": sum(1 for document in summary_documents if document.get("status") == DOCUMENT_STATUS_NO_MATCHES),
+        "errors": sum(1 for document in summary_documents if document.get("status") == DOCUMENT_STATUS_ERROR),
     }
 
 
 def filter_documents(latest_run: dict, selected_statuses: list[str]) -> list[dict]:
-    documents = latest_run.get("documents", [])
+    documents = deduplicate_documents(latest_run.get("documents", []))
     if not selected_statuses:
         return documents
     return [document for document in documents if document.get("status") in selected_statuses]
+
+
+def deduplicate_documents(documents: list[dict]) -> list[dict]:
+    deduplicated: list[dict] = []
+    seen: set[tuple[str, str, str]] = set()
+    for document in documents:
+        dedupe_key = (
+            document.get("source_path", ""),
+            document.get("file_hash", ""),
+            document.get("status", ""),
+        )
+        if dedupe_key in seen:
+            continue
+        seen.add(dedupe_key)
+        deduplicated.append(document)
+    return deduplicated
 
 
 def build_document_status_rows(documents: list[dict]) -> list[dict]:
@@ -91,7 +107,7 @@ def build_review_rows(documents: list[dict]) -> list[dict]:
 
 def build_document_details(documents: list[dict]) -> list[dict]:
     details = []
-    for document in documents:
+    for index, document in enumerate(documents):
         extracted_process = document.get("extracted_process") or {}
         details.append(
             {
@@ -99,6 +115,7 @@ def build_document_details(documents: list[dict]) -> list[dict]:
                     document.get("source_path", ""),
                     document.get("file_hash", ""),
                     extracted_process.get("process_name", ""),
+                    index,
                 ),
                 "title": f"{document.get('status', 'unknown')}: {document.get('source_path', '')}",
                 "source_path": document.get("source_path", ""),

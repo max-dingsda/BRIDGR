@@ -24,6 +24,8 @@ from app import (
     get_pipeline_run_tracker,
     get_llm_status,
     get_neo4j_connection_status,
+    apply_pending_review_scope_defaults,
+    request_review_last_import_scope,
     persist_org_candidate_mapping_refresh,
     persist_organization_sync,
     persist_org_unit_node,
@@ -39,8 +41,10 @@ from app import (
     write_debug_log,
 )
 from app_config import AppConfig
-from skills.extract.extract_base import ApplicationReference
 from knowledge_base import KnowledgeBase
+from neo4j_utils import Neo4jConnectionError
+from skills.extract.extract_base import ApplicationReference
+from services import organization_service, query_service, runtime_service
 
 
 def test_ensure_import_session_defaults_uses_config_mode() -> None:
@@ -49,6 +53,16 @@ def test_ensure_import_session_defaults_uses_config_mode() -> None:
     ensure_import_session_defaults(AppConfig(last_run_mode="full"))
 
     assert st.session_state["import_run_mode"] == "full"
+
+
+def test_pending_review_scope_defaults_can_be_requested_and_applied() -> None:
+    st.session_state.clear()
+
+    request_review_last_import_scope()
+    apply_pending_review_scope_defaults()
+
+    assert st.session_state["review_scope_mode"] == "Nur letzter Import"
+    assert st.session_state["review_process_selection"] == []
 
 
 def test_run_feedback_state_can_be_set_and_cleared() -> None:
@@ -184,7 +198,7 @@ def test_get_session_neo4j_client_reuses_cached_client(monkeypatch) -> None:
         def close(self) -> None:
             return None
 
-    monkeypatch.setattr("app.Neo4jClient", FakeClient)
+    monkeypatch.setattr(runtime_service, "Neo4jClient", FakeClient)
 
     config = AppConfig(neo4j_password="secret")
     first_client = get_session_neo4j_client(config)
@@ -205,7 +219,7 @@ def test_get_session_neo4j_client_replaces_client_when_config_changes(monkeypatc
         def close(self) -> None:
             closed_clients.append(self.config.database)
 
-    monkeypatch.setattr("app.Neo4jClient", FakeClient)
+    monkeypatch.setattr(runtime_service, "Neo4jClient", FakeClient)
 
     first_client = get_session_neo4j_client(AppConfig(neo4j_password="secret", neo4j_database="db-1"))
     second_client = get_session_neo4j_client(AppConfig(neo4j_password="secret", neo4j_database="db-2"))
@@ -222,7 +236,7 @@ def test_reset_session_neo4j_client_warns_when_close_fails(monkeypatch) -> None:
         def close(self) -> None:
             raise RuntimeError("close failed")
 
-    monkeypatch.setattr("app.st.warning", warnings.append)
+    monkeypatch.setattr(runtime_service.st, "warning", warnings.append)
     st.session_state[NEO4J_CLIENT_STATE_KEY] = FailingClient()
     st.session_state[NEO4J_CLIENT_CONFIG_STATE_KEY] = ("url", "user", "pw", "db")
 
@@ -268,7 +282,7 @@ def test_get_neo4j_connection_status_returns_cached_result(monkeypatch) -> None:
 
         return FakeClient()
 
-    monkeypatch.setattr("app.get_session_neo4j_client", fake_get_session_client)
+    monkeypatch.setattr(runtime_service, "get_session_neo4j_client", fake_get_session_client)
 
     config = AppConfig(neo4j_url="neo4j://localhost:7687", neo4j_password="secret", neo4j_database="test-db")
     first_status = get_neo4j_connection_status(config)
@@ -299,8 +313,8 @@ def test_get_neo4j_connection_status_reports_connection_error(monkeypatch) -> No
     def fake_get_session_client(_config):
         raise RuntimeError("boom")
 
-    monkeypatch.setattr("app.get_session_neo4j_client", fake_get_session_client)
-    monkeypatch.setattr("app.Neo4jConnectionError", RuntimeError)
+    monkeypatch.setattr(runtime_service, "get_session_neo4j_client", fake_get_session_client)
+    monkeypatch.setattr(runtime_service, "Neo4jConnectionError", RuntimeError)
 
     status = get_neo4j_connection_status(AppConfig(neo4j_password="secret"))
 
@@ -318,7 +332,7 @@ def test_get_llm_status_returns_cached_result(monkeypatch) -> None:
         def list_models(self) -> list[str]:
             return ["qwen2.5-coder:7b"]
 
-    monkeypatch.setattr("app.OpenAICompatibleClient", FakeClient)
+    monkeypatch.setattr(runtime_service, "OpenAICompatibleClient", FakeClient)
 
     config = AppConfig(llm_base_url="http://127.0.0.1:11434/v1", llm_model="qwen2.5-coder:7b")
     first_status = get_llm_status(config)
@@ -353,7 +367,7 @@ def test_get_llm_status_reports_missing_model_on_endpoint(monkeypatch) -> None:
         def list_models(self) -> list[str]:
             return ["mistral:7b", "llama3:8b"]
 
-    monkeypatch.setattr("app.OpenAICompatibleClient", FakeClient)
+    monkeypatch.setattr(runtime_service, "OpenAICompatibleClient", FakeClient)
 
     status = get_llm_status(AppConfig(llm_base_url="http://127.0.0.1:11434/v1", llm_model="qwen2.5-coder:7b"))
 
@@ -373,8 +387,8 @@ def test_get_llm_status_reports_endpoint_error(monkeypatch) -> None:
         def list_models(self) -> list[str]:
             raise RuntimeError("offline")
 
-    monkeypatch.setattr("app.OpenAICompatibleClient", FailingClient)
-    monkeypatch.setattr("app.LlmClientError", RuntimeError)
+    monkeypatch.setattr(runtime_service, "OpenAICompatibleClient", FailingClient)
+    monkeypatch.setattr(runtime_service, "LlmClientError", RuntimeError)
 
     status = get_llm_status(AppConfig(llm_base_url="http://127.0.0.1:11434/v1", llm_model="qwen2.5-coder:7b"))
 
@@ -382,7 +396,7 @@ def test_get_llm_status_reports_endpoint_error(monkeypatch) -> None:
 
 
 def test_write_debug_log_creates_jsonl_entry(tmp_path, monkeypatch) -> None:
-    monkeypatch.setattr("app.resolve_runtime_output_path", lambda _path: (tmp_path, False))
+    monkeypatch.setattr(runtime_service, "resolve_runtime_output_path", lambda _path: (tmp_path, False))
 
     write_debug_log(AppConfig(debug_mode=True), "query_error", {"question": "Welche Prozesse gibt es?"})
 
@@ -400,7 +414,7 @@ def test_persist_org_unit_node_merges_org_unit_node(monkeypatch) -> None:
             captured["parameters"] = parameters
             return [{"name": parameters["org_unit_name"]}]
 
-    monkeypatch.setattr("app.get_session_neo4j_client", lambda _config: FakeNeo4jClient())
+    monkeypatch.setattr(organization_service, "get_session_neo4j_client", lambda _config: FakeNeo4jClient())
 
     persist_org_unit_node(AppConfig(neo4j_password="secret"), "  People   &  Culture  ")
 
@@ -413,7 +427,8 @@ def test_persist_org_candidate_mapping_refresh_syncs_org_unit_node_without_lates
     synced_org_units = []
 
     monkeypatch.setattr(
-        "app.load_knowledge_base",
+        organization_service,
+        "load_knowledge_base",
         lambda: KnowledgeBase(
             confirmed=[],
             rejected=[],
@@ -435,9 +450,9 @@ def test_persist_org_candidate_mapping_refresh_syncs_org_unit_node_without_lates
             ],
         ),
     )
-    monkeypatch.setattr("app.persist_org_unit_node", lambda _config, name: synced_org_units.append(name))
-    monkeypatch.setattr("app.resolve_runtime_output_path", lambda _path: (None, False))
-    monkeypatch.setattr("app.load_latest_run", lambda _path: None)
+    monkeypatch.setattr(organization_service, "persist_org_unit_node", lambda _config, name: synced_org_units.append(name))
+    monkeypatch.setattr(organization_service, "resolve_runtime_output_path", lambda _path: (None, False))
+    monkeypatch.setattr(organization_service, "load_latest_run", lambda _path: None)
 
     refreshed_count = persist_org_candidate_mapping_refresh(AppConfig(neo4j_password="secret"), "People & Culture")
 
@@ -495,7 +510,8 @@ def test_rerun_single_document_from_artifact_applies_org_unit_candidate_mapping(
 
 def test_persist_organization_sync_syncs_all_org_units_and_refreshes_latest_run(monkeypatch) -> None:
     monkeypatch.setattr(
-        "app.load_knowledge_base",
+        organization_service,
+        "load_knowledge_base",
         lambda: KnowledgeBase(
             confirmed=[],
             rejected=[],
@@ -509,9 +525,9 @@ def test_persist_organization_sync_syncs_all_org_units_and_refreshes_latest_run(
         ),
     )
     synced_names = []
-    monkeypatch.setattr("app.persist_org_unit_node", lambda _config, name: synced_names.append(name))
-    monkeypatch.setattr("app.load_cmdb_rows", lambda *_args, **_kwargs: [])
-    monkeypatch.setattr("app.persist_latest_run_refresh", lambda _config, _cmdb_rows: 3)
+    monkeypatch.setattr(organization_service, "persist_org_unit_node", lambda _config, name: synced_names.append(name))
+    monkeypatch.setattr(organization_service, "load_cmdb_rows", lambda *_args, **_kwargs: [])
+    monkeypatch.setattr(organization_service, "persist_latest_run_refresh", lambda _config, _cmdb_rows: 3)
 
     synced_org_units, refreshed_documents = persist_organization_sync(AppConfig(neo4j_password="secret"))
 
@@ -523,7 +539,7 @@ def test_persist_organization_sync_syncs_all_org_units_and_refreshes_latest_run(
 def test_run_query_chat_turn_logs_cypher_on_query_error(tmp_path, monkeypatch) -> None:
     st.session_state.clear()
     ensure_query_chat_defaults()
-    monkeypatch.setattr("app.resolve_runtime_output_path", lambda _path: (tmp_path, False))
+    monkeypatch.setattr(runtime_service, "resolve_runtime_output_path", lambda _path: (tmp_path, False))
 
     class FakeLlmClient:
         def __init__(self, _config) -> None:
@@ -533,10 +549,10 @@ def test_run_query_chat_turn_logs_cypher_on_query_error(tmp_path, monkeypatch) -
         def execute_read(self, query: str):
             raise RuntimeError("bad cypher")
 
-    monkeypatch.setattr("app.OpenAICompatibleClient", FakeLlmClient)
-    monkeypatch.setattr("app.get_session_neo4j_client", lambda _config: FailingNeo4jClient())
-    monkeypatch.setattr("app.generate_cypher_from_question", lambda **_kwargs: "MATCH (n) RETURN n.name AS name UNION ALL MATCH (p) RETURN p.id AS id")
-    monkeypatch.setattr("app.Neo4jQueryError", RuntimeError)
+    monkeypatch.setattr(query_service, "OpenAICompatibleClient", FakeLlmClient)
+    monkeypatch.setattr(query_service, "get_session_neo4j_client", lambda _config: FailingNeo4jClient())
+    monkeypatch.setattr(query_service, "generate_cypher_from_question", lambda **_kwargs: "MATCH (n) RETURN n.name AS name UNION ALL MATCH (p) RETURN p.id AS id")
+    monkeypatch.setattr(query_service, "Neo4jQueryError", RuntimeError)
 
     run_query_chat_turn("Wie viele Prozesse gibt es?", AppConfig(debug_mode=True, neo4j_password="secret", llm_model="qwen"))
 

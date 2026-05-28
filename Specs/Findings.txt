@@ -14,9 +14,9 @@
 14. Wenn die Pipeline kurz nacheinander mehrfach gestartet wird, bleibt die Erfolgsmeldung des vorherigen Laufs waehrend des neuen Laufs sichtbar. Das ist irrefuehrend, weil der Eindruck entsteht, der aktuelle Lauf sei bereits abgeschlossen. Erwartet ist, dass vergangene Erfolgsmeldungen beim Start eines neuen Laufs sofort ausgeblendet oder durch einen aktiven Laufstatus ersetzt werden. Sinnvoll waere zusaetzlich eine Fortschrittsanzeige wie `x von y Dateien bearbeitet`. - erledigt
 15. Im Log sieht man einzelne unsaubere `prozess_id`-Rueckgaben des Modells. Beispiele sind verlorene fuehrende `_` oder veraenderte Zeichenfolgen wie `_cd26e6af-...` -> `c d26e6af-...`. Das blockiert den aktuellen Matching-Lauf nicht zwingend, ist aber fuer stabile Prozessidentitaet, Delta-Logik und spaetere Re-Imports riskant. Erwartet ist, dass die `prozess_id` entweder unveraendert aus dem Input uebernommen oder technisch vor dem Persistieren gegen den Quellwert abgesichert wird. - erledigt
 16. Beim Start eines Pipeline-Preview-Laufs fehlt derzeit eine belastbare Fortschrittsanzeige. Gerade bei umfangreichen Matching-Laeufen ist fuer den Benutzer nicht erkennbar, wie weit der Lauf fortgeschritten ist oder wie lange er voraussichtlich noch dauert. Erwartet ist eine laufende Statusanzeige wie `x von y Dateien bearbeitet` oder `a von b Prozessen verarbeitet`, damit lange Laeufe besser einschaetzbar sind. - erledigt
-17. Die Funktionen in den Tabs `Link Editing` und `Anwendungskonfig` sind fuer fachfremde oder neue Benutzer derzeit nicht selbsterklaerend genug. Begriffe wie `Pipeline Preview`, `Knowledge Base`, `confirmed/rejected`, `Importmodus`, `BPMN transformieren` oder einzelne Reset-/Loeschaktionen lassen ohne zusaetzlichen Kontext offen, was genau passiert, welche Auswirkungen eine Aktion hat und wann sie sinnvoll ist. Erwartet sind daher kurze Erlaeuterungstexte direkt an den relevanten Stellen oder kompakte Info-Hinweise/Tooltips, damit die Bedienung ohne Vorwissen besser nachvollziehbar ist.
-18. Im Modus `Nur letzter Import` sollte die zugehoerige Dateiauswahl in einer benutzerfreundlichen Form dargestellt werden. Eine rohe JSON-Ausgabe ist fuer die UI ungeeignet und wirkt wie Debug-Output. Erwartet ist stattdessen eine kompakte, gut lesbare Liste oder Tabelle der betroffenen Dateien, idealerweise mit Dateiname und optional relativem Pfad.
-19. Fuer bereits in BRIDGR gepflegte Organisationseinheiten fehlt derzeit eine explizite Sammel-Synchronisation nach Neo4j. Nachtraeglich eingefuehrte Sync-Logik greift nur fuer neu angelegte oder aktuell bearbeitete Eintraege, nicht automatisch fuer bereits bestehende Altbestaende in der Knowledge Base. Erwartet ist perspektivisch eine klare UI-Aktion wie `Organisation nach Neo4j synchronisieren`, die alle bekannten Organisationseinheiten und - soweit vorhanden - ihre bereits aufgeloesten Prozessbeziehungen gesammelt in den Graph schreibt.
+17. Die Funktionen in den Tabs `Link Editing` und `Anwendungskonfig` sind fuer fachfremde oder neue Benutzer derzeit nicht selbsterklaerend genug. Begriffe wie `Pipeline Preview`, `Knowledge Base`, `confirmed/rejected`, `Importmodus`, `BPMN transformieren` oder einzelne Reset-/Loeschaktionen lassen ohne zusaetzlichen Kontext offen, was genau passiert, welche Auswirkungen eine Aktion hat und wann sie sinnvoll ist. Erwartet sind daher kurze Erlaeuterungstexte direkt an den relevanten Stellen oder kompakte Info-Hinweise/Tooltips, damit die Bedienung ohne Vorwissen besser nachvollziehbar ist. - erledigt
+18. Im Modus `Nur letzter Import` sollte die zugehoerige Dateiauswahl in einer benutzerfreundlichen Form dargestellt werden. Eine rohe JSON-Ausgabe ist fuer die UI ungeeignet und wirkt wie Debug-Output. Erwartet ist stattdessen eine kompakte, gut lesbare Liste oder Tabelle der betroffenen Dateien, idealerweise mit Dateiname und optional relativem Pfad. - erledigt
+19. Fuer bereits in BRIDGR gepflegte Organisationseinheiten fehlt derzeit eine explizite Sammel-Synchronisation nach Neo4j. Nachtraeglich eingefuehrte Sync-Logik greift nur fuer neu angelegte oder aktuell bearbeitete Eintraege, nicht automatisch fuer bereits bestehende Altbestaende in der Knowledge Base. Erwartet ist perspektivisch eine klare UI-Aktion wie `Organisation nach Neo4j synchronisieren`, die alle bekannten Organisationseinheiten und - soweit vorhanden - ihre bereits aufgeloesten Prozessbeziehungen gesammelt in den Graph schreibt. - erledigt
 20. im folgenden gespräch hätte die antwort bereits bei der ersten frage kommen müssen:
 USER: was weisst du über den seller service?
 BRIDGR: Ich habe dazu aktuell keine passenden Informationen im Wissensgraphen gefunden.
@@ -25,3 +25,40 @@ Technische Details
 USER: aber es gibt eine anwendung "seller service", oder?
 BRIDGR: Ich habe mehrere passende Anwendungen gefunden: Seller Service, Seller Service Interface. Welche meinen Sie?
 21. in der review-section sollte ein hinweis erscheinen, dass identifizierte Organisationseinheiten Im Tab "Organsation" manuell bestätigt werden müssen, allerdings nur dann, wenn tatsächlich Candidates identifiziert wurden oder aus älteren läufen noch zu bestätigen/zu verwerfen sind
+22. Die Dateiauswahl fuer den Import wirkt aktuell redundant, wenn zugleich ein Importmodus `full`/`partial` vorhanden ist. Erwartet ist eine klarere UI, in der bei `full` keine separate Dateiauswahl sichtbar ist und bei `partial` genau eine eindeutige Auswahl fuer die zu importierenden Dateien erscheint. - erledigt
+23. Der Button `Review oeffnen` wirkt nach der Entkopplung von Review und Import fachlich ueberfluessig. Die relevanten Informationen sind bereits geladen; erwartet ist, dass der gewaehlte Review-Scope direkt ueber Radio-Button und Dateiauswahl wirkt, ohne zusaetzlichen Bestaetigungsbutton. - erledigt
+24. die frage "wie viele organisationseinheiten kennst du und wieviele davon sind mit keinem prozess verbunden?" führt dazu , dass das llm folgendes statement absetzt:
+MATCH (o:OrgEinheit)
+RETURN count(o) AS orgEinheitCount
+UNION ALL
+MATCH (o:OrgEinheit)
+WHERE NOT EXISTS {
+  (o)-[:VERANTWORTET]->(:Prozess)
+}
+RETURN count(o) AS orgEinheitCount, count(o) AS orgEinheitKeinProzess
+und dem benutzer als Feedback liefert: Cypher UNION branches must return the same column aliases in the same order.
+
+Ein iterativer Ansatz führt letzten Enes zwar zum gewünschten Ergebnis , ist dem unbedarften Benutzer aber nicht zuzumuten:
+ie viele organisationseinheiten kennst du und wieviele davon sind mit keinem prozess verbunden?
+BENUTZER: wie viele organisationseinheiten kennst du und wieviele davon sind mit keinem prozess verbunden?
+BRIDGR: Cypher UNION branches must return the same column aliases in the same order.
+Keine Treffer gefunden.
+Technische Details
+BENUTZER: ok, gehen wir das schritt für schritt an: wieviele organisationseinheiten kennst du?
+BRIDGR: Es gibt 6 Organisationseinheiten.
+Ergebnis
+Technische Details
+BENUTZER: und wieviele prozesse kennst du?
+BRIDGR: Ich kenne 70 Prozesse.
+Ergebnis
+Technische Details
+BENUTZER: und wieviele verbindungen egal welchen typs kennen wir zwischen prozessen und organisationseinheiten?
+BRIDGR: Es gibt insgesamt 5 Verbindungen zwischen Prozessen und Organisationseinheiten.
+Ergebnis
+Technische Details
+BENUTZER: Zeig mir für diese 5 Verbindungen jeweils die Organisationseinheit, den Typ der Verbindung und den Prozess
+BRIDGR: Die Verbindungen umfassen folgende Kombinationen: Das Customer Service Team ist für die Bestellabwicklung zuständig, das Team Accounting ist ebenfalls in die Bestellabwicklung eingebunden und das Team Logistik ist sowohl für die Bestellabwicklung als auch für die Reklamationsbearbeitung zuständig. Schließlich ist die Buchhaltung für die Reklamationsbearbeitung verantwortlich.
+25. Das LLM  benötigt via Systempromprt einige allgemeine Informationen. Beispieldialog aktuell:
+BENUTZER: er käre mir deine funktion
+BRIDGR: Ich habe dazu aktuell keine passenden Informationen im Wissensgraphen gefunden.
+26. werden mehrere Importe nacheinander prozessiert, bleibt während des zweiten Laufs die Erfolgsmeldung des ersten Laufs sichtbar. Im Beispiel werden aktuell 47 Dateien prozessiert, im oberen Bereich ist aber sichtbar "Teilimport abgeschlossen in 30s. 4 Prozessdatei(en) wurden verarbeitet und nach F:\workspace\BRIDGR\data\input_archive\20260528_120140 verschoben."

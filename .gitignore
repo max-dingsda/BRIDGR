@@ -226,3 +226,4 @@ BPMN-Gesamt.bpmn
 Input/*
 *graphify*
 graphify-out/*
+data/input_archive/*

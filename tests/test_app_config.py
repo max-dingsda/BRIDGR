@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from app_config import AppConfig, is_legacy_input_path, resolve_runtime_output_path, save_config
+from app_config import AppConfig, is_legacy_input_path, normalize_run_mode, resolve_runtime_output_path, save_config
 
 
 def test_resolve_runtime_output_path_uses_project_path_when_writable(tmp_path: Path, monkeypatch) -> None:
@@ -38,3 +38,9 @@ def test_save_config_persists_debug_mode(tmp_path: Path) -> None:
     save_config(AppConfig(debug_mode=True), config_path)
 
     assert '"debug_mode": true' in config_path.read_text(encoding="utf-8")
+
+
+def test_normalize_run_mode_maps_legacy_values() -> None:
+    assert normalize_run_mode("delta") == "partial"
+    assert normalize_run_mode("initial") == "full"
+    assert normalize_run_mode("full") == "full"

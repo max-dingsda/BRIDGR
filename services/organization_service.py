@@ -1,0 +1,184 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+from app_config import AppConfig, resolve_input_cmdb_path, resolve_runtime_output_path
+from cmdb import CmdbLoadError, load_cmdb_rows
+from knowledge_base import (
+    KnowledgeBase,
+    accept_org_unit_candidate_as_new,
+    add_org_unit,
+    load_knowledge_base,
+    map_org_unit_candidate,
+    normalize_org_unit_name,
+    reject_org_unit_candidate,
+    save_knowledge_base,
+)
+from neo4j_utils import Neo4jQueryError
+from run_artifacts import load_latest_run, write_latest_run
+from services.review_service import (
+    persist_latest_run_refresh,
+    reconstruct_extracted_process,
+    reconstruct_match_result,
+    rerun_single_document_from_artifact,
+)
+from services.runtime_service import get_session_neo4j_client, write_debug_log
+from skills.graph_writer import GraphWriter
+
+
+def persist_org_unit_node(config: AppConfig, org_unit_name: str) -> None:
+    cleaned_name = " ".join(org_unit_name.strip().split())
+    if not cleaned_name:
+        return
+
+    neo4j_client = get_session_neo4j_client(config)
+    rows = neo4j_client.execute_write(
+        """
+        MERGE (o:OrgEinheit {name: $org_unit_name})
+        RETURN o.name AS name
+        """,
+        {"org_unit_name": cleaned_name},
+    )
+    if not rows or rows[0].get("name") != cleaned_name:
+        raise Neo4jQueryError(f"Organisationseinheit `{cleaned_name}` konnte in Neo4j nicht bestaetigt werden.")
+
+
+def persist_organization_sync(config: AppConfig) -> tuple[int, int]:
+    knowledge_base = load_knowledge_base()
+    synced_org_units = 0
+    synced_names: list[str] = []
+    for entry in knowledge_base.org_units:
+        org_unit_name = entry.get("name", "")
+        if not org_unit_name:
+            continue
+        persist_org_unit_node(config, org_unit_name)
+        synced_org_units += 1
+        synced_names.append(org_unit_name)
+
+    try:
+        cmdb_rows = load_cmdb_rows(
+            resolve_input_cmdb_path(config),
+            config.cmdb_uuid_column,
+            config.cmdb_name_column,
+        )
+    except CmdbLoadError:
+        write_debug_log(
+            config,
+            "organization_sync",
+            {
+                "synced_org_units": synced_org_units,
+                "synced_names": synced_names,
+                "refreshed_documents": 0,
+                "cmdb_refresh": "skipped",
+            },
+        )
+        return synced_org_units, 0
+
+    refreshed_documents = persist_latest_run_refresh(config, cmdb_rows)
+    write_debug_log(
+        config,
+        "organization_sync",
+        {
+            "synced_org_units": synced_org_units,
+            "synced_names": synced_names,
+            "refreshed_documents": refreshed_documents,
+            "cmdb_refresh": "completed",
+        },
+    )
+    return synced_org_units, refreshed_documents
+
+
+def persist_org_candidate_mapping_refresh(config: AppConfig, candidate_name: str) -> int:
+    knowledge_base = load_knowledge_base()
+    candidate_entry = next(
+        (
+            entry
+            for entry in knowledge_base.org_unit_candidates
+            if entry.get("candidate_name", "") == candidate_name
+            or entry.get("normalized_name", "") == normalize_org_unit_name(candidate_name)
+        ),
+        None,
+    )
+    if candidate_entry is None:
+        return 0
+
+    mapped_org_unit = candidate_entry.get("mapped_org_unit", "").strip()
+    if mapped_org_unit:
+        persist_org_unit_node(config, mapped_org_unit)
+
+    runtime_output_path, _ = resolve_runtime_output_path(config.output_path)
+    latest_run = load_latest_run(runtime_output_path)
+    if latest_run is None:
+        return 0
+
+    try:
+        cmdb_rows = load_cmdb_rows(
+            resolve_input_cmdb_path(config),
+            config.cmdb_uuid_column,
+            config.cmdb_name_column,
+        )
+    except CmdbLoadError:
+        cmdb_rows = []
+
+    target_source_paths = set(candidate_entry.get("source_paths", []))
+    target_process_names = set(candidate_entry.get("process_names", []))
+    refreshed_count = 0
+    updated_documents: list[dict] = []
+    graph_writer = GraphWriter()
+    neo4j_client = get_session_neo4j_client(config)
+
+    for document in latest_run.get("documents", []):
+        extracted_process_payload = document.get("extracted_process") or {}
+        source_path = document.get("source_path", "")
+        process_name = extracted_process_payload.get("process_name", "")
+        if source_path not in target_source_paths and process_name not in target_process_names:
+            updated_documents.append(document)
+            continue
+
+        refreshed_document = rerun_single_document_from_artifact(document, config, cmdb_rows, knowledge_base)
+        updated_documents.append(refreshed_document)
+        graph_payload = refreshed_document.get("graph_payload") or {}
+        process_payload = graph_payload.get("process") or {}
+        matches_payload = graph_payload.get("matches") or []
+        process = reconstruct_extracted_process(process_payload)
+        matches = [reconstruct_match_result(match_payload) for match_payload in matches_payload]
+        graph_writer.write_payload(neo4j_client, graph_writer.build_payload(process, matches))
+        refreshed_count += 1
+
+    latest_run["documents"] = updated_documents
+    write_latest_run(latest_run, runtime_output_path)
+    return refreshed_count
+
+
+def add_org_unit_entry(config: AppConfig, knowledge_base: KnowledgeBase, org_unit_name: str) -> tuple[str, str]:
+    updated_kb = add_org_unit(knowledge_base, org_unit_name, source="manual")
+    save_knowledge_base(updated_kb)
+    try:
+        persist_org_unit_node(config, org_unit_name)
+    except Exception as exc:
+        return "warning", f"Organisationseinheit wurde in BRIDGR gespeichert, konnte aber nicht nach Neo4j synchronisiert werden: {exc}"
+    return "success", "Organisationseinheit gespeichert und nach Neo4j synchronisiert."
+
+
+def map_org_candidate(config: AppConfig, knowledge_base: KnowledgeBase, candidate_name: str, target_name: str) -> tuple[str, str]:
+    updated_kb = map_org_unit_candidate(knowledge_base, candidate_name, target_name)
+    save_knowledge_base(updated_kb)
+    refreshed_count = persist_org_candidate_mapping_refresh(config, candidate_name)
+    if refreshed_count:
+        return "success", f"Kandidat wurde gemappt und {refreshed_count} betroffene Prozesse im Graph aktualisiert."
+    return "success", "Kandidat wurde gemappt."
+
+
+def accept_org_candidate(config: AppConfig, knowledge_base: KnowledgeBase, candidate_name: str, proposed_name: str) -> tuple[str, str]:
+    updated_kb = accept_org_unit_candidate_as_new(knowledge_base, candidate_name, proposed_name)
+    save_knowledge_base(updated_kb)
+    refreshed_count = persist_org_candidate_mapping_refresh(config, candidate_name)
+    if refreshed_count:
+        return "success", f"Kandidat wurde als neue Organisationseinheit uebernommen und {refreshed_count} betroffene Prozesse im Graph aktualisiert."
+    return "success", "Kandidat wurde als neue Organisationseinheit uebernommen."
+
+
+def reject_org_candidate(knowledge_base: KnowledgeBase, candidate_name: str) -> tuple[str, str]:
+    updated_kb = reject_org_unit_candidate(knowledge_base, candidate_name)
+    save_knowledge_base(updated_kb)
+    return "success", "Kandidat wurde abgewiesen."

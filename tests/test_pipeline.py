@@ -167,12 +167,12 @@ def test_should_skip_file_only_for_unchanged_delta_runs(tmp_path: Path) -> None:
     source_path = tmp_path / "process.bpmn"
     source_path.write_text("<definitions />", encoding="utf-8")
 
-    assert should_skip_file("delta", None, source_path, "same-hash", {str(source_path): "same-hash"}) is True
+    assert should_skip_file("partial", None, source_path, "same-hash", {str(source_path): "same-hash"}) is False
     assert should_skip_file("full", None, source_path, "same-hash", {str(source_path): "same-hash"}) is False
-    assert should_skip_file("delta", [source_path], source_path, "same-hash", {str(source_path): "same-hash"}) is False
+    assert should_skip_file("partial", [source_path], source_path, "same-hash", {str(source_path): "same-hash"}) is False
 
 
-def test_run_pipeline_writes_artifacts_and_skips_unchanged_delta_files(tmp_path: Path, monkeypatch) -> None:
+def test_run_pipeline_writes_artifacts_for_full_runs(tmp_path: Path, monkeypatch) -> None:
     input_dir = tmp_path / "Input"
     output_dir = tmp_path / "Output"
     prompts_dir = tmp_path / "prompts"
@@ -230,19 +230,59 @@ def test_run_pipeline_writes_artifacts_and_skips_unchanged_delta_files(tmp_path:
         input_path="Input",
         cmdb_filename="cmdb.csv",
         output_path="Output",
-        last_run_mode="delta",
+        last_run_mode="full",
     )
 
     first_run = run_pipeline(config)
-    second_run = run_pipeline(config)
 
     assert first_run.documents[0].status == "processed"
     assert first_run.output_path == str(output_dir)
     assert first_run.used_output_fallback is False
-    assert second_run.documents[0].status == "skipped_unchanged"
     assert (output_dir / STATE_FILENAME).exists()
     assert (output_dir / LATEST_RUN_FILENAME).exists()
     assert fake_client.cleanup_called is True
+
+
+def test_run_pipeline_partial_without_explicit_files_returns_empty_run(tmp_path: Path, monkeypatch) -> None:
+    input_dir = tmp_path / "Input"
+    output_dir = tmp_path / "Output"
+    prompts_dir = tmp_path / "prompts"
+    input_dir.mkdir()
+    output_dir.mkdir()
+    prompts_dir.mkdir()
+
+    (input_dir / "process.bpmn").write_text("<definitions><process id='proc_001' /></definitions>", encoding="utf-8")
+    (input_dir / "cmdb.csv").write_text("app_id,application_name\ncmdb-1,SAP Sales\n", encoding="utf-8")
+    (prompts_dir / "extract_bpmn.md").write_text("prompt", encoding="utf-8")
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr("app_config.PROJECT_ROOT", tmp_path)
+
+    class FakeNeo4jClient:
+        def close(self) -> None:
+            return None
+
+        def execute_write(self, query: str, parameters=None):
+            return []
+
+        def ensure_constraints(self) -> None:
+            return None
+
+    monkeypatch.setattr("pipeline.build_neo4j_client", lambda config: FakeNeo4jClient())
+    monkeypatch.setattr("pipeline.OpenAICompatibleClient", lambda config: None)
+
+    result = run_pipeline(
+        AppConfig(
+            llm_model="test-model",
+            neo4j_password="test-password",
+            input_path="Input",
+            cmdb_filename="cmdb.csv",
+            output_path="Output",
+            last_run_mode="partial",
+        )
+    )
+
+    assert result.documents == []
 
 
 def test_run_pipeline_reports_progress_updates(tmp_path: Path, monkeypatch) -> None:
@@ -297,7 +337,7 @@ def test_run_pipeline_reports_progress_updates(tmp_path: Path, monkeypatch) -> N
         input_path="Input",
         cmdb_filename="cmdb.csv",
         output_path="Output",
-        last_run_mode="initial",
+        last_run_mode="full",
     )
 
     run_pipeline(config, progress_callback=progress_updates.append)
@@ -375,7 +415,7 @@ def test_run_pipeline_propagates_neo4j_write_failures(tmp_path: Path, monkeypatc
         input_path="Input",
         cmdb_filename="cmdb.csv",
         output_path="Output",
-        last_run_mode="initial",
+        last_run_mode="full",
     )
 
     with pytest.raises(Neo4jServiceUnavailableError, match="Neo4j is currently unavailable"):

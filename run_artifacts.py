@@ -77,18 +77,44 @@ def write_latest_run(payload: dict[str, Any], output_path: Path) -> None:
         handle.write("\n")
 
 
-def save_last_import_selection(source_paths: list[str], output_path: Path) -> None:
+def save_last_import_selection(
+    source_paths: list[str],
+    output_path: Path,
+    *,
+    display_paths: list[str] | None = None,
+    archive_path: str = "",
+    run_mode: str = "",
+) -> None:
     output_path.mkdir(parents=True, exist_ok=True)
     selection_path = output_path / LAST_IMPORT_SELECTION_FILENAME
     with selection_path.open("w", encoding="utf-8") as handle:
-        json.dump({"source_paths": source_paths}, handle, indent=2, ensure_ascii=False)
+        json.dump(
+            {
+                "source_paths": source_paths,
+                "display_paths": display_paths or source_paths,
+                "archive_path": archive_path,
+                "run_mode": run_mode,
+            },
+            handle,
+            indent=2,
+            ensure_ascii=False,
+        )
         handle.write("\n")
 
 
 def load_last_import_selection(output_path: Path) -> list[str]:
+    return list(load_last_import_context(output_path).get("source_paths", []))
+
+
+def load_last_import_context(output_path: Path) -> dict[str, Any]:
     selection_path = output_path / LAST_IMPORT_SELECTION_FILENAME
     if not selection_path.exists():
-        return []
+        return {"source_paths": [], "display_paths": [], "archive_path": "", "run_mode": ""}
     with selection_path.open("r", encoding="utf-8") as handle:
         payload = json.load(handle)
-    return list(payload.get("source_paths", []))
+    return {
+        "source_paths": list(payload.get("source_paths", [])),
+        "display_paths": list(payload.get("display_paths", payload.get("source_paths", []))),
+        "archive_path": str(payload.get("archive_path", "")),
+        "run_mode": str(payload.get("run_mode", "")),
+    }

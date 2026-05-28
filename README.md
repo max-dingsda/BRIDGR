@@ -3,7 +3,7 @@
 BRIDGR verbindet Prozessdokumentation mit CMDB-Daten, um einen EA-Wissensgraphen aufzubauen und spaeter ueber eine natuerlichsprachliche Oberflaeche abfragbar zu machen.
 
 Der aktuelle Architektur-Referenzstand fuer die Umsetzung ist:
-- `Specs/Bridgr_Architektur_v13.md`
+- `Specs/Bridgr_Architektur_v15.md`
 
 ## Zielbild
 
@@ -33,7 +33,7 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - Hinweise auf uneinheitliche Prozessnotation bei mehrfach extrahierten Rohvarianten
 
 Wichtige Einordnung:
-- Die Spezifikation `v0.13` oeffnet den Scope fuer unstrukturierte Prozessbeschreibungen und dokumentiert zusaetzlich den Transformationspfad fuer grosse BPMN/XML-Dateien.
+- Die Spezifikation `v0.15` oeffnet den Scope fuer unstrukturierte Prozessbeschreibungen, trennt Import und Review sauber und dokumentiert zusaetzlich den Transformationspfad fuer grosse BPMN/XML-Dateien.
 - Die aktuelle Implementierung unterstuetzt bereits BPMN, TXT, DOCX und PDF ueber einen gemeinsamen semantischen Extraktionspfad.
 
 Noch nicht umgesetzt:
@@ -84,7 +84,7 @@ Wichtige Felder:
 - `input_path`: gemeinsamer Eingabeordner fuer Prozessdokumente und CMDB-Dateien
 - `cmdb_filename`: aktive CMDB-Datei innerhalb des Eingabeordners
 - `output_path`: Ziel fuer Laufartefakte
-- `last_run_mode`: Standardlaufmodus fuer die Pipeline
+- `last_run_mode`: Standardlaufmodus fuer den Import (`full` oder `partial`)
 - `debug_mode`: schreibt bei aktivierter Diagnose zusaetzliche Ereignisse nach `Output/debug.log`
 
 Beispiel:
@@ -176,7 +176,7 @@ Aktuell verfuegbar:
 ### Tab 2 - Link Editing
 
 Aktuell verfuegbar:
-- Pipeline-Preview starten
+- Review fuer den letzten Import oder eine manuell gewaehlte Teilmenge oeffnen
 - letzten gespeicherten Lauf aus `Output/latest_run.json` anzeigen
 - Statusfilter fuer Dokumente
 - aktionsfaehige Review-Liste mit `Bestaetigen`, `Ablehnen` und `Manuell anlegen`
@@ -200,11 +200,12 @@ Aktuell verfuegbar:
 - einzelne BPMN/XML-Dateien vor dem eigentlichen Import in kompakte Transform-Dateien ueberfuehren
 - Fuzzy-Threshold setzen
 - Debug-Modus aktivieren
-- Importmodus direkt beim Starten der Pipeline waehlen
+- Importmodus `full` oder `partial` direkt beim Starten des Imports waehlen
 - Modellliste ueber `/v1/models` abrufen
 - Neo4j-Erreichbarkeit anhand der aktuell wirksamen Konfiguration pruefen
 - LLM-Erreichbarkeit und Modellverfuegbarkeit getrennt pruefen
 - Laufzeit erfolgreicher Pipeline-Laeufe direkt in der UI anzeigen
+- verarbeitete Prozessdateien nach erfolgreichem Import transparent nach `data/input_archive/<timestamp>/` verschieben
 
 ### Tab 4 - Organisation
 
@@ -278,7 +279,7 @@ Der aktuelle Teststand deckt unter anderem ab:
 - Matching inkl. Mehrfachkandidaten und abgelehnter Links
 - Read-only-Cypher-Validierung
 - Query-Layer-Happy-Path inkl. natuerlicher Antwort und Mehrdeutigkeitsbehandlung
-- Pipeline-Happy-Path, Delta-Skip und Laufartefakte
+- Pipeline-Happy-Path, partielle Imports und Laufartefakte
 - Aufbereitung der UI-Statusdaten und Warnhinweise
 - KB-Aktionen fuer kandidatenspezifisches Bestaetigen und Ablehnen
 - Graph-Write-Pfad inkl. Aufraeumen alter `NUTZT`-Kanten

@@ -32,7 +32,7 @@ class AppConfig:
     input_path: str = "Input"
     cmdb_filename: str = "cmdb.csv"
     output_path: str = "Output"
-    last_run_mode: str = "delta"
+    last_run_mode: str = "partial"
     debug_mode: bool = False
 
 
@@ -75,8 +75,20 @@ def load_config(path: Path | None = None) -> AppConfig:
         env_name="NEO4J_DATABASE",
         default="",
     )
+    raw_config["last_run_mode"] = normalize_run_mode(raw_config.get("last_run_mode", "partial"))
 
     return AppConfig(**raw_config)
+
+
+def normalize_run_mode(value: str | None) -> str:
+    normalized = (value or "").strip().lower()
+    if normalized == "delta":
+        return "partial"
+    if normalized == "initial":
+        return "full"
+    if normalized in {"full", "partial"}:
+        return normalized
+    return "partial"
 
 
 def resolve_env_backed_value(config_value: str | None, env_name: str, default: str) -> str:

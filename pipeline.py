@@ -84,7 +84,12 @@ def run_pipeline(
     graph_writer = GraphWriter()
     neo4j_client = build_neo4j_client(config)
 
-    candidate_paths = input_paths or list_bpmn_files(resolve_project_path(config.input_path))
+    if input_paths is not None:
+        candidate_paths = list(input_paths)
+    elif config.last_run_mode == "full":
+        candidate_paths = list_bpmn_files(resolve_project_path(config.input_path))
+    else:
+        candidate_paths = []
     total_documents = len(candidate_paths)
     if progress_callback is not None:
         progress_callback(
@@ -275,9 +280,7 @@ def should_skip_file(
 ) -> bool:
     if explicit_input_paths is not None:
         return False
-    if run_mode != "delta":
-        return False
-    return previous_hashes.get(str(source_path)) == file_hash
+    return False
 
 
 def build_manual_matches(
