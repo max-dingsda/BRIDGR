@@ -23,7 +23,7 @@ Rules:
 Examples:
 Question: Welche Anwendungen nutzt der Prozess Incident Management?
 Cypher:
-MATCH (p:Prozess {name: 'Incident Management'})-[:NUTZT]->(a:Anwendung)
+MATCH (a:Anwendung)-[:DIENT]->(p:Prozess {name: 'Incident Management'})
 RETURN DISTINCT a.name AS application
 ORDER BY application
 
@@ -35,7 +35,7 @@ ORDER BY process
 
 Question: Ist outlook fuer irgendeinen Prozess relevant?
 Cypher:
-MATCH (p:Prozess)-[:NUTZT]->(a:Anwendung)
+MATCH (a:Anwendung)-[:DIENT]->(p:Prozess)
 WHERE toLower(a.name) CONTAINS toLower('outlook')
 RETURN DISTINCT p.name AS process, a.name AS application
 ORDER BY process, application
@@ -49,7 +49,7 @@ ORDER BY process
 
 Question: Welche Prozesse nutzen etwas mit SAP im Namen?
 Cypher:
-MATCH (p:Prozess)-[:NUTZT]->(a:Anwendung)
+MATCH (a:Anwendung)-[:DIENT]->(p:Prozess)
 WHERE toLower(a.name) CONTAINS toLower('sap')
 RETURN DISTINCT p.name AS process, a.name AS application
 ORDER BY process, application

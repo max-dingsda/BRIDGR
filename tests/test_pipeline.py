@@ -8,9 +8,11 @@ from pipeline import (
     apply_org_unit_mapping,
     build_extractor_for_path,
     list_bpmn_files,
+    resolve_cmdb_owner_assignments,
     run_document,
     run_pipeline,
     should_skip_file,
+    update_organization_knowledge_from_cmdb,
 )
 from run_artifacts import LATEST_RUN_FILENAME, STATE_FILENAME
 from skills.graph_writer import GraphWriter
@@ -488,3 +490,74 @@ def test_apply_org_unit_mapping_uses_confirmed_candidates_for_unstructured_docum
 
     assert result.org_unit == "People & Culture"
     assert result.org_units == ["People & Culture"]
+
+
+def test_update_organization_knowledge_from_cmdb_adds_only_unresolved_owner_candidates() -> None:
+    knowledge_base = KnowledgeBase(
+        confirmed=[],
+        rejected=[],
+        disambiguation=[],
+        process_identity=[],
+        org_units=[{"name": "Team Platform", "created_at": "2026-05-28", "source": "manual"}],
+        org_unit_candidates=[],
+    )
+    normalized_cmdb = type(
+        "Normalized",
+        (),
+        {
+            "entities": [
+                type("Entity", (), {"entity_id": "srv-1", "owner_name": "Team Platform"})(),
+                type("Entity", (), {"entity_id": "srv-2", "owner_name": "Team Plattform"})(),
+            ]
+        },
+    )()
+
+    updated = update_organization_knowledge_from_cmdb(
+        knowledge_base,
+        normalized_cmdb,
+        source_path="Input/cmdb_entities.csv",
+    )
+
+    assert len(updated.org_unit_candidates) == 1
+    assert updated.org_unit_candidates[0]["candidate_name"] == "Team Plattform"
+
+
+def test_resolve_cmdb_owner_assignments_returns_exact_and_mapped_matches() -> None:
+    knowledge_base = KnowledgeBase(
+        confirmed=[],
+        rejected=[],
+        disambiguation=[],
+        process_identity=[],
+        org_units=[{"name": "Team Platform", "created_at": "2026-05-28", "source": "manual"}],
+        org_unit_candidates=[
+            {
+                "candidate_name": "Team Infrastruktur",
+                "normalized_name": "team infrastruktur",
+                "source_paths": ["Input/cmdb_entities.csv"],
+                "process_names": [],
+                "role_names": [],
+                "status": "mapped",
+                "mapped_org_unit": "Team Infrastructure",
+                "first_seen": "2026-05-28",
+                "last_seen": "2026-05-28",
+            }
+        ],
+    )
+    normalized_cmdb = type(
+        "Normalized",
+        (),
+        {
+            "entities": [
+                type("Entity", (), {"entity_id": "srv-1", "owner_name": "Team Platform"})(),
+                type("Entity", (), {"entity_id": "srv-2", "owner_name": "Team Infrastruktur"})(),
+                type("Entity", (), {"entity_id": "srv-3", "owner_name": "Unknown Team"})(),
+            ]
+        },
+    )()
+
+    assignments = resolve_cmdb_owner_assignments(knowledge_base, normalized_cmdb)
+
+    assert assignments == {
+        "srv-1": "Team Platform",
+        "srv-2": "Team Infrastructure",
+    }

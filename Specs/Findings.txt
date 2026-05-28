@@ -62,3 +62,23 @@ BRIDGR: Die Verbindungen umfassen folgende Kombinationen: Das Customer Service T
 BENUTZER: er käre mir deine funktion
 BRIDGR: Ich habe dazu aktuell keine passenden Informationen im Wissensgraphen gefunden.
 26. werden mehrere Importe nacheinander prozessiert, bleibt während des zweiten Laufs die Erfolgsmeldung des ersten Laufs sichtbar. Im Beispiel werden aktuell 47 Dateien prozessiert, im oberen Bereich ist aber sichtbar "Teilimport abgeschlossen in 30s. 4 Prozessdatei(en) wurden verarbeitet und nach F:\workspace\BRIDGR\data\input_archive\20260528_120140 verschoben."
+27. Prompting/queries: queries müssen den Cypher regeln streng entsprechen, ansonsten erscheinen fehlermeldungen die der benutzer potentiell nicht beheben Kantengibt es bei den servern eine unterscheidung zwischen physisch und virtuell?
+fehlgeschlagenes Beispiel:
+BRIDGR:Ja, es gibt eine Unterscheidung: Die Server sind sowohl als "physical" (physisch) als auch als "virtual" (virtuell) eingestuft.
+Ergebnis
+Technische Details
+USER: wieviele sind das jeweils?
+BRIDGR:Cypher query appears to contain multiple statements. Use a single query and continue after RETURN only with UNION, or move intermediate results with WITH.
+Keine Treffer gefunden.
+Technische Details
+Cypher
+MATCH (a:Anwendung)
+RETURN count(a) AS applicationCount
+
+MATCH (p:Prozess)
+RETURN count(p) AS processCount
+28. Bei Fragen nach Servern und den darauf laufenden Anwendungen erzeugt das LLM derzeit Cypher mit einem nicht im Schema vorgesehenen Beziehungstyp `HOSTET`, z. B.:
+MATCH (s:Server)-[:HOSTET]->(a:Anwendung)
+RETURN s.name AS server, collect(DISTINCT a.name) AS applications
+ORDER BY server
+Aktuell verwendet BRIDGR fuer diesen Zusammenhang jedoch `(:Anwendung)-[:RUNS_ON]->(:Server)`. Erwartet ist, dass Query-Prompt und Query-Generierung die tatsaechlich vorhandenen Beziehungstypen und Richtungen des aktuellen Graph-Schemas einhalten.

@@ -154,6 +154,7 @@ def test_update_config_session_defaults_includes_neo4j_values() -> None:
         neo4j_user="neo4j",
         neo4j_password="secret",
         neo4j_database="bridgr-architecture",
+        cmdb_relations_filename="cmdb_relations.csv",
     )
 
     update_config_session_defaults(config)
@@ -162,6 +163,7 @@ def test_update_config_session_defaults_includes_neo4j_values() -> None:
     assert st.session_state["config_neo4j_user"] == "neo4j"
     assert st.session_state["config_neo4j_password"] == "secret"
     assert st.session_state["config_neo4j_database"] == "bridgr-architecture"
+    assert st.session_state["config_cmdb_relations_filename"] == "cmdb_relations.csv"
 
 
 def test_sync_config_session_defaults_refreshes_neo4j_values() -> None:

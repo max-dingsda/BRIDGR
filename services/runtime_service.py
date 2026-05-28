@@ -394,6 +394,7 @@ def update_config_session_defaults(config: AppConfig) -> None:
     st.session_state["config_llm_context_window"] = config.llm_context_window
     st.session_state["config_input_path"] = config.input_path
     st.session_state["config_cmdb_filename"] = config.cmdb_filename
+    st.session_state["config_cmdb_relations_filename"] = config.cmdb_relations_filename
     st.session_state["config_output_path"] = config.output_path
     st.session_state["config_neo4j_url"] = config.neo4j_url
     st.session_state["config_neo4j_user"] = config.neo4j_user
@@ -407,6 +408,10 @@ def ensure_active_cmdb_selection(config: AppConfig, cmdb_files: list[Path]) -> N
         st.session_state["active_cmdb_filename"] = config.cmdb_filename
     if available_filenames and st.session_state["active_cmdb_filename"] not in available_filenames:
         st.session_state["active_cmdb_filename"] = available_filenames[0]
+    if "active_cmdb_relations_filename" not in st.session_state:
+        st.session_state["active_cmdb_relations_filename"] = config.cmdb_relations_filename
+    if available_filenames and st.session_state["active_cmdb_relations_filename"] not in available_filenames:
+        st.session_state["active_cmdb_relations_filename"] = available_filenames[0]
 
 
 def ensure_import_session_defaults(config: AppConfig) -> None:

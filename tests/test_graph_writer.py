@@ -1,3 +1,4 @@
+from cmdb import CmdbEntity, CmdbRelation, NormalizedCmdb
 from skills.extract.extract_base import ApplicationReference, ExtractedProcess
 from skills.graph_writer import GraphWriter, GraphWritePayload
 from skills.match import MatchResult
@@ -49,7 +50,7 @@ def test_graph_writer_removes_existing_process_application_links_before_rewrite(
 
     queries = [query for query, _ in client.queries]
     assert any("DELETE r" in query for query in queries)
-    assert not any("MERGE (p)-[r:NUTZT]->(a)" in query for query in queries)
+    assert not any("MERGE (a)-[r:DIENT]->(p)" in query for query in queries)
 
 
 def test_graph_writer_only_writes_strong_or_confirmed_matches() -> None:
@@ -101,12 +102,12 @@ def test_graph_writer_only_writes_strong_or_confirmed_matches() -> None:
 
     writer.write_payload(client, payload)
 
-    nutz_writes = [
+    dient_writes = [
         parameters
         for query, parameters in client.queries
-        if "MERGE (p)-[r:NUTZT]->(a)" in query
+        if "MERGE (a)-[r:DIENT]->(p)" in query
     ]
-    written_cmdb_ids = {entry["cmdb_id"] for entry in nutz_writes}
+    written_cmdb_ids = {entry["cmdb_id"] for entry in dient_writes}
 
     assert written_cmdb_ids == {"cmdb-1", "cmdb-3"}
 
@@ -185,3 +186,32 @@ def test_graph_writer_can_cleanup_process_placeholders() -> None:
         if "MATCH (p:Prozess {placeholder: true})" in query and "DETACH DELETE p" in query
     ]
     assert len(cleanup_queries) == 1
+
+
+def test_graph_writer_syncs_cmdb_entities_relations_and_owners() -> None:
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+
+    writer.sync_cmdb(
+        client,
+        NormalizedCmdb(
+            entities=[
+                CmdbEntity(entity_id="app-1", name="Seller Service", entity_type="application", owner_name="Team Commerce IT"),
+                CmdbEntity(entity_id="if-1", name="Seller Service API", entity_type="interface"),
+                CmdbEntity(entity_id="srv-1", name="vm-app-01", entity_type="server", server_type="virtual"),
+            ],
+            relations=[
+                CmdbRelation(source_id="app-1", relation_type="USES_INTERFACE", target_id="if-1"),
+                CmdbRelation(source_id="if-1", relation_type="RUNS_ON", target_id="srv-1"),
+            ],
+        ),
+        owner_assignments={"app-1": "Team Commerce IT"},
+    )
+
+    queries = [query for query, _ in client.queries]
+    assert any("MERGE (a:Anwendung {cmdb_id: $entity_id})" in query for query in queries)
+    assert any("MERGE (i:Schnittstelle {id: $entity_id})" in query for query in queries)
+    assert any("MERGE (s:Server {id: $entity_id})" in query for query in queries)
+    assert any("MERGE (source)-[:USES_INTERFACE]->(target)" in query for query in queries)
+    assert any("MERGE (source)-[:RUNS_ON]->(target)" in query for query in queries)
+    assert any("MERGE (o)-[:VERANTWORTET]->(target)" in query for query in queries)

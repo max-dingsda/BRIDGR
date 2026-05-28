@@ -2,6 +2,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from cmdb import (
+    CMDB_ENTITY_TYPE_APPLICATION,
+    CMDB_ENTITY_TYPE_INTERFACE,
+    CMDB_ENTITY_TYPE_PROCESS,
+    CMDB_ENTITY_TYPE_SERVER,
+    CmdbEntity,
+    CmdbRelation,
+    NormalizedCmdb,
+)
 from constants import CONFIDENCE_STRONG, MATCH_SOURCE_KNOWLEDGE_BASE, MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL
 from neo4j_utils import Neo4jClient
 from skills.extract.extract_base import ExtractedProcess
@@ -25,6 +34,15 @@ class GraphWriter:
         client.execute_write(
             """
             MATCH (p:Prozess {prozess_id: $process_id})-[r:NUTZT]->(:Anwendung)
+            DELETE r
+            """,
+            {
+                "process_id": process.process_id,
+            },
+        )
+        client.execute_write(
+            """
+            MATCH (:Anwendung)-[r:DIENT]->(p:Prozess {prozess_id: $process_id})
             DELETE r
             """,
             {
@@ -103,8 +121,9 @@ class GraphWriter:
                 """
                 MERGE (p:Prozess {prozess_id: $process_id})
                 MERGE (a:Anwendung {cmdb_id: $cmdb_id})
-                SET a.name = $application_name
-                MERGE (p)-[r:NUTZT]->(a)
+                SET a.id = $cmdb_id,
+                    a.name = $application_name
+                MERGE (a)-[r:DIENT]->(p)
                 SET r.konfidenz = $confidence
                 """,
                 {
@@ -112,6 +131,53 @@ class GraphWriter:
                     "cmdb_id": match.cmdb_id,
                     "application_name": match.matched_name or match.application_name,
                     "confidence": match.confidence,
+                },
+            )
+
+    def sync_cmdb(
+        self,
+        client: Neo4jClient,
+        normalized_cmdb: NormalizedCmdb,
+        owner_assignments: dict[str, str] | None = None,
+    ) -> None:
+        client.ensure_constraints()
+        owner_assignments = owner_assignments or {}
+
+        for entity in normalized_cmdb.entities:
+            self._upsert_cmdb_entity(client, entity)
+
+        for entity in normalized_cmdb.entities:
+            client.execute_write(
+                """
+                MATCH (source)-[r]->(target)
+                WHERE source.id = $entity_id AND type(r) IN ['USES_INTERFACE', 'RUNS_ON']
+                DELETE r
+                """,
+                {"entity_id": entity.entity_id},
+            )
+            client.execute_write(
+                """
+                MATCH (:OrgEinheit)-[r:VERANTWORTET]->(target)
+                WHERE target.id = $entity_id
+                DELETE r
+                """,
+                {"entity_id": entity.entity_id},
+            )
+
+        for relation in normalized_cmdb.relations:
+            self._merge_cmdb_relation(client, relation)
+
+        for entity_id, org_unit_name in owner_assignments.items():
+            client.execute_write(
+                """
+                MERGE (o:OrgEinheit {name: $org_unit_name})
+                MATCH (target)
+                WHERE target.id = $entity_id
+                MERGE (o)-[:VERANTWORTET]->(target)
+                """,
+                {
+                    "org_unit_name": org_unit_name,
+                    "entity_id": entity_id,
                 },
             )
 
@@ -186,6 +252,87 @@ class GraphWriter:
                 "process_name": process_name,
             },
         )
+
+    def _upsert_cmdb_entity(self, client: Neo4jClient, entity: CmdbEntity) -> None:
+        if entity.entity_type == CMDB_ENTITY_TYPE_APPLICATION:
+            client.execute_write(
+                """
+                MERGE (a:Anwendung {cmdb_id: $entity_id})
+                SET a.id = $entity_id,
+                    a.name = $name
+                """,
+                {
+                    "entity_id": entity.entity_id,
+                    "name": entity.name,
+                },
+            )
+            return
+        if entity.entity_type == CMDB_ENTITY_TYPE_INTERFACE:
+            client.execute_write(
+                """
+                MERGE (i:Schnittstelle {id: $entity_id})
+                SET i.name = $name
+                """,
+                {
+                    "entity_id": entity.entity_id,
+                    "name": entity.name,
+                },
+            )
+            return
+        if entity.entity_type == CMDB_ENTITY_TYPE_SERVER:
+            client.execute_write(
+                """
+                MERGE (s:Server {id: $entity_id})
+                SET s.name = $name,
+                    s.server_type = $server_type
+                """,
+                {
+                    "entity_id": entity.entity_id,
+                    "name": entity.name,
+                    "server_type": entity.server_type,
+                },
+            )
+            return
+        if entity.entity_type == CMDB_ENTITY_TYPE_PROCESS:
+            client.execute_write(
+                """
+                MERGE (p:Prozess {prozess_id: $entity_id})
+                SET p.name = $name,
+                    p.placeholder = false
+                """,
+                {
+                    "entity_id": entity.entity_id,
+                    "name": entity.name,
+                },
+            )
+
+    def _merge_cmdb_relation(self, client: Neo4jClient, relation: CmdbRelation) -> None:
+        if relation.relation_type == "USES_INTERFACE":
+            client.execute_write(
+                """
+                MATCH (source), (target)
+                WHERE source.id = $source_id AND target.id = $target_id
+                MERGE (source)-[:USES_INTERFACE]->(target)
+                """,
+                {
+                    "source_id": relation.source_id,
+                    "target_id": relation.target_id,
+                },
+            )
+            return
+        if relation.relation_type == "RUNS_ON":
+            client.execute_write(
+                """
+                MATCH (source), (target)
+                WHERE source.id = $source_id AND target.id = $target_id
+                MERGE (source)-[:RUNS_ON]->(target)
+                """,
+                {
+                    "source_id": relation.source_id,
+                    "target_id": relation.target_id,
+                },
+            )
+            return
 
     def _resolve_duplicate_placeholders(self, client: Neo4jClient, process_id: str, process_name: str) -> None:
         client.execute_write(

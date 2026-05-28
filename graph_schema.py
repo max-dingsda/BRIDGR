@@ -3,12 +3,14 @@ from __future__ import annotations
 
 QUERY_NODE_SCHEMA: dict[str, tuple[str, ...]] = {
     "Prozess": ("prozess_id", "name"),
-    "Anwendung": ("cmdb_id", "name"),
+    "Anwendung": ("id", "cmdb_id", "name"),
+    "Schnittstelle": ("id", "name"),
+    "Server": ("id", "name", "server_type"),
     "OrgEinheit": ("name",),
 }
 
 QUERY_RELATIONSHIP_SCHEMA: dict[str, tuple[str, ...]] = {
-    "NUTZT": ("konfidenz",),
+    "DIENT": ("konfidenz",),
     "VERANTWORTET": (),
     "FOLGT_AUF": (),
 }

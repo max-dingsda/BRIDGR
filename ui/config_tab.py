@@ -31,7 +31,7 @@ from services.runtime_service import (
 )
 def render_path_picker_controls() -> None:
     st.markdown("**Pfade auswaehlen**")
-    input_column, cmdb_column, output_column = st.columns(3)
+    input_column, cmdb_column, relations_column, output_column = st.columns(4)
 
     if input_column.button("Input-Ordner waehlen", width="stretch"):
         selected_path = pick_directory(st.session_state["config_input_path"])
@@ -45,6 +45,14 @@ def render_path_picker_controls() -> None:
             selected_file = Path(selected_path)
             st.session_state["config_input_path"] = str(selected_file.parent)
             st.session_state["config_cmdb_filename"] = selected_file.name
+            st.rerun()
+
+    if relations_column.button("CMDB-Relationsdatei waehlen", width="stretch"):
+        selected_path = pick_file(st.session_state["config_input_path"], [("CSV files", "*.csv"), ("All files", "*.*")])
+        if selected_path:
+            selected_file = Path(selected_path)
+            st.session_state["config_input_path"] = str(selected_file.parent)
+            st.session_state["config_cmdb_relations_filename"] = selected_file.name
             st.rerun()
 
     if output_column.button("Output-Ordner waehlen", width="stretch"):
@@ -183,12 +191,33 @@ def render_import_section(config: AppConfig) -> None:
 
     st.caption("Verfuegbare CMDB-Dateien im Input-Pfad")
     if current_cmdb_files:
-        selected_cmdb_filename = st.selectbox("Aktive CMDB-Datei", options=[path.name for path in current_cmdb_files], key="active_cmdb_filename")
-        if st.button("Aktive CMDB-Datei uebernehmen", width="stretch"):
-            updated_config = AppConfig(**{**asdict(config), "cmdb_filename": selected_cmdb_filename})
+        available_cmdb_filenames = [path.name for path in current_cmdb_files]
+        cmdb_config_column, relations_config_column = st.columns(2)
+        with cmdb_config_column:
+            selected_cmdb_filename = st.selectbox("Aktive CMDB-Entities-Datei", options=available_cmdb_filenames, key="active_cmdb_filename")
+        with relations_config_column:
+            selected_relations_filename = st.selectbox(
+                "Aktive CMDB-Relationsdatei",
+                options=[""] + available_cmdb_filenames,
+                key="active_cmdb_relations_filename",
+                format_func=lambda value: value or "(keine)",
+            )
+        if st.button("Aktive CMDB-Dateien uebernehmen", width="stretch"):
+            updated_config = AppConfig(
+                **{
+                    **asdict(config),
+                    "cmdb_filename": selected_cmdb_filename,
+                    "cmdb_relations_filename": selected_relations_filename,
+                }
+            )
             save_config(updated_config)
             update_config_session_defaults(updated_config)
-            st.success(f"Aktive CMDB-Datei auf '{selected_cmdb_filename}' gesetzt.")
+            relations_message = (
+                f", Relations-Datei auf '{selected_relations_filename}'"
+                if selected_relations_filename
+                else ", Relations-Datei deaktiviert"
+            )
+            st.success(f"Aktive CMDB-Entities-Datei auf '{selected_cmdb_filename}' gesetzt{relations_message}.")
             st.rerun()
     else:
         st.info("Noch keine CMDB-Datei im Input-Pfad vorhanden.")
@@ -220,9 +249,17 @@ def render_config_tab(config_path: Path) -> None:
             llm_timeout_seconds = st.number_input("LLM Timeout Seconds", min_value=1, value=int(config.llm_timeout_seconds))
             input_path = st.text_input("Input Path", value=st.session_state["config_input_path"])
             cmdb_filename = st.text_input("CMDB Filename", value=st.session_state["config_cmdb_filename"])
+            cmdb_relations_filename = st.text_input("CMDB Relations Filename", value=st.session_state["config_cmdb_relations_filename"])
             output_path = st.text_input("Output Path", value=st.session_state["config_output_path"])
             cmdb_uuid_column = st.text_input("CMDB UUID Column", value=config.cmdb_uuid_column)
             cmdb_name_column = st.text_input("CMDB Name Column", value=config.cmdb_name_column)
+            cmdb_entity_type_column = st.text_input("CMDB Entity Type Column", value=config.cmdb_entity_type_column)
+            cmdb_server_type_column = st.text_input("CMDB Server Type Column", value=config.cmdb_server_type_column)
+            cmdb_owner_name_column = st.text_input("CMDB Owner Name Column", value=config.cmdb_owner_name_column)
+            cmdb_relation_source_column = st.text_input("CMDB Relation Source Column", value=config.cmdb_relation_source_column)
+            cmdb_relation_type_column = st.text_input("CMDB Relation Type Column", value=config.cmdb_relation_type_column)
+            cmdb_relation_target_column = st.text_input("CMDB Relation Target Column", value=config.cmdb_relation_target_column)
+            cmdb_multivalue_separator = st.text_input("CMDB Multi Value Separator", value=config.cmdb_multivalue_separator)
             neo4j_url = st.text_input("Neo4j URL", value=st.session_state["config_neo4j_url"])
             if os.getenv("NEO4J_URI"):
                 st.caption("NEO4J_URI wurde aus der Umgebung geladen. Der aktuell wirksame Wert ist im Feld sichtbar und kann hier dauerhaft ueberschrieben werden.")
@@ -255,6 +292,14 @@ def render_config_tab(config_path: Path) -> None:
                 fuzzy_threshold=float(fuzzy_threshold),
                 cmdb_uuid_column=cmdb_uuid_column,
                 cmdb_name_column=cmdb_name_column,
+                cmdb_entity_type_column=cmdb_entity_type_column,
+                cmdb_server_type_column=cmdb_server_type_column,
+                cmdb_owner_name_column=cmdb_owner_name_column,
+                cmdb_relations_filename=cmdb_relations_filename.strip(),
+                cmdb_relation_source_column=cmdb_relation_source_column,
+                cmdb_relation_type_column=cmdb_relation_type_column,
+                cmdb_relation_target_column=cmdb_relation_target_column,
+                cmdb_multivalue_separator=cmdb_multivalue_separator or "|",
                 input_path=input_path,
                 cmdb_filename=cmdb_filename,
                 output_path=output_path,

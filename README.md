@@ -3,7 +3,8 @@
 BRIDGR verbindet Prozessdokumentation mit CMDB-Daten, um einen EA-Wissensgraphen aufzubauen und spaeter ueber eine natuerlichsprachliche Oberflaeche abfragbar zu machen.
 
 Der aktuelle Architektur-Referenzstand fuer die Umsetzung ist:
-- `Specs/Bridgr_Architektur_v15.md`
+- `Specs/Bridgr_Architektur_v15.md` fuer Import, Review und Runtime-Semantik
+- `Specs/Bridgr_Architektur_v16.md` fuer das naechste CMDB-Zielmodell
 
 ## Zielbild
 
@@ -23,7 +24,10 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - BPMN-Transformer fuer sehr grosse BPMN/XML-Dateien als vorbereitender, LLM-freier Reduktionsschritt
 - Rohsicht und deduplizierte Arbeitssicht fuer extrahierte Anwendungen
 - CMDB-Matching mit KB-First-Logik, mehreren Kandidaten und Fuzzy Matching
-- Neo4j-Write-Pfad fuer Prozesse, Orgeinheiten und bestaetigte bzw. starke Anwendungslinks
+- Neo4j-Write-Pfad fuer Prozesse, Organisationseinheiten und bestaetigte bzw. starke Anwendungslinks
+- normalisierte CMDB-Sicht fuer `Anwendung`, `Schnittstelle` und `Server`
+- technischer CMDB-Write-Pfad fuer `USES_INTERFACE` und `RUNS_ON`
+- erste CMDB-Ownership-Logik mit direktem 1:1-Match oder Kandidatenbildung fuer Organisationseinheiten
 - natuerlichsprachlicher Query-Layer mit Session-Chat, LLM -> Cypher -> Neo4j -> Antwort und Rueckfrage bei Mehrdeutigkeiten
 - persistente Knowledge Base
 - Streamlit-UI mit 4 Tabs
@@ -37,9 +41,10 @@ Wichtige Einordnung:
 - Die aktuelle Implementierung unterstuetzt bereits BPMN, TXT, DOCX und PDF ueber einen gemeinsamen semantischen Extraktionspfad.
 
 Noch nicht umgesetzt:
+- vollstaendige UI-/Review-Unterstuetzung fuer alle neuen CMDB-Objekttypen
+- ausgereifte Query- und Prompt-Haertung fuer das erweiterte CMDB-Schema
+- Unterstuetzung weiterer CMDB-Dateiformate jenseits von CSV
 - separate Read-only-DB-Identitaet fuer den Query-Layer
-- robustere Query-Generierung und Antwortformulierung bei generischen Suchbegriffen
-- vollstaendige Laufmodus- und Importhistorienlogik gemaess spaeterem Zielausbau
 
 ## Projektstruktur
 
@@ -49,11 +54,13 @@ BRIDGR/
 ├── Output/                 # erzeugte Laufartefakte und spaetere Exportziele
 ├── prompts/                # LLM-Prompts
 ├── skills/                 # Fachlogik fuer Extract, Match, Review, Graph
+├── services/               # UI-ausgeloeste Seiteneffekte und Orchestrierung
+├── ui/                     # Streamlit-Tabmodule
 ├── knowledge_base/         # persistente Review-Entscheidungen
-├── data/                   # lokale Beispieldaten, z.B. CMDB-CSV
-├── app.py                  # Streamlit-UI
+├── data/                   # Archive und lokale Hilfsdaten
+├── app.py                  # Streamlit-Entrypoint
 ├── main.py                 # CLI-Einstieg fuer Pipeline-Laeufe
-├── pipeline.py             # orchestriert den aktuellen Happy Path
+├── pipeline.py             # orchestriert den Importlauf
 └── config.json             # technische Konfiguration
 ```
 
@@ -62,10 +69,11 @@ BRIDGR/
 Reservierte Ordner:
 - `Input/`: Hier legt der Benutzer zu importierende Prozessdokumente und CMDB-Dateien ab.
 - `Output/`: Hier legt BRIDGR erzeugte Artefakte ab. Aktuell sind das vor allem Laufartefakte; spaeter soll der Ordner auch fuer menschenlesbare Exporte verwendet werden.
+- `data/input_archive/`: Hierhin verschiebt BRIDGR nach erfolgreichem Import verarbeitete Prozessdateien aus der Inbox.
 
 Aktuell relevante Output-Dateien:
-- `Output/import_state.json`: Dateihashes und letzter bekannter Dokumentzustand
-- `Output/latest_run.json`: letzter gespeicherter Preview-/Importlauf fuer die UI
+- `Output/import_state.json`: letzter bekannter Dokumentzustand
+- `Output/latest_run.json`: letzter gespeicherter Import-/Reviewlauf fuer die UI
 - `Output/debug.log`: optionale JSONL-Diagnoseausgabe bei aktiviertem Debug-Modus
 
 ## Konfiguration
@@ -83,6 +91,16 @@ Wichtige Felder:
 - `neo4j_database`: optionaler Neo4j-Datenbankname, fuer Aura typischerweise die Instanz-ID
 - `input_path`: gemeinsamer Eingabeordner fuer Prozessdokumente und CMDB-Dateien
 - `cmdb_filename`: aktive CMDB-Datei innerhalb des Eingabeordners
+- `cmdb_uuid_column`: technische ID-Spalte der CMDB-Entities-Datei
+- `cmdb_name_column`: Namensspalte der CMDB-Entities-Datei
+- `cmdb_entity_type_column`: Typ-Spalte fuer `application`, `interface`, `server`, optional `process`
+- `cmdb_server_type_column`: Server-Untertyp `physical` oder `virtual`
+- `cmdb_owner_name_column`: Owner-/Verantwortungsbezeichnung aus der CMDB
+- `cmdb_relations_filename`: optionale zweite CSV-Datei fuer CMDB-Beziehungen
+- `cmdb_relation_source_column`: Quell-ID-Spalte der Relations-Datei
+- `cmdb_relation_type_column`: Beziehungstyp-Spalte der Relations-Datei
+- `cmdb_relation_target_column`: Ziel-ID-Spalte der Relations-Datei
+- `cmdb_multivalue_separator`: vorgesehener Trenner fuer spaetere Ein-Datei-CMDB-Exporte mit Mehrfachwerten
 - `output_path`: Ziel fuer Laufartefakte
 - `last_run_mode`: Standardlaufmodus fuer den Import (`full` oder `partial`)
 - `debug_mode`: schreibt bei aktivierter Diagnose zusaetzliche Ereignisse nach `Output/debug.log`
@@ -98,8 +116,14 @@ Beispiel:
   "neo4j_url": "bolt://localhost:7687",
   "neo4j_user": "neo4j",
   "neo4j_password": "",
+  "cmdb_uuid_column": "id",
+  "cmdb_name_column": "name",
+  "cmdb_entity_type_column": "entity_type",
+  "cmdb_server_type_column": "server_type",
+  "cmdb_owner_name_column": "owner_name",
+  "cmdb_relations_filename": "cmdb_relations.csv",
   "input_path": "Input",
-  "cmdb_filename": "cmdb.csv",
+  "cmdb_filename": "cmdb_entities.csv",
   "output_path": "Output"
 }
 ```
@@ -178,6 +202,7 @@ Aktuell verfuegbar:
 Aktuell verfuegbar:
 - Review fuer den letzten Import oder eine manuell gewaehlte Teilmenge oeffnen
 - letzten gespeicherten Lauf aus `Output/latest_run.json` anzeigen
+- letzten Importkontext inklusive Archivpfad anzeigen
 - Statusfilter fuer Dokumente
 - aktionsfaehige Review-Liste mit `Bestaetigen`, `Ablehnen` und `Manuell anlegen`
 - mehrere schwache CMDB-Kandidaten pro Prozessanwendung anzeigen
@@ -196,6 +221,7 @@ Aktuell verfuegbar:
 - Neo4j-URL, User, Passwort und optionalen Datenbanknamen setzen
 - gemeinsamen Input- und Output-Pfad setzen
 - aktive CMDB-Datei innerhalb des Input-Ordners waehlen
+- CMDB-Feldmapping fuer das erweiterte Entities-/Relations-Modell setzen
 - Prozessdateien in BPMN, XML, TXT, DOCX und PDF importieren
 - einzelne BPMN/XML-Dateien vor dem eigentlichen Import in kompakte Transform-Dateien ueberfuehren
 - Fuzzy-Threshold setzen
@@ -213,6 +239,7 @@ Aktuell verfuegbar:
 - bekannte Organisationseinheiten manuell pflegen
 - Organisationseinheiten direkt als `:OrgEinheit` nach Neo4j synchronisieren
 - offene Kandidaten aus unstrukturierten Dokumenten anzeigen
+- offene Kandidaten aus CMDB-Owner-Bezeichnungen anzeigen
 - Kandidaten auf bestehende Organisationseinheiten mappen
 - Kandidaten als neue Organisationseinheit uebernehmen
 - Kandidaten abweisen
@@ -220,7 +247,8 @@ Aktuell verfuegbar:
 
 Wichtige Einordnung:
 - manuell angelegte Organisationseinheiten koennen zunaechst ohne Prozessbezug im Graph existieren
-- fuer bereits vor dem Sync-Mechanismus gepflegte Altbestaende gibt es aktuell noch keinen separaten Sammel-Button; das ist als spaeterer Ausbaupunkt festgehalten
+- CMDB-Owner mit sicherem 1:1-Match koennen direkt als `VERANTWORTET` auf CMDB-Objekte landen
+- unsichere CMDB-Owner werden wie andere Org-Kandidaten ueber denselben Review-Pfad behandelt
 
 ## BPMN-Transformer fuer grosse Modelle
 
@@ -280,9 +308,10 @@ Der aktuelle Teststand deckt unter anderem ab:
 - Read-only-Cypher-Validierung
 - Query-Layer-Happy-Path inkl. natuerlicher Antwort und Mehrdeutigkeitsbehandlung
 - Pipeline-Happy-Path, partielle Imports und Laufartefakte
+- CMDB-Normalisierung fuer Entities und Relations
 - Aufbereitung der UI-Statusdaten und Warnhinweise
 - KB-Aktionen fuer kandidatenspezifisches Bestaetigen und Ablehnen
-- Graph-Write-Pfad inkl. Aufraeumen alter `NUTZT`-Kanten
+- Graph-Write-Pfad inkl. Aufraeumen alter Prozesskanten und neuem `DIENT`-Modell
 
 ## Hinweise
 

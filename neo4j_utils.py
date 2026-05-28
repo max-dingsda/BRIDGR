@@ -81,6 +81,8 @@ class Neo4jClient:
         constraint_queries = [
             "CREATE CONSTRAINT prozess_id IF NOT EXISTS FOR (p:Prozess) REQUIRE p.prozess_id IS UNIQUE",
             "CREATE CONSTRAINT anwendung_id IF NOT EXISTS FOR (a:Anwendung) REQUIRE a.cmdb_id IS UNIQUE",
+            "CREATE CONSTRAINT schnittstelle_id IF NOT EXISTS FOR (i:Schnittstelle) REQUIRE i.id IS UNIQUE",
+            "CREATE CONSTRAINT server_id IF NOT EXISTS FOR (s:Server) REQUIRE s.id IS UNIQUE",
             "CREATE CONSTRAINT orgeinheit_name IF NOT EXISTS FOR (o:OrgEinheit) REQUIRE o.name IS UNIQUE",
         ]
         for query in constraint_queries:

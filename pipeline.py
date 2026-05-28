@@ -4,8 +4,8 @@ from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from app_config import AppConfig, resolve_input_cmdb_path, resolve_project_path, resolve_runtime_output_path
-from cmdb import load_cmdb_rows
+from app_config import AppConfig, resolve_input_cmdb_path, resolve_input_cmdb_relations_path, resolve_project_path, resolve_runtime_output_path
+from cmdb import load_cmdb_relation_rows, load_cmdb_rows, load_normalized_cmdb, normalize_cmdb_relations
 from constants import (
     CONFIDENCE_STRONG,
     DOCUMENT_STATUS_ERROR,
@@ -70,6 +70,27 @@ def run_pipeline(
         config.cmdb_uuid_column,
         config.cmdb_name_column,
     )
+    normalized_cmdb = load_normalized_cmdb(
+        resolve_input_cmdb_path(config),
+        id_column=config.cmdb_uuid_column,
+        name_column=config.cmdb_name_column,
+        entity_type_column=config.cmdb_entity_type_column,
+        server_type_column=config.cmdb_server_type_column,
+        owner_name_column=config.cmdb_owner_name_column,
+    )
+    relations_path = resolve_input_cmdb_relations_path(config)
+    if relations_path is not None:
+        normalized_cmdb.relations = normalize_cmdb_relations(
+            load_cmdb_relation_rows(
+                relations_path,
+                source_id_column=config.cmdb_relation_source_column,
+                relation_type_column=config.cmdb_relation_type_column,
+                target_id_column=config.cmdb_relation_target_column,
+            ),
+            source_id_column=config.cmdb_relation_source_column,
+            relation_type_column=config.cmdb_relation_type_column,
+            target_id_column=config.cmdb_relation_target_column,
+        )
     import_state = load_import_state(output_path)
     previous_hashes = {document.source_path: document.file_hash for document in import_state.documents}
     llm_client = OpenAICompatibleClient(
@@ -83,6 +104,16 @@ def run_pipeline(
     )
     graph_writer = GraphWriter()
     neo4j_client = build_neo4j_client(config)
+    knowledge_base = update_organization_knowledge_from_cmdb(
+        knowledge_base,
+        normalized_cmdb,
+        source_path=str(resolve_input_cmdb_path(config)),
+    )
+    graph_writer.sync_cmdb(
+        neo4j_client,
+        normalized_cmdb,
+        owner_assignments=resolve_cmdb_owner_assignments(knowledge_base, normalized_cmdb),
+    )
 
     if input_paths is not None:
         candidate_paths = list(input_paths)
@@ -374,6 +405,65 @@ def update_organization_knowledge(
             role_name=primary_role,
         )
     return updated
+
+
+def update_organization_knowledge_from_cmdb(
+    knowledge_base: KnowledgeBase,
+    normalized_cmdb,
+    source_path: str,
+) -> KnowledgeBase:
+    updated = knowledge_base
+    known_org_units = {
+        normalize_org_unit_name(entry.get("name", "")): entry.get("name", "")
+        for entry in knowledge_base.org_units
+        if entry.get("name")
+    }
+    mapped_candidates = {
+        entry.get("normalized_name", ""): entry.get("mapped_org_unit", "")
+        for entry in knowledge_base.org_unit_candidates
+        if entry.get("status") == "mapped" and entry.get("mapped_org_unit")
+    }
+    for entity in normalized_cmdb.entities:
+        owner_name = " ".join((entity.owner_name or "").split())
+        if not owner_name:
+            continue
+        normalized_owner = normalize_org_unit_name(owner_name)
+        if normalized_owner in known_org_units or normalized_owner in mapped_candidates:
+            continue
+        updated = upsert_org_unit_candidate(
+            updated,
+            candidate_name=owner_name,
+            source_path=source_path,
+            process_name="",
+            role_name="",
+        )
+    return updated
+
+
+def resolve_cmdb_owner_assignments(
+    knowledge_base: KnowledgeBase,
+    normalized_cmdb,
+) -> dict[str, str]:
+    known_org_units = {
+        normalize_org_unit_name(entry.get("name", "")): entry.get("name", "")
+        for entry in knowledge_base.org_units
+        if entry.get("name")
+    }
+    mapped_candidates = {
+        entry.get("normalized_name", ""): entry.get("mapped_org_unit", "")
+        for entry in knowledge_base.org_unit_candidates
+        if entry.get("status") == "mapped" and entry.get("mapped_org_unit")
+    }
+    assignments: dict[str, str] = {}
+    for entity in normalized_cmdb.entities:
+        owner_name = " ".join((entity.owner_name or "").split())
+        if not owner_name:
+            continue
+        normalized_owner = normalize_org_unit_name(owner_name)
+        resolved_owner = known_org_units.get(normalized_owner) or mapped_candidates.get(normalized_owner)
+        if resolved_owner:
+            assignments[entity.entity_id] = resolved_owner
+    return assignments
 
 
 def build_neo4j_client(config: AppConfig) -> Neo4jClient:

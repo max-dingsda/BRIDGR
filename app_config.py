@@ -29,6 +29,14 @@ class AppConfig:
     fuzzy_threshold: float = 0.85
     cmdb_uuid_column: str = "app_id"
     cmdb_name_column: str = "application_name"
+    cmdb_entity_type_column: str = "entity_type"
+    cmdb_server_type_column: str = "server_type"
+    cmdb_owner_name_column: str = "owner_name"
+    cmdb_relations_filename: str = ""
+    cmdb_relation_source_column: str = "source_id"
+    cmdb_relation_type_column: str = "relation_type"
+    cmdb_relation_target_column: str = "target_id"
+    cmdb_multivalue_separator: str = "|"
     input_path: str = "Input"
     cmdb_filename: str = "cmdb.csv"
     output_path: str = "Output"
@@ -132,6 +140,13 @@ def resolve_input_cmdb_path(config: AppConfig) -> Path:
     """
 
     return resolve_project_path(config.input_path) / config.cmdb_filename
+
+
+def resolve_input_cmdb_relations_path(config: AppConfig) -> Path | None:
+    relations_filename = config.cmdb_relations_filename.strip()
+    if not relations_filename:
+        return None
+    return resolve_project_path(config.input_path) / relations_filename
 
 
 def resolve_runtime_output_path(path_value: str | Path) -> tuple[Path, bool]:

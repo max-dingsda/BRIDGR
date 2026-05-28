@@ -73,6 +73,16 @@ def _resolve_cmdb_rows(config: AppConfig) -> list[dict[str, str]]:
     )
 
 
+def _filter_application_cmdb_rows(config: AppConfig, cmdb_rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    entity_type_column = config.cmdb_entity_type_column
+    filtered_rows: list[dict[str, str]] = []
+    for row in cmdb_rows:
+        entity_type = (row.get(entity_type_column) or "").strip().lower()
+        if not entity_type or entity_type == "application":
+            filtered_rows.append(row)
+    return filtered_rows
+
+
 def render_review_item_actions(review_row: dict, config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
     process_name = review_row.get("prozess", "")
     source_path = review_row.get("source_path", "")
@@ -95,7 +105,8 @@ def render_review_item_actions(review_row: dict, config: AppConfig, cmdb_rows: l
         st.success(reject_review_link(config, process_name, application_name, cmdb_id, source_path, cmdb_rows))
         st.rerun()
 
-    cmdb_options = build_cmdb_option_labels(cmdb_rows, config.cmdb_uuid_column, config.cmdb_name_column)
+    application_rows = _filter_application_cmdb_rows(config, cmdb_rows)
+    cmdb_options = build_cmdb_option_labels(application_rows, config.cmdb_uuid_column, config.cmdb_name_column)
     if not cmdb_options:
         row_columns[6].write("-")
         return
@@ -109,7 +120,7 @@ def render_review_item_actions(review_row: dict, config: AppConfig, cmdb_rows: l
         )
         if st.button("Speichern", key=f"review-manual-submit::{row_id}", width="stretch"):
             selected_row = find_cmdb_row_by_label(
-                cmdb_rows,
+                application_rows,
                 selected_label,
                 config.cmdb_uuid_column,
                 config.cmdb_name_column,
@@ -197,9 +208,10 @@ def render_manual_link_form(detail: dict, config: AppConfig, cmdb_rows: list[dic
     if not process_name:
         return
 
-    cmdb_options = build_cmdb_option_labels(cmdb_rows, config.cmdb_uuid_column, config.cmdb_name_column)
+    application_rows = _filter_application_cmdb_rows(config, cmdb_rows)
+    cmdb_options = build_cmdb_option_labels(application_rows, config.cmdb_uuid_column, config.cmdb_name_column)
     if not cmdb_options:
-        st.info("Keine CMDB-Eintraege fuer manuellen Link verfuegbar.")
+        st.info("Keine Anwendungs-Eintraege aus der CMDB fuer manuellen Link verfuegbar.")
         return
 
     st.markdown("Manuellen Link anlegen")
@@ -213,7 +225,7 @@ def render_manual_link_form(detail: dict, config: AppConfig, cmdb_rows: list[dic
 
     if st.button("Manuellen Link speichern", key=f"manual-submit::{detail['detail_id']}", width="stretch"):
         selected_row = find_cmdb_row_by_label(
-            cmdb_rows,
+            application_rows,
             selected_label,
             config.cmdb_uuid_column,
             config.cmdb_name_column,
