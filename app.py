@@ -137,14 +137,17 @@ def persist_org_unit_node(config: AppConfig, org_unit_name: str) -> None:
         return
 
     neo4j_client = get_session_neo4j_client(config)
-    neo4j_client.execute_write(
+    rows = neo4j_client.execute_write(
         """
-        MERGE (:OrgEinheit {name: $org_unit_name})
+        MERGE (o:OrgEinheit {name: $org_unit_name})
+        RETURN o.name AS name
         """,
         {
             "org_unit_name": cleaned_name,
         },
     )
+    if not rows or rows[0].get("name") != cleaned_name:
+        raise Neo4jQueryError(f"Organisationseinheit `{cleaned_name}` konnte in Neo4j nicht bestaetigt werden.")
 
 
 def get_neo4j_connection_status(config: AppConfig, force_refresh: bool = False) -> tuple[bool, str]:
@@ -865,6 +868,51 @@ def persist_latest_run_refresh(
     return refreshed_count
 
 
+def persist_organization_sync(config: AppConfig) -> tuple[int, int]:
+    knowledge_base = load_knowledge_base()
+    synced_org_units = 0
+    synced_names: list[str] = []
+    for entry in knowledge_base.org_units:
+        org_unit_name = entry.get("name", "")
+        if not org_unit_name:
+            continue
+        persist_org_unit_node(config, org_unit_name)
+        synced_org_units += 1
+        synced_names.append(org_unit_name)
+
+    try:
+        cmdb_rows = load_cmdb_rows(
+            resolve_input_cmdb_path(config),
+            config.cmdb_uuid_column,
+            config.cmdb_name_column,
+        )
+    except CmdbLoadError:
+        write_debug_log(
+            config,
+            "organization_sync",
+            {
+                "synced_org_units": synced_org_units,
+                "synced_names": synced_names,
+                "refreshed_documents": 0,
+                "cmdb_refresh": "skipped",
+            },
+        )
+        return synced_org_units, 0
+
+    refreshed_documents = persist_latest_run_refresh(config, cmdb_rows)
+    write_debug_log(
+        config,
+        "organization_sync",
+        {
+            "synced_org_units": synced_org_units,
+            "synced_names": synced_names,
+            "refreshed_documents": refreshed_documents,
+            "cmdb_refresh": "completed",
+        },
+    )
+    return synced_org_units, refreshed_documents
+
+
 def persist_org_candidate_mapping_refresh(
     config: AppConfig,
     candidate_name: str,
@@ -1292,6 +1340,19 @@ def render_organization_tab() -> None:
             ],
             width="stretch",
         )
+        if st.button("Organisation nach Neo4j synchronisieren", key="org-sync-neo4j", width="stretch"):
+            try:
+                synced_org_units, refreshed_documents = persist_organization_sync(config)
+            except (Neo4jConnectionError, Neo4jQueryError) as exc:
+                st.error(f"Organisation konnte nicht nach Neo4j synchronisiert werden: {exc}")
+            else:
+                if refreshed_documents:
+                    st.success(
+                        f"{synced_org_units} Organisationseinheit(en) synchronisiert. {refreshed_documents} Dokument(e) aus dem letzten Lauf wurden fuer Prozessbeziehungen neu eingespielt."
+                    )
+                else:
+                    st.success(f"{synced_org_units} Organisationseinheit(en) nach Neo4j synchronisiert.")
+            st.rerun()
     else:
         st.info("Noch keine Organisationseinheiten gepflegt.")
 
@@ -1719,6 +1780,8 @@ def render_import_section(config: AppConfig) -> None:
                     [str(path) for path in explicit_input_paths],
                     runtime_output_path,
                 )
+                st.session_state["review_scope_mode"] = "Nur letzter Import"
+                st.session_state["review_process_selection"] = []
                 run_pipeline_with_live_feedback(
                     runtime_config,
                     feedback_state_key=IMPORT_RUN_FEEDBACK_STATE_KEY,

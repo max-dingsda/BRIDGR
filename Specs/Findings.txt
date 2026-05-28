@@ -24,3 +24,4 @@ Keine Treffer gefunden.
 Technische Details
 USER: aber es gibt eine anwendung "seller service", oder?
 BRIDGR: Ich habe mehrere passende Anwendungen gefunden: Seller Service, Seller Service Interface. Welche meinen Sie?
+21. in der review-section sollte ein hinweis erscheinen, dass identifizierte Organisationseinheiten Im Tab "Organsation" manuell bestätigt werden müssen, allerdings nur dann, wenn tatsächlich Candidates identifiziert wurden oder aus älteren läufen noch zu bestätigen/zu verwerfen sind

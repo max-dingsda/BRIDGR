@@ -1,5 +1,62 @@
 {
-  "confirmed": [],
+  "confirmed": [
+    {
+      "prozess": "Anforderung sichten",
+      "anwendung_name": "Email",
+      "cmdb_id": "744b30b1-b138-4e67-849d-37cdee4c1482",
+      "resolved_to": "Mail System",
+      "bestaetigt_am": "2026-05-28",
+      "quelle": "manuell_bestaetigt"
+    },
+    {
+      "prozess": "Incident Management",
+      "anwendung_name": "Product Backlog Interface",
+      "cmdb_id": "ce0f0193-e253-4c97-a004-2473f6b6ba8e",
+      "resolved_to": "Product Backlog System",
+      "bestaetigt_am": "2026-05-28",
+      "quelle": "manuell_bestaetigt"
+    },
+    {
+      "prozess": "Incident Management",
+      "anwendung_name": "Mail Interface",
+      "cmdb_id": "744b30b1-b138-4e67-849d-37cdee4c1482",
+      "resolved_to": "Mail System",
+      "bestaetigt_am": "2026-05-28",
+      "quelle": "manuell_bestaetigt"
+    },
+    {
+      "prozess": "Seller process",
+      "anwendung_name": "Seller Service Interface",
+      "cmdb_id": "0985937e-7a75-4f39-ab27-918714c464a7",
+      "resolved_to": "Seller Service",
+      "bestaetigt_am": "2026-05-28",
+      "quelle": "manuell_bestaetigt"
+    },
+    {
+      "prozess": "Seller process",
+      "anwendung_name": "Shipper Service Interface",
+      "cmdb_id": "ac2f45d2-0f21-4018-bc44-5fb16bb2c321",
+      "resolved_to": "Shipper Service",
+      "bestaetigt_am": "2026-05-28",
+      "quelle": "manuell_bestaetigt"
+    },
+    {
+      "prozess": "Bestellabwicklung",
+      "anwendung_name": "Mail System",
+      "cmdb_id": "bee0ede7-4331-442e-9427-94adf46413da",
+      "resolved_to": "Mail Interface",
+      "bestaetigt_am": "2026-05-28",
+      "quelle": "manuell_bestaetigt"
+    },
+    {
+      "prozess": "Anforderung sichten",
+      "anwendung_name": "Ticket erstellen",
+      "cmdb_id": "ce0f0193-e253-4c97-a004-2473f6b6ba8e",
+      "resolved_to": "Product Backlog System",
+      "bestaetigt_am": "2026-05-28",
+      "quelle": "manueller_link"
+    }
+  ],
   "rejected": [],
   "disambiguation": [],
   "process_identity": [],
@@ -27,6 +84,11 @@
     {
       "name": "Team Logistik",
       "created_at": "2026-05-27",
+      "source": "candidate"
+    },
+    {
+      "name": "Buchhaltung",
+      "created_at": "2026-05-28",
       "source": "candidate"
     }
   ],
@@ -72,7 +134,9 @@
       "process_names": [
         "Bestellabwicklung"
       ],
-      "role_names": [],
+      "role_names": [
+        "Vertriebsmitarbeiter"
+      ],
       "status": "mapped",
       "mapped_org_unit": "Customer Service Team",
       "first_seen": "2026-05-27",
@@ -92,6 +156,40 @@
       "mapped_org_unit": "Team Accounting",
       "first_seen": "2026-05-27",
       "last_seen": "2026-05-27"
+    },
+    {
+      "candidate_name": "Produktion",
+      "normalized_name": "produktion",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf"
+      ],
+      "process_names": [
+        "Reklamationsbearbeitung"
+      ],
+      "role_names": [
+        "Kundendienst"
+      ],
+      "status": "mapped",
+      "mapped_org_unit": "Team Logistik",
+      "first_seen": "2026-05-28",
+      "last_seen": "2026-05-28"
+    },
+    {
+      "candidate_name": "Buchhaltung",
+      "normalized_name": "buchhaltung",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf"
+      ],
+      "process_names": [
+        "Reklamationsbearbeitung"
+      ],
+      "role_names": [
+        "Kundendienst"
+      ],
+      "status": "mapped",
+      "mapped_org_unit": "Buchhaltung",
+      "first_seen": "2026-05-28",
+      "last_seen": "2026-05-28"
     }
   ]
 }

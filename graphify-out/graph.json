@@ -9,7 +9,7 @@
       "source_file": "app.py",
       "source_location": "L1",
       "id": "app_py",
-      "community": 58,
+      "community": 1,
       "norm_label": "app.py"
     },
     {
@@ -36,7 +36,7 @@
       "source_file": "app.py",
       "source_location": "L89",
       "id": "app_py_str",
-      "community": 58,
+      "community": 52,
       "norm_label": "str"
     },
     {
@@ -54,7 +54,7 @@
       "source_file": "app.py",
       "source_location": "L98",
       "id": "app_py_bool",
-      "community": 58,
+      "community": 42,
       "norm_label": "bool"
     },
     {
@@ -72,7 +72,7 @@
       "source_file": "app.py",
       "source_location": "L110",
       "id": "app_py_neo4jclient",
-      "community": 58,
+      "community": 42,
       "norm_label": "neo4jclient"
     },
     {
@@ -88,7 +88,7 @@
       "label": "get_neo4j_connection_status()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L150",
+      "source_location": "L153",
       "id": "bridgr_app_get_neo4j_connection_status",
       "community": 58,
       "norm_label": "get_neo4j_connection_status()"
@@ -97,7 +97,7 @@
       "label": "get_llm_status()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L175",
+      "source_location": "L178",
       "id": "bridgr_app_get_llm_status",
       "community": 58,
       "norm_label": "get_llm_status()"
@@ -106,7 +106,7 @@
       "label": "write_debug_log()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L226",
+      "source_location": "L229",
       "id": "bridgr_app_write_debug_log",
       "community": 58,
       "norm_label": "write_debug_log()"
@@ -115,151 +115,151 @@
       "label": "format_duration()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L235",
+      "source_location": "L238",
       "id": "bridgr_app_format_duration",
-      "community": 58,
+      "community": 52,
       "norm_label": "format_duration()"
     },
     {
       "label": "float",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L235",
+      "source_location": "L238",
       "id": "app_py_float",
-      "community": 58,
+      "community": 42,
       "norm_label": "float"
     },
     {
       "label": "clear_run_feedback()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L246",
+      "source_location": "L249",
       "id": "bridgr_app_clear_run_feedback",
-      "community": 58,
+      "community": 52,
       "norm_label": "clear_run_feedback()"
     },
     {
       "label": "render_run_feedback()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L250",
+      "source_location": "L253",
       "id": "bridgr_app_render_run_feedback",
-      "community": 58,
+      "community": 52,
       "norm_label": "render_run_feedback()"
     },
     {
       "label": "set_run_feedback()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L267",
+      "source_location": "L270",
       "id": "bridgr_app_set_run_feedback",
-      "community": 58,
+      "community": 52,
       "norm_label": "set_run_feedback()"
     },
     {
       "label": "create_pipeline_run_tracker()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L271",
+      "source_location": "L274",
       "id": "bridgr_app_create_pipeline_run_tracker",
-      "community": 58,
+      "community": 52,
       "norm_label": "create_pipeline_run_tracker()"
     },
     {
       "label": "update_pipeline_run_tracker()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L287",
+      "source_location": "L290",
       "id": "bridgr_app_update_pipeline_run_tracker",
-      "community": 58,
+      "community": 52,
       "norm_label": "update_pipeline_run_tracker()"
     },
     {
       "label": "finish_pipeline_run_tracker()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L298",
+      "source_location": "L301",
       "id": "bridgr_app_finish_pipeline_run_tracker",
-      "community": 58,
+      "community": 52,
       "norm_label": "finish_pipeline_run_tracker()"
     },
     {
       "label": "fail_pipeline_run_tracker()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L307",
+      "source_location": "L310",
       "id": "bridgr_app_fail_pipeline_run_tracker",
-      "community": 58,
+      "community": 52,
       "norm_label": "fail_pipeline_run_tracker()"
     },
     {
       "label": "get_pipeline_run_tracker()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L316",
+      "source_location": "L319",
       "id": "bridgr_app_get_pipeline_run_tracker",
-      "community": 58,
+      "community": 52,
       "norm_label": "get_pipeline_run_tracker()"
     },
     {
       "label": "clear_pipeline_run_tracker()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L324",
+      "source_location": "L327",
       "id": "bridgr_app_clear_pipeline_run_tracker",
-      "community": 58,
+      "community": 52,
       "norm_label": "clear_pipeline_run_tracker()"
     },
     {
       "label": "start_async_pipeline_run()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L329",
+      "source_location": "L332",
       "id": "bridgr_app_start_async_pipeline_run",
-      "community": 58,
+      "community": 52,
       "norm_label": "start_async_pipeline_run()"
     },
     {
       "label": "Path",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L329",
+      "source_location": "L332",
       "id": "app_py_path",
-      "community": 58,
+      "community": 42,
       "norm_label": "path"
     },
     {
       "label": "render_active_pipeline_run_monitor()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L358",
+      "source_location": "L361",
       "id": "bridgr_app_render_active_pipeline_run_monitor",
-      "community": 58,
+      "community": 52,
       "norm_label": "render_active_pipeline_run_monitor()"
     },
     {
       "label": "run_pipeline_with_live_feedback()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L404",
+      "source_location": "L407",
       "id": "bridgr_app_run_pipeline_with_live_feedback",
-      "community": 58,
+      "community": 52,
       "norm_label": "run_pipeline_with_live_feedback()"
     },
     {
       "label": "render_query_tab()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L451",
+      "source_location": "L454",
       "id": "bridgr_app_render_query_tab",
-      "community": 58,
+      "community": 1,
       "norm_label": "render_query_tab()"
     },
     {
       "label": "ensure_query_chat_defaults()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L481",
+      "source_location": "L484",
       "id": "bridgr_app_ensure_query_chat_defaults",
       "community": 58,
       "norm_label": "ensure_query_chat_defaults()"
@@ -268,79 +268,79 @@
       "label": "reset_query_chat_state()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L487",
+      "source_location": "L490",
       "id": "bridgr_app_reset_query_chat_state",
-      "community": 58,
+      "community": 1,
       "norm_label": "reset_query_chat_state()"
     },
     {
       "label": "append_chat_message()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L493",
+      "source_location": "L496",
       "id": "bridgr_app_append_chat_message",
-      "community": 58,
+      "community": 1,
       "norm_label": "append_chat_message()"
     },
     {
       "label": "render_query_chat_messages()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L504",
+      "source_location": "L507",
       "id": "bridgr_app_render_query_chat_messages",
-      "community": 58,
+      "community": 1,
       "norm_label": "render_query_chat_messages()"
     },
     {
       "label": "handle_query_clarification()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L520",
+      "source_location": "L523",
       "id": "bridgr_app_handle_query_clarification",
-      "community": 58,
+      "community": 1,
       "norm_label": "handle_query_clarification()"
     },
     {
       "label": "run_query_chat_turn()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L542",
+      "source_location": "L545",
       "id": "bridgr_app_run_query_chat_turn",
-      "community": 58,
+      "community": 1,
       "norm_label": "run_query_chat_turn()"
     },
     {
       "label": "render_review_tab()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L600",
+      "source_location": "L603",
       "id": "bridgr_app_render_review_tab",
-      "community": 58,
+      "community": 52,
       "norm_label": "render_review_tab()"
     },
     {
       "label": "render_latest_run_summary()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L691",
+      "source_location": "L694",
       "id": "bridgr_app_render_latest_run_summary",
-      "community": 58,
+      "community": 52,
       "norm_label": "render_latest_run_summary()"
     },
     {
       "label": "reconstruct_extracted_process()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L704",
+      "source_location": "L707",
       "id": "bridgr_app_reconstruct_extracted_process",
-      "community": 58,
+      "community": 71,
       "norm_label": "reconstruct_extracted_process()"
     },
     {
       "label": "ExtractedProcess",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L704",
+      "source_location": "L707",
       "id": "app_py_extractedprocess",
       "community": 2,
       "norm_label": "extractedprocess"
@@ -349,16 +349,16 @@
       "label": "reconstruct_match_result()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L731",
+      "source_location": "L734",
       "id": "bridgr_app_reconstruct_match_result",
-      "community": 58,
+      "community": 71,
       "norm_label": "reconstruct_match_result()"
     },
     {
       "label": "MatchResult",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L731",
+      "source_location": "L734",
       "id": "app_py_matchresult",
       "community": 2,
       "norm_label": "matchresult"
@@ -367,52 +367,61 @@
       "label": "rerun_single_document_from_artifact()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L742",
+      "source_location": "L745",
       "id": "bridgr_app_rerun_single_document_from_artifact",
-      "community": 58,
+      "community": 71,
       "norm_label": "rerun_single_document_from_artifact()"
     },
     {
       "label": "persist_single_document_refresh()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L800",
+      "source_location": "L803",
       "id": "bridgr_app_persist_single_document_refresh",
-      "community": 58,
+      "community": 71,
       "norm_label": "persist_single_document_refresh()"
     },
     {
       "label": "persist_latest_run_refresh()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L836",
+      "source_location": "L839",
       "id": "bridgr_app_persist_latest_run_refresh",
-      "community": 58,
+      "community": 71,
       "norm_label": "persist_latest_run_refresh()"
     },
     {
       "label": "int",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L836",
+      "source_location": "L839",
       "id": "app_py_int",
-      "community": 58,
+      "community": 42,
       "norm_label": "int"
+    },
+    {
+      "label": "persist_organization_sync()",
+      "file_type": "code",
+      "source_file": "app.py",
+      "source_location": "L871",
+      "id": "bridgr_app_persist_organization_sync",
+      "community": 58,
+      "norm_label": "persist_organization_sync()"
     },
     {
       "label": "persist_org_candidate_mapping_refresh()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L868",
+      "source_location": "L916",
       "id": "bridgr_app_persist_org_candidate_mapping_refresh",
-      "community": 58,
+      "community": 71,
       "norm_label": "persist_org_candidate_mapping_refresh()"
     },
     {
       "label": "render_document_status_table()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L933",
+      "source_location": "L981",
       "id": "bridgr_app_render_document_status_table",
       "community": 50,
       "norm_label": "render_document_status_table()"
@@ -421,7 +430,7 @@
       "label": "render_review_items_table()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L942",
+      "source_location": "L990",
       "id": "bridgr_app_render_review_items_table",
       "community": 58,
       "norm_label": "render_review_items_table()"
@@ -430,7 +439,7 @@
       "label": "render_duplicate_application_warnings()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L962",
+      "source_location": "L1010",
       "id": "bridgr_app_render_duplicate_application_warnings",
       "community": 50,
       "norm_label": "render_duplicate_application_warnings()"
@@ -439,7 +448,7 @@
       "label": "render_document_details()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L975",
+      "source_location": "L1023",
       "id": "bridgr_app_render_document_details",
       "community": 58,
       "norm_label": "render_document_details()"
@@ -448,7 +457,7 @@
       "label": "render_review_actions()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L1012",
+      "source_location": "L1060",
       "id": "bridgr_app_render_review_actions",
       "community": 55,
       "norm_label": "render_review_actions()"
@@ -457,7 +466,7 @@
       "label": "render_review_item_actions()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L1075",
+      "source_location": "L1123",
       "id": "bridgr_app_render_review_item_actions",
       "community": 55,
       "norm_label": "render_review_item_actions()"
@@ -466,7 +475,7 @@
       "label": "render_manual_link_form()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L1159",
+      "source_location": "L1207",
       "id": "bridgr_app_render_manual_link_form",
       "community": 55,
       "norm_label": "render_manual_link_form()"
@@ -475,7 +484,7 @@
       "label": "render_knowledge_base_tools()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L1221",
+      "source_location": "L1269",
       "id": "bridgr_app_render_knowledge_base_tools",
       "community": 58,
       "norm_label": "render_knowledge_base_tools()"
@@ -484,7 +493,7 @@
       "label": "clear_knowledge_base_and_refresh()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L1248",
+      "source_location": "L1296",
       "id": "bridgr_app_clear_knowledge_base_and_refresh",
       "community": 55,
       "norm_label": "clear_knowledge_base_and_refresh()"
@@ -493,7 +502,7 @@
       "label": "render_organization_tab()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L1276",
+      "source_location": "L1324",
       "id": "bridgr_app_render_organization_tab",
       "community": 55,
       "norm_label": "render_organization_tab()"
@@ -502,7 +511,7 @@
       "label": "render_config_tab()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L1399",
+      "source_location": "L1460",
       "id": "bridgr_app_render_config_tab",
       "community": 58,
       "norm_label": "render_config_tab()"
@@ -511,7 +520,7 @@
       "label": "ensure_config_session_defaults()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L1539",
+      "source_location": "L1600",
       "id": "bridgr_app_ensure_config_session_defaults",
       "community": 58,
       "norm_label": "ensure_config_session_defaults()"
@@ -520,7 +529,7 @@
       "label": "sync_config_session_defaults()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L1544",
+      "source_location": "L1605",
       "id": "bridgr_app_sync_config_session_defaults",
       "community": 58,
       "norm_label": "sync_config_session_defaults()"
@@ -529,7 +538,7 @@
       "label": "update_config_session_defaults()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L1557",
+      "source_location": "L1618",
       "id": "bridgr_app_update_config_session_defaults",
       "community": 58,
       "norm_label": "update_config_session_defaults()"
@@ -538,25 +547,25 @@
       "label": "render_path_picker_controls()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L1571",
+      "source_location": "L1632",
       "id": "bridgr_app_render_path_picker_controls",
-      "community": 58,
+      "community": 1,
       "norm_label": "render_path_picker_controls()"
     },
     {
       "label": "render_import_section()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L1596",
+      "source_location": "L1657",
       "id": "bridgr_app_render_import_section",
-      "community": 58,
+      "community": 52,
       "norm_label": "render_import_section()"
     },
     {
       "label": "ensure_active_cmdb_selection()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L1761",
+      "source_location": "L1822",
       "id": "bridgr_app_ensure_active_cmdb_selection",
       "community": 58,
       "norm_label": "ensure_active_cmdb_selection()"
@@ -565,7 +574,7 @@
       "label": "ensure_import_session_defaults()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L1769",
+      "source_location": "L1830",
       "id": "bridgr_app_ensure_import_session_defaults",
       "community": 58,
       "norm_label": "ensure_import_session_defaults()"
@@ -574,9 +583,9 @@
       "label": "main()",
       "file_type": "code",
       "source_file": "app.py",
-      "source_location": "L1776",
+      "source_location": "L1837",
       "id": "bridgr_app_main",
-      "community": 58,
+      "community": 1,
       "norm_label": "main()"
     },
     {
@@ -603,7 +612,7 @@
       "source_file": "app_config.py",
       "source_location": "L39",
       "id": "bridgr_app_config_load_config",
-      "community": 5,
+      "community": 66,
       "norm_label": "load_config()"
     },
     {
@@ -765,7 +774,7 @@
       "source_file": "bpmn_transformer.py",
       "source_location": "L8",
       "id": "bridgr_bpmn_transformer_bpmntransformerror",
-      "community": 58,
+      "community": 42,
       "norm_label": "bpmntransformerror"
     },
     {
@@ -774,7 +783,7 @@
       "source_file": "",
       "source_location": "",
       "id": "runtimeerror",
-      "community": 58,
+      "community": 42,
       "norm_label": "runtimeerror"
     },
     {
@@ -972,7 +981,7 @@
       "source_file": "cmdb.py",
       "source_location": "L7",
       "id": "cmdb_cmdbloaderror",
-      "community": 58,
+      "community": 42,
       "norm_label": "cmdbloaderror"
     },
     {
@@ -1215,7 +1224,7 @@
       "source_file": "dialog_utils.py",
       "source_location": "L1",
       "id": "dialog_utils_py",
-      "community": 58,
+      "community": 1,
       "norm_label": "dialog_utils.py"
     },
     {
@@ -1224,7 +1233,7 @@
       "source_file": "dialog_utils.py",
       "source_location": "L7",
       "id": "dialog_utils_pick_directory",
-      "community": 58,
+      "community": 1,
       "norm_label": "pick_directory()"
     },
     {
@@ -1233,7 +1242,7 @@
       "source_file": "dialog_utils.py",
       "source_location": "L18",
       "id": "dialog_utils_pick_file",
-      "community": 58,
+      "community": 1,
       "norm_label": "pick_file()"
     },
     {
@@ -1242,7 +1251,7 @@
       "source_file": "dialog_utils.py",
       "source_location": "L32",
       "id": "dialog_utils_safe_initial_dir",
-      "community": 58,
+      "community": 1,
       "norm_label": "_safe_initial_dir()"
     },
     {
@@ -1251,7 +1260,7 @@
       "source_file": "env_loader.py",
       "source_location": "L1",
       "id": "env_loader_py",
-      "community": 5,
+      "community": 10,
       "norm_label": "env_loader.py"
     },
     {
@@ -1260,7 +1269,7 @@
       "source_file": "env_loader.py",
       "source_location": "L7",
       "id": "env_loader_load_env_files",
-      "community": 5,
+      "community": 10,
       "norm_label": "load_env_files()"
     },
     {
@@ -1269,7 +1278,7 @@
       "source_file": "env_loader.py",
       "source_location": "L14",
       "id": "env_loader_load_env_file",
-      "community": 5,
+      "community": 10,
       "norm_label": "_load_env_file()"
     },
     {
@@ -1305,7 +1314,7 @@
       "source_file": "import_utils.py",
       "source_location": "L1",
       "id": "import_utils_py",
-      "community": 58,
+      "community": 56,
       "norm_label": "import_utils.py"
     },
     {
@@ -1314,7 +1323,7 @@
       "source_file": "import_utils.py",
       "source_location": "L10",
       "id": "import_utils_list_process_files",
-      "community": 5,
+      "community": 56,
       "norm_label": "list_process_files()"
     },
     {
@@ -1323,7 +1332,7 @@
       "source_file": "import_utils.py",
       "source_location": "L20",
       "id": "import_utils_save_uploaded_file",
-      "community": 58,
+      "community": 56,
       "norm_label": "save_uploaded_file()"
     },
     {
@@ -1332,7 +1341,7 @@
       "source_file": "import_utils.py",
       "source_location": "L25",
       "id": "import_utils_sanitize_uploaded_name",
-      "community": 58,
+      "community": 56,
       "norm_label": "sanitize_uploaded_name()"
     },
     {
@@ -1341,7 +1350,7 @@
       "source_file": "import_utils.py",
       "source_location": "L29",
       "id": "import_utils_list_cmdb_files",
-      "community": 58,
+      "community": 56,
       "norm_label": "list_cmdb_files()"
     },
     {
@@ -1575,7 +1584,7 @@
       "source_file": "llm_client.py",
       "source_location": "L16",
       "id": "bridgr_llm_client_llmclientconfig",
-      "community": 4,
+      "community": 2,
       "norm_label": "llmclientconfig"
     },
     {
@@ -1584,7 +1593,7 @@
       "source_file": "llm_client.py",
       "source_location": "L24",
       "id": "bridgr_llm_client_openaicompatibleclient",
-      "community": 2,
+      "community": 4,
       "norm_label": "openaicompatibleclient"
     },
     {
@@ -1728,7 +1737,7 @@
       "source_file": "main.py",
       "source_location": "L1",
       "id": "main_py",
-      "community": 5,
+      "community": 10,
       "norm_label": "main.py"
     },
     {
@@ -1737,7 +1746,7 @@
       "source_file": "main.py",
       "source_location": "L13",
       "id": "main_build_argument_parser",
-      "community": 5,
+      "community": 10,
       "norm_label": "build_argument_parser()"
     },
     {
@@ -1746,7 +1755,7 @@
       "source_file": "main.py",
       "source_location": "L25",
       "id": "main_main",
-      "community": 5,
+      "community": 10,
       "norm_label": "main()"
     },
     {
@@ -1755,7 +1764,7 @@
       "source_file": "neo4j_utils.py",
       "source_location": "L1",
       "id": "neo4j_utils_py",
-      "community": 0,
+      "community": 42,
       "norm_label": "neo4j_utils.py"
     },
     {
@@ -1764,7 +1773,7 @@
       "source_file": "neo4j_utils.py",
       "source_location": "L8",
       "id": "bridgr_neo4j_utils_neo4jexecutionerror",
-      "community": 58,
+      "community": 42,
       "norm_label": "neo4jexecutionerror"
     },
     {
@@ -1791,7 +1800,7 @@
       "source_file": "neo4j_utils.py",
       "source_location": "L20",
       "id": "bridgr_neo4j_utils_neo4jserviceunavailableerror",
-      "community": 5,
+      "community": 2,
       "norm_label": "neo4jserviceunavailableerror"
     },
     {
@@ -1800,7 +1809,7 @@
       "source_file": "neo4j_utils.py",
       "source_location": "L24",
       "id": "bridgr_neo4j_utils_neo4jqueryerror",
-      "community": 58,
+      "community": 42,
       "norm_label": "neo4jqueryerror"
     },
     {
@@ -1809,7 +1818,7 @@
       "source_file": "neo4j_utils.py",
       "source_location": "L28",
       "id": "bridgr_neo4j_utils_neo4jquerysyntaxerror",
-      "community": 0,
+      "community": 42,
       "norm_label": "neo4jquerysyntaxerror"
     },
     {
@@ -1818,7 +1827,7 @@
       "source_file": "neo4j_utils.py",
       "source_location": "L32",
       "id": "bridgr_neo4j_utils_queryvalidationerror",
-      "community": 58,
+      "community": 42,
       "norm_label": "queryvalidationerror"
     },
     {
@@ -1854,7 +1863,7 @@
       "source_file": "neo4j_utils.py",
       "source_location": "L70",
       "id": "bridgr_neo4j_utils_neo4jclient_close",
-      "community": 5,
+      "community": 2,
       "norm_label": ".close()"
     },
     {
@@ -2052,7 +2061,7 @@
       "source_file": "pipeline.py",
       "source_location": "L187",
       "id": "bridgr_pipeline_list_bpmn_files",
-      "community": 5,
+      "community": 2,
       "norm_label": "list_bpmn_files()"
     },
     {
@@ -2349,7 +2358,7 @@
       "source_file": "run_artifacts.py",
       "source_location": "L1",
       "id": "run_artifacts_py",
-      "community": 71,
+      "community": 2,
       "norm_label": "run_artifacts.py"
     },
     {
@@ -2430,7 +2439,7 @@
       "source_file": "run_artifacts.py",
       "source_location": "L64",
       "id": "bridgr_run_artifacts_save_import_state",
-      "community": 71,
+      "community": 2,
       "norm_label": "save_import_state()"
     },
     {
@@ -3195,7 +3204,7 @@
       "source_file": "skills/extract/extract_bpmn.py",
       "source_location": "L18",
       "id": "extract_extract_bpmn_bpmnextractor_init",
-      "community": 2,
+      "community": 4,
       "norm_label": ".__init__()"
     },
     {
@@ -3204,7 +3213,7 @@
       "source_file": "skills/extract/extract_bpmn.py",
       "source_location": "L18",
       "id": "skills_extract_extract_bpmn_py_path",
-      "community": 2,
+      "community": 4,
       "norm_label": "path"
     },
     {
@@ -3213,7 +3222,7 @@
       "source_file": "skills/extract/extract_bpmn.py",
       "source_location": "L18",
       "id": "skills_extract_extract_bpmn_py_openaicompatibleclient",
-      "community": 2,
+      "community": 4,
       "norm_label": "openaicompatibleclient"
     },
     {
@@ -3222,7 +3231,7 @@
       "source_file": "skills/extract/extract_bpmn.py",
       "source_location": "L22",
       "id": "extract_extract_bpmn_bpmnextractor_extract",
-      "community": 2,
+      "community": 4,
       "norm_label": ".extract()"
     },
     {
@@ -3231,7 +3240,7 @@
       "source_file": "skills/extract/extract_bpmn.py",
       "source_location": "L22",
       "id": "skills_extract_extract_bpmn_py_extractedprocess",
-      "community": 2,
+      "community": 4,
       "norm_label": "extractedprocess"
     },
     {
@@ -3240,7 +3249,7 @@
       "source_file": "skills/extract/extract_bpmn.py",
       "source_location": "L33",
       "id": "extract_extract_bpmn_bpmnextractor_validate_xml",
-      "community": 2,
+      "community": 4,
       "norm_label": "._validate_xml()"
     },
     {
@@ -3249,7 +3258,7 @@
       "source_file": "skills/extract/extract_bpmn.py",
       "source_location": "L33",
       "id": "skills_extract_extract_bpmn_py_str",
-      "community": 2,
+      "community": 4,
       "norm_label": "str"
     },
     {
@@ -3258,7 +3267,7 @@
       "source_file": "skills/extract/extract_bpmn.py",
       "source_location": "L39",
       "id": "extract_extract_bpmn_bpmnextractor_to_domain_model",
-      "community": 2,
+      "community": 4,
       "norm_label": "._to_domain_model()"
     },
     {
@@ -3267,7 +3276,7 @@
       "source_file": "skills/extract/extract_bpmn.py",
       "source_location": "L66",
       "id": "extract_extract_bpmn_bpmnextractor_generate_json_with_required_keys",
-      "community": 2,
+      "community": 4,
       "norm_label": "._generate_json_with_required_keys()"
     },
     {
@@ -3276,7 +3285,7 @@
       "source_file": "skills/extract/extract_bpmn.py",
       "source_location": "L84",
       "id": "extract_extract_bpmn_bpmnextractor_deduplicate_applications",
-      "community": 2,
+      "community": 4,
       "norm_label": "._deduplicate_applications()"
     },
     {
@@ -3285,7 +3294,7 @@
       "source_file": "skills/extract/extract_bpmn.py",
       "source_location": "L84",
       "id": "applicationreference",
-      "community": 2,
+      "community": 4,
       "norm_label": "applicationreference"
     },
     {
@@ -3294,7 +3303,7 @@
       "source_file": "skills/extract/extract_bpmn.py",
       "source_location": "L110",
       "id": "extract_extract_bpmn_bpmnextractor_clean_application_name",
-      "community": 2,
+      "community": 4,
       "norm_label": "._clean_application_name()"
     },
     {
@@ -3303,7 +3312,7 @@
       "source_file": "skills/extract/extract_bpmn.py",
       "source_location": "L115",
       "id": "extract_extract_bpmn_bpmnextractor_normalize_application_key",
-      "community": 2,
+      "community": 4,
       "norm_label": "._normalize_application_key()"
     },
     {
@@ -3312,7 +3321,7 @@
       "source_file": "skills/extract/extract_bpmn.py",
       "source_location": "L135",
       "id": "extract_extract_bpmn_bpmnextractor_is_better_application_candidate",
-      "community": 2,
+      "community": 4,
       "norm_label": "._is_better_application_candidate()"
     },
     {
@@ -3321,7 +3330,7 @@
       "source_file": "skills/extract/extract_bpmn.py",
       "source_location": "L135",
       "id": "skills_extract_extract_bpmn_py_bool",
-      "community": 2,
+      "community": 4,
       "norm_label": "bool"
     },
     {
@@ -3330,7 +3339,7 @@
       "source_file": "skills/extract/extract_bpmn.py",
       "source_location": "L142",
       "id": "extract_extract_bpmn_bpmnextractor_is_modeled_application_name",
-      "community": 2,
+      "community": 4,
       "norm_label": "._is_modeled_application_name()"
     },
     {
@@ -3339,7 +3348,7 @@
       "source_file": "skills/extract/extract_bpmn.py",
       "source_location": "L148",
       "id": "extract_extract_bpmn_bpmnextractor_application_candidate_score",
-      "community": 2,
+      "community": 4,
       "norm_label": "._application_candidate_score()"
     },
     {
@@ -3348,7 +3357,7 @@
       "source_file": "skills/extract/extract_bpmn.py",
       "source_location": "L148",
       "id": "skills_extract_extract_bpmn_py_int",
-      "community": 2,
+      "community": 4,
       "norm_label": "int"
     },
     {
@@ -3708,7 +3717,7 @@
       "source_file": "tests/test_app_config_env.py",
       "source_location": "L1",
       "id": "tests_test_app_config_env_py",
-      "community": 5,
+      "community": 66,
       "norm_label": "test_app_config_env.py"
     },
     {
@@ -3717,7 +3726,7 @@
       "source_file": "tests/test_app_config_env.py",
       "source_location": "L7",
       "id": "tests_test_app_config_env_test_load_config_uses_neo4j_env_fallbacks",
-      "community": 5,
+      "community": 66,
       "norm_label": "test_load_config_uses_neo4j_env_fallbacks()"
     },
     {
@@ -3726,7 +3735,7 @@
       "source_file": "tests/test_app_config_env.py",
       "source_location": "L7",
       "id": "tests_test_app_config_env_py_path",
-      "community": 5,
+      "community": 66,
       "norm_label": "path"
     },
     {
@@ -3735,7 +3744,7 @@
       "source_file": "tests/test_app_config_env.py",
       "source_location": "L23",
       "id": "tests_test_app_config_env_test_load_config_keeps_explicit_local_neo4j_values_even_if_they_match_defaults",
-      "community": 5,
+      "community": 66,
       "norm_label": "test_load_config_keeps_explicit_local_neo4j_values_even_if_they_match_defaults()"
     },
     {
@@ -3744,7 +3753,7 @@
       "source_file": "tests/test_app_config_env.py",
       "source_location": "L49",
       "id": "tests_test_app_config_env_test_load_config_keeps_explicit_neo4j_config_values",
-      "community": 5,
+      "community": 66,
       "norm_label": "test_load_config_keeps_explicit_neo4j_config_values()"
     },
     {
@@ -3760,7 +3769,7 @@
       "label": "test_ensure_import_session_defaults_uses_config_mode()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L45",
+      "source_location": "L46",
       "id": "tests_test_app_ui_state_test_ensure_import_session_defaults_uses_config_mode",
       "community": 58,
       "norm_label": "test_ensure_import_session_defaults_uses_config_mode()"
@@ -3769,34 +3778,34 @@
       "label": "test_run_feedback_state_can_be_set_and_cleared()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L53",
+      "source_location": "L54",
       "id": "tests_test_app_ui_state_test_run_feedback_state_can_be_set_and_cleared",
-      "community": 58,
+      "community": 52,
       "norm_label": "test_run_feedback_state_can_be_set_and_cleared()"
     },
     {
       "label": "test_pipeline_run_tracker_lifecycle()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L69",
+      "source_location": "L70",
       "id": "tests_test_app_ui_state_test_pipeline_run_tracker_lifecycle",
-      "community": 58,
+      "community": 52,
       "norm_label": "test_pipeline_run_tracker_lifecycle()"
     },
     {
       "label": "test_pipeline_run_tracker_can_store_error_state()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L105",
+      "source_location": "L106",
       "id": "tests_test_app_ui_state_test_pipeline_run_tracker_can_store_error_state",
-      "community": 58,
+      "community": 52,
       "norm_label": "test_pipeline_run_tracker_can_store_error_state()"
     },
     {
       "label": "test_sync_config_session_defaults_replaces_legacy_input_path()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L116",
+      "source_location": "L117",
       "id": "tests_test_app_ui_state_test_sync_config_session_defaults_replaces_legacy_input_path",
       "community": 58,
       "norm_label": "test_sync_config_session_defaults_replaces_legacy_input_path()"
@@ -3805,7 +3814,7 @@
       "label": "test_sync_config_session_defaults_replaces_windows_legacy_input_path()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L125",
+      "source_location": "L126",
       "id": "tests_test_app_ui_state_test_sync_config_session_defaults_replaces_windows_legacy_input_path",
       "community": 58,
       "norm_label": "test_sync_config_session_defaults_replaces_windows_legacy_input_path()"
@@ -3814,7 +3823,7 @@
       "label": "test_update_config_session_defaults_includes_neo4j_values()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L134",
+      "source_location": "L135",
       "id": "tests_test_app_ui_state_test_update_config_session_defaults_includes_neo4j_values",
       "community": 58,
       "norm_label": "test_update_config_session_defaults_includes_neo4j_values()"
@@ -3823,7 +3832,7 @@
       "label": "test_sync_config_session_defaults_refreshes_neo4j_values()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L152",
+      "source_location": "L153",
       "id": "tests_test_app_ui_state_test_sync_config_session_defaults_refreshes_neo4j_values",
       "community": 58,
       "norm_label": "test_sync_config_session_defaults_refreshes_neo4j_values()"
@@ -3832,7 +3841,7 @@
       "label": "test_get_session_neo4j_client_reuses_cached_client()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L174",
+      "source_location": "L175",
       "id": "tests_test_app_ui_state_test_get_session_neo4j_client_reuses_cached_client",
       "community": 58,
       "norm_label": "test_get_session_neo4j_client_reuses_cached_client()"
@@ -3841,7 +3850,7 @@
       "label": "test_get_session_neo4j_client_replaces_client_when_config_changes()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L196",
+      "source_location": "L197",
       "id": "tests_test_app_ui_state_test_get_session_neo4j_client_replaces_client_when_config_changes",
       "community": 58,
       "norm_label": "test_get_session_neo4j_client_replaces_client_when_config_changes()"
@@ -3850,7 +3859,7 @@
       "label": "test_reset_session_neo4j_client_warns_when_close_fails()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L216",
+      "source_location": "L217",
       "id": "tests_test_app_ui_state_test_reset_session_neo4j_client_warns_when_close_fails",
       "community": 58,
       "norm_label": "test_reset_session_neo4j_client_warns_when_close_fails()"
@@ -3859,7 +3868,7 @@
       "label": "test_ensure_query_chat_defaults_initializes_chat_state()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L234",
+      "source_location": "L235",
       "id": "tests_test_app_ui_state_test_ensure_query_chat_defaults_initializes_chat_state",
       "community": 58,
       "norm_label": "test_ensure_query_chat_defaults_initializes_chat_state()"
@@ -3868,16 +3877,16 @@
       "label": "test_reset_query_chat_state_clears_messages_and_pending_clarification()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L244",
+      "source_location": "L245",
       "id": "tests_test_app_ui_state_test_reset_query_chat_state_clears_messages_and_pending_clarification",
-      "community": 58,
+      "community": 1,
       "norm_label": "test_reset_query_chat_state_clears_messages_and_pending_clarification()"
     },
     {
       "label": "test_get_neo4j_connection_status_returns_cached_result()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L257",
+      "source_location": "L258",
       "id": "tests_test_app_ui_state_test_get_neo4j_connection_status_returns_cached_result",
       "community": 58,
       "norm_label": "test_get_neo4j_connection_status_returns_cached_result()"
@@ -3886,7 +3895,7 @@
       "label": "test_get_neo4j_connection_status_reports_missing_password()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L286",
+      "source_location": "L287",
       "id": "tests_test_app_ui_state_test_get_neo4j_connection_status_reports_missing_password",
       "community": 58,
       "norm_label": "test_get_neo4j_connection_status_reports_missing_password()"
@@ -3895,7 +3904,7 @@
       "label": "test_get_neo4j_connection_status_reports_connection_error()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L295",
+      "source_location": "L296",
       "id": "tests_test_app_ui_state_test_get_neo4j_connection_status_reports_connection_error",
       "community": 58,
       "norm_label": "test_get_neo4j_connection_status_reports_connection_error()"
@@ -3904,7 +3913,7 @@
       "label": "test_get_llm_status_returns_cached_result()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L309",
+      "source_location": "L310",
       "id": "tests_test_app_ui_state_test_get_llm_status_returns_cached_result",
       "community": 58,
       "norm_label": "test_get_llm_status_returns_cached_result()"
@@ -3913,7 +3922,7 @@
       "label": "test_get_llm_status_reports_missing_model()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L336",
+      "source_location": "L337",
       "id": "tests_test_app_ui_state_test_get_llm_status_reports_missing_model",
       "community": 58,
       "norm_label": "test_get_llm_status_reports_missing_model()"
@@ -3922,7 +3931,7 @@
       "label": "test_get_llm_status_reports_missing_model_on_endpoint()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L345",
+      "source_location": "L346",
       "id": "tests_test_app_ui_state_test_get_llm_status_reports_missing_model_on_endpoint",
       "community": 58,
       "norm_label": "test_get_llm_status_reports_missing_model_on_endpoint()"
@@ -3931,7 +3940,7 @@
       "label": "test_get_llm_status_reports_endpoint_error()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L365",
+      "source_location": "L366",
       "id": "tests_test_app_ui_state_test_get_llm_status_reports_endpoint_error",
       "community": 58,
       "norm_label": "test_get_llm_status_reports_endpoint_error()"
@@ -3940,7 +3949,7 @@
       "label": "test_write_debug_log_creates_jsonl_entry()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L383",
+      "source_location": "L384",
       "id": "tests_test_app_ui_state_test_write_debug_log_creates_jsonl_entry",
       "community": 58,
       "norm_label": "test_write_debug_log_creates_jsonl_entry()"
@@ -3949,7 +3958,7 @@
       "label": "test_persist_org_unit_node_merges_org_unit_node()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L393",
+      "source_location": "L394",
       "id": "tests_test_app_ui_state_test_persist_org_unit_node_merges_org_unit_node",
       "community": 58,
       "norm_label": "test_persist_org_unit_node_merges_org_unit_node()"
@@ -3958,7 +3967,7 @@
       "label": "test_persist_org_candidate_mapping_refresh_syncs_org_unit_node_without_latest_run()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L410",
+      "source_location": "L412",
       "id": "tests_test_app_ui_state_test_persist_org_candidate_mapping_refresh_syncs_org_unit_node_without_latest_run",
       "community": 58,
       "norm_label": "test_persist_org_candidate_mapping_refresh_syncs_org_unit_node_without_latest_run()"
@@ -3967,16 +3976,25 @@
       "label": "test_rerun_single_document_from_artifact_applies_org_unit_candidate_mapping()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L446",
+      "source_location": "L448",
       "id": "tests_test_app_ui_state_test_rerun_single_document_from_artifact_applies_org_unit_candidate_mapping",
       "community": 58,
       "norm_label": "test_rerun_single_document_from_artifact_applies_org_unit_candidate_mapping()"
     },
     {
+      "label": "test_persist_organization_sync_syncs_all_org_units_and_refreshes_latest_run()",
+      "file_type": "code",
+      "source_file": "tests/test_app_ui_state.py",
+      "source_location": "L496",
+      "id": "tests_test_app_ui_state_test_persist_organization_sync_syncs_all_org_units_and_refreshes_latest_run",
+      "community": 58,
+      "norm_label": "test_persist_organization_sync_syncs_all_org_units_and_refreshes_latest_run()"
+    },
+    {
       "label": "test_run_query_chat_turn_logs_cypher_on_query_error()",
       "file_type": "code",
       "source_file": "tests/test_app_ui_state.py",
-      "source_location": "L494",
+      "source_location": "L523",
       "id": "tests_test_app_ui_state_test_run_query_chat_turn_logs_cypher_on_query_error",
       "community": 58,
       "norm_label": "test_run_query_chat_turn_logs_cypher_on_query_error()"
@@ -4086,7 +4104,7 @@
       "source_file": "tests/test_env_loader.py",
       "source_location": "L1",
       "id": "tests_test_env_loader_py",
-      "community": 5,
+      "community": 10,
       "norm_label": "test_env_loader.py"
     },
     {
@@ -4095,7 +4113,7 @@
       "source_file": "tests/test_env_loader.py",
       "source_location": "L7",
       "id": "tests_test_env_loader_test_load_env_files_reads_specs_env",
-      "community": 5,
+      "community": 10,
       "norm_label": "test_load_env_files_reads_specs_env()"
     },
     {
@@ -4104,7 +4122,7 @@
       "source_file": "tests/test_env_loader.py",
       "source_location": "L7",
       "id": "tests_test_env_loader_py_path",
-      "community": 5,
+      "community": 10,
       "norm_label": "path"
     },
     {
@@ -4113,7 +4131,7 @@
       "source_file": "tests/test_extract_bpmn.py",
       "source_location": "L1",
       "id": "tests_test_extract_bpmn_py",
-      "community": 2,
+      "community": 64,
       "norm_label": "test_extract_bpmn.py"
     },
     {
@@ -4122,7 +4140,7 @@
       "source_file": "tests/test_extract_bpmn.py",
       "source_location": "L8",
       "id": "tests_test_extract_bpmn_fakellmclient",
-      "community": 2,
+      "community": 64,
       "norm_label": "fakellmclient"
     },
     {
@@ -4131,7 +4149,7 @@
       "source_file": "tests/test_extract_bpmn.py",
       "source_location": "L9",
       "id": "tests_test_extract_bpmn_fakellmclient_generate_json",
-      "community": 2,
+      "community": 64,
       "norm_label": ".generate_json()"
     },
     {
@@ -4140,7 +4158,7 @@
       "source_file": "tests/test_extract_bpmn.py",
       "source_location": "L9",
       "id": "tests_test_extract_bpmn_py_str",
-      "community": 2,
+      "community": 64,
       "norm_label": "str"
     },
     {
@@ -4149,7 +4167,7 @@
       "source_file": "tests/test_extract_bpmn.py",
       "source_location": "L21",
       "id": "tests_test_extract_bpmn_test_bpmn_extractor_returns_domain_model",
-      "community": 2,
+      "community": 64,
       "norm_label": "test_bpmn_extractor_returns_domain_model()"
     },
     {
@@ -4158,7 +4176,7 @@
       "source_file": "tests/test_extract_bpmn.py",
       "source_location": "L21",
       "id": "tests_test_extract_bpmn_py_path",
-      "community": 2,
+      "community": 64,
       "norm_label": "path"
     },
     {
@@ -4167,7 +4185,7 @@
       "source_file": "tests/test_extract_bpmn.py",
       "source_location": "L39",
       "id": "tests_test_extract_bpmn_test_bpmn_extractor_rejects_invalid_xml",
-      "community": 2,
+      "community": 64,
       "norm_label": "test_bpmn_extractor_rejects_invalid_xml()"
     },
     {
@@ -4176,7 +4194,7 @@
       "source_file": "tests/test_extract_bpmn.py",
       "source_location": "L51",
       "id": "tests_test_extract_bpmn_duplicateapplicationllmclient",
-      "community": 2,
+      "community": 64,
       "norm_label": "duplicateapplicationllmclient"
     },
     {
@@ -4185,7 +4203,7 @@
       "source_file": "tests/test_extract_bpmn.py",
       "source_location": "L52",
       "id": "tests_test_extract_bpmn_duplicateapplicationllmclient_generate_json",
-      "community": 2,
+      "community": 64,
       "norm_label": ".generate_json()"
     },
     {
@@ -4194,7 +4212,7 @@
       "source_file": "tests/test_extract_bpmn.py",
       "source_location": "L66",
       "id": "tests_test_extract_bpmn_test_bpmn_extractor_prefers_modeled_application_name_and_deduplicates_variants",
-      "community": 2,
+      "community": 64,
       "norm_label": "test_bpmn_extractor_prefers_modeled_application_name_and_deduplicates_variants()"
     },
     {
@@ -4347,7 +4365,7 @@
       "source_file": "tests/test_extract_txt.py",
       "source_location": "L1",
       "id": "tests_test_extract_txt_py",
-      "community": 2,
+      "community": 65,
       "norm_label": "test_extract_txt.py"
     },
     {
@@ -4356,7 +4374,7 @@
       "source_file": "tests/test_extract_txt.py",
       "source_location": "L8",
       "id": "tests_test_extract_txt_fakellmclient",
-      "community": 2,
+      "community": 65,
       "norm_label": "fakellmclient"
     },
     {
@@ -4365,7 +4383,7 @@
       "source_file": "tests/test_extract_txt.py",
       "source_location": "L9",
       "id": "tests_test_extract_txt_fakellmclient_generate_json",
-      "community": 2,
+      "community": 65,
       "norm_label": ".generate_json()"
     },
     {
@@ -4374,7 +4392,7 @@
       "source_file": "tests/test_extract_txt.py",
       "source_location": "L9",
       "id": "tests_test_extract_txt_py_str",
-      "community": 2,
+      "community": 65,
       "norm_label": "str"
     },
     {
@@ -4383,7 +4401,7 @@
       "source_file": "tests/test_extract_txt.py",
       "source_location": "L23",
       "id": "tests_test_extract_txt_test_text_extractor_returns_domain_model",
-      "community": 2,
+      "community": 65,
       "norm_label": "test_text_extractor_returns_domain_model()"
     },
     {
@@ -4392,7 +4410,7 @@
       "source_file": "tests/test_extract_txt.py",
       "source_location": "L23",
       "id": "tests_test_extract_txt_py_path",
-      "community": 2,
+      "community": 65,
       "norm_label": "path"
     },
     {
@@ -4401,7 +4419,7 @@
       "source_file": "tests/test_extract_txt.py",
       "source_location": "L47",
       "id": "tests_test_extract_txt_test_text_extractor_uses_payload_process_id_when_present",
-      "community": 2,
+      "community": 65,
       "norm_label": "test_text_extractor_uses_payload_process_id_when_present()"
     },
     {
@@ -4410,7 +4428,7 @@
       "source_file": "tests/test_extract_txt.py",
       "source_location": "L65",
       "id": "tests_test_extract_txt_test_text_extractor_prefers_explicit_process_id_from_document_text",
-      "community": 2,
+      "community": 65,
       "norm_label": "test_text_extractor_prefers_explicit_process_id_from_document_text()"
     },
     {
@@ -4419,7 +4437,7 @@
       "source_file": "tests/test_extract_txt.py",
       "source_location": "L88",
       "id": "tests_test_extract_txt_test_text_extractor_reads_lane_labels_from_bpmn_transform_text_as_roles",
-      "community": 2,
+      "community": 65,
       "norm_label": "test_text_extractor_reads_lane_labels_from_bpmn_transform_text_as_roles()"
     },
     {
@@ -4428,7 +4446,7 @@
       "source_file": "tests/test_extract_txt.py",
       "source_location": "L104",
       "id": "tests_test_extract_txt_test_text_extractor_rejects_invalid_payload",
-      "community": 2,
+      "community": 65,
       "norm_label": "test_text_extractor_rejects_invalid_payload()"
     },
     {
@@ -4554,7 +4572,7 @@
       "source_file": "tests/test_import_utils.py",
       "source_location": "L1",
       "id": "tests_test_import_utils_py",
-      "community": 58,
+      "community": 56,
       "norm_label": "test_import_utils.py"
     },
     {
@@ -4563,7 +4581,7 @@
       "source_file": "tests/test_import_utils.py",
       "source_location": "L6",
       "id": "tests_test_import_utils_test_list_process_files_returns_supported_process_documents",
-      "community": 58,
+      "community": 56,
       "norm_label": "test_list_process_files_returns_supported_process_documents()"
     },
     {
@@ -4572,7 +4590,7 @@
       "source_file": "tests/test_import_utils.py",
       "source_location": "L6",
       "id": "tests_test_import_utils_py_path",
-      "community": 58,
+      "community": 56,
       "norm_label": "path"
     },
     {
@@ -4581,7 +4599,7 @@
       "source_file": "tests/test_import_utils.py",
       "source_location": "L17",
       "id": "tests_test_import_utils_test_save_uploaded_file_creates_parent_directories",
-      "community": 58,
+      "community": 56,
       "norm_label": "test_save_uploaded_file_creates_parent_directories()"
     },
     {
@@ -4590,7 +4608,7 @@
       "source_file": "tests/test_import_utils.py",
       "source_location": "L25",
       "id": "tests_test_import_utils_test_sanitize_uploaded_name_strips_path_segments",
-      "community": 58,
+      "community": 56,
       "norm_label": "test_sanitize_uploaded_name_strips_path_segments()"
     },
     {
@@ -4599,7 +4617,7 @@
       "source_file": "tests/test_import_utils.py",
       "source_location": "L29",
       "id": "tests_test_import_utils_test_list_cmdb_files_returns_csv_files",
-      "community": 58,
+      "community": 56,
       "norm_label": "test_list_cmdb_files_returns_csv_files()"
     },
     {
@@ -5166,7 +5184,7 @@
       "source_file": "tests/test_pipeline.py",
       "source_location": "L1",
       "id": "tests_test_pipeline_py",
-      "community": 5,
+      "community": 2,
       "norm_label": "test_pipeline.py"
     },
     {
@@ -5184,7 +5202,7 @@
       "source_file": "tests/test_pipeline.py",
       "source_location": "L26",
       "id": "tests_test_pipeline_fakellmclient_generate_json",
-      "community": 5,
+      "community": 2,
       "norm_label": ".generate_json()"
     },
     {
@@ -5193,7 +5211,7 @@
       "source_file": "tests/test_pipeline.py",
       "source_location": "L26",
       "id": "tests_test_pipeline_py_str",
-      "community": 5,
+      "community": 2,
       "norm_label": "str"
     },
     {
@@ -5202,7 +5220,7 @@
       "source_file": "tests/test_pipeline.py",
       "source_location": "L39",
       "id": "tests_test_pipeline_test_list_bpmn_files_returns_supported_process_documents",
-      "community": 5,
+      "community": 2,
       "norm_label": "test_list_bpmn_files_returns_supported_process_documents()"
     },
     {
@@ -5211,7 +5229,7 @@
       "source_file": "tests/test_pipeline.py",
       "source_location": "L39",
       "id": "tests_test_pipeline_py_path",
-      "community": 5,
+      "community": 2,
       "norm_label": "path"
     },
     {
@@ -5220,7 +5238,7 @@
       "source_file": "tests/test_pipeline.py",
       "source_location": "L49",
       "id": "tests_test_pipeline_test_build_extractor_for_path_uses_text_extractor_for_txt",
-      "community": 5,
+      "community": 2,
       "norm_label": "test_build_extractor_for_path_uses_text_extractor_for_txt()"
     },
     {
@@ -5229,7 +5247,7 @@
       "source_file": "tests/test_pipeline.py",
       "source_location": "L60",
       "id": "tests_test_pipeline_test_build_extractor_for_path_uses_docx_extractor_for_docx",
-      "community": 5,
+      "community": 2,
       "norm_label": "test_build_extractor_for_path_uses_docx_extractor_for_docx()"
     },
     {
@@ -5238,7 +5256,7 @@
       "source_file": "tests/test_pipeline.py",
       "source_location": "L71",
       "id": "tests_test_pipeline_test_build_extractor_for_path_uses_pdf_extractor_for_pdf",
-      "community": 5,
+      "community": 2,
       "norm_label": "test_build_extractor_for_path_uses_pdf_extractor_for_pdf()"
     },
     {
@@ -5265,7 +5283,7 @@
       "source_file": "tests/test_pipeline.py",
       "source_location": "L166",
       "id": "tests_test_pipeline_test_should_skip_file_only_for_unchanged_delta_runs",
-      "community": 5,
+      "community": 2,
       "norm_label": "test_should_skip_file_only_for_unchanged_delta_runs()"
     },
     {
@@ -5274,7 +5292,7 @@
       "source_file": "tests/test_pipeline.py",
       "source_location": "L175",
       "id": "tests_test_pipeline_test_run_pipeline_writes_artifacts_and_skips_unchanged_delta_files",
-      "community": 5,
+      "community": 2,
       "norm_label": "test_run_pipeline_writes_artifacts_and_skips_unchanged_delta_files()"
     },
     {
@@ -5283,7 +5301,7 @@
       "source_file": "tests/test_pipeline.py",
       "source_location": "L248",
       "id": "tests_test_pipeline_test_run_pipeline_reports_progress_updates",
-      "community": 5,
+      "community": 2,
       "norm_label": "test_run_pipeline_reports_progress_updates()"
     },
     {
@@ -5292,7 +5310,7 @@
       "source_file": "tests/test_pipeline.py",
       "source_location": "L329",
       "id": "tests_test_pipeline_test_run_pipeline_propagates_neo4j_write_failures",
-      "community": 5,
+      "community": 2,
       "norm_label": "test_run_pipeline_propagates_neo4j_write_failures()"
     },
     {
@@ -5863,10 +5881,19 @@
       "norm_label": "tab 3 - anwendungskonfig"
     },
     {
-      "label": "BPMN-Transformer fuer grosse Modelle",
+      "label": "Tab 4 - Organisation",
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L209",
+      "id": "bridgr_readme_tab_4_organisation",
+      "community": 41,
+      "norm_label": "tab 4 - organisation"
+    },
+    {
+      "label": "BPMN-Transformer fuer grosse Modelle",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L224",
       "id": "bridgr_readme_bpmn_transformer_fuer_grosse_modelle",
       "community": 41,
       "norm_label": "bpmn-transformer fuer grosse modelle"
@@ -5875,7 +5902,7 @@
       "label": "Debug-Modus",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L243",
+      "source_location": "L258",
       "id": "bridgr_readme_debug_modus",
       "community": 41,
       "norm_label": "debug-modus"
@@ -5884,7 +5911,7 @@
       "label": "Tests",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L250",
+      "source_location": "L265",
       "id": "bridgr_readme_tests",
       "community": 41,
       "norm_label": "tests"
@@ -5893,7 +5920,7 @@
       "label": "code:powershell (python -m pytest)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L254",
+      "source_location": "L269",
       "id": "bridgr_readme_codeblock_7",
       "community": 41,
       "norm_label": "code:powershell (python -m pytest)"
@@ -5902,7 +5929,7 @@
       "label": "Hinweise",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L271",
+      "source_location": "L286",
       "id": "bridgr_readme_hinweise",
       "community": 41,
       "norm_label": "hinweise"
@@ -8692,7 +8719,7 @@
       "label": "12. Ausbau-Reihenfolge fuer unstrukturierte Formate",
       "file_type": "document",
       "source_file": "Specs/Bridgr_Architektur_v13.md",
-      "source_location": "L306",
+      "source_location": "L307",
       "id": "specs_bridgr_architektur_v13_12_ausbau_reihenfolge_fuer_unstrukturierte_formate",
       "community": 8,
       "norm_label": "12. ausbau-reihenfolge fuer unstrukturierte formate"
@@ -8701,7 +8728,7 @@
       "label": "13. Akzeptanzkriterien",
       "file_type": "document",
       "source_file": "Specs/Bridgr_Architektur_v13.md",
-      "source_location": "L324",
+      "source_location": "L325",
       "id": "specs_bridgr_architektur_v13_13_akzeptanzkriterien",
       "community": 8,
       "norm_label": "13. akzeptanzkriterien"
@@ -8710,7 +8737,7 @@
       "label": "14. Getroffene Entscheidungen",
       "file_type": "document",
       "source_file": "Specs/Bridgr_Architektur_v13.md",
-      "source_location": "L335",
+      "source_location": "L336",
       "id": "specs_bridgr_architektur_v13_14_getroffene_entscheidungen",
       "community": 8,
       "norm_label": "14. getroffene entscheidungen"
@@ -9053,7 +9080,7 @@
       "file_type": "code",
       "source_file": "run_artifacts.py",
       "source_location": "L71",
-      "community": 71,
+      "community": 2,
       "norm_label": "write_latest_run()",
       "id": "run_artifacts_write_latest_run"
     },
@@ -9080,7 +9107,7 @@
       "file_type": "code",
       "source_file": "knowledge_base.py",
       "source_location": "L31",
-      "community": 55,
+      "community": 2,
       "norm_label": "knowledgebase",
       "id": "knowledge_base_knowledgebase"
     },
@@ -9134,7 +9161,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L238",
-      "community": 58,
+      "community": 52,
       "norm_label": "build_pipeline_progress_callback()",
       "id": "bridgr_app_build_pipeline_progress_callback"
     },
@@ -9233,7 +9260,7 @@
       "file_type": "code",
       "source_file": "pipeline.py",
       "source_location": "L58",
-      "community": 5,
+      "community": 2,
       "norm_label": "run_pipeline()",
       "id": "pipeline_run_pipeline"
     },
@@ -9242,7 +9269,7 @@
       "file_type": "code",
       "source_file": "pipeline.py",
       "source_location": "L134",
-      "community": 5,
+      "community": 2,
       "norm_label": "list_bpmn_files()",
       "id": "pipeline_list_bpmn_files"
     },
@@ -9251,7 +9278,7 @@
       "file_type": "code",
       "source_file": "pipeline.py",
       "source_location": "L138",
-      "community": 5,
+      "community": 2,
       "norm_label": "build_extractor_for_path()",
       "id": "pipeline_build_extractor_for_path"
     },
@@ -9269,7 +9296,7 @@
       "file_type": "code",
       "source_file": "pipeline.py",
       "source_location": "L215",
-      "community": 5,
+      "community": 2,
       "norm_label": "should_skip_file()",
       "id": "pipeline_should_skip_file"
     },
@@ -10466,7 +10493,7 @@
       "file_type": "code",
       "source_file": "query_layer.py",
       "source_location": "L28",
-      "community": 58,
+      "community": 9,
       "norm_label": "build_natural_language_answer()",
       "id": "query_layer_build_natural_language_answer"
     },
@@ -10493,7 +10520,7 @@
       "file_type": "code",
       "source_file": "query_layer.py",
       "source_location": "L85",
-      "community": 9,
+      "community": 0,
       "norm_label": "should_request_application_clarification()",
       "id": "query_layer_should_request_application_clarification"
     },
@@ -10511,7 +10538,7 @@
       "file_type": "code",
       "source_file": "neo4j_utils.py",
       "source_location": "L7",
-      "community": 58,
+      "community": 42,
       "norm_label": "neo4jexecutionerror",
       "id": "neo4j_utils_neo4jexecutionerror"
     },
@@ -10520,7 +10547,7 @@
       "file_type": "code",
       "source_file": "neo4j_utils.py",
       "source_location": "L11",
-      "community": 58,
+      "community": 42,
       "norm_label": "neo4jconnectionerror",
       "id": "neo4j_utils_neo4jconnectionerror"
     },
@@ -10529,7 +10556,7 @@
       "file_type": "code",
       "source_file": "neo4j_utils.py",
       "source_location": "L15",
-      "community": 0,
+      "community": 42,
       "norm_label": "neo4jauthenticationerror",
       "id": "neo4j_utils_neo4jauthenticationerror"
     },
@@ -10538,7 +10565,7 @@
       "file_type": "code",
       "source_file": "neo4j_utils.py",
       "source_location": "L19",
-      "community": 5,
+      "community": 2,
       "norm_label": "neo4jserviceunavailableerror",
       "id": "neo4j_utils_neo4jserviceunavailableerror"
     },
@@ -10547,7 +10574,7 @@
       "file_type": "code",
       "source_file": "neo4j_utils.py",
       "source_location": "L23",
-      "community": 58,
+      "community": 42,
       "norm_label": "neo4jqueryerror",
       "id": "neo4j_utils_neo4jqueryerror"
     },
@@ -10556,7 +10583,7 @@
       "file_type": "code",
       "source_file": "neo4j_utils.py",
       "source_location": "L27",
-      "community": 0,
+      "community": 42,
       "norm_label": "neo4jquerysyntaxerror",
       "id": "neo4j_utils_neo4jquerysyntaxerror"
     },
@@ -10565,7 +10592,7 @@
       "file_type": "code",
       "source_file": "neo4j_utils.py",
       "source_location": "L31",
-      "community": 58,
+      "community": 42,
       "norm_label": "queryvalidationerror",
       "id": "neo4j_utils_queryvalidationerror"
     },
@@ -10574,7 +10601,7 @@
       "file_type": "code",
       "source_file": "neo4j_utils.py",
       "source_location": "L50",
-      "community": 58,
+      "community": 42,
       "norm_label": "neo4jconfig",
       "id": "neo4j_utils_neo4jconfig"
     },
@@ -10601,7 +10628,7 @@
       "file_type": "code",
       "source_file": "neo4j_utils.py",
       "source_location": "L69",
-      "community": 58,
+      "community": 0,
       "norm_label": ".close()",
       "id": "neo4j_utils_neo4jclient_close"
     },
@@ -10736,7 +10763,7 @@
       "file_type": "code",
       "source_file": "app_config.py",
       "source_location": "L38",
-      "community": 5,
+      "community": 66,
       "norm_label": "load_config()",
       "id": "app_config_load_config"
     },
@@ -10745,7 +10772,7 @@
       "file_type": "code",
       "source_file": "app_config.py",
       "source_location": "L81",
-      "community": 5,
+      "community": 66,
       "norm_label": "resolve_env_backed_value()",
       "id": "app_config_resolve_env_backed_value"
     },
@@ -10754,7 +10781,7 @@
       "file_type": "code",
       "source_file": "app_config.py",
       "source_location": "L89",
-      "community": 58,
+      "community": 1,
       "norm_label": "save_config()",
       "id": "app_config_save_config"
     },
@@ -10763,7 +10790,7 @@
       "file_type": "code",
       "source_file": "app_config.py",
       "source_location": "L97",
-      "community": 5,
+      "community": 1,
       "norm_label": "resolve_project_path()",
       "id": "app_config_resolve_project_path"
     },
@@ -10772,7 +10799,7 @@
       "file_type": "code",
       "source_file": "app_config.py",
       "source_location": "L114",
-      "community": 5,
+      "community": 1,
       "norm_label": "resolve_input_cmdb_path()",
       "id": "app_config_resolve_input_cmdb_path"
     },
@@ -10817,7 +10844,7 @@
       "file_type": "rationale",
       "source_file": "app_config.py",
       "source_location": "L98",
-      "community": 5,
+      "community": 1,
       "norm_label": "return an absolute project path.      this helper resolves relative paths agains",
       "id": "app_config_rationale_98"
     },
@@ -10826,7 +10853,7 @@
       "file_type": "rationale",
       "source_file": "app_config.py",
       "source_location": "L115",
-      "community": 5,
+      "community": 1,
       "norm_label": "return the absolute path to the configured cmdb file.      the returned path may",
       "id": "app_config_rationale_115"
     },
@@ -10862,7 +10889,7 @@
       "file_type": "code",
       "source_file": "tests/test_app_config_env.py",
       "source_location": "L23",
-      "community": 5,
+      "community": 66,
       "norm_label": "test_load_config_prefers_neo4j_env_over_local_defaults()",
       "id": "tests_test_app_config_env_test_load_config_prefers_neo4j_env_over_local_defaults"
     },
@@ -10871,7 +10898,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L61",
-      "community": 58,
+      "community": 42,
       "norm_label": "build_neo4j_client_key()",
       "id": "app_build_neo4j_client_key"
     },
@@ -10889,7 +10916,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L82",
-      "community": 58,
+      "community": 42,
       "norm_label": "get_session_neo4j_client()",
       "id": "app_get_session_neo4j_client"
     },
@@ -10898,7 +10925,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L106",
-      "community": 58,
+      "community": 1,
       "norm_label": "render_query_tab()",
       "id": "app_render_query_tab"
     },
@@ -10916,7 +10943,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L137",
-      "community": 58,
+      "community": 1,
       "norm_label": "append_chat_message()",
       "id": "app_append_chat_message"
     },
@@ -10925,7 +10952,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L148",
-      "community": 58,
+      "community": 1,
       "norm_label": "render_query_chat_messages()",
       "id": "app_render_query_chat_messages"
     },
@@ -10934,7 +10961,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L164",
-      "community": 58,
+      "community": 1,
       "norm_label": "handle_query_clarification()",
       "id": "app_handle_query_clarification"
     },
@@ -10943,7 +10970,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L186",
-      "community": 58,
+      "community": 1,
       "norm_label": "run_query_chat_turn()",
       "id": "app_run_query_chat_turn"
     },
@@ -10952,7 +10979,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L227",
-      "community": 50,
+      "community": 1,
       "norm_label": "render_review_tab()",
       "id": "app_render_review_tab"
     },
@@ -10961,7 +10988,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L280",
-      "community": 50,
+      "community": 1,
       "norm_label": "render_latest_run_summary()",
       "id": "app_render_latest_run_summary"
     },
@@ -10979,7 +11006,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L302",
-      "community": 50,
+      "community": 1,
       "norm_label": "render_review_items_table()",
       "id": "app_render_review_items_table"
     },
@@ -10997,7 +11024,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L335",
-      "community": 50,
+      "community": 55,
       "norm_label": "render_document_details()",
       "id": "app_render_document_details"
     },
@@ -11033,7 +11060,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L578",
-      "community": 50,
+      "community": 1,
       "norm_label": "render_knowledge_base_tools()",
       "id": "app_render_knowledge_base_tools"
     },
@@ -11051,7 +11078,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L619",
-      "community": 58,
+      "community": 1,
       "norm_label": "render_config_tab()",
       "id": "app_render_config_tab"
     },
@@ -11060,7 +11087,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L736",
-      "community": 58,
+      "community": 1,
       "norm_label": "ensure_config_session_defaults()",
       "id": "app_ensure_config_session_defaults"
     },
@@ -11078,7 +11105,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L746",
-      "community": 58,
+      "community": 1,
       "norm_label": "update_config_session_defaults()",
       "id": "app_update_config_session_defaults"
     },
@@ -11087,7 +11114,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L756",
-      "community": 58,
+      "community": 1,
       "norm_label": "render_path_picker_controls()",
       "id": "app_render_path_picker_controls"
     },
@@ -11096,7 +11123,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L781",
-      "community": 5,
+      "community": 56,
       "norm_label": "render_import_section()",
       "id": "app_render_import_section"
     },
@@ -11105,7 +11132,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L883",
-      "community": 5,
+      "community": 56,
       "norm_label": "ensure_active_cmdb_selection()",
       "id": "app_ensure_active_cmdb_selection"
     },
@@ -11123,7 +11150,7 @@
       "file_type": "code",
       "source_file": "app.py",
       "source_location": "L898",
-      "community": 58,
+      "community": 1,
       "norm_label": "main()",
       "id": "app_main"
     },
@@ -11743,7 +11770,7 @@
       "captured_at": null,
       "author": "Claude Code",
       "contributor": null,
-      "community": 0,
+      "community": 42,
       "norm_label": "generische exception-behandlung in neo4j_utils.py",
       "id": "specsreviewfindings_f02"
     },
@@ -11795,7 +11822,7 @@
       "captured_at": null,
       "author": "Claude Code",
       "contributor": null,
-      "community": 58,
+      "community": 1,
       "norm_label": "user-input im review-tab ohne langen-/inhaltsvalidierung",
       "id": "specsreviewfindings_f06"
     },
@@ -11808,7 +11835,7 @@
       "captured_at": null,
       "author": "Claude Code",
       "contributor": null,
-      "community": 58,
+      "community": 1,
       "norm_label": "neo4j-verbindung wird pro anfrage neu aufgebaut",
       "id": "specsreviewfindings_f07"
     },
@@ -11847,7 +11874,7 @@
       "captured_at": null,
       "author": "Claude Code",
       "contributor": null,
-      "community": 0,
+      "community": 42,
       "norm_label": "read-only-validierung in neo4j_utils.py pruft keine string-literale",
       "id": "specsreviewfindings_f10"
     },
@@ -11912,7 +11939,7 @@
       "captured_at": null,
       "author": "Claude Code",
       "contributor": null,
-      "community": 58,
+      "community": 1,
       "norm_label": "session-state-synchronisation mit hardcoded-pfadvergleichen",
       "id": "specsreviewfindings_f15"
     },
@@ -11938,7 +11965,7 @@
       "captured_at": null,
       "author": "Claude Code",
       "contributor": null,
-      "community": 58,
+      "community": 1,
       "norm_label": "silent-pass bei neo4j-client-schlie\u00dfung",
       "id": "specsreviewfindings_f17"
     },
@@ -12296,6 +12323,16 @@
       "confidence_score": 1.0,
       "source": "app_py",
       "target": "bridgr_app_persist_latest_run_refresh"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L868",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "app_py",
+      "target": "bridgr_app_persist_organization_sync"
     },
     {
       "relation": "contains",
@@ -12933,9 +12970,9 @@
       "source_file": "app.py",
       "source_location": "L54",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "app_py",
-      "target": "bridgr_pipeline_apply_org_unit_mapping",
-      "confidence_score": 1.0
+      "target": "bridgr_pipeline_apply_org_unit_mapping"
     },
     {
       "relation": "imports",
@@ -14120,6 +14157,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "bridgr_app_persist_latest_run_refresh",
+      "target": "app_py_appconfig"
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L868",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "bridgr_app_persist_organization_sync",
       "target": "app_py_appconfig"
     },
     {
@@ -15844,6 +15892,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app.py",
+      "source_location": "L875",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "bridgr_app_persist_organization_sync",
+      "target": "bridgr_app_persist_org_unit_node"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
       "source_location": "L843",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -15871,6 +15930,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_app_ui_state_py",
       "target": "bridgr_app_persist_org_unit_node"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L150",
+      "weight": 1.0,
+      "source": "bridgr_app_persist_org_unit_node",
+      "target": "bridgr_neo4j_utils_neo4jqueryerror",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -16091,6 +16161,17 @@
       "confidence_score": 1.0,
       "source": "bridgr_app_run_query_chat_turn",
       "target": "bridgr_app_write_debug_log"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L890",
+      "weight": 1.0,
+      "source": "bridgr_app_persist_organization_sync",
+      "target": "bridgr_app_write_debug_log",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -18425,9 +18506,9 @@
       "source_file": "tests/test_app_ui_state.py",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_app_ui_state_py",
-      "target": "bridgr_app_rerun_single_document_from_artifact",
-      "confidence_score": 1.0
+      "target": "bridgr_app_rerun_single_document_from_artifact"
     },
     {
       "relation": "calls",
@@ -18436,9 +18517,9 @@
       "source_file": "app.py",
       "source_location": "L749",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "bridgr_app_rerun_single_document_from_artifact",
-      "target": "bridgr_pipeline_apply_org_unit_mapping",
-      "confidence_score": 1.0
+      "target": "bridgr_pipeline_apply_org_unit_mapping"
     },
     {
       "relation": "calls",
@@ -18491,9 +18572,9 @@
       "source_file": "tests/test_app_ui_state.py",
       "source_location": "L487",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_app_ui_state_test_rerun_single_document_from_artifact_applies_org_unit_candidate_mapping",
-      "target": "bridgr_app_rerun_single_document_from_artifact",
-      "confidence_score": 1.0
+      "target": "bridgr_app_rerun_single_document_from_artifact"
     },
     {
       "relation": "calls",
@@ -18599,6 +18680,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app.py",
+      "source_location": "L887",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "bridgr_app_persist_organization_sync",
+      "target": "bridgr_app_persist_latest_run_refresh"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
       "source_location": "L1253",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -18659,6 +18751,17 @@
       "confidence_score": 1.0,
       "source": "bridgr_app_persist_latest_run_refresh",
       "target": "bridgr_run_artifacts_write_latest_run"
+    },
+    {
+      "relation": "references",
+      "context": "generic_arg",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L868",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "bridgr_app_persist_organization_sync",
+      "target": "app_py_int"
     },
     {
       "relation": "references",
@@ -18831,6 +18934,72 @@
       "confidence_score": 0.5,
       "source": "app_py_int",
       "target": "skills_match_matchresult"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L1320",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "bridgr_app_render_organization_tab",
+      "target": "bridgr_app_persist_organization_sync"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_app_ui_state.py",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_app_ui_state_py",
+      "target": "bridgr_app_persist_organization_sync"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L869",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "bridgr_app_persist_organization_sync",
+      "target": "bridgr_knowledge_base_load_knowledge_base"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L879",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "bridgr_app_persist_organization_sync",
+      "target": "cmdb_load_cmdb_rows"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L880",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "bridgr_app_persist_organization_sync",
+      "target": "bridgr_app_config_resolve_input_cmdb_path"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_app_ui_state.py",
+      "source_location": "L515",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_app_ui_state_test_persist_organization_sync_syncs_all_org_units_and_refreshes_latest_run",
+      "target": "bridgr_app_persist_organization_sync"
     },
     {
       "relation": "calls",
@@ -21068,9 +21237,20 @@
       "source_file": "tests/test_app_ui_state.py",
       "source_location": "L487",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_app_ui_state_test_rerun_single_document_from_artifact_applies_org_unit_candidate_mapping",
-      "target": "bridgr_app_config_appconfig",
-      "confidence_score": 1.0
+      "target": "bridgr_app_config_appconfig"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_app_ui_state.py",
+      "source_location": "L515",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_app_ui_state_test_persist_organization_sync_syncs_all_org_units_and_refreshes_latest_run",
+      "target": "bridgr_app_config_appconfig"
     },
     {
       "relation": "calls",
@@ -25023,9 +25203,20 @@
       "source_file": "tests/test_app_ui_state.py",
       "source_location": "L447",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_app_ui_state_test_rerun_single_document_from_artifact_applies_org_unit_candidate_mapping",
-      "target": "bridgr_knowledge_base_knowledgebase",
-      "confidence_score": 1.0
+      "target": "bridgr_knowledge_base_knowledgebase"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_app_ui_state.py",
+      "source_location": "L498",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_app_ui_state_test_persist_organization_sync_syncs_all_org_units_and_refreshes_latest_run",
+      "target": "bridgr_knowledge_base_knowledgebase"
     },
     {
       "relation": "calls",
@@ -37414,9 +37605,9 @@
       "source_file": "tests/test_app_ui_state.py",
       "source_location": "L41",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_app_ui_state_py",
-      "target": "extract_extract_base_applicationreference",
-      "confidence_score": 1.0
+      "target": "extract_extract_base_applicationreference"
     },
     {
       "relation": "imports",
@@ -41033,9 +41224,19 @@
       "source_file": "tests/test_app_ui_state.py",
       "source_location": "L446",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_app_ui_state_py",
-      "target": "tests_test_app_ui_state_test_rerun_single_document_from_artifact_applies_org_unit_candidate_mapping",
-      "confidence_score": 1.0
+      "target": "tests_test_app_ui_state_test_rerun_single_document_from_artifact_applies_org_unit_candidate_mapping"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_app_ui_state.py",
+      "source_location": "L495",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_app_ui_state_py",
+      "target": "tests_test_app_ui_state_test_persist_organization_sync_syncs_all_org_units_and_refreshes_latest_run"
     },
     {
       "relation": "contains",
@@ -46074,6 +46275,16 @@
       "confidence_score": 1.0,
       "source": "bridgr_readme_aktuelle_ui_funktionen",
       "target": "bridgr_readme_tab_3_anwendungskonfig"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L209",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "bridgr_readme_aktuelle_ui_funktionen",
+      "target": "bridgr_readme_tab_4_organisation"
     },
     {
       "relation": "contains",
@@ -53295,5 +53506,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "fcc8dda22bf3206f6ebbe6cd45e2a49e8d592290"
+  "built_at_commit": "d4626ca4273e3a291cd6b51b0d42c75a782bd4f5"
 }

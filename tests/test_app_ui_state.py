@@ -25,6 +25,7 @@ from app import (
     get_llm_status,
     get_neo4j_connection_status,
     persist_org_candidate_mapping_refresh,
+    persist_organization_sync,
     persist_org_unit_node,
     get_session_neo4j_client,
     reset_query_chat_state,
@@ -397,13 +398,14 @@ def test_persist_org_unit_node_merges_org_unit_node(monkeypatch) -> None:
         def execute_write(self, query: str, parameters: dict | None = None) -> list[dict]:
             captured["query"] = query
             captured["parameters"] = parameters
-            return []
+            return [{"name": parameters["org_unit_name"]}]
 
     monkeypatch.setattr("app.get_session_neo4j_client", lambda _config: FakeNeo4jClient())
 
     persist_org_unit_node(AppConfig(neo4j_password="secret"), "  People   &  Culture  ")
 
-    assert "MERGE (:OrgEinheit {name: $org_unit_name})" in captured["query"]
+    assert "MERGE (o:OrgEinheit {name: $org_unit_name})" in captured["query"]
+    assert "RETURN o.name AS name" in captured["query"]
     assert captured["parameters"] == {"org_unit_name": "People & Culture"}
 
 
@@ -489,6 +491,33 @@ def test_rerun_single_document_from_artifact_applies_org_unit_candidate_mapping(
     assert refreshed["extracted_process"]["org_units"] == ["QM"]
     assert refreshed["extracted_process"]["org_unit"] == "QM"
     assert refreshed["graph_payload"]["process"]["org_units"] == ["QM"]
+
+
+def test_persist_organization_sync_syncs_all_org_units_and_refreshes_latest_run(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "app.load_knowledge_base",
+        lambda: KnowledgeBase(
+            confirmed=[],
+            rejected=[],
+            disambiguation=[],
+            process_identity=[],
+            org_units=[
+                {"name": "QM", "created_at": "2026-05-27", "source": "manual"},
+                {"name": "Sales", "created_at": "2026-05-27", "source": "manual"},
+            ],
+            org_unit_candidates=[],
+        ),
+    )
+    synced_names = []
+    monkeypatch.setattr("app.persist_org_unit_node", lambda _config, name: synced_names.append(name))
+    monkeypatch.setattr("app.load_cmdb_rows", lambda *_args, **_kwargs: [])
+    monkeypatch.setattr("app.persist_latest_run_refresh", lambda _config, _cmdb_rows: 3)
+
+    synced_org_units, refreshed_documents = persist_organization_sync(AppConfig(neo4j_password="secret"))
+
+    assert synced_names == ["QM", "Sales"]
+    assert synced_org_units == 2
+    assert refreshed_documents == 3
 
 
 def test_run_query_chat_turn_logs_cypher_on_query_error(tmp_path, monkeypatch) -> None:

@@ -4,6 +4,887 @@
   "used_output_fallback": false,
   "documents": [
     {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__1_Vorlage_Ma_nahmen__bridgr_transform.txt",
+      "file_hash": "a92887a6d18970412e8a08f6c89ce947ac5467d483cc3aa203a1395a512cccb2",
+      "status": "no_matches",
+      "extracted_process": {
+        "process_name": "1. Vorlage Maßnahmen",
+        "process_id": "_9558988b-3ef9-4efe-fbfc-6f9904f7982d",
+        "org_unit": "",
+        "roles": [
+          "Lane",
+          "Risiko-Manager"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [],
+        "applications": [],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__1_Vorlage_Ma_nahmen__bridgr_transform.txt"
+      },
+      "matches": [],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "1. Vorlage Maßnahmen",
+          "process_id": "_9558988b-3ef9-4efe-fbfc-6f9904f7982d",
+          "org_unit": "",
+          "roles": [
+            "Lane",
+            "Risiko-Manager"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [],
+          "applications": [],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__1_Vorlage_Ma_nahmen__bridgr_transform.txt"
+        },
+        "matches": []
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__3_monatlichen_Forecast_erstellen__bridgr_transform.txt",
+      "file_hash": "94e96cf58e6c2ba0ae7991cb6dabefd48b0db7661dbf36d2ce1970ccf0203142",
+      "status": "no_matches",
+      "extracted_process": {
+        "process_name": "3 monatlichen Forecast erstellen",
+        "process_id": "_4d0ebc7b-b634-db6e-6ecb-e7cacda3d362",
+        "org_unit": "",
+        "roles": [
+          "Leiterin Finanzen"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [],
+        "applications": [],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__3_monatlichen_Forecast_erstellen__bridgr_transform.txt"
+      },
+      "matches": [],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "3 monatlichen Forecast erstellen",
+          "process_id": "_4d0ebc7b-b634-db6e-6ecb-e7cacda3d362",
+          "org_unit": "",
+          "roles": [
+            "Leiterin Finanzen"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [],
+          "applications": [],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__3_monatlichen_Forecast_erstellen__bridgr_transform.txt"
+        },
+        "matches": []
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__A_B-Kunden_bearbeiten__bridgr_transform.txt",
+      "file_hash": "e7a3b5238714c38bf1d59bb86bc911a8944f4d91f45f53505b6255b35e5c5328",
+      "status": "no_matches",
+      "extracted_process": {
+        "process_name": "A/B-Kunden bearbeiten",
+        "process_id": "_77674385-ac00-bfa3-ca52-c2dda74d95ad",
+        "org_unit": "",
+        "roles": [
+          "Client Lead",
+          "Sales Manager"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [],
+        "applications": [],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__A_B-Kunden_bearbeiten__bridgr_transform.txt"
+      },
+      "matches": [],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "A/B-Kunden bearbeiten",
+          "process_id": "_77674385-ac00-bfa3-ca52-c2dda74d95ad",
+          "org_unit": "",
+          "roles": [
+            "Client Lead",
+            "Sales Manager"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [],
+          "applications": [],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__A_B-Kunden_bearbeiten__bridgr_transform.txt"
+        },
+        "matches": []
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Abwesenheit_bearbeiten__bridgr_transform.txt",
+      "file_hash": "3a19fd57107ef91137459bd72ad757016dd69fcf4b48bd17994f047ace2bb3bf",
+      "status": "no_matches",
+      "extracted_process": {
+        "process_name": "Abwesenheit bearbeiten",
+        "process_id": "_f84ffbcc-d9f2-423b-6bdc-75624d6c5123",
+        "org_unit": "",
+        "roles": [
+          "People & Culture Specialist"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [],
+        "applications": [],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Abwesenheit_bearbeiten__bridgr_transform.txt"
+      },
+      "matches": [],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Abwesenheit bearbeiten",
+          "process_id": "_f84ffbcc-d9f2-423b-6bdc-75624d6c5123",
+          "org_unit": "",
+          "roles": [
+            "People & Culture Specialist"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [],
+          "applications": [],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Abwesenheit_bearbeiten__bridgr_transform.txt"
+        },
+        "matches": []
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Abwesenheit_berpr_fen__bridgr_transform.txt",
+      "file_hash": "bfbabe59c8bf918811c77ffffe296fac927bcc3a655c7b8c54ae9f80ae290545",
+      "status": "no_matches",
+      "extracted_process": {
+        "process_name": "Abwesenheit überprüfen",
+        "process_id": "_91e5bd16-e648-3770-3e07-1e8d5c0becc2",
+        "org_unit": "",
+        "roles": [
+          "Führungskraft",
+          "MID-Mitarbeiter",
+          "People & Culture Specialist"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [],
+        "applications": [],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Abwesenheit_berpr_fen__bridgr_transform.txt"
+      },
+      "matches": [],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Abwesenheit überprüfen",
+          "process_id": "_91e5bd16-e648-3770-3e07-1e8d5c0becc2",
+          "org_unit": "",
+          "roles": [
+            "Führungskraft",
+            "MID-Mitarbeiter",
+            "People & Culture Specialist"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [],
+          "applications": [],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Abwesenheit_berpr_fen__bridgr_transform.txt"
+        },
+        "matches": []
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Abwesenheit_dokumentieren__bridgr_transform.txt",
+      "file_hash": "d0875b835d48f76f66061ea4a4c05a13c9372ae466957dabb6690284d9ab14c4",
+      "status": "no_matches",
+      "extracted_process": {
+        "process_name": "Abwesenheit dokumentieren",
+        "process_id": "_82dec474-8e44-5e95-50c9-6018b26639b6",
+        "org_unit": "",
+        "roles": [
+          "Führungskraft",
+          "MID-Mitarbeiter",
+          "Office Managerin",
+          "People & Culture Manager"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [],
+        "applications": [],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Abwesenheit_dokumentieren__bridgr_transform.txt"
+      },
+      "matches": [],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Abwesenheit dokumentieren",
+          "process_id": "_82dec474-8e44-5e95-50c9-6018b26639b6",
+          "org_unit": "",
+          "roles": [
+            "Führungskraft",
+            "MID-Mitarbeiter",
+            "Office Managerin",
+            "People & Culture Manager"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [],
+          "applications": [],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Abwesenheit_dokumentieren__bridgr_transform.txt"
+        },
+        "matches": []
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Account_planen__bridgr_transform.txt",
+      "file_hash": "0e57d3d699ef037cb13b5138fa7ff4fd23d5ec49467da48e7c5839da870ec0c6",
+      "status": "no_matches",
+      "extracted_process": {
+        "process_name": "Account planen",
+        "process_id": "_2a2ece8d-f4ab-6868-43b1-31cb1395e2e2",
+        "org_unit": "",
+        "roles": [
+          "Account-Manager BA"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [],
+        "applications": [],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Account_planen__bridgr_transform.txt"
+      },
+      "matches": [],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Account planen",
+          "process_id": "_2a2ece8d-f4ab-6868-43b1-31cb1395e2e2",
+          "org_unit": "",
+          "roles": [
+            "Account-Manager BA"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [],
+          "applications": [],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Account_planen__bridgr_transform.txt"
+        },
+        "matches": []
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Akademie_verwalten__bridgr_transform.txt",
+      "file_hash": "92416fdd94743d80f92805bcd68f0ea810301aea147cc79f301f2ca979fdf746",
+      "status": "no_matches",
+      "extracted_process": {
+        "process_name": "Akademie verwalten",
+        "process_id": "_3bd565b6-4b5b-c2fb-0d55-11ef31593841",
+        "org_unit": "",
+        "roles": [
+          "Lane",
+          "Verantwortliche Schulungsleistungen"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [],
+        "applications": [],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Akademie_verwalten__bridgr_transform.txt"
+      },
+      "matches": [],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Akademie verwalten",
+          "process_id": "_3bd565b6-4b5b-c2fb-0d55-11ef31593841",
+          "org_unit": "",
+          "roles": [
+            "Lane",
+            "Verantwortliche Schulungsleistungen"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [],
+          "applications": [],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Akademie_verwalten__bridgr_transform.txt"
+        },
+        "matches": []
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Akademieleistung_entwickeln__bridgr_transform.txt",
+      "file_hash": "00f77aa9d115b776f5e5ed41abff9cfe7f789ab4487eca3903beb0519b5fc224",
+      "status": "no_matches",
+      "extracted_process": {
+        "process_name": "Akademieleistung entwickeln",
+        "process_id": "_eeb09d6b-ba37-3660-e83b-abd83554bef4",
+        "org_unit": "",
+        "roles": [
+          "Trainer/in",
+          "Verantwortliche Schulungsleistungen"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [],
+        "applications": [],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Akademieleistung_entwickeln__bridgr_transform.txt"
+      },
+      "matches": [],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Akademieleistung entwickeln",
+          "process_id": "_eeb09d6b-ba37-3660-e83b-abd83554bef4",
+          "org_unit": "",
+          "roles": [
+            "Trainer/in",
+            "Verantwortliche Schulungsleistungen"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [],
+          "applications": [],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Akademieleistung_entwickeln__bridgr_transform.txt"
+        },
+        "matches": []
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__aktive_Kommunikation_durchf_hren__bridgr_transform.txt",
+      "file_hash": "72ffbabc3a3fc2a281e552277641de7d07604960bcb677820d51a578668d7ef8",
+      "status": "no_matches",
+      "extracted_process": {
+        "process_name": "aktive Kommunikation durchführen",
+        "process_id": "_8c29d4d8-efc3-1737-318b-2189553d8a2b",
+        "org_unit": "",
+        "roles": [
+          "Fachexperte",
+          "Marketing Manager"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [],
+        "applications": [],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__aktive_Kommunikation_durchf_hren__bridgr_transform.txt"
+      },
+      "matches": [],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "aktive Kommunikation durchführen",
+          "process_id": "_8c29d4d8-efc3-1737-318b-2189553d8a2b",
+          "org_unit": "",
+          "roles": [
+            "Fachexperte",
+            "Marketing Manager"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [],
+          "applications": [],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__aktive_Kommunikation_durchf_hren__bridgr_transform.txt"
+        },
+        "matches": []
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Alle_berg_nge__bridgr_transform.txt",
+      "file_hash": "7d5f345c75af648f4a66972a7e42d75e7f889bee05a9d50cabe7ef2365f9bfe7",
+      "status": "no_matches",
+      "extracted_process": {
+        "process_name": "Alle Übergänge",
+        "process_id": "_d254378a-7781-2233-cdd2-f320a21a66d4",
+        "org_unit": "",
+        "roles": [],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [],
+        "applications": [],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Alle_berg_nge__bridgr_transform.txt"
+      },
+      "matches": [],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Alle Übergänge",
+          "process_id": "_d254378a-7781-2233-cdd2-f320a21a66d4",
+          "org_unit": "",
+          "roles": [],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [],
+          "applications": [],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Alle_berg_nge__bridgr_transform.txt"
+        },
+        "matches": []
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Allianzvertrag_abschlie_en__bridgr_transform.txt",
+      "file_hash": "e8a886781e83764a495698f403013073a4374932fa18a52f4992c0b3391d5995",
+      "status": "no_matches",
+      "extracted_process": {
+        "process_name": "Allianzvertrag abschließen",
+        "process_id": "_701665b4-facd-1faa-e208-4efe83244bc1",
+        "org_unit": "",
+        "roles": [
+          "Vorsitzender Geschäftsführer"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [],
+        "applications": [],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Allianzvertrag_abschlie_en__bridgr_transform.txt"
+      },
+      "matches": [],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Allianzvertrag abschließen",
+          "process_id": "_701665b4-facd-1faa-e208-4efe83244bc1",
+          "org_unit": "",
+          "roles": [
+            "Vorsitzender Geschäftsführer"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [],
+          "applications": [],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Allianzvertrag_abschlie_en__bridgr_transform.txt"
+        },
+        "matches": []
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Anforderung_bearbeiten__bridgr_transform.txt",
+      "file_hash": "49180dfa8c683fd78be6392900a28df780ad64e62b2fcf6741c603c46ad1eeee",
+      "status": "no_matches",
+      "extracted_process": {
+        "process_name": "Anforderung bearbeiten",
+        "process_id": "_6d7c95cd-418d-5327-7369-ab13cb5be27c",
+        "org_unit": "",
+        "roles": [
+          "Sales Manager"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [],
+        "applications": [],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Anforderung_bearbeiten__bridgr_transform.txt"
+      },
+      "matches": [],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Anforderung bearbeiten",
+          "process_id": "_6d7c95cd-418d-5327-7369-ab13cb5be27c",
+          "org_unit": "",
+          "roles": [
+            "Sales Manager"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [],
+          "applications": [],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Anforderung_bearbeiten__bridgr_transform.txt"
+        },
+        "matches": []
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Anforderung_sichten__bridgr_transform.txt",
+      "file_hash": "9f69d050a4fd794977c393d7b828ea04a67027bd600102799e7434e4ea6513c2",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Anforderung sichten",
+        "process_id": "_adb6c549-bb5c-a333-6931-8c9a96253a1b",
+        "org_unit": "",
+        "roles": [
+          "Account-Manager BA"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "Email",
+            "confidence": "stark"
+          },
+          {
+            "name": "Ticket erstellen",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Email",
+            "confidence": "stark"
+          },
+          {
+            "name": "Ticket erstellen",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Anforderung_sichten__bridgr_transform.txt"
+      },
+      "matches": [
+        {
+          "application_name": "Email",
+          "cmdb_id": "744b30b1-b138-4e67-849d-37cdee4c1482",
+          "matched_name": "Mail System",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        },
+        {
+          "application_name": "Ticket erstellen",
+          "cmdb_id": "ce0f0193-e253-4c97-a004-2473f6b6ba8e",
+          "matched_name": "Product Backlog System",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        }
+      ],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Anforderung sichten",
+          "process_id": "_adb6c549-bb5c-a333-6931-8c9a96253a1b",
+          "org_unit": "",
+          "roles": [
+            "Account-Manager BA"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "Email",
+              "confidence": "stark"
+            },
+            {
+              "name": "Ticket erstellen",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Email",
+              "confidence": "stark"
+            },
+            {
+              "name": "Ticket erstellen",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Anforderung_sichten__bridgr_transform.txt"
+        },
+        "matches": [
+          {
+            "application_name": "Email",
+            "cmdb_id": "744b30b1-b138-4e67-849d-37cdee4c1482",
+            "matched_name": "Mail System",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          },
+          {
+            "application_name": "Ticket erstellen",
+            "cmdb_id": "ce0f0193-e253-4c97-a004-2473f6b6ba8e",
+            "matched_name": "Product Backlog System",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          }
+        ]
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Anfragen_bearbeiten__bridgr_transform.txt",
+      "file_hash": "07d6a5427d0cfb8cfa9d8755c2c403d7ca4402773b3a3f4adcead02b1144fa34",
+      "status": "no_matches",
+      "extracted_process": {
+        "process_name": "Anfragen bearbeiten",
+        "process_id": "_bf9d4361-c7dd-5b64-ca03-d172a3243f7a",
+        "org_unit": "",
+        "roles": [
+          "Accountmanager Non-BA"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [],
+        "applications": [],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Anfragen_bearbeiten__bridgr_transform.txt"
+      },
+      "matches": [],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Anfragen bearbeiten",
+          "process_id": "_bf9d4361-c7dd-5b64-ca03-d172a3243f7a",
+          "org_unit": "",
+          "roles": [
+            "Accountmanager Non-BA"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [],
+          "applications": [],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Anfragen_bearbeiten__bridgr_transform.txt"
+        },
+        "matches": []
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml",
+      "file_hash": "903817dbe1e49fd03bbd57c83d595e3ed4853b2cf4f542cbbfd5e4136c8f7019",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Incident Management",
+        "process_id": "WFP-1-1",
+        "org_unit": "",
+        "roles": [],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "Product Backlog Interface",
+            "confidence": "stark"
+          },
+          {
+            "name": "Mail Interface",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Product Backlog Interface",
+            "confidence": "stark"
+          },
+          {
+            "name": "Mail Interface",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml"
+      },
+      "matches": [
+        {
+          "application_name": "Product Backlog Interface",
+          "cmdb_id": "ce0f0193-e253-4c97-a004-2473f6b6ba8e",
+          "matched_name": "Product Backlog System",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        },
+        {
+          "application_name": "Mail Interface",
+          "cmdb_id": "744b30b1-b138-4e67-849d-37cdee4c1482",
+          "matched_name": "Mail System",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        }
+      ],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Incident Management",
+          "process_id": "WFP-1-1",
+          "org_unit": "",
+          "roles": [],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "Product Backlog Interface",
+              "confidence": "stark"
+            },
+            {
+              "name": "Mail Interface",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Product Backlog Interface",
+              "confidence": "stark"
+            },
+            {
+              "name": "Mail Interface",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml"
+        },
+        "matches": [
+          {
+            "application_name": "Product Backlog Interface",
+            "cmdb_id": "ce0f0193-e253-4c97-a004-2473f6b6ba8e",
+            "matched_name": "Product Backlog System",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          },
+          {
+            "application_name": "Mail Interface",
+            "cmdb_id": "744b30b1-b138-4e67-849d-37cdee4c1482",
+            "matched_name": "Mail System",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          }
+        ]
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml",
+      "file_hash": "3fa404b4fe7dd61e706187522097669db6a737f2ce61b8ef612f59bcde09b9bd",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Seller process",
+        "process_id": "sellerProcess",
+        "org_unit": "",
+        "roles": [],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "Seller Service Interface",
+            "confidence": "stark"
+          },
+          {
+            "name": "Shipper Service Interface",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Seller Service Interface",
+            "confidence": "stark"
+          },
+          {
+            "name": "Shipper Service Interface",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml"
+      },
+      "matches": [
+        {
+          "application_name": "Seller Service Interface",
+          "cmdb_id": "0985937e-7a75-4f39-ab27-918714c464a7",
+          "matched_name": "Seller Service",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        },
+        {
+          "application_name": "Shipper Service Interface",
+          "cmdb_id": "ac2f45d2-0f21-4018-bc44-5fb16bb2c321",
+          "matched_name": "Shipper Service",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        }
+      ],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Seller process",
+          "process_id": "sellerProcess",
+          "org_unit": "",
+          "roles": [],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "Seller Service Interface",
+              "confidence": "stark"
+            },
+            {
+              "name": "Shipper Service Interface",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Seller Service Interface",
+              "confidence": "stark"
+            },
+            {
+              "name": "Shipper Service Interface",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml"
+        },
+        "matches": [
+          {
+            "application_name": "Seller Service Interface",
+            "cmdb_id": "0985937e-7a75-4f39-ab27-918714c464a7",
+            "matched_name": "Seller Service",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          },
+          {
+            "application_name": "Shipper Service Interface",
+            "cmdb_id": "ac2f45d2-0f21-4018-bc44-5fb16bb2c321",
+            "matched_name": "Shipper Service",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          }
+        ]
+      },
+      "error_message": null
+    },
+    {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt",
       "file_hash": "ca010b1e364ad49854285a08655c7d42276900b3580aa355c48997ffa6b869d8",
       "status": "processed",
@@ -12,7 +893,11 @@
         "process_id": "Prozess_Bestellabwicklung",
         "org_unit": "",
         "roles": [],
-        "org_units": [],
+        "org_units": [
+          "Team Logistik",
+          "Customer Service Team",
+          "Team Accounting"
+        ],
         "org_unit_candidates": [
           "SALES",
           "Team Logistik",
@@ -77,18 +962,10 @@
         },
         {
           "application_name": "Mail System",
-          "cmdb_id": "744b30b1-b138-4e67-849d-37cdee4c1482",
-          "matched_name": "Mail System",
-          "confidence": "stark",
-          "source": "fuzzy",
-          "score": 1.0
-        },
-        {
-          "application_name": "Mail System",
           "cmdb_id": "bee0ede7-4331-442e-9427-94adf46413da",
           "matched_name": "Mail Interface",
-          "confidence": "schwach",
-          "source": "fuzzy",
+          "confidence": "stark",
+          "source": "knowledge_base",
           "score": 1.0
         },
         {
@@ -100,20 +977,18 @@
           "score": 1.0
         }
       ],
-      "review_items": [
-        {
-          "process_name": "Bestellabwicklung",
-          "application_name": "Mail System",
-          "reason": "fuzzy"
-        }
-      ],
+      "review_items": [],
       "graph_payload": {
         "process": {
           "process_name": "Bestellabwicklung",
           "process_id": "Prozess_Bestellabwicklung",
           "org_unit": "",
           "roles": [],
-          "org_units": [],
+          "org_units": [
+            "Team Logistik",
+            "Customer Service Team",
+            "Team Accounting"
+          ],
           "org_unit_candidates": [
             "SALES",
             "Team Logistik",
@@ -178,24 +1053,374 @@
           },
           {
             "application_name": "Mail System",
-            "cmdb_id": "744b30b1-b138-4e67-849d-37cdee4c1482",
-            "matched_name": "Mail System",
-            "confidence": "stark",
-            "source": "fuzzy",
-            "score": 1.0
-          },
-          {
-            "application_name": "Mail System",
             "cmdb_id": "bee0ede7-4331-442e-9427-94adf46413da",
             "matched_name": "Mail Interface",
-            "confidence": "schwach",
-            "source": "fuzzy",
+            "confidence": "stark",
+            "source": "knowledge_base",
             "score": 1.0
           },
           {
             "application_name": "SAP FI",
             "cmdb_id": "4718e8ad-f02b-4aae-9f4c-40ac0af0b9e1",
             "matched_name": "SAP FI",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          }
+        ]
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx",
+      "file_hash": "5b104886bdcf7e14832b5b3f646256f5f41b4b8d115fe8a4eb28febbcf58e59c",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Lieferantenmanagement",
+        "process_id": "Prozess_Lieferantenmanagement",
+        "org_unit": "",
+        "roles": [
+          "Einkauf"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "SAP SRM",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Excel",
+            "confidence": "stark"
+          },
+          {
+            "name": "DocuSign",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP SRM",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Excel",
+            "confidence": "stark"
+          },
+          {
+            "name": "DocuSign",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx"
+      },
+      "matches": [
+        {
+          "application_name": "SAP SRM",
+          "cmdb_id": "c49b35b5-9247-4ebf-9531-f1947c17e080",
+          "matched_name": "SAP SRM",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "Microsoft Excel",
+          "cmdb_id": "38638b1f-c743-47e0-92d5-13ede756ff68",
+          "matched_name": "Microsoft Excel",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "DocuSign",
+          "cmdb_id": "87e563a7-a509-41fe-8874-b76197445fc8",
+          "matched_name": "DocuSign",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        }
+      ],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Lieferantenmanagement",
+          "process_id": "Prozess_Lieferantenmanagement",
+          "org_unit": "",
+          "roles": [
+            "Einkauf"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "SAP SRM",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Excel",
+              "confidence": "stark"
+            },
+            {
+              "name": "DocuSign",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP SRM",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Excel",
+              "confidence": "stark"
+            },
+            {
+              "name": "DocuSign",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx"
+        },
+        "matches": [
+          {
+            "application_name": "SAP SRM",
+            "cmdb_id": "c49b35b5-9247-4ebf-9531-f1947c17e080",
+            "matched_name": "SAP SRM",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "Microsoft Excel",
+            "cmdb_id": "38638b1f-c743-47e0-92d5-13ede756ff68",
+            "matched_name": "Microsoft Excel",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "DocuSign",
+            "cmdb_id": "87e563a7-a509-41fe-8874-b76197445fc8",
+            "matched_name": "DocuSign",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          }
+        ]
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf",
+      "file_hash": "1677e512c8538a8e778c5d12d4ca2d0e92d5ce4ef9b037bc4da6d764e4ddcdd8",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Reklamationsbearbeitung",
+        "process_id": "Prozess_Reklamationsbearbeitung",
+        "org_unit": "",
+        "roles": [
+          "Kundendienst"
+        ],
+        "org_units": [
+          "Team Logistik",
+          "Buchhaltung"
+        ],
+        "org_unit_candidates": [
+          "Produktion",
+          "Buchhaltung"
+        ],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "Microsoft Outlook",
+            "confidence": "stark"
+          },
+          {
+            "name": "Jira Service Management",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Teams",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP SD",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Excel",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Microsoft Outlook",
+            "confidence": "stark"
+          },
+          {
+            "name": "Jira Service Management",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Teams",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP SD",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Excel",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf"
+      },
+      "matches": [
+        {
+          "application_name": "Microsoft Outlook",
+          "cmdb_id": "72ce06ef-25c5-4d8d-941f-d9ba8836f4af",
+          "matched_name": "Microsoft Outlook",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "Jira Service Management",
+          "cmdb_id": "d9dfe63d-1555-4534-8f03-44eec015b11e",
+          "matched_name": "Jira Service Management",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "Microsoft Teams",
+          "cmdb_id": "e12d16db-4533-474a-866e-ce4f7c341166",
+          "matched_name": "Microsoft Teams",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "SAP SD",
+          "cmdb_id": "ea428972-5468-4726-a1ca-212e12f3bda2",
+          "matched_name": "SAP SD",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "Microsoft Excel",
+          "cmdb_id": "38638b1f-c743-47e0-92d5-13ede756ff68",
+          "matched_name": "Microsoft Excel",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        }
+      ],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Reklamationsbearbeitung",
+          "process_id": "Prozess_Reklamationsbearbeitung",
+          "org_unit": "",
+          "roles": [
+            "Kundendienst"
+          ],
+          "org_units": [
+            "Team Logistik",
+            "Buchhaltung"
+          ],
+          "org_unit_candidates": [
+            "Produktion",
+            "Buchhaltung"
+          ],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "Microsoft Outlook",
+              "confidence": "stark"
+            },
+            {
+              "name": "Jira Service Management",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Teams",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP SD",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Excel",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Microsoft Outlook",
+              "confidence": "stark"
+            },
+            {
+              "name": "Jira Service Management",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Teams",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP SD",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Excel",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf"
+        },
+        "matches": [
+          {
+            "application_name": "Microsoft Outlook",
+            "cmdb_id": "72ce06ef-25c5-4d8d-941f-d9ba8836f4af",
+            "matched_name": "Microsoft Outlook",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "Jira Service Management",
+            "cmdb_id": "d9dfe63d-1555-4534-8f03-44eec015b11e",
+            "matched_name": "Jira Service Management",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "Microsoft Teams",
+            "cmdb_id": "e12d16db-4533-474a-866e-ce4f7c341166",
+            "matched_name": "Microsoft Teams",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "SAP SD",
+            "cmdb_id": "ea428972-5468-4726-a1ca-212e12f3bda2",
+            "matched_name": "SAP SD",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "Microsoft Excel",
+            "cmdb_id": "38638b1f-c743-47e0-92d5-13ede756ff68",
+            "matched_name": "Microsoft Excel",
             "confidence": "stark",
             "source": "fuzzy",
             "score": 1.0
