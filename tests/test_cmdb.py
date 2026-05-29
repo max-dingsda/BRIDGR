@@ -91,3 +91,113 @@ def test_normalize_cmdb_relations_reads_valid_rows() -> None:
     assert relations[0].source_id == "app-1"
     assert relations[0].relation_type == "USES_INTERFACE"
     assert relations[0].target_id == "if-1"
+
+
+def test_normalize_cmdb_entities_raises_for_empty_entity_id() -> None:
+    with pytest.raises(CmdbLoadError, match="ohne ID"):
+        normalize_cmdb_entities(
+            rows=[{"app_id": "", "application_name": "SAP Sales"}],
+            id_column="app_id",
+            name_column="application_name",
+        )
+
+
+def test_normalize_cmdb_entities_raises_for_empty_entity_name() -> None:
+    with pytest.raises(CmdbLoadError, match="ohne Namen"):
+        normalize_cmdb_entities(
+            rows=[{"app_id": "1", "application_name": ""}],
+            id_column="app_id",
+            name_column="application_name",
+        )
+
+
+def test_normalize_entity_type_raises_for_unknown_type() -> None:
+    with pytest.raises(CmdbLoadError, match="Unbekannter CMDB-Objekttyp"):
+        normalize_cmdb_entities(
+            rows=[{"app_id": "1", "application_name": "SAP Sales", "entity_type": "database"}],
+            id_column="app_id",
+            name_column="application_name",
+            entity_type_column="entity_type",
+        )
+
+
+def test_normalize_server_type_raises_for_unknown_server_type() -> None:
+    with pytest.raises(CmdbLoadError, match="Unbekannter Server-Typ"):
+        normalize_cmdb_entities(
+            rows=[{"app_id": "srv-1", "application_name": "AppServer", "entity_type": "server", "server_type": "container"}],
+            id_column="app_id",
+            name_column="application_name",
+            entity_type_column="entity_type",
+            server_type_column="server_type",
+        )
+
+
+def test_load_cmdb_relation_rows_reads_valid_csv(tmp_path: Path) -> None:
+    from cmdb import load_cmdb_relation_rows
+
+    relations_path = tmp_path / "cmdb_relations.csv"
+    relations_path.write_text("source_id,relation_type,target_id\napp-1,USES_INTERFACE,if-1\n", encoding="utf-8")
+
+    rows = load_cmdb_relation_rows(relations_path)
+
+    assert rows == [{"source_id": "app-1", "relation_type": "USES_INTERFACE", "target_id": "if-1"}]
+
+
+def test_load_cmdb_relation_rows_raises_for_missing_file(tmp_path: Path) -> None:
+    from cmdb import load_cmdb_relation_rows
+
+    with pytest.raises(CmdbLoadError):
+        load_cmdb_relation_rows(tmp_path / "missing_relations.csv")
+
+
+def test_load_cmdb_relation_rows_raises_for_missing_required_columns(tmp_path: Path) -> None:
+    from cmdb import load_cmdb_relation_rows
+
+    relations_path = tmp_path / "cmdb_relations.csv"
+    relations_path.write_text("source,type,target\napp-1,USES_INTERFACE,if-1\n", encoding="utf-8")
+
+    with pytest.raises(CmdbLoadError, match="Pflichtspalten"):
+        load_cmdb_relation_rows(relations_path)
+
+
+def test_normalize_cmdb_relations_raises_for_incomplete_row() -> None:
+    with pytest.raises(CmdbLoadError):
+        normalize_cmdb_relations(
+            rows=[{"source_id": "app-1", "relation_type": "", "target_id": "if-1"}]
+        )
+
+
+def test_build_cmdb_option_labels_formats_name_and_id() -> None:
+    from cmdb import build_cmdb_option_labels
+
+    rows = [
+        {"app_id": "cmdb-1", "application_name": "SAP Sales"},
+        {"app_id": "cmdb-2", "application_name": "Mail System"},
+    ]
+
+    labels = build_cmdb_option_labels(rows, uuid_column="app_id", name_column="application_name")
+
+    assert labels == ["SAP Sales [cmdb-1]", "Mail System [cmdb-2]"]
+
+
+def test_find_cmdb_row_by_label_returns_matching_row() -> None:
+    from cmdb import find_cmdb_row_by_label
+
+    rows = [
+        {"app_id": "cmdb-1", "application_name": "SAP Sales"},
+        {"app_id": "cmdb-2", "application_name": "Mail System"},
+    ]
+
+    result = find_cmdb_row_by_label(rows, "Mail System [cmdb-2]", uuid_column="app_id", name_column="application_name")
+
+    assert result == {"app_id": "cmdb-2", "application_name": "Mail System"}
+
+
+def test_find_cmdb_row_by_label_returns_none_for_unknown_label() -> None:
+    from cmdb import find_cmdb_row_by_label
+
+    rows = [{"app_id": "cmdb-1", "application_name": "SAP Sales"}]
+
+    result = find_cmdb_row_by_label(rows, "Unknown App [cmdb-99]", uuid_column="app_id", name_column="application_name")
+
+    assert result is None

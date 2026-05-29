@@ -188,6 +188,116 @@ def test_graph_writer_can_cleanup_process_placeholders() -> None:
     assert len(cleanup_queries) == 1
 
 
+def test_graph_writer_writes_role_nodes_with_beteiligt_an_relationship() -> None:
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+    payload = GraphWritePayload(
+        process=ExtractedProcess(
+            process_name="Incident Management",
+            process_id="proc-1",
+            org_unit="Support",
+            roles=["1st Level Support", "2nd Level Support"],
+            org_units=[],
+            org_unit_candidates=[],
+            follows_after=[],
+            raw_applications=[],
+            applications=[],
+            source_path="Input/process.bpmn",
+        ),
+        matches=[],
+    )
+
+    writer.write_payload(client, payload)
+
+    queries = [query for query, _ in client.queries]
+    assert any("MERGE (r:Rolle" in query for query in queries)
+    assert any("MERGE (r)-[:BETEILIGT_AN]->(p)" in query for query in queries)
+    role_params = [params for query, params in client.queries if "MERGE (r:Rolle" in query]
+    written_roles = {p["role_name"] for p in role_params if p}
+    assert written_roles == {"1st Level Support", "2nd Level Support"}
+
+
+def test_graph_writer_writes_multiple_org_units_for_one_process() -> None:
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+    payload = GraphWritePayload(
+        process=ExtractedProcess(
+            process_name="Cross-Team Process",
+            process_id="proc-x",
+            org_unit="",
+            roles=[],
+            org_units=["Team A", "Team B"],
+            org_unit_candidates=[],
+            follows_after=[],
+            raw_applications=[],
+            applications=[],
+            source_path="Input/process.txt",
+        ),
+        matches=[],
+    )
+
+    writer.write_payload(client, payload)
+
+    verantwortet_params = [
+        params for query, params in client.queries if "MERGE (o)-[:VERANTWORTET]->(p)" in query
+    ]
+    written_units = {p["org_unit"] for p in verantwortet_params if p}
+    assert written_units == {"Team A", "Team B"}
+
+
+def test_graph_writer_updates_existing_process_node_without_creating_new_one() -> None:
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+    client.responses = [
+        [],
+        [{"element_id": "existing-1"}],
+    ]
+    payload = GraphWritePayload(
+        process=ExtractedProcess(
+            process_name="Existing Process",
+            process_id="proc-existing",
+            org_unit="",
+            roles=[],
+            org_units=[],
+            org_unit_candidates=[],
+            follows_after=[],
+            raw_applications=[],
+            applications=[],
+            source_path="Input/process.bpmn",
+        ),
+        matches=[],
+    )
+
+    writer.write_payload(client, payload)
+
+    update_queries = [
+        query for query, _ in client.queries if "SET p.name = $process_name" in query and "p.placeholder = false" in query
+    ]
+    merge_queries = [
+        query for query, _ in client.queries if "MERGE (p:Prozess {prozess_id: $process_id})" in query
+    ]
+    assert len(update_queries) >= 1
+    assert len(merge_queries) == 0
+
+
+def test_graph_writer_syncs_cmdb_process_entity_as_prozess_node() -> None:
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+
+    writer.sync_cmdb(
+        client,
+        NormalizedCmdb(
+            entities=[
+                CmdbEntity(entity_id="proc-cmdb-1", name="Order Management", entity_type="process"),
+            ],
+            relations=[],
+        ),
+    )
+
+    queries = [query for query, _ in client.queries]
+    assert any("MERGE (p:Prozess {prozess_id: $entity_id})" in query for query in queries)
+
+
 def test_graph_writer_syncs_cmdb_entities_relations_and_owners() -> None:
     writer = GraphWriter()
     client = RecordingNeo4jClient()

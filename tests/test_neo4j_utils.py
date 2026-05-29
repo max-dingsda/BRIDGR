@@ -110,3 +110,48 @@ def test_translate_neo4j_exception_maps_driver_errors() -> None:
 
     assert isinstance(translated, Neo4jConnectionError)
     assert "driver failed" in str(translated)
+
+
+# --- graph_schema validation via validate_read_only_cypher ---
+
+def test_validate_read_only_cypher_rejects_unknown_node_label() -> None:
+    with pytest.raises(QueryValidationError, match="unknown node label"):
+        validate_read_only_cypher("MATCH (d:Datenbank) RETURN d.name")
+
+
+def test_validate_read_only_cypher_rejects_wrong_dient_direction() -> None:
+    with pytest.raises(QueryValidationError, match="invalid direction or endpoint labels"):
+        validate_read_only_cypher(
+            "MATCH (p:Prozess)-[:DIENT]->(a:Anwendung) RETURN p.name AS process, a.name AS application"
+        )
+
+
+def test_validate_read_only_cypher_allows_correct_dient_direction() -> None:
+    validate_read_only_cypher(
+        "MATCH (a:Anwendung)-[:DIENT]->(p:Prozess) RETURN a.name AS application, p.name AS process"
+    )
+
+
+def test_validate_read_only_cypher_rejects_undirected_relationship() -> None:
+    with pytest.raises(QueryValidationError):
+        validate_read_only_cypher(
+            "MATCH (a:Anwendung)-[:DIENT]-(p:Prozess) RETURN a.name AS application"
+        )
+
+
+def test_validate_read_only_cypher_rejects_unknown_property_for_known_label() -> None:
+    with pytest.raises(QueryValidationError, match="unknown property"):
+        validate_read_only_cypher(
+            "MATCH (p:Prozess) RETURN p.beschreibung AS description"
+        )
+
+
+def test_validate_read_only_cypher_allows_known_property_for_prozess() -> None:
+    validate_read_only_cypher("MATCH (p:Prozess) RETURN p.name AS name, p.prozess_id AS id")
+
+
+def test_validate_read_only_cypher_rejects_wrong_verantwortet_direction() -> None:
+    with pytest.raises(QueryValidationError, match="invalid direction or endpoint labels"):
+        validate_read_only_cypher(
+            "MATCH (p:Prozess)-[:VERANTWORTET]->(o:OrgEinheit) RETURN p.name AS process"
+        )
