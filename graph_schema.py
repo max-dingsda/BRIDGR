@@ -1,5 +1,16 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
+import re
+
+
+@dataclass(frozen=True, slots=True)
+class RelationshipPattern:
+    relationship_type: str
+    source_label: str
+    target_label: str
+    properties: tuple[str, ...] = ()
+
 
 QUERY_NODE_SCHEMA: dict[str, tuple[str, ...]] = {
     "Prozess": ("prozess_id", "name"),
@@ -9,11 +20,21 @@ QUERY_NODE_SCHEMA: dict[str, tuple[str, ...]] = {
     "OrgEinheit": ("name",),
 }
 
-QUERY_RELATIONSHIP_SCHEMA: dict[str, tuple[str, ...]] = {
-    "DIENT": ("konfidenz",),
-    "VERANTWORTET": (),
-    "FOLGT_AUF": (),
-}
+QUERY_RELATIONSHIP_PATTERNS: tuple[RelationshipPattern, ...] = (
+    RelationshipPattern("DIENT", "Anwendung", "Prozess", ("konfidenz",)),
+    RelationshipPattern("VERANTWORTET", "OrgEinheit", "Prozess"),
+    RelationshipPattern("VERANTWORTET", "OrgEinheit", "Anwendung"),
+    RelationshipPattern("VERANTWORTET", "OrgEinheit", "Schnittstelle"),
+    RelationshipPattern("VERANTWORTET", "OrgEinheit", "Server"),
+    RelationshipPattern("FOLGT_AUF", "Prozess", "Prozess"),
+    RelationshipPattern("USES_INTERFACE", "Anwendung", "Schnittstelle"),
+    RelationshipPattern("RUNS_ON", "Anwendung", "Server"),
+    RelationshipPattern("RUNS_ON", "Schnittstelle", "Server"),
+)
+
+QUERY_RELATIONSHIP_SCHEMA: dict[str, tuple[str, ...]] = {}
+for _pattern in QUERY_RELATIONSHIP_PATTERNS:
+    QUERY_RELATIONSHIP_SCHEMA.setdefault(_pattern.relationship_type, _pattern.properties)
 
 
 def build_query_schema_reference() -> str:
@@ -22,6 +43,10 @@ def build_query_schema_reference() -> str:
         for label, properties in QUERY_NODE_SCHEMA.items()
     ]
     relationship_lines = [
+        f"- `(:{pattern.source_label})-[:{pattern.relationship_type}]->(:{pattern.target_label})`"
+        for pattern in QUERY_RELATIONSHIP_PATTERNS
+    ]
+    relationship_property_lines = [
         f"- `[:{relationship}]`: {', '.join(properties) if properties else 'no properties'}"
         for relationship, properties in QUERY_RELATIONSHIP_SCHEMA.items()
     ]
@@ -29,6 +54,112 @@ def build_query_schema_reference() -> str:
         "Use only the following graph schema.\n\n"
         "Node labels and properties:\n"
         + "\n".join(node_lines)
-        + "\n\nRelationship types and properties:\n"
+        + "\n\nAllowed relationship patterns and directions:\n"
         + "\n".join(relationship_lines)
+        + "\n\nRelationship types and properties:\n"
+        + "\n".join(relationship_property_lines)
+        + "\n\nNever invent additional relationship types, labels, directions, or properties."
     )
+
+
+def validate_query_schema(cleaned_query: str) -> None:
+    _validate_labels(cleaned_query)
+    variable_labels = _extract_variable_labels(cleaned_query)
+    _validate_relationship_types(cleaned_query)
+    _validate_relationship_patterns(cleaned_query, variable_labels)
+    _validate_properties(cleaned_query, variable_labels)
+
+
+def _validate_labels(cleaned_query: str) -> None:
+    labels = re.findall(r"\(\s*[A-Za-z_][A-Za-z0-9_]*\s*:\s*([A-Za-z_][A-Za-z0-9_]*)", cleaned_query)
+    for label in labels:
+        if label not in QUERY_NODE_SCHEMA:
+            raise ValueError(f"Cypher query uses unknown node label: {label}")
+
+
+def _extract_variable_labels(cleaned_query: str) -> dict[str, set[str]]:
+    variable_labels: dict[str, set[str]] = {}
+    for variable, label in re.findall(
+        r"\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*:\s*([A-Za-z_][A-Za-z0-9_]*)",
+        cleaned_query,
+    ):
+        variable_labels.setdefault(variable, set()).add(label)
+    return variable_labels
+
+
+def _validate_relationship_types(cleaned_query: str) -> None:
+    relationship_types = re.findall(
+        r"\[\s*(?:[A-Za-z_][A-Za-z0-9_]*\s*)?:\s*([A-Za-z_][A-Za-z0-9_]*)",
+        cleaned_query,
+    )
+    allowed_relationships = set(QUERY_RELATIONSHIP_SCHEMA)
+    for relationship_type in relationship_types:
+        if relationship_type not in allowed_relationships:
+            raise ValueError(f"Cypher query uses unknown relationship type: {relationship_type}")
+
+
+def _validate_relationship_patterns(
+    cleaned_query: str,
+    variable_labels: dict[str, set[str]],
+) -> None:
+    pattern_matches = re.finditer(
+        r"\(\s*(?P<left_var>[A-Za-z_][A-Za-z0-9_]*)(?:\s*:\s*(?P<left_label>[A-Za-z_][A-Za-z0-9_]*))?[^)]*\)"
+        r"\s*(?P<left_arrow><-|-)\s*"
+        r"\[\s*(?:[A-Za-z_][A-Za-z0-9_]*\s*)?:\s*(?P<relationship>[A-Za-z_][A-Za-z0-9_]*)[^\]]*\]"
+        r"\s*(?P<right_arrow>->|-)\s*"
+        r"\(\s*(?P<right_var>[A-Za-z_][A-Za-z0-9_]*)(?:\s*:\s*(?P<right_label>[A-Za-z_][A-Za-z0-9_]*))?[^)]*\)",
+        cleaned_query,
+    )
+    for match in pattern_matches:
+        relationship_type = match.group("relationship")
+        left_arrow = match.group("left_arrow")
+        right_arrow = match.group("right_arrow")
+        if left_arrow == "-" and right_arrow == "-":
+            raise ValueError(
+                f"Cypher query uses undirected relationship pattern for {relationship_type}; use the canonical direction."
+            )
+
+        left_labels = _resolve_labels(match.group("left_var"), match.group("left_label"), variable_labels)
+        right_labels = _resolve_labels(match.group("right_var"), match.group("right_label"), variable_labels)
+        if not left_labels or not right_labels:
+            continue
+
+        if left_arrow == "-" and right_arrow == "->":
+            source_labels = left_labels
+            target_labels = right_labels
+        elif left_arrow == "<-" and right_arrow == "-":
+            source_labels = right_labels
+            target_labels = left_labels
+        else:
+            raise ValueError(
+                f"Cypher query uses unsupported relationship arrow syntax for {relationship_type}."
+            )
+
+        allowed_pairs = {
+            (pattern.source_label, pattern.target_label)
+            for pattern in QUERY_RELATIONSHIP_PATTERNS
+            if pattern.relationship_type == relationship_type
+        }
+        if any((source_label, target_label) in allowed_pairs for source_label in source_labels for target_label in target_labels):
+            continue
+        raise ValueError(
+            f"Cypher query uses invalid direction or endpoint labels for relationship type {relationship_type}."
+        )
+
+
+def _resolve_labels(variable: str, inline_label: str | None, variable_labels: dict[str, set[str]]) -> set[str]:
+    labels = set(variable_labels.get(variable, set()))
+    if inline_label:
+        labels.add(inline_label)
+    return labels
+
+
+def _validate_properties(cleaned_query: str, variable_labels: dict[str, set[str]]) -> None:
+    for variable, property_name in re.findall(r"\b([A-Za-z_][A-Za-z0-9_]*)\.([A-Za-z_][A-Za-z0-9_]*)\b", cleaned_query):
+        labels = variable_labels.get(variable)
+        if not labels or len(labels) != 1:
+            continue
+        label = next(iter(labels))
+        allowed_properties = QUERY_NODE_SCHEMA.get(label, ())
+        if property_name not in allowed_properties:
+            raise ValueError(f"Cypher query uses unknown property `{property_name}` for label `{label}`.")

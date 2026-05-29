@@ -341,7 +341,9 @@
       "process_names": [
         "Bestellabwicklung"
       ],
-      "role_names": [],
+      "role_names": [
+        "Vertriebsmitarbeiter"
+      ],
       "status": "mapped",
       "mapped_org_unit": "Sales",
       "first_seen": "2026-05-28",
@@ -437,6 +439,19 @@
       "mapped_org_unit": "IT Infrastructure",
       "first_seen": "2026-05-28",
       "last_seen": "2026-05-28"
+    },
+    {
+      "candidate_name": "Salesdepartment",
+      "normalized_name": "salesdepartment",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\cmdb_entities.csv"
+      ],
+      "process_names": [],
+      "role_names": [],
+      "status": "open",
+      "mapped_org_unit": "",
+      "first_seen": "2026-05-29",
+      "last_seen": "2026-05-29"
     }
   ]
 }

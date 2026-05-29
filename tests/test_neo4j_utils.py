@@ -54,6 +54,26 @@ def test_validate_read_only_cypher_rejects_union_with_different_return_aliases()
         )
 
 
+def test_validate_read_only_cypher_rejects_unknown_relationship_type() -> None:
+    with pytest.raises(QueryValidationError, match="unknown relationship type: HOSTET"):
+        validate_read_only_cypher(
+            "MATCH (s:Server)-[:HOSTET]->(a:Anwendung) RETURN s.name AS server, a.name AS application"
+        )
+
+
+def test_validate_read_only_cypher_rejects_wrong_runs_on_direction() -> None:
+    with pytest.raises(QueryValidationError, match="invalid direction or endpoint labels"):
+        validate_read_only_cypher(
+            "MATCH (s:Server)-[:RUNS_ON]->(a:Anwendung) RETURN s.name AS server, a.name AS application"
+        )
+
+
+def test_validate_read_only_cypher_allows_reverse_traversal_for_runs_on() -> None:
+    validate_read_only_cypher(
+        "MATCH (s:Server)<-[:RUNS_ON]-(a:Anwendung) RETURN s.name AS server, a.name AS application"
+    )
+
+
 def test_translate_neo4j_exception_maps_auth_errors() -> None:
     translated = _translate_neo4j_exception(AuthError("auth failed"))
 

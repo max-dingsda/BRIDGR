@@ -220,6 +220,7 @@ __marimo__/
 # AI support
 agents.md
 claude.md
+context.md
 openPoints*
 Specs/openPoints*
 BPMN-Gesamt.bpmn

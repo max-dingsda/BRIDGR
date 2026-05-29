@@ -23,7 +23,7 @@ BRIDGR: Ich habe dazu aktuell keine passenden Informationen im Wissensgraphen ge
 Keine Treffer gefunden.
 Technische Details
 USER: aber es gibt eine anwendung "seller service", oder?
-BRIDGR: Ich habe mehrere passende Anwendungen gefunden: Seller Service, Seller Service Interface. Welche meinen Sie?
+BRIDGR: Ich habe mehrere passende Anwendungen gefunden: Seller Service, Seller Service Interface. Welche meinen Sie? - erledigt
 21. in der review-section sollte ein hinweis erscheinen, dass identifizierte Organisationseinheiten Im Tab "Organsation" manuell bestätigt werden müssen, allerdings nur dann, wenn tatsächlich Candidates identifiziert wurden oder aus älteren läufen noch zu bestätigen/zu verwerfen sind
 22. Die Dateiauswahl fuer den Import wirkt aktuell redundant, wenn zugleich ein Importmodus `full`/`partial` vorhanden ist. Erwartet ist eine klarere UI, in der bei `full` keine separate Dateiauswahl sichtbar ist und bei `partial` genau eine eindeutige Auswahl fuer die zu importierenden Dateien erscheint. - erledigt
 23. Der Button `Review oeffnen` wirkt nach der Entkopplung von Review und Import fachlich ueberfluessig. Die relevanten Informationen sind bereits geladen; erwartet ist, dass der gewaehlte Review-Scope direkt ueber Radio-Button und Dateiauswahl wirkt, ohne zusaetzlichen Bestaetigungsbutton. - erledigt
@@ -57,12 +57,13 @@ BRIDGR: Es gibt insgesamt 5 Verbindungen zwischen Prozessen und Organisationsein
 Ergebnis
 Technische Details
 BENUTZER: Zeig mir für diese 5 Verbindungen jeweils die Organisationseinheit, den Typ der Verbindung und den Prozess
-BRIDGR: Die Verbindungen umfassen folgende Kombinationen: Das Customer Service Team ist für die Bestellabwicklung zuständig, das Team Accounting ist ebenfalls in die Bestellabwicklung eingebunden und das Team Logistik ist sowohl für die Bestellabwicklung als auch für die Reklamationsbearbeitung zuständig. Schließlich ist die Buchhaltung für die Reklamationsbearbeitung verantwortlich.
+BRIDGR: Die Verbindungen umfassen folgende Kombinationen: Das Customer Service Team ist für die Bestellabwicklung zuständig, das Team Accounting ist ebenfalls in die Bestellabwicklung eingebunden und das Team Logistik ist sowohl für die Bestellabwicklung als auch für die Reklamationsbearbeitung zuständig. Schließlich ist die Buchhaltung für die Reklamationsbearbeitung verantwortlich. - erledigt
 25. Das LLM  benötigt via Systempromprt einige allgemeine Informationen. Beispieldialog aktuell:
 BENUTZER: er käre mir deine funktion
 BRIDGR: Ich habe dazu aktuell keine passenden Informationen im Wissensgraphen gefunden.
 26. werden mehrere Importe nacheinander prozessiert, bleibt während des zweiten Laufs die Erfolgsmeldung des ersten Laufs sichtbar. Im Beispiel werden aktuell 47 Dateien prozessiert, im oberen Bereich ist aber sichtbar "Teilimport abgeschlossen in 30s. 4 Prozessdatei(en) wurden verarbeitet und nach F:\workspace\BRIDGR\data\input_archive\20260528_120140 verschoben."
-27. Prompting/queries: queries müssen den Cypher regeln streng entsprechen, ansonsten erscheinen fehlermeldungen die der benutzer potentiell nicht beheben Kantengibt es bei den servern eine unterscheidung zwischen physisch und virtuell?
+27. Prompting/queries: queries müssen den Cypher regeln streng entsprechen, ansonsten erscheinen fehlermeldungen die der benutzer potentiell nicht beheben kann.
+USER: gibt es bei den servern eine unterscheidung zwischen physisch und virtuell?
 fehlgeschlagenes Beispiel:
 BRIDGR:Ja, es gibt eine Unterscheidung: Die Server sind sowohl als "physical" (physisch) als auch als "virtual" (virtuell) eingestuft.
 Ergebnis
@@ -76,9 +77,11 @@ MATCH (a:Anwendung)
 RETURN count(a) AS applicationCount
 
 MATCH (p:Prozess)
-RETURN count(p) AS processCount
+RETURN count(p) AS processCount - erledigt
 28. Bei Fragen nach Servern und den darauf laufenden Anwendungen erzeugt das LLM derzeit Cypher mit einem nicht im Schema vorgesehenen Beziehungstyp `HOSTET`, z. B.:
 MATCH (s:Server)-[:HOSTET]->(a:Anwendung)
 RETURN s.name AS server, collect(DISTINCT a.name) AS applications
 ORDER BY server
-Aktuell verwendet BRIDGR fuer diesen Zusammenhang jedoch `(:Anwendung)-[:RUNS_ON]->(:Server)`. Erwartet ist, dass Query-Prompt und Query-Generierung die tatsaechlich vorhandenen Beziehungstypen und Richtungen des aktuellen Graph-Schemas einhalten.
+Aktuell verwendet BRIDGR fuer diesen Zusammenhang jedoch `(:Anwendung)-[:RUNS_ON]->(:Server)`. Erwartet ist, dass Query-Prompt und Query-Generierung die tatsaechlich vorhandenen Beziehungstypen und Richtungen des aktuellen Graph-Schemas einhalten. - erledigt
+29. Die Praezisierung nach einer Mehrdeutigkeitsrueckfrage ist noch zu strikt. Antworten wie `Ich meinte die Anwendung "Seller Service"` werden derzeit nicht zuverlaessig auf bereits angebotene Optionen wie `Seller Service` oder `Seller Service Interface` normalisiert. Erwartet ist, dass fuehrende Typwoerter wie `Anwendung`, `Prozess`, `OrgEinheit`, `Server` oder `Schnittstelle` sowie einfache natuerliche Einbettungen und Anfuehrungszeichen vor dem Match entfernt werden, solange die Zuordnung danach eindeutig bleibt. - erledigt
+30. Nach einer Mehrdeutigkeitsrueckfrage kann der Benutzer derzeit nur eine der explizit angebotenen Optionen praezisieren. Ein Wechsel auf ein anderes im bereits angezeigten Kontext sichtbares Objekt, z. B. `ich meinte den virtuellen Server mit der ID vm-app-01`, wird noch nicht als gueltiger neuer Fokus erkannt, obwohl dieses Objekt im selben Antwortkontext bereits sichtbar war. Erwartet ist, dass BRIDGR in solchen Faellen nach einem fehlgeschlagenen Match gegen die angebotenen Optionen einen zweiten Lookup-Pfad startet und eine neue eindeutige Objektreferenz aus Name, Typ oder ID als neuen Fokus akzeptiert.

@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import re
+
 from app_config import AppConfig, resolve_project_path
 from llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleClient
 from neo4j_utils import Neo4jConnectionError, Neo4jQueryError, QueryValidationError
 from query_layer import build_natural_language_answer, generate_cypher_from_question
 from services.runtime_service import (
+    CHAT_FOCUS_ENTITY_STATE_KEY,
+    CHAT_MESSAGES_STATE_KEY,
     CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY,
     CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY,
     append_chat_message,
@@ -12,6 +16,9 @@ from services.runtime_service import (
     write_debug_log,
 )
 import streamlit as st
+
+NAME_LOOKUP_LABELS = ("Prozess", "Anwendung", "Schnittstelle", "Server", "OrgEinheit")
+MAX_QUERY_CONTEXT_MESSAGES = 10
 
 
 def handle_query_clarification(user_message: str, config: AppConfig, options: list[str]) -> None:
@@ -21,16 +28,27 @@ def handle_query_clarification(user_message: str, config: AppConfig, options: li
     if resolved_option is None:
         append_chat_message(
             "assistant",
-            "Ich konnte Ihre Praezisierung noch nicht eindeutig zuordnen. Bitte nennen Sie genau eine dieser Anwendungen: "
+            "Ich konnte Ihre Praezisierung noch nicht eindeutig zuordnen. Bitte nennen Sie genau eines dieser Objekte: "
             + ", ".join(options),
         )
         return
 
     original_question = st.session_state.get(CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY, "")
+    resolved_type, resolved_name = parse_lookup_option_label(resolved_option)
+    focus_entity = {
+        "entity_type": resolved_type,
+        "entity_name": resolved_name,
+    }
+    resolved_id = extract_entity_id_reference(user_message)
+    if resolved_id:
+        focus_entity["entity_id"] = resolved_id
+    update_chat_focus_entity(focus_entity)
     clarified_question = (
         f"{original_question}\n"
-        f'Die Rueckfrage wurde so praezisiert: Gemeint ist genau die Anwendung "{resolved_option}".'
+        f'Die Rueckfrage wurde so praezisiert: Gemeint ist genau das Objekt vom Typ "{resolved_type}" mit Namen "{resolved_name}".'
     )
+    if resolved_id:
+        clarified_question += f'\nDie Praezisierung nennt zusaetzlich die ID "{resolved_id}".'
     st.session_state[CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY] = []
     st.session_state[CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY] = ""
     run_query_chat_turn(clarified_question, config)
@@ -51,10 +69,48 @@ def run_query_chat_turn(question: str, config: AppConfig) -> None:
             )
         )
         neo4j_client = get_session_neo4j_client(config)
+        name_lookup = resolve_name_lookup(question, neo4j_client)
+        if name_lookup["mode"] == "ambiguous":
+            options = name_lookup["options"]
+            st.session_state[CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY] = options
+            st.session_state[CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY] = question
+            append_chat_message(
+                "assistant",
+                "Ich habe mehrere passende Objekte gefunden: "
+                + ", ".join(options)
+                + ". Welches meinen Sie?",
+                rows=name_lookup["rows"],
+            )
+            return
+
+        effective_question = question
+        if name_lookup["mode"] == "resolved":
+            update_chat_focus_entity(
+                {
+                    "entity_type": name_lookup["entity_type"],
+                    "entity_name": name_lookup["entity_name"],
+                }
+            )
+            effective_question = (
+                f"{question}\n"
+                f'Die Namensreferenz wurde vorab eindeutig aufgeloest: Gemeint ist das Objekt vom Typ "{name_lookup["entity_type"]}" '
+                f'mit Namen "{name_lookup["entity_name"]}".'
+            )
+        conversation_messages = build_query_conversation_messages()
+        focus_entity = st.session_state.get(CHAT_FOCUS_ENTITY_STATE_KEY, {})
+        if focus_entity:
+            effective_question += (
+                "\n"
+                "Behandle das aktuell fokussierte Objekt als primaeren Bezugsanker. "
+                "Weiche nicht auf semantisch benachbarte Objekte wie Prozesse, Server oder Schnittstellen aus, "
+                "wenn die aktuelle Frage nicht ausdruecklich nach solchen Beziehungen fragt."
+            )
         cypher_query = generate_cypher_from_question(
-            question=question,
+            question=effective_question,
             llm_client=llm_client,
             prompt_path=resolve_project_path("prompts/cypher_gen.md"),
+            conversation_messages=conversation_messages,
+            focus_entity=focus_entity,
         )
         rows = neo4j_client.execute_read(cypher_query)
         answer_text = build_natural_language_answer(
@@ -88,3 +144,157 @@ def run_query_chat_turn(question: str, config: AppConfig) -> None:
         return
 
     append_chat_message("assistant", answer_text, cypher_query=cypher_query, rows=rows)
+
+
+def resolve_name_lookup(question: str, neo4j_client) -> dict:
+    lookup_name = extract_name_lookup_term(question)
+    if not lookup_name:
+        return {"mode": "skip"}
+
+    exact_rows = run_name_lookup_query(neo4j_client, lookup_name, exact_match=True)
+    if exact_rows:
+        if len(exact_rows) == 1:
+            return {"mode": "resolved", **exact_rows[0]}
+        return {
+            "mode": "ambiguous",
+            "options": build_lookup_option_labels(exact_rows),
+            "rows": exact_rows,
+        }
+
+    contains_rows = run_name_lookup_query(neo4j_client, lookup_name, exact_match=False)
+    if not contains_rows:
+        return {"mode": "skip"}
+    if len(contains_rows) == 1:
+        return {"mode": "resolved", **contains_rows[0]}
+    return {
+        "mode": "ambiguous",
+        "options": build_lookup_option_labels(contains_rows),
+        "rows": contains_rows,
+    }
+
+
+def extract_name_lookup_term(question: str) -> str:
+    normalized_question = question.strip()
+    patterns = (
+        r"(?i)^was wei[ßs]t du über\s+(.+?)\??$",
+        r"(?i)^gibt es\s+(?:bei|zu)?\s*(.+?)\??$",
+        r"(?i)^ich meinte\s+(.+?)\??$",
+        r"(?i)^gemeint ist\s+(.+?)\??$",
+        r"(?i)^ist\s+(.+?)\s+(?:relevant|bekannt|vorhanden)\??$",
+        r"(?i)^wer verantwortet\s+(.+?)\??$",
+        r"(?i)^welche prozesse (?:hängen an|haengen an|nutzen|verwenden)\s+(.+?)\??$",
+        r"(?i)^wo wird\s+(.+?)\s+genutzt\??$",
+        r"(?i)^was kannst du mir über\s+(.+?)\s+sagen\??$",
+    )
+    for pattern in patterns:
+        match = re.match(pattern, normalized_question)
+        if match:
+            candidate = match.group(1).strip().strip("\"'` ")
+            candidate = candidate.rstrip("?.!,;:")
+            candidate = re.sub(r"(?i)^(der|die|das|den|dem|des|ein|eine|einen|einem|einer)\s+", "", candidate)
+            return candidate.strip().strip("\"'` ")
+    return ""
+
+
+def run_name_lookup_query(neo4j_client, lookup_name: str, exact_match: bool) -> list[dict]:
+    branches: list[str] = []
+    parameters = {"lookup_name": lookup_name}
+    if exact_match:
+        predicate = "n.name = $lookup_name"
+    else:
+        predicate = "toLower(n.name) CONTAINS toLower($lookup_name)"
+    for label in NAME_LOOKUP_LABELS:
+        branches.append(
+            f"MATCH (n:{label}) WHERE {predicate} RETURN '{label}' AS entity_type, n.name AS entity_name"
+        )
+    query = "\nUNION ALL\n".join(branches) + "\nORDER BY entity_type, entity_name"
+    return neo4j_client.execute_read(query, parameters)
+
+
+def build_lookup_option_labels(rows: list[dict]) -> list[str]:
+    return [
+        f'{row.get("entity_type", "Objekt")}: {row.get("entity_name", "")}'
+        for row in rows
+        if row.get("entity_name")
+    ]
+
+
+def parse_lookup_option_label(option_label: str) -> tuple[str, str]:
+    if ":" not in option_label:
+        return "Objekt", option_label.strip()
+    entity_type, entity_name = option_label.split(":", 1)
+    return entity_type.strip(), entity_name.strip()
+
+
+def extract_entity_id_reference(text: str) -> str:
+    match = re.search(r'(?i)\bid\s+"?([a-z0-9][a-z0-9_-]*)"?', text)
+    if match is None:
+        return ""
+    return match.group(1).strip()
+
+
+def build_follow_up_query_context(question: str) -> str:
+    if not should_use_follow_up_context(question):
+        return ""
+
+    messages = st.session_state.get(CHAT_MESSAGES_STATE_KEY, [])
+    last_user_message = ""
+    last_assistant_message = ""
+
+    for message in reversed(messages[:-1]):
+        role = message.get("role", "")
+        content = str(message.get("content", "")).strip()
+        if role == "assistant" and not last_assistant_message and content:
+            last_assistant_message = content
+            continue
+        if role == "user" and content:
+            last_user_message = content
+            break
+
+    if not last_user_message and not last_assistant_message:
+        return ""
+
+    context_lines: list[str] = []
+    if last_user_message:
+        context_lines.append(f"Previous user question: {last_user_message}")
+    if last_assistant_message:
+        context_lines.append(f"Previous assistant answer: {last_assistant_message}")
+    return "\n".join(context_lines)
+
+
+def build_query_conversation_messages() -> list[dict[str, str]]:
+    messages = st.session_state.get(CHAT_MESSAGES_STATE_KEY, [])
+    recent_messages = messages[:-1][-MAX_QUERY_CONTEXT_MESSAGES:]
+    return [
+        {
+            "role": str(message.get("role", "")).strip(),
+            "content": str(message.get("content", "")).strip(),
+        }
+        for message in recent_messages
+        if str(message.get("content", "")).strip()
+    ]
+
+
+def update_chat_focus_entity(focus_entity: dict[str, str]) -> None:
+    st.session_state[CHAT_FOCUS_ENTITY_STATE_KEY] = {
+        key: str(value).strip()
+        for key, value in focus_entity.items()
+        if str(value).strip()
+    }
+
+
+def should_use_follow_up_context(question: str) -> bool:
+    normalized_question = question.casefold().strip()
+    follow_up_markers = (
+        "wieviele sind das",
+        "wie viele sind das",
+        "jeweils",
+        "davon",
+        "und welche",
+        "welche davon",
+        "diese",
+        "die beiden",
+        "die zwei",
+        "was davon",
+    )
+    return any(marker in normalized_question for marker in follow_up_markers)

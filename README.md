@@ -3,8 +3,7 @@
 BRIDGR verbindet Prozessdokumentation mit CMDB-Daten, um einen EA-Wissensgraphen aufzubauen und spaeter ueber eine natuerlichsprachliche Oberflaeche abfragbar zu machen.
 
 Der aktuelle Architektur-Referenzstand fuer die Umsetzung ist:
-- `Specs/Bridgr_Architektur_v15.md` fuer Import, Review und Runtime-Semantik
-- `Specs/Bridgr_Architektur_v16.md` fuer das naechste CMDB-Zielmodell
+- `Specs/Bridgr_Architektur_v18.md`
 
 ## Zielbild
 
@@ -29,6 +28,8 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - technischer CMDB-Write-Pfad fuer `USES_INTERFACE` und `RUNS_ON`
 - erste CMDB-Ownership-Logik mit direktem 1:1-Match oder Kandidatenbildung fuer Organisationseinheiten
 - natuerlichsprachlicher Query-Layer mit Session-Chat, LLM -> Cypher -> Neo4j -> Antwort und Rueckfrage bei Mehrdeutigkeiten
+- kanonisches Query-Schema in `graph_schema.py` als gemeinsame Grundlage fuer Prompting und Query-Validierung
+- codekuratierter Chat-Kontext fuer Folgefragen mit vorherigen Benutzer-/Assistant-Nachrichten und optionalem Fokusobjekt
 - persistente Knowledge Base
 - Streamlit-UI mit 4 Tabs
 - persistente Laufartefakte in `Output/`
@@ -42,7 +43,7 @@ Wichtige Einordnung:
 
 Noch nicht umgesetzt:
 - vollstaendige UI-/Review-Unterstuetzung fuer alle neuen CMDB-Objekttypen
-- ausgereifte Query- und Prompt-Haertung fuer das erweiterte CMDB-Schema
+- ausgereifte Query- und Prompt-Haertung jenseits des jetzt kanonisch hinterlegten Query-Schemas
 - Unterstuetzung weiterer CMDB-Dateiformate jenseits von CSV
 - separate Read-only-DB-Identitaet fuer den Query-Layer
 
@@ -191,8 +192,9 @@ python main.py --file Input\beispiel.txt
 Aktuell verfuegbar:
 - Session-Chat fuer natuerliche Fragen
 - Rueckfrage bei mehrdeutigen Anwendungsreferenzen
+- codekuratierter Kontextblock fuer Folgefragen inklusive vorheriger Benutzer- und Assistant-Nachrichten
 - Cypher per LLM generieren
-- Read-only-Validierung auf verbotene Write-Tokens
+- Read-only-Validierung auf verbotene Write-Tokens sowie auf das kanonische Query-Schema aus `graph_schema.py`
 - Query gegen Neo4j ausfuehren
 - Ergebnis in kurze natuerliche Sprache umformulieren
 - generierten Cypher als technische Details anzeigen

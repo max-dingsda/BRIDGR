@@ -24,6 +24,7 @@ LLM_STATUS_CONFIG_STATE_KEY = "llm_status_config"
 CHAT_MESSAGES_STATE_KEY = "chat_messages"
 CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY = "chat_pending_application_options"
 CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY = "chat_pending_original_question"
+CHAT_FOCUS_ENTITY_STATE_KEY = "chat_focus_entity"
 REVIEW_RUN_FEEDBACK_STATE_KEY = "review_run_feedback"
 IMPORT_RUN_FEEDBACK_STATE_KEY = "import_run_feedback"
 ACTIVE_REVIEW_RUN_ID_STATE_KEY = "active_review_run_id"
@@ -350,12 +351,14 @@ def ensure_query_chat_defaults() -> None:
     st.session_state.setdefault(CHAT_MESSAGES_STATE_KEY, [])
     st.session_state.setdefault(CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY, [])
     st.session_state.setdefault(CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY, "")
+    st.session_state.setdefault(CHAT_FOCUS_ENTITY_STATE_KEY, {})
 
 
 def reset_query_chat_state() -> None:
     st.session_state[CHAT_MESSAGES_STATE_KEY] = []
     st.session_state[CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY] = []
     st.session_state[CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY] = ""
+    st.session_state[CHAT_FOCUS_ENTITY_STATE_KEY] = {}
 
 
 def append_chat_message(role: str, content: str, cypher_query: str = "", rows: list[dict] | None = None) -> None:

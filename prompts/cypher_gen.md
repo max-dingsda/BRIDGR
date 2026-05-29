@@ -5,11 +5,14 @@ Rules:
 - Return exactly one single Cypher query, never multiple statements.
 - Never use CREATE, MERGE, DELETE, SET, REMOVE, DROP, CALL dbms, or write procedures.
 - Prefer simple MATCH and RETURN patterns.
+- Use only the exact relationship patterns and directions from the provided schema reference.
+- Never invent semantically similar relationship names such as `HOSTET` when the schema defines a different canonical type such as `RUNS_ON`.
 - Use RETURN only once at the end of the query unless you intentionally continue with WITH or combine complete branches via UNION / UNION ALL.
 - If the question asks for multiple aggregates, combine them in one query with WITH or in one final RETURN. Do not write two MATCH ... RETURN blocks one after another.
 - If you use UNION or UNION ALL, every branch must return the same column aliases in the same order.
 - Use only labels, relationship types, and properties from the provided schema reference.
 - Do not invent labels, relationship types, or property names.
+- Do not use undirected relationship patterns when the schema defines a direction.
 - Do not translate schema names into English.
 - Use `p.name` for process names and `a.name` for application names unless the question explicitly targets IDs.
 - Use only simple technical aliases such as `process`, `application`, `org_unit`, `process_count`, or `application_count`.
@@ -60,3 +63,10 @@ MATCH (a:Anwendung)
 WITH count(a) AS applicationCount
 MATCH (p:Prozess)
 RETURN applicationCount, count(p) AS processCount
+
+Question: Wie viele Organisationseinheiten kennst du und wie viele davon sind mit keinem Prozess verbunden?
+Cypher:
+MATCH (o:OrgEinheit)
+WITH count(o) AS org_unit_count,
+     count(CASE WHEN NOT EXISTS { (o)-[:VERANTWORTET]->(:Prozess) } THEN 1 END) AS org_units_without_process_count
+RETURN org_unit_count, org_units_without_process_count

@@ -4,6 +4,8 @@ from dataclasses import dataclass
 import re
 from typing import Any
 
+from graph_schema import validate_query_schema
+
 
 class Neo4jExecutionError(RuntimeError):
     pass
@@ -120,13 +122,18 @@ def _translate_neo4j_exception(exc: Exception) -> Neo4jExecutionError:
 
 
 def validate_read_only_cypher(query: str) -> None:
-    normalized_query = " ".join(_strip_cypher_strings_and_comments(query).upper().split())
+    cleaned_query = _strip_cypher_strings_and_comments(query)
+    normalized_query = " ".join(cleaned_query.upper().split())
     if not normalized_query:
         raise QueryValidationError("Cypher query is empty.")
     for token in READ_ONLY_FORBIDDEN_TOKENS:
         if token in normalized_query:
             raise QueryValidationError(f"Cypher query contains forbidden token: {token}")
     _validate_query_structure(normalized_query)
+    try:
+        validate_query_schema(cleaned_query)
+    except ValueError as exc:
+        raise QueryValidationError(str(exc)) from exc
 
 
 def _validate_query_structure(normalized_query: str) -> None:

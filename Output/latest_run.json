@@ -4,415 +4,840 @@
   "used_output_fallback": false,
   "documents": [
     {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subcontractorvertrag_abschlie_en__bridgr_transform.txt",
-      "file_hash": "1b57abfab4bb9f54cbd488db7b50071e023e97e17d36f22c61e47fc20067b9cf",
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Recruiting_abschlie_en__bridgr_transform.txt",
+      "file_hash": "cab487c3be50a8f4019e97dc928328276db9bd50952170ec40fccf68018d54da",
       "status": "no_matches",
       "extracted_process": {
-        "process_name": "Subcontractorvertrag abschließen",
-        "process_id": "_2cbbf1f6-43aa-0545-f7df-9c34806ec8a7",
+        "process_name": "Recruiting abschließen",
+        "process_id": "_71b9e601-df29-f904-1011-fb0cce292ad3",
         "org_unit": "",
         "roles": [
-          "Leiterin Finanzen",
-          "Sachbearbeiterin Auftragsmanagement",
-          "Staffing Verantwortliche"
+          "Recruitingverantwortlicher"
         ],
         "org_units": [],
         "org_unit_candidates": [],
         "follows_after": [],
         "raw_applications": [],
         "applications": [],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subcontractorvertrag_abschlie_en__bridgr_transform.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Recruiting_abschlie_en__bridgr_transform.txt"
       },
       "matches": [],
       "review_items": [],
       "graph_payload": {
         "process": {
-          "process_name": "Subcontractorvertrag abschließen",
-          "process_id": "_2cbbf1f6-43aa-0545-f7df-9c34806ec8a7",
+          "process_name": "Recruiting abschließen",
+          "process_id": "_71b9e601-df29-f904-1011-fb0cce292ad3",
           "org_unit": "",
           "roles": [
-            "Leiterin Finanzen",
-            "Sachbearbeiterin Auftragsmanagement",
-            "Staffing Verantwortliche"
+            "Recruitingverantwortlicher"
           ],
           "org_units": [],
           "org_unit_candidates": [],
           "follows_after": [],
           "raw_applications": [],
           "applications": [],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subcontractorvertrag_abschlie_en__bridgr_transform.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Recruiting_abschlie_en__bridgr_transform.txt"
         },
         "matches": []
       },
       "error_message": null
     },
     {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscription_lizenzieren__bridgr_transform.txt",
-      "file_hash": "5018024f32a8b8ea2a4bd7466728dce8948b9bed801d20fbb100419d84b651fd",
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Recruiting_durchf_hren__bridgr_transform.txt",
+      "file_hash": "6ff2e3de65165369ad4690f7a3644aa8837a81d1c65bba306898d940e666b76b",
       "status": "no_matches",
       "extracted_process": {
-        "process_name": "Subscription lizenzieren",
-        "process_id": "_b5cc2e9b-a027-76e3-9b60-1366742e7ba5",
+        "process_name": "Recruiting durchführen",
+        "process_id": "_f4faea84-e80a-fbb1-ed89-6e629470298f",
         "org_unit": "",
         "roles": [
-          "Product Manager",
-          "Sachbearbeiterin Auftragsmanagement",
-          "Sales Manager"
+          "Recruitingverantwortlicher"
         ],
         "org_units": [],
         "org_unit_candidates": [],
         "follows_after": [],
         "raw_applications": [],
         "applications": [],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscription_lizenzieren__bridgr_transform.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Recruiting_durchf_hren__bridgr_transform.txt"
       },
       "matches": [],
       "review_items": [],
       "graph_payload": {
         "process": {
-          "process_name": "Subscription lizenzieren",
-          "process_id": "_b5cc2e9b-a027-76e3-9b60-1366742e7ba5",
+          "process_name": "Recruiting durchführen",
+          "process_id": "_f4faea84-e80a-fbb1-ed89-6e629470298f",
           "org_unit": "",
           "roles": [
-            "Product Manager",
-            "Sachbearbeiterin Auftragsmanagement",
-            "Sales Manager"
+            "Recruitingverantwortlicher"
           ],
           "org_units": [],
           "org_unit_candidates": [],
           "follows_after": [],
           "raw_applications": [],
           "applications": [],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscription_lizenzieren__bridgr_transform.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Recruiting_durchf_hren__bridgr_transform.txt"
         },
         "matches": []
       },
       "error_message": null
     },
     {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionlizenz_einrichten__bridgr_transform.txt",
-      "file_hash": "f99b6d68bf293d2524d50dee4858def63b7a0a1dd9aa7a4990f45d417d343505",
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Reisekosten_abrechnen__bridgr_transform.txt",
+      "file_hash": "c08a4022eb7683004f58e69ac9df1f87aa6fe26f6eba320ae99fd3805e9eaed7",
       "status": "no_matches",
       "extracted_process": {
-        "process_name": "Subscriptionlizenz einrichten",
-        "process_id": "_fd1156db-53ad-2b95-93a2-3bd48d7a857c",
+        "process_name": "Reisekosten abrechnen",
+        "process_id": "_67b1e3f2-0ff8-0a48-fd2d-1cc7e8678186",
         "org_unit": "",
         "roles": [
-          "Product Manager"
+          "Leiterin Finanzen"
         ],
         "org_units": [],
         "org_unit_candidates": [],
         "follows_after": [],
         "raw_applications": [],
         "applications": [],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionlizenz_einrichten__bridgr_transform.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Reisekosten_abrechnen__bridgr_transform.txt"
       },
       "matches": [],
       "review_items": [],
       "graph_payload": {
         "process": {
-          "process_name": "Subscriptionlizenz einrichten",
-          "process_id": "_fd1156db-53ad-2b95-93a2-3bd48d7a857c",
+          "process_name": "Reisekosten abrechnen",
+          "process_id": "_67b1e3f2-0ff8-0a48-fd2d-1cc7e8678186",
           "org_unit": "",
           "roles": [
-            "Product Manager"
+            "Leiterin Finanzen"
           ],
           "org_units": [],
           "org_unit_candidates": [],
           "follows_after": [],
           "raw_applications": [],
           "applications": [],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionlizenz_einrichten__bridgr_transform.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Reisekosten_abrechnen__bridgr_transform.txt"
         },
         "matches": []
       },
       "error_message": null
     },
     {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionlizenz_verfolgen__bridgr_transform.txt",
-      "file_hash": "feb8f84ffc7f4d26d716b1e5d09153690b33e1d43ca21b5d1a7da2e3cb95cc58",
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Reisekosten_mit_Excel_einreichen__bridgr_transform.txt",
+      "file_hash": "24329f44e7c380d9d15259633bc6d46d1d4ca1fbee9df83dcd1003874a8b34ed",
       "status": "no_matches",
       "extracted_process": {
-        "process_name": "Subscriptionlizenz verfolgen",
-        "process_id": "_36649836-9235-cd23-7062-a3830009af4f",
+        "process_name": "Reisekosten mit Excel einreichen",
+        "process_id": "_1760cfdd-c4de-f1e0-bc71-f8c4e9bae301",
         "org_unit": "",
         "roles": [
-          "Customer Success Manager",
-          "Mitarbeiter COPS",
-          "Sachbearbeiterin Auftragsmanagement",
-          "Sales Manager"
+          "MID-Mitarbeiter"
         ],
         "org_units": [],
         "org_unit_candidates": [],
         "follows_after": [],
         "raw_applications": [],
         "applications": [],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionlizenz_verfolgen__bridgr_transform.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Reisekosten_mit_Excel_einreichen__bridgr_transform.txt"
       },
       "matches": [],
       "review_items": [],
       "graph_payload": {
         "process": {
-          "process_name": "Subscriptionlizenz verfolgen",
-          "process_id": "_36649836-9235-cd23-7062-a3830009af4f",
+          "process_name": "Reisekosten mit Excel einreichen",
+          "process_id": "_1760cfdd-c4de-f1e0-bc71-f8c4e9bae301",
           "org_unit": "",
           "roles": [
-            "Customer Success Manager",
-            "Mitarbeiter COPS",
-            "Sachbearbeiterin Auftragsmanagement",
-            "Sales Manager"
+            "MID-Mitarbeiter"
           ],
           "org_units": [],
           "org_unit_candidates": [],
           "follows_after": [],
           "raw_applications": [],
           "applications": [],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionlizenz_verfolgen__bridgr_transform.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Reisekosten_mit_Excel_einreichen__bridgr_transform.txt"
         },
         "matches": []
       },
       "error_message": null
     },
     {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionvertrag_abschlie_en__bridgr_transform.txt",
-      "file_hash": "400e090f28156e89f7f47241fb549f46fcfa02090c09698953104fb8324aefc7",
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Reisekosten_mit_HR-Works_erfassen__bridgr_transform.txt",
+      "file_hash": "dd9c45b3a7d8fce9de83d1f43e1a1b2e1bb74affca38896164862dda80267f54",
       "status": "no_matches",
       "extracted_process": {
-        "process_name": "Subscriptionvertrag abschließen",
-        "process_id": "_24013747-2968-7b95-904a-1e115c8a5ad8",
+        "process_name": "Reisekosten mit HR-Works erfassen",
+        "process_id": "_81dc039f-1d8e-a660-1227-2cbd3d39e531",
         "org_unit": "",
         "roles": [
-          "Leiterin Finanzen",
-          "Sachbearbeiterin Auftragsmanagement",
-          "Sales Manager"
+          "MID-Mitarbeiter"
         ],
         "org_units": [],
         "org_unit_candidates": [],
         "follows_after": [],
         "raw_applications": [],
         "applications": [],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionvertrag_abschlie_en__bridgr_transform.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Reisekosten_mit_HR-Works_erfassen__bridgr_transform.txt"
       },
       "matches": [],
       "review_items": [],
       "graph_payload": {
         "process": {
-          "process_name": "Subscriptionvertrag abschließen",
-          "process_id": "_24013747-2968-7b95-904a-1e115c8a5ad8",
+          "process_name": "Reisekosten mit HR-Works erfassen",
+          "process_id": "_81dc039f-1d8e-a660-1227-2cbd3d39e531",
           "org_unit": "",
           "roles": [
-            "Leiterin Finanzen",
-            "Sachbearbeiterin Auftragsmanagement",
-            "Sales Manager"
+            "MID-Mitarbeiter"
           ],
           "org_units": [],
           "org_unit_candidates": [],
           "follows_after": [],
           "raw_applications": [],
           "applications": [],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionvertrag_abschlie_en__bridgr_transform.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Reisekosten_mit_HR-Works_erfassen__bridgr_transform.txt"
         },
         "matches": []
       },
       "error_message": null
     },
     {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionvertrag_anpassen__bridgr_transform.txt",
-      "file_hash": "a6ae41fda4d0fd9c8ebc922d836b4174fd068499ac2ea21bcc160170237456a4",
-      "status": "no_matches",
-      "extracted_process": {
-        "process_name": "Subscriptionvertrag anpassen",
-        "process_id": "_50a00a52-d6f7-67bd-dcba-7c2accdda465",
-        "org_unit": "",
-        "roles": [
-          "Geschäftsführer",
-          "Lane",
-          "Mitarbeiter COPS"
-        ],
-        "org_units": [],
-        "org_unit_candidates": [],
-        "follows_after": [],
-        "raw_applications": [],
-        "applications": [],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionvertrag_anpassen__bridgr_transform.txt"
-      },
-      "matches": [],
-      "review_items": [],
-      "graph_payload": {
-        "process": {
-          "process_name": "Subscriptionvertrag anpassen",
-          "process_id": "_50a00a52-d6f7-67bd-dcba-7c2accdda465",
-          "org_unit": "",
-          "roles": [
-            "Geschäftsführer",
-            "Lane",
-            "Mitarbeiter COPS"
-          ],
-          "org_units": [],
-          "org_unit_candidates": [],
-          "follows_after": [],
-          "raw_applications": [],
-          "applications": [],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionvertrag_anpassen__bridgr_transform.txt"
-        },
-        "matches": []
-      },
-      "error_message": null
-    },
-    {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Support_durchf_hren__bridgr_transform.txt",
-      "file_hash": "f3e9279aafba709e29a1b771340922e9cba357fc9ee9973d343a03b4de5fa559",
-      "status": "no_matches",
-      "extracted_process": {
-        "process_name": "Support durchführen",
-        "process_id": "_c0af6171-2f22-da75-1c71-5a16c74349f0",
-        "org_unit": "",
-        "roles": [
-          "First Level Supporter"
-        ],
-        "org_units": [],
-        "org_unit_candidates": [],
-        "follows_after": [],
-        "raw_applications": [],
-        "applications": [],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Support_durchf_hren__bridgr_transform.txt"
-      },
-      "matches": [],
-      "review_items": [],
-      "graph_payload": {
-        "process": {
-          "process_name": "Support durchführen",
-          "process_id": "_c0af6171-2f22-da75-1c71-5a16c74349f0",
-          "org_unit": "",
-          "roles": [
-            "First Level Supporter"
-          ],
-          "org_units": [],
-          "org_unit_candidates": [],
-          "follows_after": [],
-          "raw_applications": [],
-          "applications": [],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Support_durchf_hren__bridgr_transform.txt"
-        },
-        "matches": []
-      },
-      "error_message": null
-    },
-    {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Supportanfrage_hinsichtlich_Rechtsanspruch_bewerten__bridgr_transform.txt",
-      "file_hash": "f31fa470852694dc4e1cdb35a2354679444bd175ad057253ab684b95fef3e8ff",
-      "status": "no_matches",
-      "extracted_process": {
-        "process_name": "Supportanfrage hinsichtlich Rechtsanspruch bewerten",
-        "process_id": "_bb8970f3-d9bc-f163-a57a-e12267a5875a",
-        "org_unit": "",
-        "roles": [
-          "Support Engineer"
-        ],
-        "org_units": [],
-        "org_unit_candidates": [],
-        "follows_after": [],
-        "raw_applications": [],
-        "applications": [],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Supportanfrage_hinsichtlich_Rechtsanspruch_bewerten__bridgr_transform.txt"
-      },
-      "matches": [],
-      "review_items": [],
-      "graph_payload": {
-        "process": {
-          "process_name": "Supportanfrage hinsichtlich Rechtsanspruch bewerten",
-          "process_id": "_bb8970f3-d9bc-f163-a57a-e12267a5875a",
-          "org_unit": "",
-          "roles": [
-            "Support Engineer"
-          ],
-          "org_units": [],
-          "org_unit_candidates": [],
-          "follows_after": [],
-          "raw_applications": [],
-          "applications": [],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Supportanfrage_hinsichtlich_Rechtsanspruch_bewerten__bridgr_transform.txt"
-        },
-        "matches": []
-      },
-      "error_message": null
-    },
-    {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Supportanfrage_zu_Innovator_bearbeiten__bridgr_transform.txt",
-      "file_hash": "228e0538090f6036dc6c0a62a37c8dba65214e36ca4d05f086fdffd2d2154bbe",
-      "status": "no_matches",
-      "extracted_process": {
-        "process_name": "Supportanfrage zu Innovator bearbeiten",
-        "process_id": "_8bb01f99-aa5d-f46f-735a-ae66e31a6754",
-        "org_unit": "",
-        "roles": [
-          "Support Engineer"
-        ],
-        "org_units": [],
-        "org_unit_candidates": [],
-        "follows_after": [],
-        "raw_applications": [],
-        "applications": [],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Supportanfrage_zu_Innovator_bearbeiten__bridgr_transform.txt"
-      },
-      "matches": [],
-      "review_items": [],
-      "graph_payload": {
-        "process": {
-          "process_name": "Supportanfrage zu Innovator bearbeiten",
-          "process_id": "_8bb01f99-aa5d-f46f-735a-ae66e31a6754",
-          "org_unit": "",
-          "roles": [
-            "Support Engineer"
-          ],
-          "org_units": [],
-          "org_unit_candidates": [],
-          "follows_after": [],
-          "raw_applications": [],
-          "applications": [],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Supportanfrage_zu_Innovator_bearbeiten__bridgr_transform.txt"
-        },
-        "matches": []
-      },
-      "error_message": null
-    },
-    {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Supportanfrage_zu_Smartfacts_bearbeiten__bridgr_transform.txt",
-      "file_hash": "e97cfcec63cc00287bb65c8d70aa4d46edb2734be491c294fa76b40a17cee4c0",
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml",
+      "file_hash": "903817dbe1e49fd03bbd57c83d595e3ed4853b2cf4f542cbbfd5e4136c8f7019",
       "status": "processed",
       "extracted_process": {
-        "process_name": "Supportanfrage zu Smartfacts bearbeiten",
-        "process_id": "_a0df3ed9-d910-a211-d3f0-3431435e37ea",
+        "process_name": "Incident Management",
+        "process_id": "WFP-1-1",
+        "org_unit": "",
+        "roles": [],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "Product Backlog Interface",
+            "confidence": "stark"
+          },
+          {
+            "name": "Mail Interface",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Product Backlog Interface",
+            "confidence": "stark"
+          },
+          {
+            "name": "Mail Interface",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml"
+      },
+      "matches": [
+        {
+          "application_name": "Product Backlog Interface",
+          "cmdb_id": "ce0f0193-e253-4c97-a004-2473f6b6ba8e",
+          "matched_name": "Product Backlog System",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        },
+        {
+          "application_name": "Mail Interface",
+          "cmdb_id": "744b30b1-b138-4e67-849d-37cdee4c1482",
+          "matched_name": "Mail System",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        }
+      ],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Incident Management",
+          "process_id": "WFP-1-1",
+          "org_unit": "",
+          "roles": [],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "Product Backlog Interface",
+              "confidence": "stark"
+            },
+            {
+              "name": "Mail Interface",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Product Backlog Interface",
+              "confidence": "stark"
+            },
+            {
+              "name": "Mail Interface",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml"
+        },
+        "matches": [
+          {
+            "application_name": "Product Backlog Interface",
+            "cmdb_id": "ce0f0193-e253-4c97-a004-2473f6b6ba8e",
+            "matched_name": "Product Backlog System",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          },
+          {
+            "application_name": "Mail Interface",
+            "cmdb_id": "744b30b1-b138-4e67-849d-37cdee4c1482",
+            "matched_name": "Mail System",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          }
+        ]
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml",
+      "file_hash": "3fa404b4fe7dd61e706187522097669db6a737f2ce61b8ef612f59bcde09b9bd",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Seller process",
+        "process_id": "",
+        "org_unit": "",
+        "roles": [],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "Seller Service Interface",
+            "confidence": "stark"
+          },
+          {
+            "name": "Shipper Service Interface",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Seller Service Interface",
+            "confidence": "stark"
+          },
+          {
+            "name": "Shipper Service Interface",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml"
+      },
+      "matches": [
+        {
+          "application_name": "Seller Service Interface",
+          "cmdb_id": "0985937e-7a75-4f39-ab27-918714c464a7",
+          "matched_name": "Seller Service",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        },
+        {
+          "application_name": "Shipper Service Interface",
+          "cmdb_id": "ac2f45d2-0f21-4018-bc44-5fb16bb2c321",
+          "matched_name": "Shipper Service",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        }
+      ],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Seller process",
+          "process_id": "",
+          "org_unit": "",
+          "roles": [],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "Seller Service Interface",
+              "confidence": "stark"
+            },
+            {
+              "name": "Shipper Service Interface",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Seller Service Interface",
+              "confidence": "stark"
+            },
+            {
+              "name": "Shipper Service Interface",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml"
+        },
+        "matches": [
+          {
+            "application_name": "Seller Service Interface",
+            "cmdb_id": "0985937e-7a75-4f39-ab27-918714c464a7",
+            "matched_name": "Seller Service",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          },
+          {
+            "application_name": "Shipper Service Interface",
+            "cmdb_id": "ac2f45d2-0f21-4018-bc44-5fb16bb2c321",
+            "matched_name": "Shipper Service",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          }
+        ]
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt",
+      "file_hash": "ca010b1e364ad49854285a08655c7d42276900b3580aa355c48997ffa6b869d8",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Bestellabwicklung",
+        "process_id": "Prozess_Bestellabwicklung",
         "org_unit": "",
         "roles": [
-          "Angebotsersteller",
-          "Jira",
-          "Supportteam Smartfacts",
-          "Ticketbearbeiter"
+          "Vertriebsmitarbeiter"
+        ],
+        "org_units": [
+          "Sales",
+          "Team Logistik",
+          "Customer Service Team",
+          "Team Accounting"
+        ],
+        "org_unit_candidates": [
+          "Abteilung SALES",
+          "Team Logistik",
+          "Bereich OPS",
+          "Team Accounting"
+        ],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "SAP SD",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP WM",
+            "confidence": "stark"
+          },
+          {
+            "name": "Mail System",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP FI",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP SD",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP WM",
+            "confidence": "stark"
+          },
+          {
+            "name": "Mail System",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP FI",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt"
+      },
+      "matches": [
+        {
+          "application_name": "SAP SD",
+          "cmdb_id": "app-001",
+          "matched_name": "SAP SD",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "SAP WM",
+          "cmdb_id": "app-005",
+          "matched_name": "Microsoft Outlook",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        },
+        {
+          "application_name": "Mail System",
+          "cmdb_id": "bee0ede7-4331-442e-9427-94adf46413da",
+          "matched_name": "Mail Interface",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        },
+        {
+          "application_name": "SAP FI",
+          "cmdb_id": "if-002",
+          "matched_name": "SAP FI Buchungsschnittstelle",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        }
+      ],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Bestellabwicklung",
+          "process_id": "Prozess_Bestellabwicklung",
+          "org_unit": "",
+          "roles": [
+            "Vertriebsmitarbeiter"
+          ],
+          "org_units": [
+            "Sales",
+            "Team Logistik",
+            "Customer Service Team",
+            "Team Accounting"
+          ],
+          "org_unit_candidates": [
+            "Abteilung SALES",
+            "Team Logistik",
+            "Bereich OPS",
+            "Team Accounting"
+          ],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "SAP SD",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP WM",
+              "confidence": "stark"
+            },
+            {
+              "name": "Mail System",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP FI",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP SD",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP WM",
+              "confidence": "stark"
+            },
+            {
+              "name": "Mail System",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP FI",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt"
+        },
+        "matches": [
+          {
+            "application_name": "SAP SD",
+            "cmdb_id": "app-001",
+            "matched_name": "SAP SD",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "SAP WM",
+            "cmdb_id": "app-005",
+            "matched_name": "Microsoft Outlook",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          },
+          {
+            "application_name": "Mail System",
+            "cmdb_id": "bee0ede7-4331-442e-9427-94adf46413da",
+            "matched_name": "Mail Interface",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          },
+          {
+            "application_name": "SAP FI",
+            "cmdb_id": "if-002",
+            "matched_name": "SAP FI Buchungsschnittstelle",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          }
+        ]
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx",
+      "file_hash": "5b104886bdcf7e14832b5b3f646256f5f41b4b8d115fe8a4eb28febbcf58e59c",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Lieferantenmanagement",
+        "process_id": "Prozess_Lieferantenmanagement",
+        "org_unit": "",
+        "roles": [
+          "Einkauf"
         ],
         "org_units": [],
         "org_unit_candidates": [],
         "follows_after": [],
         "raw_applications": [
           {
-            "name": "Ticket erstellen",
+            "name": "SAP SRM",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Excel",
+            "confidence": "stark"
+          },
+          {
+            "name": "DocuSign",
             "confidence": "stark"
           }
         ],
         "applications": [
           {
-            "name": "Ticket erstellen",
+            "name": "SAP SRM",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Excel",
+            "confidence": "stark"
+          },
+          {
+            "name": "DocuSign",
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Supportanfrage_zu_Smartfacts_bearbeiten__bridgr_transform.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx"
       },
       "matches": [
         {
-          "application_name": "Ticket erstellen",
+          "application_name": "SAP SRM",
+          "cmdb_id": "app-006",
+          "matched_name": "SAP SRM",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "Microsoft Excel",
+          "cmdb_id": "app-002",
+          "matched_name": "SAP FI",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        },
+        {
+          "application_name": "DocuSign",
+          "cmdb_id": "if-004",
+          "matched_name": "DocuSign Signing API",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        }
+      ],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Lieferantenmanagement",
+          "process_id": "Prozess_Lieferantenmanagement",
+          "org_unit": "",
+          "roles": [
+            "Einkauf"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "SAP SRM",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Excel",
+              "confidence": "stark"
+            },
+            {
+              "name": "DocuSign",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP SRM",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Excel",
+              "confidence": "stark"
+            },
+            {
+              "name": "DocuSign",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx"
+        },
+        "matches": [
+          {
+            "application_name": "SAP SRM",
+            "cmdb_id": "app-006",
+            "matched_name": "SAP SRM",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "Microsoft Excel",
+            "cmdb_id": "app-002",
+            "matched_name": "SAP FI",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          },
+          {
+            "application_name": "DocuSign",
+            "cmdb_id": "if-004",
+            "matched_name": "DocuSign Signing API",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          }
+        ]
+      },
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf",
+      "file_hash": "1677e512c8538a8e778c5d12d4ca2d0e92d5ce4ef9b037bc4da6d764e4ddcdd8",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Reklamationsbearbeitung",
+        "process_id": "Prozess_Reklamationsbearbeitung",
+        "org_unit": "",
+        "roles": [],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "Microsoft Outlook",
+            "confidence": "stark"
+          },
+          {
+            "name": "Jira Service Management",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Teams",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP SD",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Excel",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Microsoft Outlook",
+            "confidence": "stark"
+          },
+          {
+            "name": "Jira Service Management",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Teams",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP SD",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Excel",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf"
+      },
+      "matches": [
+        {
+          "application_name": "Microsoft Outlook",
+          "cmdb_id": "app-005",
+          "matched_name": "Microsoft Outlook",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "Jira Service Management",
           "cmdb_id": "app-004",
           "matched_name": "Jira Service Management",
           "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "Microsoft Teams",
+          "cmdb_id": "app-008",
+          "matched_name": "Microsoft Teams",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "SAP SD",
+          "cmdb_id": "app-001",
+          "matched_name": "SAP SD",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "Microsoft Excel",
+          "cmdb_id": "app-002",
+          "matched_name": "SAP FI",
+          "confidence": "stark",
           "source": "knowledge_base",
           "score": 1.0
         }
@@ -420,411 +845,156 @@
       "review_items": [],
       "graph_payload": {
         "process": {
-          "process_name": "Supportanfrage zu Smartfacts bearbeiten",
-          "process_id": "_a0df3ed9-d910-a211-d3f0-3431435e37ea",
+          "process_name": "Reklamationsbearbeitung",
+          "process_id": "Prozess_Reklamationsbearbeitung",
           "org_unit": "",
-          "roles": [
-            "Angebotsersteller",
-            "Jira",
-            "Supportteam Smartfacts",
-            "Ticketbearbeiter"
-          ],
+          "roles": [],
           "org_units": [],
           "org_unit_candidates": [],
           "follows_after": [],
           "raw_applications": [
             {
-              "name": "Ticket erstellen",
+              "name": "Microsoft Outlook",
+              "confidence": "stark"
+            },
+            {
+              "name": "Jira Service Management",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Teams",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP SD",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Excel",
               "confidence": "stark"
             }
           ],
           "applications": [
             {
-              "name": "Ticket erstellen",
+              "name": "Microsoft Outlook",
+              "confidence": "stark"
+            },
+            {
+              "name": "Jira Service Management",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Teams",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP SD",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Excel",
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Supportanfrage_zu_Smartfacts_bearbeiten__bridgr_transform.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf"
         },
         "matches": [
           {
-            "application_name": "Ticket erstellen",
+            "application_name": "Microsoft Outlook",
+            "cmdb_id": "app-005",
+            "matched_name": "Microsoft Outlook",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "Jira Service Management",
             "cmdb_id": "app-004",
             "matched_name": "Jira Service Management",
             "confidence": "stark",
-            "source": "knowledge_base",
+            "source": "fuzzy",
             "score": 1.0
-          }
-        ]
-      },
-      "error_message": null
-    },
-    {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__synchro2__bridgr_transform.txt",
-      "file_hash": "bf02efd1050f2f640fbc38e40ce55236aa032abd1371341e89dbfdbcfad341af",
-      "status": "no_matches",
-      "extracted_process": {
-        "process_name": "synchro2",
-        "process_id": "_5e5327d8-e5e4-592d-aedb-b7a2cdd0d6de",
-        "org_unit": "",
-        "roles": [],
-        "org_units": [],
-        "org_unit_candidates": [],
-        "follows_after": [],
-        "raw_applications": [],
-        "applications": [],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__synchro2__bridgr_transform.txt"
-      },
-      "matches": [],
-      "review_items": [],
-      "graph_payload": {
-        "process": {
-          "process_name": "synchro2",
-          "process_id": "_5e5327d8-e5e4-592d-aedb-b7a2cdd0d6de",
-          "org_unit": "",
-          "roles": [],
-          "org_units": [],
-          "org_unit_candidates": [],
-          "follows_after": [],
-          "raw_applications": [],
-          "applications": [],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__synchro2__bridgr_transform.txt"
-        },
-        "matches": []
-      },
-      "error_message": null
-    },
-    {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__synchro__bridgr_transform.txt",
-      "file_hash": "7b8867f5e4d387d3d5d2758bedcde7111e0f88dbc9995ba819484273d5fc0fe4",
-      "status": "no_matches",
-      "extracted_process": {
-        "process_name": "synchro",
-        "process_id": "_f6234c13-cacf-63b8-720d-18348cc1044b",
-        "org_unit": "",
-        "roles": [],
-        "org_units": [],
-        "org_unit_candidates": [],
-        "follows_after": [],
-        "raw_applications": [],
-        "applications": [],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__synchro__bridgr_transform.txt"
-      },
-      "matches": [],
-      "review_items": [],
-      "graph_payload": {
-        "process": {
-          "process_name": "synchro",
-          "process_id": "_f6234c13-cacf-63b8-720d-18348cc1044b",
-          "org_unit": "",
-          "roles": [],
-          "org_units": [],
-          "org_unit_candidates": [],
-          "follows_after": [],
-          "raw_applications": [],
-          "applications": [],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__synchro__bridgr_transform.txt"
-        },
-        "matches": []
-      },
-      "error_message": null
-    },
-    {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__System_anlegen__bridgr_transform.txt",
-      "file_hash": "58c2401332cd51005e74941d33e674eedff0f0f511fc6a0b8a2475f949df0d5b",
-      "status": "no_matches",
-      "extracted_process": {
-        "process_name": "System anlegen",
-        "process_id": "Process_1_73c4eee4-85e9-4bc6-8942-3642903dba8f",
-        "org_unit": "",
-        "roles": [
-          "IT-Administrator"
-        ],
-        "org_units": [],
-        "org_unit_candidates": [],
-        "follows_after": [],
-        "raw_applications": [],
-        "applications": [],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__System_anlegen__bridgr_transform.txt"
-      },
-      "matches": [],
-      "review_items": [],
-      "graph_payload": {
-        "process": {
-          "process_name": "System anlegen",
-          "process_id": "Process_1_73c4eee4-85e9-4bc6-8942-3642903dba8f",
-          "org_unit": "",
-          "roles": [
-            "IT-Administrator"
-          ],
-          "org_units": [],
-          "org_unit_candidates": [],
-          "follows_after": [],
-          "raw_applications": [],
-          "applications": [],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__System_anlegen__bridgr_transform.txt"
-        },
-        "matches": []
-      },
-      "error_message": null
-    },
-    {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__System_anlegen_ndern_l_schen_-_System_verwalten__bridgr_transform.txt",
-      "file_hash": "8d3163be79999ae3b7638923dcd4f613c67db862f5b8cb76c72acb3f99bf10f3",
-      "status": "processed",
-      "extracted_process": {
-        "process_name": "System anlegen/ändern/löschen -> System verwalten",
-        "process_id": "Process_1_912440de-8b4f-4be2-aafe-cb964b8d5f09",
-        "org_unit": "",
-        "roles": [
-          "IT-Administrator"
-        ],
-        "org_units": [],
-        "org_unit_candidates": [],
-        "follows_after": [],
-        "raw_applications": [
-          {
-            "name": "System anlegen",
-            "confidence": "stark"
           },
           {
-            "name": "System löschen",
-            "confidence": "stark"
+            "application_name": "Microsoft Teams",
+            "cmdb_id": "app-008",
+            "matched_name": "Microsoft Teams",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
           },
           {
-            "name": "System ändern",
-            "confidence": "stark"
-          }
-        ],
-        "applications": [
-          {
-            "name": "System anlegen",
-            "confidence": "stark"
-          },
-          {
-            "name": "System löschen",
-            "confidence": "stark"
-          },
-          {
-            "name": "System ändern",
-            "confidence": "stark"
-          }
-        ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__System_anlegen_ndern_l_schen_-_System_verwalten__bridgr_transform.txt"
-      },
-      "matches": [
-        {
-          "application_name": "System anlegen",
-          "cmdb_id": "app-001",
-          "matched_name": "SAP SD",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
-        },
-        {
-          "application_name": "System löschen",
-          "cmdb_id": "app-001",
-          "matched_name": "SAP SD",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
-        },
-        {
-          "application_name": "System ändern",
-          "cmdb_id": "app-001",
-          "matched_name": "SAP SD",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
-        }
-      ],
-      "review_items": [],
-      "graph_payload": {
-        "process": {
-          "process_name": "System anlegen/ändern/löschen -> System verwalten",
-          "process_id": "Process_1_912440de-8b4f-4be2-aafe-cb964b8d5f09",
-          "org_unit": "",
-          "roles": [
-            "IT-Administrator"
-          ],
-          "org_units": [],
-          "org_unit_candidates": [],
-          "follows_after": [],
-          "raw_applications": [
-            {
-              "name": "System anlegen",
-              "confidence": "stark"
-            },
-            {
-              "name": "System löschen",
-              "confidence": "stark"
-            },
-            {
-              "name": "System ändern",
-              "confidence": "stark"
-            }
-          ],
-          "applications": [
-            {
-              "name": "System anlegen",
-              "confidence": "stark"
-            },
-            {
-              "name": "System löschen",
-              "confidence": "stark"
-            },
-            {
-              "name": "System ändern",
-              "confidence": "stark"
-            }
-          ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__System_anlegen_ndern_l_schen_-_System_verwalten__bridgr_transform.txt"
-        },
-        "matches": [
-          {
-            "application_name": "System anlegen",
+            "application_name": "SAP SD",
             "cmdb_id": "app-001",
             "matched_name": "SAP SD",
             "confidence": "stark",
-            "source": "knowledge_base",
+            "source": "fuzzy",
             "score": 1.0
           },
           {
-            "application_name": "System löschen",
-            "cmdb_id": "app-001",
-            "matched_name": "SAP SD",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
-          },
-          {
-            "application_name": "System ändern",
-            "cmdb_id": "app-001",
-            "matched_name": "SAP SD",
+            "application_name": "Microsoft Excel",
+            "cmdb_id": "app-002",
+            "matched_name": "SAP FI",
             "confidence": "stark",
             "source": "knowledge_base",
             "score": 1.0
           }
         ]
-      },
-      "error_message": null
-    },
-    {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__System_l_schen__bridgr_transform.txt",
-      "file_hash": "e9dd089834d9184a0ec9e39dbe35b16ed45284d6399bfde5e95833b597ab2e52",
-      "status": "no_matches",
-      "extracted_process": {
-        "process_name": "System löschen",
-        "process_id": "Process_1_862e6dc7-1c18-4f48-a0d7-6d346e3e639e",
-        "org_unit": "",
-        "roles": [
-          "IT-Administrator"
-        ],
-        "org_units": [],
-        "org_unit_candidates": [],
-        "follows_after": [],
-        "raw_applications": [],
-        "applications": [],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__System_l_schen__bridgr_transform.txt"
-      },
-      "matches": [],
-      "review_items": [],
-      "graph_payload": {
-        "process": {
-          "process_name": "System löschen",
-          "process_id": "Process_1_862e6dc7-1c18-4f48-a0d7-6d346e3e639e",
-          "org_unit": "",
-          "roles": [
-            "IT-Administrator"
-          ],
-          "org_units": [],
-          "org_unit_candidates": [],
-          "follows_after": [],
-          "raw_applications": [],
-          "applications": [],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__System_l_schen__bridgr_transform.txt"
-        },
-        "matches": []
       },
       "error_message": null
     }
   ],
-  "import_archive_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260528_142515",
+  "import_archive_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260529_082625",
   "import_archived_files": [
     {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subcontractorvertrag_abschlie_en__bridgr_transform.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260528_142515\\BPMN-Gesamt__Subcontractorvertrag_abschlie_en__bridgr_transform.txt",
-      "display_path": "BPMN-Gesamt__Subcontractorvertrag_abschlie_en__bridgr_transform.txt"
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Recruiting_abschlie_en__bridgr_transform.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260529_082625\\BPMN-Gesamt__Recruiting_abschlie_en__bridgr_transform.txt",
+      "display_path": "BPMN-Gesamt__Recruiting_abschlie_en__bridgr_transform.txt"
     },
     {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscription_lizenzieren__bridgr_transform.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260528_142515\\BPMN-Gesamt__Subscription_lizenzieren__bridgr_transform.txt",
-      "display_path": "BPMN-Gesamt__Subscription_lizenzieren__bridgr_transform.txt"
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Recruiting_durchf_hren__bridgr_transform.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260529_082625\\BPMN-Gesamt__Recruiting_durchf_hren__bridgr_transform.txt",
+      "display_path": "BPMN-Gesamt__Recruiting_durchf_hren__bridgr_transform.txt"
     },
     {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionlizenz_einrichten__bridgr_transform.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260528_142515\\BPMN-Gesamt__Subscriptionlizenz_einrichten__bridgr_transform.txt",
-      "display_path": "BPMN-Gesamt__Subscriptionlizenz_einrichten__bridgr_transform.txt"
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Reisekosten_abrechnen__bridgr_transform.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260529_082625\\BPMN-Gesamt__Reisekosten_abrechnen__bridgr_transform.txt",
+      "display_path": "BPMN-Gesamt__Reisekosten_abrechnen__bridgr_transform.txt"
     },
     {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionlizenz_verfolgen__bridgr_transform.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260528_142515\\BPMN-Gesamt__Subscriptionlizenz_verfolgen__bridgr_transform.txt",
-      "display_path": "BPMN-Gesamt__Subscriptionlizenz_verfolgen__bridgr_transform.txt"
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Reisekosten_mit_Excel_einreichen__bridgr_transform.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260529_082625\\BPMN-Gesamt__Reisekosten_mit_Excel_einreichen__bridgr_transform.txt",
+      "display_path": "BPMN-Gesamt__Reisekosten_mit_Excel_einreichen__bridgr_transform.txt"
     },
     {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionvertrag_abschlie_en__bridgr_transform.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260528_142515\\BPMN-Gesamt__Subscriptionvertrag_abschlie_en__bridgr_transform.txt",
-      "display_path": "BPMN-Gesamt__Subscriptionvertrag_abschlie_en__bridgr_transform.txt"
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Reisekosten_mit_HR-Works_erfassen__bridgr_transform.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260529_082625\\BPMN-Gesamt__Reisekosten_mit_HR-Works_erfassen__bridgr_transform.txt",
+      "display_path": "BPMN-Gesamt__Reisekosten_mit_HR-Works_erfassen__bridgr_transform.txt"
     },
     {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionvertrag_anpassen__bridgr_transform.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260528_142515\\BPMN-Gesamt__Subscriptionvertrag_anpassen__bridgr_transform.txt",
-      "display_path": "BPMN-Gesamt__Subscriptionvertrag_anpassen__bridgr_transform.txt"
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260529_082625\\BPMN_Example_01_Incident_Management.xml",
+      "display_path": "BPMN_Example_01_Incident_Management.xml"
     },
     {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Support_durchf_hren__bridgr_transform.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260528_142515\\BPMN-Gesamt__Support_durchf_hren__bridgr_transform.txt",
-      "display_path": "BPMN-Gesamt__Support_durchf_hren__bridgr_transform.txt"
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260529_082625\\BPMN_Example_02_RFQ_Message.xml",
+      "display_path": "BPMN_Example_02_RFQ_Message.xml"
     },
     {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Supportanfrage_hinsichtlich_Rechtsanspruch_bewerten__bridgr_transform.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260528_142515\\BPMN-Gesamt__Supportanfrage_hinsichtlich_Rechtsanspruch_bewerten__bridgr_transform.txt",
-      "display_path": "BPMN-Gesamt__Supportanfrage_hinsichtlich_Rechtsanspruch_bewerten__bridgr_transform.txt"
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260529_082625\\Prozess_Bestellabwicklung.txt",
+      "display_path": "Prozess_Bestellabwicklung.txt"
     },
     {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Supportanfrage_zu_Innovator_bearbeiten__bridgr_transform.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260528_142515\\BPMN-Gesamt__Supportanfrage_zu_Innovator_bearbeiten__bridgr_transform.txt",
-      "display_path": "BPMN-Gesamt__Supportanfrage_zu_Innovator_bearbeiten__bridgr_transform.txt"
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Lieferantenmanagement.docx",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260529_082625\\Prozess_Lieferantenmanagement.docx",
+      "display_path": "Prozess_Lieferantenmanagement.docx"
     },
     {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Supportanfrage_zu_Smartfacts_bearbeiten__bridgr_transform.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260528_142515\\BPMN-Gesamt__Supportanfrage_zu_Smartfacts_bearbeiten__bridgr_transform.txt",
-      "display_path": "BPMN-Gesamt__Supportanfrage_zu_Smartfacts_bearbeiten__bridgr_transform.txt"
-    },
-    {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__synchro2__bridgr_transform.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260528_142515\\BPMN-Gesamt__synchro2__bridgr_transform.txt",
-      "display_path": "BPMN-Gesamt__synchro2__bridgr_transform.txt"
-    },
-    {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__synchro__bridgr_transform.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260528_142515\\BPMN-Gesamt__synchro__bridgr_transform.txt",
-      "display_path": "BPMN-Gesamt__synchro__bridgr_transform.txt"
-    },
-    {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__System_anlegen__bridgr_transform.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260528_142515\\BPMN-Gesamt__System_anlegen__bridgr_transform.txt",
-      "display_path": "BPMN-Gesamt__System_anlegen__bridgr_transform.txt"
-    },
-    {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__System_anlegen_ndern_l_schen_-_System_verwalten__bridgr_transform.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260528_142515\\BPMN-Gesamt__System_anlegen_ndern_l_schen_-_System_verwalten__bridgr_transform.txt",
-      "display_path": "BPMN-Gesamt__System_anlegen_ndern_l_schen_-_System_verwalten__bridgr_transform.txt"
-    },
-    {
-      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__System_l_schen__bridgr_transform.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260528_142515\\BPMN-Gesamt__System_l_schen__bridgr_transform.txt",
-      "display_path": "BPMN-Gesamt__System_l_schen__bridgr_transform.txt"
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Reklamationsbearbeitung.pdf",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260529_082625\\Prozess_Reklamationsbearbeitung.pdf",
+      "display_path": "Prozess_Reklamationsbearbeitung.pdf"
     }
   ]
 }

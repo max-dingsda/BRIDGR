@@ -2,16 +2,58 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import re
 
 from graph_schema import build_query_schema_reference
 from llm_client import OpenAICompatibleClient
-from neo4j_utils import Neo4jClient
+from neo4j_utils import Neo4jClient, QueryValidationError, validate_read_only_cypher
 
 
-def generate_cypher_from_question(question: str, llm_client: OpenAICompatibleClient, prompt_path: Path) -> str:
-    system_prompt = prompt_path.read_text(encoding="utf-8").rstrip() + "\n\n" + build_query_schema_reference()
-    raw_response = llm_client.generate_text(system_prompt=system_prompt, user_prompt=question)
-    return sanitize_cypher_response(raw_response)
+def generate_cypher_from_question(
+    question: str,
+    llm_client: OpenAICompatibleClient,
+    prompt_path: Path,
+    conversation_messages: list[dict[str, str]] | None = None,
+    focus_entity: dict[str, str] | None = None,
+) -> str:
+    base_prompt = prompt_path.read_text(encoding="utf-8").rstrip() + "\n\n" + build_query_schema_reference()
+    retry_feedback = ""
+    last_error: QueryValidationError | None = None
+    user_prompt = question
+    if conversation_messages or focus_entity:
+        payload = {
+            "instruction": (
+                "Use the provided conversation history and optional current focus entity only to resolve references in the current question. "
+                "If the current question is self-contained, prioritize the current question."
+            ),
+            "conversation_history": conversation_messages or [],
+            "current_focus_entity": focus_entity or {},
+            "current_question": question,
+        }
+        user_prompt = json.dumps(payload, ensure_ascii=False, indent=2)
+
+    for _attempt in range(2):
+        system_prompt = base_prompt
+        if retry_feedback:
+            system_prompt += "\n\n" + retry_feedback
+        raw_response = llm_client.generate_text(system_prompt=system_prompt, user_prompt=user_prompt)
+        cypher_query = sanitize_cypher_response(raw_response)
+        try:
+            validate_read_only_cypher(cypher_query)
+        except QueryValidationError as exc:
+            last_error = exc
+            retry_feedback = (
+                "Your previous Cypher was rejected by local validation.\n"
+                f"Validation error: {exc}\n"
+                f"Previous invalid Cypher:\n{cypher_query}\n\n"
+                "Regenerate the full query from scratch. Return exactly one valid read-only Cypher query that follows all schema and structure rules."
+            )
+            continue
+        return cypher_query
+
+    if last_error is not None:
+        raise last_error
+    raise QueryValidationError("Cypher query generation failed without a valid result.")
 
 
 def sanitize_cypher_response(raw_response: str) -> str:
@@ -98,7 +140,7 @@ def should_request_application_clarification(question: str) -> bool:
 
 
 def resolve_application_clarification(user_message: str, options: list[str]) -> str | None:
-    normalized_message = user_message.casefold().strip()
+    normalized_message = _normalize_clarification_text(user_message)
     exact_matches = [option for option in options if option.casefold() == normalized_message]
     if len(exact_matches) == 1:
         return exact_matches[0]
@@ -106,7 +148,7 @@ def resolve_application_clarification(user_message: str, options: list[str]) -> 
     partial_matches = [
         option
         for option in options
-        if normalized_message and normalized_message in option.casefold()
+        if normalized_message and normalized_message in _normalize_clarification_text(option)
     ]
     if len(partial_matches) == 1:
         return partial_matches[0]
@@ -119,3 +161,22 @@ def _extract_application_name_from_row(row: dict) -> str:
         if value:
             return value
     return ""
+
+
+def _normalize_clarification_text(text: str) -> str:
+    normalized = text.casefold().strip()
+    normalized = normalized.strip("\"'` ")
+    normalized = re.sub(r"[\"'`]", "", normalized)
+    normalized = re.sub(
+        r"^(ich meinte|gemeint ist|es ist|es war|ich meine|das ist|die ist|der ist)\s+",
+        "",
+        normalized,
+    )
+    normalized = re.sub(
+        r"^(die anwendung|der prozess|die orgeinheit|die organisationseinheit|der server|die schnittstelle|anwendung|prozess|orgeinheit|organisationseinheit|server|schnittstelle)\s+",
+        "",
+        normalized,
+    )
+    normalized = re.sub(r"^(genau\s+)?", "", normalized)
+    normalized = normalized.strip(" .,:;!?")
+    return normalized

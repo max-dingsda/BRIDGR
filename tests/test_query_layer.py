@@ -30,6 +30,19 @@ class PromptCapturingLlmClient:
         return "MATCH (p:Prozess) RETURN p.name AS process"
 
 
+class RepairingLlmClient:
+    def __init__(self) -> None:
+        self.calls = 0
+        self.system_prompts: list[str] = []
+
+    def generate_text(self, system_prompt: str, user_prompt: str) -> str:
+        self.calls += 1
+        self.system_prompts.append(system_prompt)
+        if self.calls == 1:
+            return "MATCH (a:Anwendung) RETURN count(a) AS applicationCount MATCH (p:Prozess) RETURN count(p) AS processCount"
+        return "MATCH (a:Anwendung) WITH count(a) AS applicationCount MATCH (p:Prozess) RETURN applicationCount, count(p) AS processCount"
+
+
 def test_answer_question_returns_cypher_and_rows(tmp_path: Path) -> None:
     cypher_prompt_path = tmp_path / "cypher_gen.md"
     answer_prompt_path = tmp_path / "answer_query.md"
@@ -66,6 +79,56 @@ def test_generate_cypher_from_question_appends_runtime_schema_reference(tmp_path
     assert cypher_query == "MATCH (p:Prozess) RETURN p.name AS process"
     assert build_query_schema_reference() in llm_client.system_prompt
     assert "Apply all explicit filters from the question directly in Cypher whenever possible." in llm_client.system_prompt
+    assert "(:Anwendung)-[:RUNS_ON]->(:Server)" in llm_client.system_prompt
+    assert "Never invent additional relationship types, labels, directions, or properties." in llm_client.system_prompt
+
+
+def test_generate_cypher_from_question_retries_once_after_local_validation_error(tmp_path: Path) -> None:
+    cypher_prompt_path = tmp_path / "cypher_gen.md"
+    cypher_prompt_path.write_text("prompt", encoding="utf-8")
+    llm_client = RepairingLlmClient()
+
+    cypher_query = generate_cypher_from_question(
+        question="Wie viele Anwendungen und Prozesse kennst du?",
+        llm_client=llm_client,
+        prompt_path=cypher_prompt_path,
+    )
+
+    assert cypher_query == "MATCH (a:Anwendung) WITH count(a) AS applicationCount MATCH (p:Prozess) RETURN applicationCount, count(p) AS processCount"
+    assert llm_client.calls == 2
+    assert "Validation error:" in llm_client.system_prompts[1]
+    assert "Previous invalid Cypher:" in llm_client.system_prompts[1]
+
+
+def test_generate_cypher_from_question_includes_follow_up_context_in_user_prompt(tmp_path: Path) -> None:
+    cypher_prompt_path = tmp_path / "cypher_gen.md"
+    cypher_prompt_path.write_text("prompt", encoding="utf-8")
+
+    class ContextCapturingLlmClient:
+        def __init__(self) -> None:
+            self.user_prompt = ""
+
+        def generate_text(self, system_prompt: str, user_prompt: str) -> str:
+            self.user_prompt = user_prompt
+            return "MATCH (s:Server) RETURN s.name AS server"
+
+    llm_client = ContextCapturingLlmClient()
+
+    generate_cypher_from_question(
+        question="wieviele sind das jeweils?",
+        llm_client=llm_client,
+        prompt_path=cypher_prompt_path,
+        conversation_messages=[
+            {"role": "user", "content": "gibt es bei den servern eine unterscheidung zwischen physisch und virtuell?"},
+            {"role": "assistant", "content": 'Ja, bei den Servern gibt es eine Unterscheidung; sie sind als "virtual" und "physical" eingestuft.'},
+        ],
+        focus_entity={"entity_type": "Server", "entity_name": "physical versus virtual"},
+    )
+
+    assert "conversation_history" in llm_client.user_prompt
+    assert "current_focus_entity" in llm_client.user_prompt
+    assert "current_question" in llm_client.user_prompt
+    assert "physisch und virtuell" in llm_client.user_prompt
 
 
 class FenceLlmClient:
@@ -180,6 +243,7 @@ def test_cypher_prompt_requires_concrete_application_for_name_filters(tmp_path: 
     prompt_text = prompt_path.read_text(encoding="utf-8")
 
     assert "return the concrete matched application as `application`" in prompt_text
+    assert "org_units_without_process_count" in prompt_text
 
 
 def test_find_application_ambiguity_options_skips_plural_questions() -> None:
@@ -199,3 +263,10 @@ def test_resolve_application_clarification_accepts_exact_and_partial_match() -> 
     assert resolve_application_clarification("Adobe Reader", options) == "Adobe Reader"
     assert resolve_application_clarification("professional", options) == "Adobe Professional"
     assert resolve_application_clarification("Adobe", options) is None
+
+
+def test_resolve_application_clarification_normalizes_type_words_and_quotes() -> None:
+    options = ["Seller Service", "Seller Service Interface"]
+
+    assert resolve_application_clarification('Ich meinte die Anwendung "Seller Service"', options) == "Seller Service"
+    assert resolve_application_clarification("gemeint ist der prozess Seller Service", options) == "Seller Service"
