@@ -16,6 +16,9 @@ from neo4j_utils import Neo4jClient
 from skills.extract.extract_base import ExtractedProcess
 from skills.match import MatchResult
 
+PROCESS_WRITE_ACTION_INSERTED = "inserted"
+PROCESS_WRITE_ACTION_UPDATED = "updated"
+
 
 @dataclass(slots=True)
 class GraphWritePayload:
@@ -27,10 +30,10 @@ class GraphWriter:
     def build_payload(self, process: ExtractedProcess, matches: list[MatchResult]) -> GraphWritePayload:
         return GraphWritePayload(process=process, matches=matches)
 
-    def write_payload(self, client: Neo4jClient, payload: GraphWritePayload) -> None:
+    def write_payload(self, client: Neo4jClient, payload: GraphWritePayload) -> str:
         client.ensure_constraints()
         process = payload.process
-        self._upsert_process_node(client, process.process_id, process.process_name)
+        process_write_action = self._upsert_process_node(client, process.process_id, process.process_name)
         client.execute_write(
             """
             MATCH (p:Prozess {prozess_id: $process_id})-[r:NUTZT]->(:Anwendung)
@@ -133,6 +136,7 @@ class GraphWriter:
                     "confidence": match.confidence,
                 },
             )
+        return process_write_action
 
     def sync_cmdb(
         self,
@@ -189,7 +193,7 @@ class GraphWriter:
             """
         )
 
-    def _upsert_process_node(self, client: Neo4jClient, process_id: str, process_name: str) -> None:
+    def _upsert_process_node(self, client: Neo4jClient, process_id: str, process_name: str) -> str:
         placeholder_rows = client.execute_write(
             """
             MATCH (p:Prozess {name: $process_name, placeholder: true})
@@ -222,7 +226,7 @@ class GraphWriter:
                 },
             )
             self._resolve_duplicate_placeholders(client, process_id, process_name)
-            return
+            return PROCESS_WRITE_ACTION_UPDATED
 
         if len(placeholder_rows) == 1:
             client.execute_write(
@@ -239,7 +243,7 @@ class GraphWriter:
                     "process_name": process_name,
                 },
             )
-            return
+            return PROCESS_WRITE_ACTION_UPDATED
 
         client.execute_write(
             """
@@ -252,6 +256,7 @@ class GraphWriter:
                 "process_name": process_name,
             },
         )
+        return PROCESS_WRITE_ACTION_INSERTED
 
     def _upsert_cmdb_entity(self, client: Neo4jClient, entity: CmdbEntity) -> None:
         if entity.entity_type == CMDB_ENTITY_TYPE_APPLICATION:

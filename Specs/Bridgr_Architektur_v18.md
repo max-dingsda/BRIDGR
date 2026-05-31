@@ -301,6 +301,12 @@ Fuer Organisationseinheiten gilt zusaetzlich:
 - aus Prozessquellen identifizierte moegliche Organisationseinheiten bleiben Kandidaten, bis sie in Tab 4 bestaetigt, gemappt oder verworfen werden
 - dieselbe Kandidatenlogik gilt fuer unsichere Owner-Bezeichnungen aus der CMDB
 
+Fuer kuratierte Alternativbezeichnungen gilt zusaetzlich:
+
+- bestaetigte manuelle App-Mappings und gemappte Org-Kandidaten duerfen als `Alias` nach Neo4j projiziert werden
+- ein `Alias` darf bewusst mehrdeutig sein und auf mehrere kanonische Zielobjekte zeigen
+- Aliaswissen dient der deterministischen Lookup-Aufloesung und Rueckfrage im Abfrage-Layer, nicht als freier Halluzinationsraum fuer das LLM
+
 ---
 
 ## 9. Graph Writer
@@ -315,6 +321,7 @@ Mindestens folgende Knotenlabels werden unterschieden:
 (:Schnittstelle)
 (:Server)
 (:OrgEinheit)
+(:Alias)
 ```
 
 Mindestens folgende Beziehungen werden fachlich vorgesehen:
@@ -329,6 +336,8 @@ Mindestens folgende Beziehungen werden fachlich vorgesehen:
 (:Anwendung)-[:USES_INTERFACE]->(:Schnittstelle)
 (:Anwendung)-[:RUNS_ON]->(:Server)
 (:Schnittstelle)-[:RUNS_ON]->(:Server)
+(:Alias)-[:KANN_MEINEN]->(:OrgEinheit)
+(:Alias)-[:KANN_MEINEN]->(:Anwendung)
 ```
 
 Diese technischen Beziehungen zwischen `Anwendung`, `Schnittstelle` und `Server` sind in v0.18 nicht mehr nur vorbereitet, sondern Teil des aktuellen Ziel- und Query-Schemas.
@@ -365,6 +374,22 @@ Mit v0.18 muss der Query-Layer das erweiterte CMDB-Schema kennen:
 - `RUNS_ON`
 
 `graph_schema.py` ist die kanonische Quelle fuer dieses erlaubte Query-Schema. Prompting und lokale Query-Validierung muessen sich auf dieses kanonische Schema stuetzen und nicht auf eine Live-Introspektion der aktuell befuellten Datenbank.
+
+Prompting und Fehlerbehandlung werden zusaetzlich gehaertet:
+
+- der Cypher-Prompt beschreibt das Modell als schema-konservativen Query-Assistenten
+- natuerliche Fachbegriffe wie `hostet` oder `nutzt` muessen semantisch auf die kanonischen Beziehungstypen gemappt werden statt woertlich als neue Kante aufzutauchen
+- bei Mehrfachaggregationen sind einfache Single-Query-Formen mit `WITH` gegenueber `UNION` zu bevorzugen
+- technische Query-, Validierungs- oder Treiberfehler werden in der UI in verstaendliche Sprache uebersetzt
+
+Fuer Lookup und Mehrdeutigkeit gilt zusaetzlich:
+
+- direkte Namensaufloesung bleibt primaer
+- wenn eine erste fachlich regulaere Query gegen den Graphen eine leere Ergebnismenge liefert, darf der Code denselben identifizierten Suchbegriff deterministisch gegen `Alias.name` pruefen
+- bei leerer Alias-Menge bleibt die Antwort negativ
+- bei genau einem Alias-Ziel wird die urspruengliche Benutzerfrage intern auf den kanonischen Zielbegriff umgeschrieben und genau einmal neu ausgefuehrt
+- bei mehreren Alias-Zielen wird der Benutzer zur Praezisierung aufgefordert; dieser Kontext muss fuer die naechste kurze Benutzerantwort erhalten bleiben
+- der fuer echte Folgefragen genutzte Fokus-Anker darf durch eine frische Alias-Aufloesung allein nicht so injiziert werden, dass Ueberblicksfragen unnoetig auf das Zielobjekt selbst verengt werden
 
 Fuer Chat-Folgefragen gilt zusaetzlich:
 
@@ -428,7 +453,8 @@ Mit v0.16 gilt zusaetzlich:
 | Quelle fuer `VERANTWORTET` | Prozessquellen und CMDB duerfen beide Verantwortungen liefern | Verantwortung nur aus Prozessquellen zulassen | in realen Modellen ist Ownership haeufig generisch und muss deshalb auch aus der CMDB abbildbar sein |
 | Unsichere CMDB-Owner | Kandidatenlogik analog zur Org-Pruefung aus dem Prozessimport | unsichere Owner-Strings direkt als produktive Org-Einheiten schreiben | verhindert stilles Aufblaehen des Org-Modells durch Freitext aus der CMDB |
 | Prozessanbindung | `(:Anwendung)-[:DIENT]->(:Prozess)` | `(:Prozess)-[:NUTZT]->(:Anwendung)` als alleinige Zielsemantik | die neue Richtung ist naeher an ArchiMate und semantisch klarer fuer die Servicesicht |
+| Kuratierte Alternativbegriffe | `(:Alias)-[:KANN_MEINEN]->(:OrgEinheit|:Anwendung)` als separater Curation-Subgraph | freie LLM-Synonymerfindung nach Nulltreffern | haelt alternative Namen nachvollziehbar, mehrdeutig modellierbar und deterministisch aufloesbar |
 
 ---
 
-*Bridgr | Architektur v0.16 | Stand Mai 2026*
+*Bridgr | Architektur v0.18 | Stand Mai 2026*

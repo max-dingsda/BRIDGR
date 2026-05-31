@@ -228,3 +228,4 @@ Input/*
 *graphify*
 graphify-out/*
 data/input_archive/*
+.tmp_*/

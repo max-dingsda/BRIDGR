@@ -4,12 +4,15 @@ import hashlib
 
 from constants import (
     CONFIDENCE_WEAK,
+    CONFIDENCE_STRONG,
     DOCUMENT_STATUS_ERROR,
     DOCUMENT_STATUS_NO_MATCHES,
-    DOCUMENT_STATUS_PROCESSED,
     DOCUMENT_STATUS_SKIPPED_UNCHANGED,
+    MATCH_SOURCE_KNOWLEDGE_BASE,
+    MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL,
     MATCH_SOURCE_REJECTED,
 )
+from skills.graph_writer import PROCESS_WRITE_ACTION_INSERTED, PROCESS_WRITE_ACTION_UPDATED
 from skills.match import normalize_name_for_matching
 
 
@@ -23,7 +26,13 @@ def summarize_run(latest_run: dict, documents: list[dict] | None = None) -> dict
     return {
         "run_mode": str(latest_run.get("run_mode", "-")),
         "documents": len(summary_documents),
-        "processed": sum(1 for document in summary_documents if document.get("status") == DOCUMENT_STATUS_PROCESSED),
+        "identified_processes": sum(1 for document in summary_documents if document.get("extracted_process")),
+        "new_processes": sum(
+            1 for document in summary_documents if document.get("process_write_action") == PROCESS_WRITE_ACTION_INSERTED
+        ),
+        "existing_processes": sum(
+            1 for document in summary_documents if document.get("process_write_action") == PROCESS_WRITE_ACTION_UPDATED
+        ),
         "skipped": sum(1 for document in summary_documents if document.get("status") == DOCUMENT_STATUS_SKIPPED_UNCHANGED),
         "no_matches": sum(1 for document in summary_documents if document.get("status") == DOCUMENT_STATUS_NO_MATCHES),
         "errors": sum(1 for document in summary_documents if document.get("status") == DOCUMENT_STATUS_ERROR),
@@ -159,3 +168,83 @@ def build_duplicate_application_warnings(documents: list[dict]) -> list[dict]:
                 }
             )
     return warnings
+
+
+def summarize_review_artifacts(documents: list[dict], org_unit_candidates: list[dict] | None = None) -> dict[str, int]:
+    scoped_process_names, scoped_source_paths = _collect_document_scope(documents)
+    exact_application_matches = 0
+    review_application_matches = 0
+    exact_org_unit_matches = 0
+
+    for document in documents:
+        extracted_process = document.get("extracted_process") or {}
+        process_name = extracted_process.get("process_name", "")
+        source_path = document.get("source_path", "")
+        exact_org_unit_matches += len(extracted_process.get("org_units", []))
+
+        for match in document.get("matches", []):
+            if match.get("source") == MATCH_SOURCE_REJECTED:
+                continue
+            has_cmdb_id = bool(match.get("cmdb_id"))
+            confidence = match.get("confidence")
+            source = match.get("source", "")
+            is_exact_match = has_cmdb_id and (
+                confidence == CONFIDENCE_STRONG
+                or source in {MATCH_SOURCE_KNOWLEDGE_BASE, MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL}
+            )
+            if is_exact_match:
+                exact_application_matches += 1
+                continue
+            if confidence == CONFIDENCE_WEAK or not has_cmdb_id:
+                review_application_matches += 1
+
+    review_org_unit_candidates = 0
+    for entry in org_unit_candidates or []:
+        if entry.get("status", "open") != "open":
+            continue
+        candidate_process_names = set(entry.get("process_names", []))
+        candidate_source_paths = set(entry.get("source_paths", []))
+        if candidate_process_names & scoped_process_names or candidate_source_paths & scoped_source_paths:
+            review_org_unit_candidates += 1
+
+    return {
+        "exact_application_matches": exact_application_matches,
+        "review_application_matches": review_application_matches,
+        "exact_org_unit_matches": exact_org_unit_matches,
+        "review_org_unit_candidates": review_org_unit_candidates,
+    }
+
+
+def summarize_org_candidate_scope(documents: list[dict], org_unit_candidates: list[dict] | None = None) -> dict[str, int]:
+    scoped_process_names, scoped_source_paths = _collect_document_scope(documents)
+    scoped_open_candidates = 0
+    external_open_candidates = 0
+
+    for entry in org_unit_candidates or []:
+        if entry.get("status", "open") != "open":
+            continue
+        candidate_process_names = set(entry.get("process_names", []))
+        candidate_source_paths = set(entry.get("source_paths", []))
+        if candidate_process_names & scoped_process_names or candidate_source_paths & scoped_source_paths:
+            scoped_open_candidates += 1
+        else:
+            external_open_candidates += 1
+
+    return {
+        "scoped_open_candidates": scoped_open_candidates,
+        "external_open_candidates": external_open_candidates,
+    }
+
+
+def _collect_document_scope(documents: list[dict]) -> tuple[set[str], set[str]]:
+    scoped_process_names = set()
+    scoped_source_paths = set()
+    for document in documents:
+        extracted_process = document.get("extracted_process") or {}
+        process_name = extracted_process.get("process_name", "")
+        source_path = document.get("source_path", "")
+        if process_name:
+            scoped_process_names.add(process_name)
+        if source_path:
+            scoped_source_paths.add(source_path)
+    return scoped_process_names, scoped_source_paths

@@ -1,6 +1,1451 @@
 {
   "documents": [
     {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__1_Vorlage_Ma_nahmen__bridgr_transform.txt",
+      "file_hash": "a92887a6d18970412e8a08f6c89ce947ac5467d483cc3aa203a1395a512cccb2",
+      "process_id": "_9558988b-3ef9-4efe-fbfc-6f9904f7982d"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__3_monatlichen_Forecast_erstellen__bridgr_transform.txt",
+      "file_hash": "94e96cf58e6c2ba0ae7991cb6dabefd48b0db7661dbf36d2ce1970ccf0203142",
+      "process_id": "_4d0ebc7b-b634-db6e-6ecb-e7cacda3d362"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__A_B-Kunden_bearbeiten__bridgr_transform.txt",
+      "file_hash": "e7a3b5238714c38bf1d59bb86bc911a8944f4d91f45f53505b6255b35e5c5328",
+      "process_id": "_77674385-ac00-bfa3-ca52-c2dda74d95ad"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Abwesenheit_bearbeiten__bridgr_transform.txt",
+      "file_hash": "3a19fd57107ef91137459bd72ad757016dd69fcf4b48bd17994f047ace2bb3bf",
+      "process_id": "_f84ffbcc-d9f2-423b-6bdc-75624d6c5123"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Abwesenheit_berpr_fen__bridgr_transform.txt",
+      "file_hash": "bfbabe59c8bf918811c77ffffe296fac927bcc3a655c7b8c54ae9f80ae290545",
+      "process_id": "_91e5bd16-e648-3770-3e07-1e8d5c0becc2"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Abwesenheit_dokumentieren__bridgr_transform.txt",
+      "file_hash": "d0875b835d48f76f66061ea4a4c05a13c9372ae466957dabb6690284d9ab14c4",
+      "process_id": "_82dec474-8e44-5e95-50c9-6018b26639b6"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Account_planen__bridgr_transform.txt",
+      "file_hash": "0e57d3d699ef037cb13b5138fa7ff4fd23d5ec49467da48e7c5839da870ec0c6",
+      "process_id": "_2a2ece8d-f4ab-6868-43b1-31cb1395e2e2"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Akademie_verwalten__bridgr_transform.txt",
+      "file_hash": "92416fdd94743d80f92805bcd68f0ea810301aea147cc79f301f2ca979fdf746",
+      "process_id": "_3bd565b6-4b5b-c2fb-0d55-11ef31593841"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Akademieleistung_entwickeln__bridgr_transform.txt",
+      "file_hash": "00f77aa9d115b776f5e5ed41abff9cfe7f789ab4487eca3903beb0519b5fc224",
+      "process_id": "_eeb09d6b-ba37-3660-e83b-abd83554bef4"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__aktive_Kommunikation_durchf_hren__bridgr_transform.txt",
+      "file_hash": "72ffbabc3a3fc2a281e552277641de7d07604960bcb677820d51a578668d7ef8",
+      "process_id": "_8c29d4d8-efc3-1737-318b-2189553d8a2b"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Alle_berg_nge__bridgr_transform.txt",
+      "file_hash": "7d5f345c75af648f4a66972a7e42d75e7f889bee05a9d50cabe7ef2365f9bfe7",
+      "process_id": "_d254378a-7781-2233-cdd2-f320a21a66d4"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Allianzvertrag_abschlie_en__bridgr_transform.txt",
+      "file_hash": "e8a886781e83764a495698f403013073a4374932fa18a52f4992c0b3391d5995",
+      "process_id": "_701665b4-facd-1faa-e208-4efe83244bc1"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Anforderung_bearbeiten__bridgr_transform.txt",
+      "file_hash": "49180dfa8c683fd78be6392900a28df780ad64e62b2fcf6741c603c46ad1eeee",
+      "process_id": "_6d7c95cd-418d-5327-7369-ab13cb5be27c"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Anforderung_sichten__bridgr_transform.txt",
+      "file_hash": "9f69d050a4fd794977c393d7b828ea04a67027bd600102799e7434e4ea6513c2",
+      "process_id": "_adb6c549-bb5c-a333-6931-8c9a96253a1b"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Anfragen_bearbeiten__bridgr_transform.txt",
+      "file_hash": "07d6a5427d0cfb8cfa9d8755c2c403d7ca4402773b3a3f4adcead02b1144fa34",
+      "process_id": "_bf9d4361-c7dd-5b64-ca03-d172a3243f7a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Anfragen_in_salesforce_erfassen__bridgr_transform.txt",
+      "file_hash": "a8368cf6df80755888788c26c80132828c34be7c977e4e9e648f3667cfd486fe",
+      "process_id": "_610d6faf-e7d6-5b8b-c347-e04f13f11983"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Angebot_abgeben__bridgr_transform.txt",
+      "file_hash": "9f5e27302449e25ed0c3e5dffed50f50ad6613934ad8e6eafdb9cc386923e253",
+      "process_id": "_402aecf6-dc8b-d5c3-8bfc-b5a06da69af5"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Angebot_abstimmen__bridgr_transform.txt",
+      "file_hash": "9ea11fca0b679c43d8ce1b92d6715575cf3d82f4d5c0641197060caf40da54ca",
+      "process_id": "_3eaf5dcb-f198-8076-59d0-91e723311c79"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Angebot_erstellen__bridgr_transform.txt",
+      "file_hash": "7e1695e091dff8ae250eaa3ad31808c60b8fe369b8e452079413b29c74a0b8fc",
+      "process_id": "_a7cf05bb-9853-00c1-c78a-abd53512c5cb"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Angebot_unterbreiten__bridgr_transform.txt",
+      "file_hash": "e4be404d2ad3ec816b636d9a08a3950aa18c8f5a0c900bf54afabcb6381ea8a5",
+      "process_id": "_e14c902d-ba6d-ae02-13ed-1af0c16c5e86"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Angebotsfeedback_bewerten__bridgr_transform.txt",
+      "file_hash": "e6e0b4fd9e98617fa94ded104917bed22157edb0a4f38ddd3b6c6f823675e202",
+      "process_id": "_9284feae-d131-3685-ddcc-9d7f314a8ab8"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Angebotsinhalt_definieren__bridgr_transform.txt",
+      "file_hash": "8f4e1c1657e0d0416d560197ffd1bd4891703bb3e2ef2bf81bc5d6e37102de28",
+      "process_id": "_393ce3cb-0e0a-7b7c-41af-b7ef4f5a48ef"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Anlagenbuchhaltung_durchf_hren__bridgr_transform.txt",
+      "file_hash": "ac83e24d8539fe323c20ab1e52101b980680d13754008640ddd0f211604ba47b",
+      "process_id": "_351687b2-8a4d-87f4-3c7e-2c1b6b1616dd"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Anwendungskonfiguration_anlegen_aus_Kopie__bridgr_transform.txt",
+      "file_hash": "7dd6dec71a08c659fd3300d68401cf8a646302a28771f955ee3a489a6e9f154d",
+      "process_id": "_ddece166-0879-7038-933c-be5709d4f7fe"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Anwendungskonfiguration_ndern_1__bridgr_transform.txt",
+      "file_hash": "b4d772acc470d45405672ea40b532290d347c804482703733bcc78f5654de194",
+      "process_id": "_244e8384-6479-f17b-f152-1ea3040ca8f5"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Anwendungskonfiguration_ndern_2__bridgr_transform.txt",
+      "file_hash": "9aee16a3e5109333e159bff3785e937c08b15f8a389e8dda7ad59668e5a272cd",
+      "process_id": "_5b568423-b517-0bee-93d9-04b6780c6302"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Application_Management_durchf_hren__bridgr_transform.txt",
+      "file_hash": "4d4dec96b2fdb453bfb54b732c09392b26e400c6ba0fa40dbb566bee7ddac9fe",
+      "process_id": "_bba48412-5729-7058-d75e-7c7e6f9d516d"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Application_Management_f_r_Innovator-Erweiterung_durchf_hren__bridgr_transform.txt",
+      "file_hash": "5454b25ecf96164c003778c56ee100e3eadee7015d50b1f8fb8a73974e56369b",
+      "process_id": "_4d4c1893-55e5-eaab-5cff-2c4f2dfae0f3"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Arbeitsvertrag_erstellen_und_abschlie_en__bridgr_transform.txt",
+      "file_hash": "2a4d0136044ce14f7e2082778668a06e6ea33d176c3bffb7a6b8c6381dc778f4",
+      "process_id": "_3050de29-b35b-0ab3-721d-5196bcf90605"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Arbeitszeugnis_ausstellen__bridgr_transform.txt",
+      "file_hash": "eb1dad827aedc59d6ee3ce114cf521e2d89d1eeb46027d75ef5c7def92898029",
+      "process_id": "_bbe2337c-3a71-74a4-18ee-286ce0b3208d"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Audit_durchf_hren_TISAX_Kapitel_1__bridgr_transform.txt",
+      "file_hash": "fe2d7d3c4123ea7040fe4dfea07c45f4cb962ec86f9c26ac5fbd509c9d01edd7",
+      "process_id": "_a5d7143c-af9f-d09f-9340-fe69273b9fdb"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Audit_durchf_hren_TISAX_Kapitel_2__bridgr_transform.txt",
+      "file_hash": "6a2996d7b39d09b83278fb55ecab401aa3770cfa3a96ea76836ee80e0e4b8abd",
+      "process_id": "_b44fcab4-1d30-1686-f9c6-638724141c35"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Aufgaben_in_Akademie_durchf_hren__bridgr_transform.txt",
+      "file_hash": "df4cc52519c37ef8e093cd856d23acc5295a3bd3df56d8042e836bc90eceddd5",
+      "process_id": "_99337cac-b2c3-f5c4-37d6-10f8815b167c"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Aufgaben_in_Consulting_durchf_hren__bridgr_transform.txt",
+      "file_hash": "fdbb78b46ab59de2920dbf90f754a141186c3c55a4d474871300bb91ee973d7f",
+      "process_id": "_1012d10e-08b6-681b-0498-5b915facfcae"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Aufgaben_in_CSI_durchf_hren__bridgr_transform.txt",
+      "file_hash": "697057fe8d68a4c7276a63aafebf18cb0ef3459bfb0f30dec10b711b12d5e27f",
+      "process_id": "_0a4b528e-6ead-8aa4-b021-2771a100b95f"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Aufgaben_in_Finanzen_durchf_hren__bridgr_transform.txt",
+      "file_hash": "67d3ccf1686bb6c239907309f0e23275c2372ff58fe7c98e0d26545a7c317358",
+      "process_id": "_88ab6df3-30e3-6f51-fe9d-7040a9f0c41a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Aufgaben_in_Sales_durchf_hren__bridgr_transform.txt",
+      "file_hash": "2d83b798ffd61e2536dcf29afb30660086f4415cef3ff6fa6cf08c3b47b6be7d",
+      "process_id": "_53763485-b88e-221d-d936-34104b988d9e"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Auftragsmanagementprozess__bridgr_transform.txt",
+      "file_hash": "e98e91aa7fd37531f7e1791962e10190caada8cdf77b3ac86ac4fcc8df0929ad",
+      "process_id": "_4be77ef1-6c2d-e012-433e-3dc2a23b4fe9"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__aus_ICW-Datenmodell_generieren__bridgr_transform.txt",
+      "file_hash": "b35468f9fe16857884ef46d35474bcf5e49f5eac2b5210cd80a6d46c2a497b38",
+      "process_id": "_06552ef6-58fe-bfa6-6580-edf658d86ec3"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Auslastungs_bersichtsbericht_erstellen_Detailliert__bridgr_transform.txt",
+      "file_hash": "82bd68530dc3370af4e1dc900a5d2225e00a3bf83e94e66a5c46c5f7c8c9e71c",
+      "process_id": "_dfeaa3b0-4d2a-cee9-98cd-6b93ed75191a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Austrittsprozess_durchf_hren__bridgr_transform.txt",
+      "file_hash": "b708e242a08d138b5c1c3881d37316614ffaa1e0221677b7835fc828daafaf4c",
+      "process_id": "_a405741a-cf84-38df-3b73-9f60a6b6addf"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Austrittsprozess_Gesch_ftsf_hrer_durchf_hren__bridgr_transform.txt",
+      "file_hash": "b7235d82acc12156660f697f2eb411d4d598cdd75f7f8147df6b40e0ca324d2c",
+      "process_id": "Process_1_8cc46f8c-a106-4d0c-9609-d00bfe782f93"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__AV-Vertrag_abschlie_en__bridgr_transform.txt",
+      "file_hash": "ae0b25fd796ebf765246457399ea2be4d842c6070094cdea9546b9ef607dc793",
+      "process_id": "_2fad6782-b5b3-d665-d01c-1f72367620d9"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__AV-Vertrag_erzeugen__bridgr_transform.txt",
+      "file_hash": "febcaac04df2b25d4e9d5940317487a04cf636784474af403154b8b3370ee224",
+      "process_id": "_353890ce-4807-96ec-dc37-fc100e9bba50"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Bedarf_analysieren__bridgr_transform.txt",
+      "file_hash": "7398f20e71340ebf7d23c466f9d974c89f06daebd840be871fbc1e7ea7656c0c",
+      "process_id": "_4a287bf6-6433-4ed0-3b03-95808b643877"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Bef_rderung_bearbeiten__bridgr_transform.txt",
+      "file_hash": "766919fe81e3f92353217b15ca8d559a5a2ee0a1e201ca84ae5f7021ef15da73",
+      "process_id": "_3645de8c-50a4-542e-10d3-24015a7cddfb"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Beschwerde_bearbeiten__bridgr_transform.txt",
+      "file_hash": "5cb076c0bb51b50646c128fdcc15ba0dead0f6a81f54c6799376085a8c1b258a",
+      "process_id": "_54a95478-5e9f-8911-f072-05610e44904c"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Beschwerde_managen__bridgr_transform.txt",
+      "file_hash": "ae414a961e9810996e8aaec101281a010dd6590f4a28361d54f5ac66bac7cdb3",
+      "process_id": "_398dd203-ea76-f066-23f1-9b7006fde5ed"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Bestandskunden_betreuen__bridgr_transform.txt",
+      "file_hash": "c43b45c15139acc447efe17dfbeb578ab03e601f003a026ce6e3b82e861bf887",
+      "process_id": "_46fe5cc0-7064-6f1c-c2aa-4d2c39f6056f"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Bestellung_bearbeiten__bridgr_transform.txt",
+      "file_hash": "a04d584b8681d9321d9ab31b457a1100b8554abd562af744155ccdf42ba55f3e",
+      "process_id": "_94358c85-83c1-f4c8-9f64-f8048388e917"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Bestellung_externer_Dienst__bridgr_transform.txt",
+      "file_hash": "c9c8dd3d3a1102593d1593d985f0fc7fb38aec8e0da3d596bad5e2c5ccef6325",
+      "process_id": "_0e31b2ed-e895-69a3-100d-184de989f25a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Bestellung_KI-System__bridgr_transform.txt",
+      "file_hash": "4fe5889747967de96bc3bf9dea2cb9f4d99a225f6ca6b966e37c130d900231a0",
+      "process_id": "_3509250b-6e7d-40bf-87e7-c4c39ad1a326"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Besucher_verwalten__bridgr_transform.txt",
+      "file_hash": "1d6cf3d55f05dd7ce17b8bbcad331f6154ac3c256f44f5dc38dac90ec03197cc",
+      "process_id": "Process_1_3214e726-8db6-4f08-a463-70aee8d2b198"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Bewerberinterview_durchf_hren__bridgr_transform.txt",
+      "file_hash": "540fc67431259ff821936b25d0540a5561764dfa8662d0695d43f499225c5a00",
+      "process_id": "_eebefff1-f86b-bb0c-b8d6-c55e5304f56b"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Bewerbung_bearbeiten__bridgr_transform.txt",
+      "file_hash": "ade98a5310c527430a75e89663baf1e4757f39918dbc2b0fccefc37f3e44a161",
+      "process_id": "_189cae85-718c-d276-817b-ab4a44cdf8fd"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Bpanda_kundenseitig_installieren__bridgr_transform.txt",
+      "file_hash": "3df144b9d779f4d1c6ddbdf3b258ef0c95429a4a6a9d0b35115257d6d4ef30dd",
+      "process_id": "_350a589c-ba9e-bc41-0339-12a913ee8ab4"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Bpanda_Lizenzaufstockung_durchf_hren__bridgr_transform.txt",
+      "file_hash": "2f027bc6c3b9cc172eec54a614c132a57255e7c69c92f04f813430ff8fc76b34",
+      "process_id": "Process_1_1375419b-4535-404a-b390-05d02cfffa54"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Bpanda_Release_ver_ffentlichen__bridgr_transform.txt",
+      "file_hash": "7af8870079aee8729e0e8351e9c8408bdad437a2ba6bff46e71eb77ac83ee1cc",
+      "process_id": "Process_1_3a8060c8-815a-4ffa-9bf5-a70049dceada"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Bpanda_Testzugang_zur_Verf_gung_stellen__bridgr_transform.txt",
+      "file_hash": "75970ba53e50245c23f3f69df7797c38e1b403799fdfed5ec8d437f5b8ececd8",
+      "process_id": "_4255e917-c9d8-d0a9-3d21-1069088181ec"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Buchungsbeleg_erstellen__bridgr_transform.txt",
+      "file_hash": "91bfa1bbf32ffb9c36ff9a1b447176c62ac970fb0d5d7d3c733a87603299b30a",
+      "process_id": "_ad323cb9-75af-0474-6a37-994443e2a1c0"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Bug_bearbeiten__bridgr_transform.txt",
+      "file_hash": "657106dc565b12f06244bb142089c93dd0b4bf602cefe61907e04dc14ccf5b82",
+      "process_id": "_52942e4c-df3b-4740-5c59-c0bf6e1979cb"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__C_-API_generieren__bridgr_transform.txt",
+      "file_hash": "c0b09c6eb2803266dd63f39737df4a304af5e9cb07aa76e61346332ede74dea3",
+      "process_id": "_3c97cf01-6a3f-9e31-a6f2-effab9fca901"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Cashmanagement_durchf_hren__bridgr_transform.txt",
+      "file_hash": "1a50d5a78430765a592abc1e13497e1d95be2e6da3b39c0ed335de3e80db77b2",
+      "process_id": "_aae33a3f-c06c-e80b-2183-6b12861d5819"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__CDCM_kundenseitig_installieren__bridgr_transform.txt",
+      "file_hash": "99a8424dfb172282b1eadb189cd5b84eb80bad06223673e7bdc2ef382b74d61d",
+      "process_id": "_1d6a0c9d-5469-65fe-b7b9-008aba45c3a8"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Change_Anfrage_erstellen__bridgr_transform.txt",
+      "file_hash": "674fde7829017a83b519c52a4a403a74c9046f9cd764f2015ca5adaeea30b213",
+      "process_id": "_6cceb24c-15a9-57dd-2a7f-d3a25b4357cd"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Change_Management__bridgr_transform.txt",
+      "file_hash": "80d33794bb53aa5a3b4b37594747a02f5bd54f3eb1c98cfd99dfab8c8bdd3c9c",
+      "process_id": "_aa20b707-19da-aa9f-509b-9aede61bae8e"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Compliance_pr_fen__bridgr_transform.txt",
+      "file_hash": "7308ed6e0b71a3a7393de28b4295eb1068233bdff27fc98458b0b165f57c46bc",
+      "process_id": "_df626634-3bf3-a500-4192-2bd2bd014ac6"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Consultingleistung_erbringen__bridgr_transform.txt",
+      "file_hash": "2e3adb885e353602423ec7bcddfa2bc1c0e40e599f34f859367c386e41249270",
+      "process_id": "_553f1e27-93da-72cd-419a-133111b0b689"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Corporate_Behaviour_festlegen__bridgr_transform.txt",
+      "file_hash": "1444b1d42825900a069e5bf5090733bc0e18e88a4d25cebac832d6ed2d2c8674",
+      "process_id": "_68689129-2357-a566-f791-76464196bb9f"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Corporate_Communication_festlegen__bridgr_transform.txt",
+      "file_hash": "b93cdc83999488538dcd77c6d8a96c4a0fcd4382c9b159051f9e86833c7bb0b8",
+      "process_id": "_f6539fba-8a01-17cf-3cdb-001668f59aa0"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Corporate_Design_festlegen__bridgr_transform.txt",
+      "file_hash": "da9474e5cd651984a262eb58787f37e858d5637f64f3c75ca7ad072309ba2691",
+      "process_id": "_b2338cdd-5143-384f-0252-fb7601f86871"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Corporate_Identity_festlegen__bridgr_transform.txt",
+      "file_hash": "bef44dc440f58b25143dbff4a11d896f908a5353d191ff10257540df9ca90771",
+      "process_id": "_ef15325c-d3ed-ef48-d0bb-ea37b5d402bc"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Crayon_Remote-Lizenzen_abrechnen__bridgr_transform.txt",
+      "file_hash": "a4a51307982bca7646f511e03233b92b3e7ef427d8366bbfd8f35a16d8aff23b",
+      "process_id": "_e757573e-2d7f-a73c-6828-e88e5cf468ec"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Daten_f_r_3_monatlichen_Forecast_einholen__bridgr_transform.txt",
+      "file_hash": "7f5b7d4d4935dbdaef5a428af6a8746e3bd5cc58ac0e4242a7000a6f06d11fd5",
+      "process_id": "_341c135b-a575-b8d7-d6a8-9e75f646df13"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Daten_f_r_halbj_hrlichen_Forecast_einholen__bridgr_transform.txt",
+      "file_hash": "84fea1c7068884fc6d47248f3a3e3eaaaaaf601c54a4126b6d7791c4a0e8f0ac",
+      "process_id": "_7a94ee68-1164-b676-ec25-dfdc13d7f526"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Daten_in_E-Evolution_l_schen__bridgr_transform.txt",
+      "file_hash": "79d5d46fd3edd903d8698047bab83661f74c2e4b27fde80a64e882420c506035",
+      "process_id": "_ba1ab605-ce4b-2dc6-7211-3f919ca618f2"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Daten_in_MID-IdentitySystem_CAMP_und_Keycloak_l_schen__bridgr_transform.txt",
+      "file_hash": "151da9ff7ae8fe9502ade35762a9fd21b51f07054f43fb9ed79a255d0120fe9f",
+      "process_id": "_35b8f2cf-25fb-4596-6202-69ff1631d272"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Daten_in_Moodle_und_SharePoint_l_schen__bridgr_transform.txt",
+      "file_hash": "e3a6329488c458f2e8ef6bb0053c19f151bf084ffc3d7cbc32bdebc7b116e5f9",
+      "process_id": "_f8da9654-29b2-2ada-c07b-52270dbb05e7"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Daten_in_Personio_und_Personalakte_l_schen__bridgr_transform.txt",
+      "file_hash": "cdec2e34cd67173fbf7dbf1b9cfc1e6d6476cb4826f4e928f4a3d4153dc23265",
+      "process_id": "_18a95320-786e-4bbd-2c80-fb7f610abb7c"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Daten_in_Salesforce_und_Hubspot_l_schen__bridgr_transform.txt",
+      "file_hash": "e0d5884e2d83444a123c96310e34a8812bb2725e596f60791b85700f5af9b747",
+      "process_id": "_6ee76a73-ec31-af04-c430-d03fcd522b2a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Datenanalyse_durchf_hren__bridgr_transform.txt",
+      "file_hash": "9018891514c764ee0f2417293b11aa356381309de3285d05b2b1fa9c9080254d",
+      "process_id": "_61eba6e6-d601-e55e-e902-29b502b680d8"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Debitorenbuchhaltung_verwalten__bridgr_transform.txt",
+      "file_hash": "1e6b5c4c925508ff7ac80a5978239b6d6556951be54dcde97eeaad7f9ee70d42",
+      "process_id": "_6c052c9c-c9c6-40c6-758b-d98b3d240274"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Dienstleistungsauftrag_bearbeiten__bridgr_transform.txt",
+      "file_hash": "ef9b470ca81c1c9850bc1a8521c33eaa3a59acb3e9fcd2fb95f3a5950abb0a95",
+      "process_id": "_854e99e6-5d17-36bd-05b5-c14b6c2058f7"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Dienstreise_mit_Pool-Fahrzeug_durchf_hren__bridgr_transform.txt",
+      "file_hash": "3389af55257badce8fd0578947ea7feeb7363dfd00b679029d6dd6d555c2762e",
+      "process_id": "_53bf9014-823f-acde-ca3c-5c04af17935f"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Dienstreise_organisieren__bridgr_transform.txt",
+      "file_hash": "4010c27f3f58d1e406c5782e5f25ffe9e8640559edc4af42654e9f162be2fcba",
+      "process_id": "_d390ef0b-793d-6fe8-306f-887eb7b466f1"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Double_Opt-In_pr_fen__bridgr_transform.txt",
+      "file_hash": "d37b1848292d1b6cdb293ce28bdf1284690c71dc17c3699e8614e6488cabd131",
+      "process_id": "_ee7d7671-1d01-ab74-1ead-c2bf4e38db4d"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Einarbeitung_durchf_hren__bridgr_transform.txt",
+      "file_hash": "68cbeca362415d0993c29a48c1d8c4e7a299d6ce92734bf9f00292c69f534107",
+      "process_id": "_413c6343-143d-eeac-3086-c473c733b53e"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Einarbeitungsaufgaben_QMS__bridgr_transform.txt",
+      "file_hash": "f7f86b23d35bb5bd81d65f23e5d6a6f856542b190f83cff0c96780aef0889a6c",
+      "process_id": "_479c4462-320d-2f8c-d7d8-a7bd8ebdeaca"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Eintritts-_oder_nderungsprozess_durchf_hren__bridgr_transform.txt",
+      "file_hash": "e1cef64de447b6fb097d8626d33e2968896b62719d94b0251d04250177923a06",
+      "process_id": "_25d2bb40-ba0f-016f-c6f5-35ff6b86c9fc"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Entwicklung_intern_Fehler_erfassen__bridgr_transform.txt",
+      "file_hash": "a873fc2cc5c28209480c31a1b5a89de233aae644656e50863cc712ad5a64857a",
+      "process_id": "_ea57c098-75f1-a765-54aa-71d409d3df97"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__erbrachte_Leistung_dokumentieren__bridgr_transform.txt",
+      "file_hash": "65ba14159a1d2bb0036e70e25d544805c9df2e1f9b7716d354b3dfe6bd921dc5",
+      "process_id": "_a3dbb71b-c894-0ae6-4c41-01e13d4423d6"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Erstgespr_ch_begleiten__bridgr_transform.txt",
+      "file_hash": "4afd373d6a2e0bd42775db9a0a33772ccabf3ea6b3fb3f192f37e8cff46f1740",
+      "process_id": "_0a8e6d16-91f6-4c42-eb8d-071f6118bf51"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__eTraining_erbringen__bridgr_transform.txt",
+      "file_hash": "5d4afc07272b6c21b596528d7d37962f5a08d4900b77c77197dad2dca24f5bad",
+      "process_id": "_d00f9ae1-2c23-d18e-8afb-67b03c5de719"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__eTraining_freischalten__bridgr_transform.txt",
+      "file_hash": "2addbff040524cc694559b1db3d5cf5f9385544b86758f0c3cdabb28c9209736",
+      "process_id": "_ce8f48c9-56be-ecc9-ae8e-0bfdc2a385eb"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__eTraining_nachbereiten__bridgr_transform.txt",
+      "file_hash": "e82366e5535557479975af8572295d081d9c792f61b8c7b2a43d74365af73040",
+      "process_id": "_f03cdac9-3b91-5e16-d73d-a369713b4481"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__eTraining_vorbereiten__bridgr_transform.txt",
+      "file_hash": "d85e7551274a7c0fa5772f804eae86f79ec7def214c0b06b400ff5196dd90590",
+      "process_id": "_5503a62f-5455-1528-d389-e24a6acddf0a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Event_durchf_hren__bridgr_transform.txt",
+      "file_hash": "543e814e5d1fd87170dcfca11995f4672686683c3d3b7a4d9fcf212bf26c49c1",
+      "process_id": "_bd204f1c-3ad7-6ea7-b220-98e20bcf2a67"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__EXcellence-Dialog_ndern__bridgr_transform.txt",
+      "file_hash": "0d28ccc0ac3eb418e26f432f8321b822442f5463a9dbae9b20cf074ee796d53c",
+      "process_id": "_5910a728-a3de-5666-ae2f-661caa8ebda2"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Externe_bersetzungen_f_r_Fremdsprachen_au_er_Englisch__bridgr_transform.txt",
+      "file_hash": "330610b0b395217e0c9e93552ff02a4cf38c70730f7e39d3ab2d3cd61f0a4534",
+      "process_id": "Process_1_50a3e05d-f4c4-441f-9484-a4f6e0aa1aed"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Fachliche_bersetzungen_realisieren__bridgr_transform.txt",
+      "file_hash": "367e2ca667405b4e71086c465693f14131064e0ead47de3dac70787d5795e80a",
+      "process_id": "_0bff204e-d57e-33df-74b2-7317d4c20603"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Feature_realisieren__bridgr_transform.txt",
+      "file_hash": "6b73da6d4e1fd5724317b2a1ee985b22dca9d8774f6155e000dda4f6690fc75a",
+      "process_id": "_da5aefa9-71f2-8f51-dae8-84d76e2f4c2f"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Feedback_bearbeiten__bridgr_transform.txt",
+      "file_hash": "d3570bf55d0e814876f09bdff3b381bccb16bb496fdebef8100fdc8d86687475",
+      "process_id": "_ec813a27-b42f-46bb-ad68-36bead3804bd"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Feedback_umsetzen__bridgr_transform.txt",
+      "file_hash": "e58fef008b75c8df5e9d456e8088f759986c4ecbeb0c4f3bb20c182df57989e6",
+      "process_id": "_a1351d80-5cc5-0818-a261-7859a7c067c3"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Fehler_sichten__bridgr_transform.txt",
+      "file_hash": "2724793ea3e2d43f0900cef5c03e7ec3a1ee6ba9e04e304084ff012177d22d9c",
+      "process_id": "_833247bb-6103-74e7-c581-8c03cfe2aca7"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Finanzmanagement_durchf_hren__bridgr_transform.txt",
+      "file_hash": "e924fad687415a132cfba26011df8f05d1987f0261a17ed7fa5eef354f0b49b0",
+      "process_id": "_7b342e8a-ea3c-77b6-6f24-103a2ece21e3"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Finanzplanung_durchf_hren__bridgr_transform.txt",
+      "file_hash": "5fe41dc14a29a348c5bce6647bfd6a58dc505d31412e7122d80f6e2eaac6ffa8",
+      "process_id": "_e2b2a18d-cee7-6754-d5f6-9858116890c6"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Firmenwagen_beschaffen__bridgr_transform.txt",
+      "file_hash": "ca0d12d0c898e3c770368de543703d222be91c125221be4fd09c93fa5aa6cc26",
+      "process_id": "_4011eb90-1cfb-3be2-aaa1-69c6a5249b0a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Geb_ude_instandhalten__bridgr_transform.txt",
+      "file_hash": "21c16a98bed6a0e9c7c73ff9549ef9c0773bcc8a154f1568fd475a0fbe5e9bd6",
+      "process_id": "_183bee86-bd8c-0f23-2b84-5ccd43b7b0f2"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__geeignete_Mitarbeiter_eruieren__bridgr_transform.txt",
+      "file_hash": "9ea33edad6eeb81d8a46e2f067b0c0bf067e6ae73e0e2c8ebd5578e4fb84f314",
+      "process_id": "_eb856265-e9b0-e846-5362-6f9175c7f313"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__geeignetes_Profil_einsammeln__bridgr_transform.txt",
+      "file_hash": "e6e11b4b40ecc21c95e8c786c99a9c436a01cdfd242bdb2e761af34feb2b82de",
+      "process_id": "_5ed3cc1c-aa5d-2d2d-5152-45eb65f638e7"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Gehaltsabrechnung_durchf_hren__bridgr_transform.txt",
+      "file_hash": "df19c9c58d0e33ddf7662e8eae7ec0bf6f7c6367d6b036f4067d9e760f613dc3",
+      "process_id": "_0cf20e71-9587-1fe1-1ce1-7d79f1a466ec"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Gehaltsanpassungen_durchf_hren__bridgr_transform.txt",
+      "file_hash": "7010b76e088eb594cf8248b2943e5b5d963088a378366daf60cc822f844ffd1c",
+      "process_id": "_cabc73e7-0205-2d82-d1c1-a1efb36fe092"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Gesamt-Test__bridgr_transform.txt",
+      "file_hash": "8d818ec6ab308e27ecb9b8c27fabab0dab1132fd0a0ad51a5629605de08a0152",
+      "process_id": "_0ac2305c-1f09-eeaf-a736-a60e45507515"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Gesch_ftsfeldthemen_entwickeln__bridgr_transform.txt",
+      "file_hash": "9407f3f76d0b06ce579af8adf93ee1000b6e46d529e0ab5a57ef6460f5186d30",
+      "process_id": "_098eaa7e-7fe2-8316-340f-131820022d1d"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Gesch_ftsplanung_durchf_hren__bridgr_transform.txt",
+      "file_hash": "c3b279ab587cc5ed492bbb31a1e40bfe347b6f6e29f108ad352293b1c9fe13cb",
+      "process_id": "_9dcb1a3d-9263-6208-3213-a02868186df7"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Gesch_ftsplanung_vornehmen__bridgr_transform.txt",
+      "file_hash": "bf5aa24e0a6d84942d05c64c2c93de99634bd0e442f1f880978810f458ab1fd8",
+      "process_id": "_ae3dae1a-a12c-3d31-c6f1-a589177078cc"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__halbj_hrigen_Forecast_erstellen__bridgr_transform.txt",
+      "file_hash": "9768c7e79814c704f58b52d7ebebf6ec349711904898a30611da3828cd613fea",
+      "process_id": "_84fc8742-0763-e5da-c452-29ec3aef02ea"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Hardware_Software_bereitstellen__bridgr_transform.txt",
+      "file_hash": "6d3f884964e7b552a5fdf44a8c6fc7558627bd7bdc017a5ae0954db1e852da3a",
+      "process_id": "_36159b43-f969-53cf-b8c3-6ba5f7bda478"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Hardware_Software_entziehen__bridgr_transform.txt",
+      "file_hash": "1f630826c6a3211990a0cb1597c6fc45f315cec0ff335ed60d642609649f8559",
+      "process_id": "_ae645c7c-bbd0-0dcc-1123-52074b21edd2"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Hilfe_erstellen__bridgr_transform.txt",
+      "file_hash": "63a4c8237b87003548fc1b59c8096a7bc07251f3a216bce59f1e0bd3017cab9d",
+      "process_id": "_2d56e360-830e-55de-3a72-0679ed72c48c"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Hinweis_bearbeiten__bridgr_transform.txt",
+      "file_hash": "4b7d05f5c6293037614b24e190b5c51f4b4fc73492e0c171e49a5c8429634a86",
+      "process_id": "_5169c7a9-1f35-9cef-80a0-bd796bdaabe4"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Hinweis_einreichen__bridgr_transform.txt",
+      "file_hash": "1562dfcbedcaed304b5e4654ad4fcda2a954089ad1befe28730a6ee7dcda5a90",
+      "process_id": "_2dcf64a3-53cd-aa4a-9ee2-d432a3c3e505"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Hinweis_l_schen__bridgr_transform.txt",
+      "file_hash": "cdda7def9c9dcd5fd755448c8eb91e4399af5c81949c9025e66616fad064eda9",
+      "process_id": "_20e41749-6779-61e8-fb21-9dc23f960775"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Hinweisgeberschutzverfahren__bridgr_transform.txt",
+      "file_hash": "d2be77f0e557392df7f745fee0bae2b9f8a3f71adb61fd68621adcf65203faec",
+      "process_id": "_c49b0b3d-afc1-3ad7-1c86-57ab12907b32"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Hotfix_testen__bridgr_transform.txt",
+      "file_hash": "bb999436473e79686db328a9f1d3c25863c477bc6689f603e6c91d0378007074",
+      "process_id": "_7ead5d2c-ebb3-092b-ef0f-511847bdfae0"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Hotfixes_13_1_managen_DATEV__bridgr_transform.txt",
+      "file_hash": "f55ca21fb319007c7193254f28f648e2fc497adf556f0cd93980d67f306bdeca",
+      "process_id": "_6720b9e0-34d4-9849-6807-12f53e30085e"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Idee_entwickeln__bridgr_transform.txt",
+      "file_hash": "8df268cfa569bd8e5d0fae26a727578b669da1d3d460125cafd1683e2cad0de8",
+      "process_id": "Process_1_7fabfee2-34ff-44f5-a652-ee40fc64eabd"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Incident_behandeln__bridgr_transform.txt",
+      "file_hash": "0d4496d645958c1772712cf2e1f255d6cea31da567323ce2e36db45d1d8ee27a",
+      "process_id": "_8a8d50e5-dbe8-4b8f-b830-4405a882ea7a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Incident_managen__bridgr_transform.txt",
+      "file_hash": "f2189046bdcaa89395860ac1d96796abb989bcc6ea3c18f48f12e63ae2855814",
+      "process_id": "_c33220ac-625d-aa41-1fc5-7408801d53a0"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Infrastrukturelement_hinzuf_gen__bridgr_transform.txt",
+      "file_hash": "403aaddb4b3897bf502bd8ef3f53d576eecf67335cc87965c009dba2be6c37c9",
+      "process_id": "_e142ccea-c640-dd77-19a8-7ee942e53436"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Infrastrukturelement_l_schen__bridgr_transform.txt",
+      "file_hash": "c9bdf34839d135baed25b359af3c26393f7ca3d61b96e56103d05f55fa69ea82",
+      "process_id": "_6f9558e2-12a7-3648-c864-5cec66bcc572"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Infrastrukturelement_updaten__bridgr_transform.txt",
+      "file_hash": "e23590bc3429150bf22e0eec0d5c83d4c02276ea283f3b0b262ea29d9f146690",
+      "process_id": "_c736462f-05d2-3b54-a6c2-3d292a27c488"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Innovation_verwalten__bridgr_transform.txt",
+      "file_hash": "8f71909d77139205c40706cf05ae4b66cab87f94e2696c686e5495859be3f4c6",
+      "process_id": "_b64b59b5-9c43-9ed2-507c-856b15a83f5a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Innovator-Daily-Event_durchf_hren__bridgr_transform.txt",
+      "file_hash": "a28c4d1e5abc7e8e8573395823fb22a930e7190452598cd2a34d090dc3194ba2",
+      "process_id": "_4bb16f72-214d-e9f7-ae4d-c091ab63ae75"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Innovator-Release_erstellen__bridgr_transform.txt",
+      "file_hash": "91d1cebed2fa844b9459aa05c78b7c82b2432d1a345daca437f2b8de4e0bfd8f",
+      "process_id": "_8dba60d0-1120-23b7-5636-00cb91a8623d"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Innovator-Release_ver_ffentlichen__bridgr_transform.txt",
+      "file_hash": "771513b66bb1f4cbdbacc08c88d3b3aae01e51e592d38a4a3e8791e272089070",
+      "process_id": "_bd0fbde9-32eb-ebd9-4a42-e4b6c96a6884"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Innovator-Update_beim_Kunden_durchf_hren__bridgr_transform.txt",
+      "file_hash": "ad4fb5705f3eb251b24b9af6cb4b8479b03cb45b253cb008f19b6c79b0eaaa29",
+      "process_id": "_810ac71a-75d9-8678-b130-44cf43b43355"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Innovator_kundenseitig_installieren__bridgr_transform.txt",
+      "file_hash": "24314730579d19adf93a0dbdfdd61a4e81602a557c65010f12af2993ab542efe",
+      "process_id": "_57286bc2-1330-7a53-cadb-198ff519446f"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Innovator_Testzugang_zur_Verf_gung_stellen__bridgr_transform.txt",
+      "file_hash": "080a6fec0dde4ea11780e1279a32c73da24c291ae2cfe1b23201a2730c05dc40",
+      "process_id": "_d17e3ccb-799c-beae-032d-ab90c3d16598"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Intenes_Event_planen_und_durchf_hren__bridgr_transform.txt",
+      "file_hash": "e0e8e5769c15d894a1dcb3f8a272f87a1b31d07845362740d2abe2158633eaf5",
+      "process_id": "_efd79d18-8444-b109-42c4-fbae7d29d170"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__internes_eTraining_durchf_hren__bridgr_transform.txt",
+      "file_hash": "49991c1f95eb0f7beaf963b2b1febe26c83fa03ef86be1c3164222a7e495210c",
+      "process_id": "_4f7fe967-f731-12c0-9311-fc6860ebe24c"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Inventur_und_Budgetverwaltung_durchf_hren__bridgr_transform.txt",
+      "file_hash": "00233610c84a592ea54e44caf18fd94f1ca5cb2d2049da9629200cdedcf9e25a",
+      "process_id": "_a948a222-89b9-98f1-6494-ae75c347f546"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Investitionsantrag_stellen__bridgr_transform.txt",
+      "file_hash": "df1339facbe80477870dbed4f529bfa3d6f97b98b849e516156f2219a269dfe0",
+      "process_id": "_6bc0469a-951c-3ffe-f75e-943da43c3fba"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Investitionsplanung_durchf_hren__bridgr_transform.txt",
+      "file_hash": "c02b2e3e7e645499a7bbb8768907440ba774e1ee48e11f4aea5a85dc4ae14cd8",
+      "process_id": "_786e7ede-0463-e6ee-28e4-cd8742966aa6"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__ISMS-Audit_durchf_hren__bridgr_transform.txt",
+      "file_hash": "b2e5c284d3c295c2c8e4bd57de5afbab6feb25003a3c297eae65ba1a23a35fd4",
+      "process_id": "_fc87eff3-542c-20df-c5fa-961d33908268"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__ISMS-Ma_nahmen_verbessern__bridgr_transform.txt",
+      "file_hash": "9e0becc03a49a7ea310e7ba74ef6716f03054a340ae8e86ed2687e3230ffd855",
+      "process_id": "_3379cad3-e27f-21a0-738a-5155af95de73"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__IT-Ausstattung_bereitstellen__bridgr_transform.txt",
+      "file_hash": "66e991888b9e7eb4db607e3b7678624b412eb8a854276682e3f5c6de938bee42",
+      "process_id": "_ba144f52-1928-5239-aba5-78ace6aef6dd"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__IT-Ausstattung_bereitstellen_oder_zur_cknehmen__bridgr_transform.txt",
+      "file_hash": "d118847d72f267072309e70c605569fbb46b5391f57414cfa58a2a5904702ac1",
+      "process_id": "_40b49b29-3b86-649c-64ad-526a2606facd"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__IT-Ausstattung_zur_cknehmen__bridgr_transform.txt",
+      "file_hash": "f8e20f32d7132eab2fb07941039ee42c08162f3f517837249ccba85d3285dc3e",
+      "process_id": "_1892b9a5-cfa7-1b30-9503-d7060dfb1a1c"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__IT-Service_Management_durchf_hren__bridgr_transform.txt",
+      "file_hash": "df17f044f0a99ddddecc2e5820905b0dcca5c2dca7b3a3a4ab9ca50720626542",
+      "process_id": "_fd85da59-b27a-e0da-726d-8379596ce972"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__IT-Sicherheitsvorfall_bearbeiten__bridgr_transform.txt",
+      "file_hash": "ff18472f72567cb252c856ecb027d5c717fa596068d8c411382b7fa4134fec21",
+      "process_id": "_1b14847e-aa04-6100-b79a-e58e069093f0"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__IT-System_anlegen__bridgr_transform.txt",
+      "file_hash": "a4ad3f037d07202ae2240cfd97f4632e39b3f64824c86c616c5cf8f15799bfc8",
+      "process_id": "Process_1_9925b7bb-337a-4579-a39b-ad21de05d1fa"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__IT_Controlling_durchf_hren__bridgr_transform.txt",
+      "file_hash": "1a338c3d19bc1d020e3f35d1914ab4ad17e99af23aaed839649f1fb3c2e3db61",
+      "process_id": "_b84e5c01-677c-fbe1-24c6-e2cb7df232cc"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__IT_Management_durchf_hren__bridgr_transform.txt",
+      "file_hash": "6ac2d0995932f0c530f572135e91779f136189c897d6c143f208a13f23381c0b",
+      "process_id": "_7fe17dd9-20b9-022c-4d2d-9bdb85af4d96"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Jahresabschluss_durchf_hren__bridgr_transform.txt",
+      "file_hash": "991a0dfc894a7ad861f01d0c2077811f47caf61a513204e657b49fee2b279bd8",
+      "process_id": "_b56894cc-fede-b9f0-5973-f054c4d07457"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Jahresplanung_durchf_hren__bridgr_transform.txt",
+      "file_hash": "45a7502536bc41b272f81d8e6ef0ce858cd24a4d6f8bed8b3076596a6593553e",
+      "process_id": "_0a22e7c2-da40-c877-153c-8af18416db17"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Jahresplanung_vorbereiten__bridgr_transform.txt",
+      "file_hash": "710631a256f65f6787427d9f3c75a8eed2810bf3e28bc804bb6bb164527a0391",
+      "process_id": "_226f3adf-3c12-8776-f164-848fade30a9e"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Jahresplanung_vornehmen__bridgr_transform.txt",
+      "file_hash": "902dd020c44a29e055838f8af4c7fff0898cc51ce74c6e1a86f59582be9f6324",
+      "process_id": "_3257b61d-9431-4393-6c14-d78a2a9a572b"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__K_ndigung_bearbeiten__bridgr_transform.txt",
+      "file_hash": "de144240f1c841f97d44253047bfa915d2a6697bff21dcbf7c44bd1277f53b72",
+      "process_id": "_472e47d9-7ebd-9e56-492b-5b923717b568"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__K_ndigungsprozess_Bpanda_Cloud_durchf_hren_384__bridgr_transform.txt",
+      "file_hash": "0477caba6891f42332756b825e3b8a6dee8d81a6330b3ebfb8bb8ea23ee2ec0d",
+      "process_id": "_ff6454b4-fefc-c220-0a3d-086afad471d7"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__K_ndigungsprozess_Bpanda_Cloud_durchf_hren__bridgr_transform.txt",
+      "file_hash": "ba4b6f5ec12fffacacb79bb6b8be6e927a96f8e0472900e603f7f97318605c8d",
+      "process_id": "Process_1_d966cefb-2ee0-4487-9442-9b0757651c62"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Kampagne_erstellen__bridgr_transform.txt",
+      "file_hash": "27daf0691f33446cb3b80b8e30b5f298ddba811a5a182c91c274f64a913e0f8c",
+      "process_id": "_090ef987-bc14-38a0-3312-351e9ff99a9d"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Katja_Prozess__bridgr_transform.txt",
+      "file_hash": "b0734c32089d101db051cc67d26eb45881355c0c81159ab6bb92e631ceae65be",
+      "process_id": "_8dc71737-e1b9-6514-1ad6-5f94159611ed"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Kontakt_aufnehmen__bridgr_transform.txt",
+      "file_hash": "b99ecbfed1bc9e8910d795452e2709fef5aed3146a2fe40771e930d979960d2a",
+      "process_id": "_90d2bf5b-48b5-8af9-9244-b65dce5c1dbc"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Kontaktanfrage_bearbeiten__bridgr_transform.txt",
+      "file_hash": "622d9fcfe6298b4e9c1b5f6cbb12dc8a4241137d5e6c68b7960c2fe4a2ab1374",
+      "process_id": "_be2d79e4-6886-e26c-6bfe-c9c869300903"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Kreditorenbuchhaltung_verwalten__bridgr_transform.txt",
+      "file_hash": "f5558fb7f81e322b2eb37218a8578037de33855146ff05888ffd9ab11b656baf",
+      "process_id": "_098bf6ad-6e91-2ecb-f1fa-1153523b8713"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Kunden_betreuen__bridgr_transform.txt",
+      "file_hash": "055fc21100fa1e6c795f65ede06e780184e27997dbd020d7720b1b63c6a1ee47",
+      "process_id": "_5dd07605-3125-0926-d81c-a956635c0419"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Kunden_klassifizieren__bridgr_transform.txt",
+      "file_hash": "93f9d930a1d759df3df741acbd9b538de2fe92a8bb8dfc138fd33fddda2befeb",
+      "process_id": "_2c59752b-f284-36e4-12c3-3374720da2ec"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Kunden_Onboarding_Bpanda_Cloud_durchf_hren__bridgr_transform.txt",
+      "file_hash": "51346f4c05effc828931d537879a2e864379ae8be88343f8fab81e58a5140e40",
+      "process_id": "Process_1_4af8bc6a-0d05-4440-8e2d-dfd0eb98747d"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Kundenanliegen_aufnehmen__bridgr_transform.txt",
+      "file_hash": "c6caf2d76da4dc359112075af97531557d3b1ffb6b7ea4c3c9fc35e75e0ec9c8",
+      "process_id": "_268db72c-9ec6-02ee-65f0-c2067b24ef91"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Kundenfeedback_bewerten__bridgr_transform.txt",
+      "file_hash": "76a89774c7b1e5892cee15d220ccc422e7a88a68917f02247d4a06b3b23aa9b5",
+      "process_id": "_62e5d08a-184c-b2a6-7195-3aae52a98c7e"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Kundenfeedback_einholen_und_bewerten__bridgr_transform.txt",
+      "file_hash": "8ada5e0e4c7d9233557586dc13b79babebf0b56f176c4ad6f80c20d21afbad4e",
+      "process_id": "_bb8970f3-d9bc-f163-a57a-e12267a5875a-0"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Kundenfehler_bearbeiten__bridgr_transform.txt",
+      "file_hash": "3a5148dd00eee30bcad399fb58a865ba7fa481b14b7f12788f1947ac5e3f0d5b",
+      "process_id": "_60779250-58e2-b8f5-f7be-c8d6e5b6ec43"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Kundenprojekt_abwickeln__bridgr_transform.txt",
+      "file_hash": "58dc5ffa3e7bc742da8331cc2b88ed082e58c223fc539ed09f21a83faa3bea02",
+      "process_id": "_20eb1767-19d1-e8b9-c5ed-859cd8f2b923"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Kundenspezifische_Akademieleistung_entwickeln__bridgr_transform.txt",
+      "file_hash": "dbc24f56943b02e62eb2cbca75f29a6f660290e1be69d997e4d021028f70120a",
+      "process_id": "_c8858c6b-8faa-fb4b-3ac3-c29d5f0cd65c"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Kundenspezifisches_Produkt_entwickeln__bridgr_transform.txt",
+      "file_hash": "8f0be5e98be010bacedbff05d712c301540b857bd1c2c1fe62dfbeeaddb5978e",
+      "process_id": "_3dbf402b-ffea-a121-1901-b1393278354e"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__KVP_durchf_hren__bridgr_transform.txt",
+      "file_hash": "1cc8c611f16254c93eb9c8e252273c4ab0533015848e6083fc7f7377a49743b8",
+      "process_id": "_78625a5f-7ba8-359b-c999-87c61d9e1d60"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Lager_verwalten__bridgr_transform.txt",
+      "file_hash": "4b5f3591a53fe179ffd4f52417151d26c05df9d690c0666ab557ee22c97bedad",
+      "process_id": "_ca6c262b-363d-e521-6e9b-c90b905e5af8"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Lead_bei_Bestandskunden_generieren__bridgr_transform.txt",
+      "file_hash": "850d6f3f16b96e17d813bcaa8ced44eda5b9e992a81a01081518116a7cfb73e9",
+      "process_id": "_b7230331-1573-1ac1-7951-0dd3f564568b"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Lead_generieren__bridgr_transform.txt",
+      "file_hash": "9f13cda7e263fc4fff37463b3831c50b0e1e607b2038c591c43574005a1e4f19",
+      "process_id": "_5a5d55ce-c71a-f668-5aa4-d39345341dc5"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Lead_vorqualifizieren__bridgr_transform.txt",
+      "file_hash": "144c588568fa066de8d9fa5818a1d5d2631e9cfb4e3cd3dcccd18ae3f6169ec3",
+      "process_id": "_c9539e71-4b1f-0d6d-0c5b-8552e1986e40"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Leads_aus_Event_generieren__bridgr_transform.txt",
+      "file_hash": "4660172a69c84ae892d8f566ad11e08716895aa6f936bfd211c980fa24908e47",
+      "process_id": "_5f8df012-9762-dfec-845d-98d4ffd15b82"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Leads_aus_Webinar_generieren__bridgr_transform.txt",
+      "file_hash": "37c1cd8ce92c9df41ae12d689c378d8632ce3f6270ec7c2bcef6700c6f06bbd7",
+      "process_id": "_90245832-66f2-2beb-ae0f-b1f56859967f"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Leistung_entwickeln__bridgr_transform.txt",
+      "file_hash": "1efd24a170e690b634780e26955fcc6a7b337c3ab64caf560b800f279f7f2062",
+      "process_id": "_90c7fc2a-7fd7-c1bc-3719-bf62f7db926a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Leistung_erbringen__bridgr_transform.txt",
+      "file_hash": "3c2dfd7aa4dc10063ebb0f72ee264e5e05071e015a0fe9b6e1a282a90f78881d",
+      "process_id": "_78dd58a4-a324-6d69-194f-73c80c0d8a32"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Leistung_verkaufen__bridgr_transform.txt",
+      "file_hash": "ca28b33f901c1d7ba3f89d139d3bb22111418d0364842583838fca8840df6c28",
+      "process_id": "_7fa6f126-4f52-fa1a-ca17-e1c3d0159019"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Lieferanten_Dienstleister_aquirieren__bridgr_transform.txt",
+      "file_hash": "f6eb492babb3d78b9f9ae399b4b07cff77345cdaf9f528b8331eb124c782011b",
+      "process_id": "_b5aea490-89f4-88a4-99f5-7835500710d8"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Lieferanten_Dienstleister_verwalten__bridgr_transform.txt",
+      "file_hash": "d050bf4a8bf00590d54f45ee08fb070b95c55e4d10dbf5561f433cc2683e5b98",
+      "process_id": "_71d7c8ca-39ed-fa39-325f-0e0ff28989bf"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Lieferanten_managen__bridgr_transform.txt",
+      "file_hash": "dcc3d07d92fc74c7bdc59a065ec6ba8da43c5793a983cd7efb147226d9e2cb40",
+      "process_id": "_f7df82d9-69c5-97d8-e0c4-e9e4af423c72"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Lieferanten_und_Dienstleister_bewerten__bridgr_transform.txt",
+      "file_hash": "18a02cae35cfb30b004e8ed0c7e6fa6afe120f9f20ac18672511e87d99dd9484",
+      "process_id": "_21253ea7-bbfb-1a73-3e39-a708a639c270"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Lizenzauftrag_abrechnen__bridgr_transform.txt",
+      "file_hash": "fffdff2e55955aa491a05ffd4fe51a2220fac67b1b0754fa5707e0bd9ccff96d",
+      "process_id": "_e49f5c1b-54c3-7005-985e-67ebf8392ad6"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Lizenzauftrag_bearbeiten__bridgr_transform.txt",
+      "file_hash": "a191a67b4bb0f993a73fd94b5c9d4c65bc1bea9ad061acb34e68d0619c407109",
+      "process_id": "_070a0f4a-f563-7a23-57cd-abefeda757b1"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Marketing_durchf_hren__bridgr_transform.txt",
+      "file_hash": "5725d26758a6584512167e42aac7cd83a8348e62f6064a5bc848cb584e6af2a4",
+      "process_id": "_61c349c6-eee9-b828-511d-0996d7a74fff"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Markt_und_Kunden_bearbeiten__bridgr_transform.txt",
+      "file_hash": "f8ba005f45b28719f4964b3736c8465554bbc0e2dc85b850bda75eab49c65da1",
+      "process_id": "_dcee5171-2d57-2200-8e98-11d99a317695"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Meldeverfahren_f_r_Hinweisgeber_durchf_hren_Whistleblower_Richtlinie__bridgr_transform.txt",
+      "file_hash": "ab8a46bc7ea2583bc3511695b55fa1f5707a11d03785fd335be8509d30bf82c5",
+      "process_id": "Process_1_e1fba62a-7832-4d78-b12b-f9d393cbf8d4"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Meldung_von_IT-Sicherheitsvorf_llen__bridgr_transform.txt",
+      "file_hash": "f35e1855d500adb744a4169d875bb0e626a64b5ba76137098c66ba020154c710",
+      "process_id": "Process_1_49224861-0ef9-4394-b254-4d12632a4ad6"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Michels_anderer_Testprozess__bridgr_transform.txt",
+      "file_hash": "1580fa9ad8a701f9b0ecdb530ca3326ba50ad132a05138066eff0940844f0b0e",
+      "process_id": "_279a7795-466e-77c4-4098-2ac18cf7bb9b"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Mitarbeiter_ausstatten__bridgr_transform.txt",
+      "file_hash": "dffd61c13fb181e48d8aad086b3adf9ca08345cba83bb63f2c77dd8d5f797cc5",
+      "process_id": "_e53e55fd-c87f-a773-bcde-f145c7837bec"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Mitarbeiter_ins_Ausland_entsenden__bridgr_transform.txt",
+      "file_hash": "e8fbe51d3c20e201c8f117d0f0edf7312eca4341aafef86a5b58dd0dc465d66d",
+      "process_id": "_5ecb8d62-3583-84d8-85a9-1378c5317cb1"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Mitarbeiter_technisch_ausstatten__bridgr_transform.txt",
+      "file_hash": "34d544cc05b6523476698de3a2af19b27db28311c415d954540ee3f103266e3b",
+      "process_id": "_cc3220d3-6e3f-4bb2-1cb4-b31eb57dfadb"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Mitarbeiteraustritt_bearbeiten__bridgr_transform.txt",
+      "file_hash": "5d2aa8d7a46ef14c0bac7f0804b33c4a34d0170af6e03cc39a479a178855ab84",
+      "process_id": "_726ad9b6-aad6-450b-556c-e3abe731439b"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Mitarbeitereintritt_bearbeiten__bridgr_transform.txt",
+      "file_hash": "b730fd04723f3ef0da69d225a6ac81bb5b90007812ab0e1889e4912eaf5e762d",
+      "process_id": "_e0b388e7-7359-9ff6-f0ba-647dcc0e9b17"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Mitarbeitereintritt_organisatorisch_planen__bridgr_transform.txt",
+      "file_hash": "e68a0531e181e0c5007e226986b670b54b0773381b07ea440529814594ab246d",
+      "process_id": "_1b1511a7-a5c2-50d2-459c-6329e10ca12a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Mitarbeitereintritt_vorbereiten__bridgr_transform.txt",
+      "file_hash": "414e4596f15a298634bdac970a2354206462ee6835088836626e58deb3e97d8a",
+      "process_id": "_2341b76b-4d80-4d6e-4522-6ae25fb3a3c0"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Monatsabschluss_erstellen__bridgr_transform.txt",
+      "file_hash": "5af5e95870ef202d36be95135aa56db3538ee0f5abd5a81c1497358b6071e3b9",
+      "process_id": "_dc0090b6-c481-6c84-ef74-696a748f735d"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Monatsplanung_erstellen__bridgr_transform.txt",
+      "file_hash": "40ee400d40d596d3b18780929871db98afeea4992e4582f27c9abf4462d7b62b",
+      "process_id": "_84b2edf3-3176-c5a1-0b0a-b45efd620195"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Nachbesetzung_kl_ren__bridgr_transform.txt",
+      "file_hash": "5d1478a9efa8199259fffb3c66c87d62300ee17046a6fc2ce5e49718db6c0bdd",
+      "process_id": "_4a649c66-f668-3c00-6fed-284dda6e1c1d"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__nderungsprozess_durchf_hren__bridgr_transform.txt",
+      "file_hash": "bdc44c421d0093973f2f9e3be4982864f9aa0461b36731291dce5117bb91ce1f",
+      "process_id": "_675fda3f-fc09-b0ef-fba2-7d590942e5bc"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__NETCore-API_generieren__bridgr_transform.txt",
+      "file_hash": "34c62951d59818c0bd33ca33966228f62768dad21924e5765df456474f9e960a",
+      "process_id": "_01efcf96-476d-5a7e-6349-7d8d3d31205f"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Neue_Anwendungskonfiguration_anlegen__bridgr_transform.txt",
+      "file_hash": "f7e7473f49d43ca6a6b6383d1a426dbd143f4dfeedb6127b3cd4f50fd3e4652c",
+      "process_id": "_95570e81-98f7-58a4-cc21-c97916e9fa01"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Newsletter_versenden__bridgr_transform.txt",
+      "file_hash": "558041a44148d5d73cfb82fe6c16dbe08717e8fff56a337ab72fc0fbe566b7bb",
+      "process_id": "_caf998a1-98f7-156b-2867-e97ac9141343"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Newsletter_zur_Verf_gung_stellen__bridgr_transform.txt",
+      "file_hash": "ab5284c97fed6e8c807a9a83084c9bce3fd3fe17caa566833700137a8cbb530e",
+      "process_id": "_b7c638f2-d455-41f5-41ba-33fd0c9d59ca"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Non-BA_Anforderung_bearbeiten__bridgr_transform.txt",
+      "file_hash": "e1a0ebf8248efa511fef843559b2c91e95e10d14cd3af1a89df347d76f6ef1b2",
+      "process_id": "_fdd77479-e9f6-ffe6-6685-dfca00dc6a21"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Nutzung_externer_Dienste__bridgr_transform.txt",
+      "file_hash": "6aaad286b505e955706a43d41de317683b592bf112f78baf2871edc78ca95dcf",
+      "process_id": "_7d2349a3-db51-be76-a16b-abb552a50974"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Nutzung_Vorhandenes_KI-System__bridgr_transform.txt",
+      "file_hash": "df857d93ed529500e327a2bc7c6b9bd4ded9932c2b9cf1baa8086ea3e894ba18",
+      "process_id": "_d0637b39-da1b-c24f-d356-344b94ea6752"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Offboarding_durchf_hren__bridgr_transform.txt",
+      "file_hash": "8fda600f3d85062627078dbef1d125ff69b7b542e15948f603ae9bfca7481cc1",
+      "process_id": "_451e68d5-b014-66d5-65c6-cd45516411df"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Offene_Requests_pr_fen__bridgr_transform.txt",
+      "file_hash": "b9348ced088506ef8c2dc4ff6a057809a1d40c83e793ccb73f3a7c5b8a5fb053",
+      "process_id": "_fb03145c-adf4-72cb-d03d-ab6085fcafda"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Onboarding_durchf_hren__bridgr_transform.txt",
+      "file_hash": "85ee95a883870e04be1fe93fee9596eb1024d58add08526616fc3acaebfee582",
+      "process_id": "_c77d0a99-ab52-3971-2a77-9ea9d64760b1"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Online_Marketing_durchf_hren__bridgr_transform.txt",
+      "file_hash": "effb8c13ba7b8be96b6b9eba8a078b24f4e068a0e25108f72edb7f87f682764e",
+      "process_id": "_9b5951c8-ecd7-2132-8c5b-f7d4b54f50db"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Opportunity_pflegen__bridgr_transform.txt",
+      "file_hash": "a39f86a8212e7a1a71627152504485933244d97d53c3008dc99ec55935588ea1",
+      "process_id": "_fce4f3d9-7218-7b0f-7230-0f6ff11ece5a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__OSLC-Connector_installieren__bridgr_transform.txt",
+      "file_hash": "79d4b955cf937cdec1168fdd735ef57bc28e7bdd8136eec1d93e80a298989380",
+      "process_id": "_0986de23-2f30-18a4-7f89-c03ea27d12f4"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Partner_managen__bridgr_transform.txt",
+      "file_hash": "b39f3bf78ac0e23983118f4f59065480d1d8b50ce1a54fbe97b0b04b53e7ecba",
+      "process_id": "_ce42e0a5-14a6-53be-3e62-1e20e6888fd7"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Partnerschaft_aufheben__bridgr_transform.txt",
+      "file_hash": "3510365cbcc4b72550a4a7989cdada2316dd5fe1e5c4055575d6c18002369271",
+      "process_id": "_f6d8f025-40cf-ecfd-5571-7c2ff97bacfe"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Partnerschaft_nachhalten__bridgr_transform.txt",
+      "file_hash": "9df90a38b5567038618566c97b2516f588f828d15249de197b3568052fc5dcda",
+      "process_id": "_3c2fe0df-8bfa-c00d-eb71-02f65ba2fc23"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Partnervertrag_abschlie_en__bridgr_transform.txt",
+      "file_hash": "b53496cfbe99a3f6a4b99bf374753094f8086c6512d70fa61b281c9d16967b09",
+      "process_id": "_78bd936e-3524-2322-3c50-d0282e7a3284"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__PE-Konferenz_durchf_hren__bridgr_transform.txt",
+      "file_hash": "cb168d2f5a7111276df13973b8d165842145824c4b399e7cf2bd8d819e1747df",
+      "process_id": "_7b097291-5ef8-23a2-1959-221a90dd288d"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__PE-Ma_nahme_begleiten__bridgr_transform.txt",
+      "file_hash": "e7b7355900f066ddaf4f46cfbd3a7ec5fe8e903963fb733709371046a7c42aa0",
+      "process_id": "_b1bbc5ba-9d62-f4ce-66c3-8768c74ba565"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__PE-Ma_nahme_organisieren__bridgr_transform.txt",
+      "file_hash": "5c615156fa00e5ce18973eb2e916abb258b2bcebc2bc1de070097f8fdea7ca9b",
+      "process_id": "_09a5d2f4-9fa8-7845-92dd-22afb6aa2c70"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Pensionierung_bearbeiten__bridgr_transform.txt",
+      "file_hash": "002ff516fa767364b0d0339e4cd170888480a06474d4a2dd2290ba4daca731d9",
+      "process_id": "_1a56139f-ebd0-fcf2-066a-a7b8a41c7287"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__perpetual-Vertrag_abschlie_en__bridgr_transform.txt",
+      "file_hash": "a161069fca9cc3a3e4b160abf6d7219be0cf1770f473a9502493e35a86e99f43",
+      "process_id": "_25c40797-c2c3-cc9a-d377-0a13d7404076"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Personalentwicklungsdialog_organisieren__bridgr_transform.txt",
+      "file_hash": "093db3341ce5a9ae0be196f35c1c180dc2b42f5a069f82d7d29b7cdec79113f9",
+      "process_id": "_69891a47-9107-c9a5-56d2-ec1c93aaca31"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Personalkosten_abstimmen__bridgr_transform.txt",
+      "file_hash": "4a30d40f345aec5aa8f0569a0bef3017ce2282fe9d9b055036fbb8ebf0720f67",
+      "process_id": "_2efd5377-206c-31cd-af0b-0baff3b1a5bb"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Personalmanagement_durchf_hren__bridgr_transform.txt",
+      "file_hash": "20acdb504d618bc6bf6bd915b979c0eecad494f842509372af1235128500bd07",
+      "process_id": "_ce01690b-96c1-b11c-e062-902f6c198ca7"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Personalplanung_durchf_hren__bridgr_transform.txt",
+      "file_hash": "3fa371916d22bb26b6eb8b20e961a15d7e28e02a7b576840e9a850fab9cbb64a",
+      "process_id": "_07e6f0be-2943-25f7-81c8-0df563b9b75a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Personenbezogene_Daten_l_schen__bridgr_transform.txt",
+      "file_hash": "9c90e8cf406de8e21dec8a8e1b62317fc00293d3199149ecba86a2be5a726374",
+      "process_id": "_93cb63e3-19f9-b9a5-2cff-65a2c43dbff5"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Poster_zur_Verf_gung_stellen__bridgr_transform.txt",
+      "file_hash": "9ecf84f29433d7e00eafb57cb589d8660198bc0e247adf376263d7d100bccae7",
+      "process_id": "_f6507615-ff9b-7f8b-b600-eaba3a719ba5"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Pr_fung_Geheimhaltungsvereinbarungen__bridgr_transform.txt",
+      "file_hash": "5279e6fad5a562b81649b6ff7da66f7806af8e34ed5e8369bbf692cd1ce5c7c7",
+      "process_id": "Process_1_a361213a-da2f-470c-87c4-56e13759e65b"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Pressemitteilung_ver_ffentlichen__bridgr_transform.txt",
+      "file_hash": "98a3cd5d63db0289a349d84355d8def10e1ac869806520c69d152fc7895ad2e0",
+      "process_id": "_a5c3f017-be6b-a27e-ac90-9b50ff5ecc74"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Process__bridgr_transform.txt",
+      "file_hash": "f4aa3adc1679947499d8c52f2ded1dd02e6347c5839fa54813de185fdb8fb858",
+      "process_id": "_dcf40f6b-ffd6-218d-d455-e8eb078129c9"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Produkte_entwickeln__bridgr_transform.txt",
+      "file_hash": "84b4229f7f8634ca16d9c5511d41226652468d3639a08ac81d68bbf24779751d",
+      "process_id": "_213dea23-a84e-baa4-7737-4e9282c99cd8"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Produktfehler_bearbeiten__bridgr_transform.txt",
+      "file_hash": "c906d803abe2a53aff5c631d6f466bc36292d6ee91ee93d4f56e1cccd535a190",
+      "process_id": "_01974c3d-44d0-1519-12cb-08c7b850695b"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Produktinstallation_beim_Kunden_durchf_hren__bridgr_transform.txt",
+      "file_hash": "63605ff11dea9dffdc6d59b0e2ac56f9b27114e288b0a96462452f601ba9249d",
+      "process_id": "_49506966-1896-62a5-92f3-e89001f12340"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Produktpr_sentation_durchf_hren__bridgr_transform.txt",
+      "file_hash": "9a256d4b88de84bfe4f1305d9df84735c462cefb35fe933df859146d55a687da",
+      "process_id": "_92510f1c-85dd-d965-0d26-f9704e24627b"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Produktstrategie_festlegen__bridgr_transform.txt",
+      "file_hash": "5bb58b89dab00308ef533a68db949a0805e41847424a7fd52acdb0459a3a2bf0",
+      "process_id": "_597a6ba2-8d8e-a7ce-88db-085c0458fdb8"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Produktwartung_durchf_hren__bridgr_transform.txt",
+      "file_hash": "adf8fab542b4aadad4b273ed7c4caab0648678032e918c238a40df768af9830d",
+      "process_id": "_1201780d-6a4a-773b-75cc-666ebaf2bbca"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Prozess_in_Innovator_modellieren__bridgr_transform.txt",
+      "file_hash": "44b153c073cc0d0bf43e4ab02cd486d7bad101f1bc3434edba6c6da7d3c72104",
+      "process_id": "_02b74ebc-e195-1623-035c-313063fcfc06"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Prozessversion_in_Bpanda_ver_ffentlichen__bridgr_transform.txt",
+      "file_hash": "326d4a2f6fd6eb2829948b991bf78a852aa4a9e8eb2a0b0958beb9856d4a8710",
+      "process_id": "_e8ea9c87-6416-a848-1df2-9136647b9ae2"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__QM-System_berwachen__bridgr_transform.txt",
+      "file_hash": "2ab4fd265dd790023922aed2017008d9da19ac1707cb764276b2e2672ae1a489",
+      "process_id": "_8d5d1143-d3e9-4aa7-de3c-2a99aac07075"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Qualit_tsmanagement_durchf_hren__bridgr_transform.txt",
+      "file_hash": "412b2d8496474b1637f32aa953d38e984ec7fe3439066c636828c908bc59aee9",
+      "process_id": "_74ab6ddd-78fa-2001-87bd-903054121e09"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__R_ckmeldung_verwalten__bridgr_transform.txt",
+      "file_hash": "fb368a248a946af8a1abefab4b96903bb5b6a2d32f1a4adc66c0da278a31daf4",
+      "process_id": "_baa87100-7fda-cbee-419b-0c4910a5ee82"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__R_ume_verwalten__bridgr_transform.txt",
+      "file_hash": "d5455975757545461b52bbd567143b4642efd64d5d45068eb368c92a941badf9",
+      "process_id": "_6014d219-4e77-6653-a16d-f25c12768893"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Account_planen__bridgr_transform.txt",
+      "file_hash": "635a7c37e2ea89e0f6e278d4b6b9ebacc4703cd243c1fda61de6119babc43804",
+      "process_id": "_e730b312-4f25-b4b4-bfad-72cd0c3a96f7"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Account_planen_II__bridgr_transform.txt",
+      "file_hash": "240586c8a2ae7f799ca50850cf0bb971db2be2b3805c621d92b56961875ac922",
+      "process_id": "_251935c1-6902-ee25-d8f8-bfa672b5a142"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Akademie_verwalten__bridgr_transform.txt",
+      "file_hash": "4dccded1ed0da6145f41d167e4581692d1bf8e917357e1f908ee5e0cbfbc6933",
+      "process_id": "_ec2a76fc-f6a9-b20b-3820-93311d2f06cf"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Akademie_verwalten_II__bridgr_transform.txt",
+      "file_hash": "97ae1c819a439ce82afe95e61da39531f28c185509d6ae2b53ec68ebca288f1e",
+      "process_id": "_700d1651-feee-e0c9-efc0-cb13fd77e103"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Aktive_Kommunikation_durchf_hren__bridgr_transform.txt",
+      "file_hash": "01a0b5fa2192c4389686ca877ce568c32adc2b96d85fdc5425bffc6fff5dc4ff",
+      "process_id": "_fbbc4d6d-2484-67c5-1a37-792c99197bc0"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Anfragen_bearbeiten__bridgr_transform.txt",
+      "file_hash": "0d178992f3567740a7849201ba5b24b695201b84dd62e19e17413a6223b5769f",
+      "process_id": "_479dd7cb-7430-434e-ddb9-5aabe2989bdc"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Anfragen_bearbeiten_II__bridgr_transform.txt",
+      "file_hash": "0a7ae2df69347c89e92b84fa73eaf91781e81cfca20819e8eb38022d6ccf5bb6",
+      "process_id": "_d94b7f3a-7e8e-6623-8bca-0db3950b3282"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Angebot_erstellen__bridgr_transform.txt",
+      "file_hash": "eae388c3d45299875d793de5109a171866f00e2432eaa477c1ba686d509aac45",
+      "process_id": "_0eb3bb53-202b-e59c-3b61-e6c3bf236d99"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Angebot_erstellen_II__bridgr_transform.txt",
+      "file_hash": "2d77e87baab250c6d98c72cdd2cac52547fd51b473090b2b391c57f5aaa194aa",
+      "process_id": "_dcd6c2f4-ba7d-7d74-9af6-ea348c4e74a4"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Angebot_erstellen_III__bridgr_transform.txt",
+      "file_hash": "4aaabb992c848c49798ba980f7b949e426d135d6c21342bfe9b4ca9c449d8e2f",
+      "process_id": "_5d8d59ec-2df8-32b5-0123-bf4c012f4f4a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Angebot_Werkvertrag_abgeben__bridgr_transform.txt",
+      "file_hash": "806f9138be2000a99d1ab0eecf52ef7215ce3fc408f42291aab888f241dd2cd4",
+      "process_id": "_e2e1b477-9aa9-63d9-521d-f048c47f9384"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Bestandskunden_betreuen__bridgr_transform.txt",
+      "file_hash": "deeef61ba96b8142459d98b8713123d6e9b6e3c51a6c8b01fafd914839f1e5d5",
+      "process_id": "_2c86f07c-7d5d-df89-2601-40e9f3222ead"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Gesch_ftsfeldthemen_entwickeln__bridgr_transform.txt",
+      "file_hash": "bcbee4a06624ba8b2514f041a28aad027f4063f2105804491a04a165ec05151a",
+      "process_id": "_31441a80-c96d-c332-06a5-65d39b9e5b43"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Gesch_ftsfeldthemen_entwickeln_II__bridgr_transform.txt",
+      "file_hash": "48c173b74ee9c1b209ea15808cc8b3d9cd15f47e233319dd95dc01ad5bb2cb07",
+      "process_id": "_6eaa8e5d-910c-0c4f-38bb-dbcf2ab34d75"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Gesch_ftsfeldthemen_entwickeln_III__bridgr_transform.txt",
+      "file_hash": "496aaab591fa8d3818db2e769ed0b6723b515989cef8c626ff22c80811024676",
+      "process_id": "_0a06c019-4399-32fc-d118-7085466d90e5"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Gesch_ftsplanung__bridgr_transform.txt",
+      "file_hash": "a8b91b3ca516747cbdbaafb896a78549abffdf2da26c28c28c1c49973b4c81bd",
+      "process_id": "_24d95431-3ad1-4e1b-a7cc-0a73cd90005b"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Jahresabschluss_durchf_hren__bridgr_transform.txt",
+      "file_hash": "441861dc3badeae9f2a6b7bf9c104612f521c6190ebe46821db889bd33e12ff4",
+      "process_id": "_af3f734b-c052-17a1-bef3-466937a4b282"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Leistung_abrechnen__bridgr_transform.txt",
+      "file_hash": "03d85c98ef387b2b75624678eb1fc96b4295af5cb90ca9dfe21f0c211fd62195",
+      "process_id": "_5d75d364-e831-b4e9-957b-6a8dc5c1de40"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Partnerschaften_nachhalten__bridgr_transform.txt",
+      "file_hash": "b51d95e3652d3d2975848c218b435d89999a1cb256e59707bc93eab051260fe3",
+      "process_id": "_251b9733-32b4-3833-26d9-4860146129cd"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Partnerschaften_nachhalten_II__bridgr_transform.txt",
+      "file_hash": "0de3da08752ccd804d47e2b27038210a5eea1ec94f099bf6f364c258e3ce040a",
+      "process_id": "_39a0597d-fe97-6410-c76d-e434649a5832"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Partnerschaften_nachhalten_III__bridgr_transform.txt",
+      "file_hash": "e4736e054ce8f0597d7d4e0d183a9e6a5e88d370a18b878f548932acf4b2a5d3",
+      "process_id": "_4d122bf2-7cbc-0b82-80f2-29d8ae5840c5"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Partnerschaften_nachhalten_IV__bridgr_transform.txt",
+      "file_hash": "c8fe55d2ac11b8b7b892eefe0eeb232f391a901b3d38a59581e7a624d20f44dc",
+      "process_id": "_8a58f8ac-80b1-f3b6-c23b-cc1c174b9a6a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_perpetual-Vertrag_abschlie_en__bridgr_transform.txt",
+      "file_hash": "9663e4c43bff3912852e6b77b3dab796e84be55957722d2c1a717158c1f9cfb2",
+      "process_id": "_0beb95f0-9a49-182c-66bc-f5014768db02"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Produkte_entwickeln__bridgr_transform.txt",
+      "file_hash": "58f1bc939872c181626a6cd58e27386074738f3f4845af3c424ad75eca74a8da",
+      "process_id": "_63cdbcdd-117e-fa08-1ba7-0fcecb6be5eb"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Produkte_entwickeln_II__bridgr_transform.txt",
+      "file_hash": "1368b479463267ad855a927088c98434947b345738614fa5e2d0be6b981d8048",
+      "process_id": "_a1123b59-d64e-8150-92d7-96b261e2b3b3"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Reporting_durchf_hren__bridgr_transform.txt",
+      "file_hash": "3d925f1fce11b85f143216fd241e3384b192ecf7c5efff571aacb53271d8533d",
+      "process_id": "_91d1ad7c-72db-c8aa-c7f1-0da669be3c4e"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Reporting_durchf_hren_II__bridgr_transform.txt",
+      "file_hash": "83d173e4d77dde53faa85e196803914f5ea9d61cb441479534ad8cc36696ff79",
+      "process_id": "_8b9ff975-ff90-dcb1-77e6-1e04dffe821a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Systeminfrastruktur_bearbeiten__bridgr_transform.txt",
+      "file_hash": "0ad682b3e6012d3f6c75cb75efa05a72fcca45baa4e2122b33636b084bc0870a",
+      "process_id": "_6408fb71-183f-452b-d98c-b955817967b4"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Systeminfrastruktur_bearbeiten_II__bridgr_transform.txt",
+      "file_hash": "363b3e06fd4c7b60a95bc402738aab7eac5a228a6c85eb1e21e4a3e247d6b064",
+      "process_id": "_e915fc2e-f701-7d7d-09f0-fe8bb1e26304"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Systeminfrastruktur_bearbeiten_III__bridgr_transform.txt",
+      "file_hash": "0ba5b790e0dccee5a8f08a2a1b973170e5964771ea06ccb7f4ab1f02f0171f86",
+      "process_id": "_ba3f35a8-98a7-480c-ac72-58dfebf505db"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Trainingsdurchf_hrung__bridgr_transform.txt",
+      "file_hash": "ad483958b6adb6893f904c46a125be6cb6cbc438de5e1f3b9f3710fe2f5cb680",
+      "process_id": "_6c42fa57-8663-829b-ab68-02326739f52a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Unternehmensstrategie__bridgr_transform.txt",
+      "file_hash": "f6602a464341b5fb3e171f0c4cf1a6f73c20884765fcb5fe520edb81f067cc4c",
+      "process_id": "_fdcd44cc-0125-d98b-7428-f2ccda2fff49"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Vertragsinhalte_verhandeln__bridgr_transform.txt",
+      "file_hash": "d48774287b57c3fd96db8ece5985c18902f9e7481b738401475d4e9cccbf5b4f",
+      "process_id": "_2fd97ec0-b4e3-273c-6061-b6ec29561b82"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__RA_Vertriebskampagnen_durchf_hren__bridgr_transform.txt",
+      "file_hash": "899c65a6d067103b3896acdeb1b3925e34a1d502c8f4f4b9bafa7e4b70abafba",
+      "process_id": "_4f3024a9-2217-c931-f339-01d878c76e76"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Rahmen-_Werk-_Dienstleistungsvertrag_abschlie_en__bridgr_transform.txt",
+      "file_hash": "2a9d4c4679bafd0b0d89e3a16df48634974fe1ffaf066ccfe386816a134a23bd",
+      "process_id": "_e7057e9a-5577-8eca-b095-9598deecce3c"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Rahmenbedingungen_f_r_das_QM-System_aktualisieren__bridgr_transform.txt",
+      "file_hash": "b577c7285150f51cf4f479283365897bab12997db2cda1074e509734dfaf6687",
+      "process_id": "_773fcab1-1407-a684-ff1d-882976933c28"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Rechnung_stellen__bridgr_transform.txt",
+      "file_hash": "7573b70fd5530b9232e0e6353bb0f5ea45a41c7f3a39f00807b537a091805636",
+      "process_id": "_36ac7edc-bdf4-0302-58cc-5a977733f5b9"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Rechte_erteilen__bridgr_transform.txt",
+      "file_hash": "549fc64a4c3a1967a71b09baf8021a9b367b6e1496b910ba890e11af68d31444",
+      "process_id": "_a1f12b5a-76ed-8a2e-dcff-2a8448b6f019"
+    },
+    {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Recruiting_abschlie_en__bridgr_transform.txt",
       "file_hash": "cab487c3be50a8f4019e97dc928328276db9bd50952170ec40fccf68018d54da",
       "process_id": "_71b9e601-df29-f904-1011-fb0cce292ad3"
@@ -26,6 +1471,391 @@
       "process_id": "_81dc039f-1d8e-a660-1227-2cbd3d39e531"
     },
     {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Reisekostenerstattung_beantragen__bridgr_transform.txt",
+      "file_hash": "3ef809217edd1a5f19dd4152b9f8d67e4504f5656d66f155ea18ae7a4cbd825f",
+      "process_id": "_eff8d940-1a1d-4548-06f3-61b8912cbba9"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Release_planen__bridgr_transform.txt",
+      "file_hash": "617d1a5110c8b4d962c7c0e07539925cfd0b73a6f355d9e8e37479ffc238da2e",
+      "process_id": "_04cca68a-3f15-672b-4188-9e80480c4be4"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Releasenotes_ausformulieren__bridgr_transform.txt",
+      "file_hash": "d03c95ee239b0b5de48532dc844403d570c4c4ce1ea91feca3b46e0ad36534a7",
+      "process_id": "Process_1_31305a27-883c-4356-b30c-88e16ae1ecc2"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Reporting_durchf_hren__bridgr_transform.txt",
+      "file_hash": "4d155cefb4efd5b526533b2a3dc2610981786c7d736421b4eb6fb8459df87b90",
+      "process_id": "_57a87a6b-ebcc-1025-db2a-c23bb6d2caf1"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Risikomanagement_durchf_hren__bridgr_transform.txt",
+      "file_hash": "e8c673245411b75dde5d6229f0ce6a37a74f3cd325f432ca03494c2f3204e075",
+      "process_id": "_d0771300-31ff-8eed-d443-e1ebd2b963d7"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Sachkosten_abstimmen__bridgr_transform.txt",
+      "file_hash": "f06255ef9b69825ba4e690bfad708b41960cac1d217f47f4f61fe72594aae219",
+      "process_id": "_443340c9-78e0-fd8a-3528-5ad5ea0637ea"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Salesforce_Prozess__bridgr_transform.txt",
+      "file_hash": "910a8509c9bfe9841ccfb790c61cc460a5d15bcf2e05f67bed5c744ea8d7505b",
+      "process_id": "_cb974860-fa3f-eea0-a9b8-54847de388c1"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Schulungsauftrag_bearbeiten__bridgr_transform.txt",
+      "file_hash": "49bffb2f44240bea083a21cd510b424f7d5014047d87cf8bbc091316ec6a0af4",
+      "process_id": "_ea115e04-f522-fb41-741a-b4ec3800955b"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Schulungskonzept_entwickeln__bridgr_transform.txt",
+      "file_hash": "af166df70c67650d175a84078d068e17e0d4ae00b6d7b498d1a2bd9cc6776294",
+      "process_id": "_842ea6c3-afca-da73-53a7-b6a49836fb5c"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Schulungsleistung_erbringen__bridgr_transform.txt",
+      "file_hash": "d105c2d868f199acdb37a0a65c3f4d0dffdb48965f8359c62815d2ef9b64e961",
+      "process_id": "_3c3d4809-3f0a-0071-dabf-1cd7dfed8c0f"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Servicestrategie_festlegen__bridgr_transform.txt",
+      "file_hash": "66a22ce99b66e59537ea82e67e8f0d1017b6a7f6dca74f259550d5a4f7747901",
+      "process_id": "_831662d3-59b3-92cc-3c7d-21c67868d81a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Sicherheitsunterweisung_durchf_hren__bridgr_transform.txt",
+      "file_hash": "6c2b9df1f600b28d35f70ddbaf4f45df2aec6215f47ac6f08b8f333f8bc3e01b",
+      "process_id": "_6799b450-747a-6d2e-d1fe-ed190e1e246d"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Sicherheitsvorfall_bearbeiten__bridgr_transform.txt",
+      "file_hash": "c1a3471c4ddb2cae1e416110860555609d2502fe5628ccbadba8665dd4566cd9",
+      "process_id": "_b589d8d2-130e-b69b-20d7-8c8bf70d8305"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Smartfacts_kundenseitig_installieren__bridgr_transform.txt",
+      "file_hash": "7810a63602ac33a31dd8d3d9a990a97642b9deb682747bbc8d1ed055b8649d58",
+      "process_id": "_c01742c3-055e-63da-8312-e06c30bcc997"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Sprint_durchf_hren__bridgr_transform.txt",
+      "file_hash": "01b37e848089e37af9fd2ffc45b25d1f0578da196a804470df2f31169d092bd4",
+      "process_id": "_9bbfc6fe-135a-2ef5-8d17-944ba1a89869"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Sprint_planen__bridgr_transform.txt",
+      "file_hash": "84e578aae9e3cc2071f47d7763958e9109fe0cad5af0431cdcd4343a5a00ea57",
+      "process_id": "_7c0abf4a-d150-ee22-6040-218df294ca1b"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Staffing_durchf_hren__bridgr_transform.txt",
+      "file_hash": "ea2beccecce8c8424c15ffaace88dbfe6d8338ba82992933d7d16b19884843d5",
+      "process_id": "_dffe3f1e-dbde-3984-1ccf-dfe4f71df62a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Staffing_durchf_hren_im_Lead__bridgr_transform.txt",
+      "file_hash": "8a8eae06ff456fe66225088cc6426e20a596d407d5d0e1223f46f8ef81f69965",
+      "process_id": "_cd26e6af-958f-8ed4-29e2-a0a586ee7850"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Stammdaten_ndern__bridgr_transform.txt",
+      "file_hash": "4090dbfdb638cd1475ec1ebaf91507e2edcff6a14ccc916629179360af474e3c",
+      "process_id": "_c6b98b9e-04eb-1113-a9a3-2fc6e8acb291"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Stelle_ausschreiben__bridgr_transform.txt",
+      "file_hash": "574836b1f3d8f6a750f6bb4ba42710bf886fcf40e5842dc7ec8b04420717ddd4",
+      "process_id": "_e2c4ff61-08a0-0b0a-bd42-334106b8a9be"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Strategien_definieren__bridgr_transform.txt",
+      "file_hash": "12545d3bbf3c261a0419da5243d9d7e4090a06fa1cccb3c5853a50fd76ba2911",
+      "process_id": "_ee231b87-f436-30e0-6301-bc1f47c10654"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subcontractorvertrag_abschlie_en__bridgr_transform.txt",
+      "file_hash": "1b57abfab4bb9f54cbd488db7b50071e023e97e17d36f22c61e47fc20067b9cf",
+      "process_id": "_2cbbf1f6-43aa-0545-f7df-9c34806ec8a7"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscription_lizenzieren__bridgr_transform.txt",
+      "file_hash": "5018024f32a8b8ea2a4bd7466728dce8948b9bed801d20fbb100419d84b651fd",
+      "process_id": "_b5cc2e9b-a027-76e3-9b60-1366742e7ba5"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionlizenz_einrichten__bridgr_transform.txt",
+      "file_hash": "f99b6d68bf293d2524d50dee4858def63b7a0a1dd9aa7a4990f45d417d343505",
+      "process_id": "_fd1156db-53ad-2b95-93a2-3bd48d7a857c"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionlizenz_verfolgen__bridgr_transform.txt",
+      "file_hash": "feb8f84ffc7f4d26d716b1e5d09153690b33e1d43ca21b5d1a7da2e3cb95cc58",
+      "process_id": "_36649836-9235-cd23-7062-a3830009af4f"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionvertrag_abschlie_en__bridgr_transform.txt",
+      "file_hash": "400e090f28156e89f7f47241fb549f46fcfa02090c09698953104fb8324aefc7",
+      "process_id": "_24013747-2968-7b95-904a-1e115c8a5ad8"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Subscriptionvertrag_anpassen__bridgr_transform.txt",
+      "file_hash": "a6ae41fda4d0fd9c8ebc922d836b4174fd068499ac2ea21bcc160170237456a4",
+      "process_id": "_50a00a52-d6f7-67bd-dcba-7c2accdda465"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Support_durchf_hren__bridgr_transform.txt",
+      "file_hash": "f3e9279aafba709e29a1b771340922e9cba357fc9ee9973d343a03b4de5fa559",
+      "process_id": "_c0af6171-2f22-da75-1c71-5a16c74349f0"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Supportanfrage_hinsichtlich_Rechtsanspruch_bewerten__bridgr_transform.txt",
+      "file_hash": "f31fa470852694dc4e1cdb35a2354679444bd175ad057253ab684b95fef3e8ff",
+      "process_id": "_bb8970f3-d9bc-f163-a57a-e12267a5875a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Supportanfrage_zu_Innovator_bearbeiten__bridgr_transform.txt",
+      "file_hash": "228e0538090f6036dc6c0a62a37c8dba65214e36ca4d05f086fdffd2d2154bbe",
+      "process_id": "_8bb01f99-aa5d-f46f-735a-ae66e31a6754"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Supportanfrage_zu_Smartfacts_bearbeiten__bridgr_transform.txt",
+      "file_hash": "e97cfcec63cc00287bb65c8d70aa4d46edb2734be491c294fa76b40a17cee4c0",
+      "process_id": "_a0df3ed9-d910-a211-d3f0-3431435e37ea"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__synchro2__bridgr_transform.txt",
+      "file_hash": "bf02efd1050f2f640fbc38e40ce55236aa032abd1371341e89dbfdbcfad341af",
+      "process_id": "_5e5327d8-e5e4-592d-aedb-b7a2cdd0d6de"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__synchro__bridgr_transform.txt",
+      "file_hash": "7b8867f5e4d387d3d5d2758bedcde7111e0f88dbc9995ba819484273d5fc0fe4",
+      "process_id": "_f6234c13-cacf-63b8-720d-18348cc1044b"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__System_anlegen__bridgr_transform.txt",
+      "file_hash": "58c2401332cd51005e74941d33e674eedff0f0f511fc6a0b8a2475f949df0d5b",
+      "process_id": "Process_1_73c4eee4-85e9-4bc6-8942-3642903dba8f"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__System_anlegen_ndern_l_schen_-_System_verwalten__bridgr_transform.txt",
+      "file_hash": "8d3163be79999ae3b7638923dcd4f613c67db862f5b8cb76c72acb3f99bf10f3",
+      "process_id": "Process_1_912440de-8b4f-4be2-aafe-cb964b8d5f09"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__System_l_schen__bridgr_transform.txt",
+      "file_hash": "e9dd089834d9184a0ec9e39dbe35b16ed45284d6399bfde5e95833b597ab2e52",
+      "process_id": "Process_1_862e6dc7-1c18-4f48-a0d7-6d346e3e639e"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__System_ndern__bridgr_transform.txt",
+      "file_hash": "0c1436db5db17eff50c4602844f99bfa254785a576044e75dce6a265e0664997",
+      "process_id": "_bdf4975a-75af-704a-cb62-498861dd7c27"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Systeminfrastruktur_bearbeiten__bridgr_transform.txt",
+      "file_hash": "a1dbdcdc9ac2410c4628a2e052812cc8db5639bb34d25b3a5afbf255178c2758",
+      "process_id": "_15350ff6-8f50-91dd-1cc8-9a1fc61d0fda"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Teamevent_planen_und_durchf_hren__bridgr_transform.txt",
+      "file_hash": "9d30be64658137491569cc23ea379076e0fbc79561d67d12f0e3e0b38fb74815",
+      "process_id": "_cc8180fe-60df-f0aa-b494-58bc671fc929"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Teilnehmer_Ansprechpartner_anlegen__bridgr_transform.txt",
+      "file_hash": "4741c187456517440bc33d5be4d3593652e879c22ccaad0c6d9514862c61b278",
+      "process_id": "_2693be44-8431-4c7e-aa29-d28f262ca61e"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Todos_bei_Ernennung_zur_F_hrungskraft__bridgr_transform.txt",
+      "file_hash": "79b44216585683bce26bd91b4afeeb4bb62fe3a4dda388d7205b7528b5e77e57",
+      "process_id": "Process_1_2e1c7d67-7038-4f71-b5c7-46366d710540"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Training_durchf_hren__bridgr_transform.txt",
+      "file_hash": "ea72d687ef5fd73cc6e00d5371ecf29831bc70450c689e400add32bc76f368ef",
+      "process_id": "_f75467b8-238a-ba3b-eba9-2b50ac0baff2"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Training_nachbereiten__bridgr_transform.txt",
+      "file_hash": "c5482aa46fd5b8d15096a6c0a7c36ab9d73951e94a1e8e66be560b44014802cf",
+      "process_id": "_699cfcfd-7358-6ec0-055b-0947189a74b0"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Training_vorbereiten__bridgr_transform.txt",
+      "file_hash": "7788349106bca1e7d808a9065a15e626cbd962ef8e1fd33db9f4e93f8f8d0225",
+      "process_id": "_c3114ff4-aeaa-be5b-f8ee-8b8380c2e665"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Training_vorbereiten_Archiv__bridgr_transform.txt",
+      "file_hash": "d113323bdeeb50154853866858337608e7ed9f03edcbc2d23ce555ed5e1f9091",
+      "process_id": "_9021b553-4fab-0906-2515-6cf947187ae8"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Travel_Time_Compensation_freigeben__bridgr_transform.txt",
+      "file_hash": "f61c26a515f0ac9bb5ad9a4ac603d014a8716b7995c91eee1c6294b1d0b4564c",
+      "process_id": "_f6e893b5-d59c-b835-3f67-092f97e924a5"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Umbenennen__bridgr_transform.txt",
+      "file_hash": "b77cbd8c69e04fc8e959b3e8b7468771dc076e9ed296022262df60097fb0a6f0",
+      "process_id": "_a3f26dc9-1853-0b8b-f88b-85f76e529d04"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Umsatz_abstimmen__bridgr_transform.txt",
+      "file_hash": "62bde7a64fa552653835caabed80cd12d99f57691a47c1c4fc8e4c50025bd146",
+      "process_id": "_21c1a886-99b3-be7c-9a3d-241478d29ddb"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Unternehmen_operativ_steuern__bridgr_transform.txt",
+      "file_hash": "11bb2efe8f2c4200762e7442a6933b10cd33e194bc8c985768cab5c1e7e77266",
+      "process_id": "_1bc4a044-de72-d0a2-b63e-3d46b76294b7"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Unternehmensstrategie_festlegen__bridgr_transform.txt",
+      "file_hash": "064182b42013568c64fea65c2a1901eb6b951e3f13f8109983f3693879c5d392",
+      "process_id": "_540a6fe1-549c-f7fe-eab4-9d6ec83849f6"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Unternehmensstrategie_managen__bridgr_transform.txt",
+      "file_hash": "720366f41f93112bcee87654581af8dd792d64d659502951c551f4bc093b7372",
+      "process_id": "_e560155e-50f7-cdf9-2bc6-bc65be226b79"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__User_Story_realisieren__bridgr_transform.txt",
+      "file_hash": "0064ad92ccebcbcb2e6fca9c868f1eed00d36f52247140dc1fd3e9dad8723cd3",
+      "process_id": "_c37608ef-b139-9516-4242-e2293e3b126b"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Ver_ffentlichung_zur_Verf_gung_stellen__bridgr_transform.txt",
+      "file_hash": "eb868c48fa5822abef1ae0edac4e15d3e2a787f521821498a4c73a1cdb3b7669",
+      "process_id": "_a63d413f-df0d-171c-dab6-7d78d4626d70"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Verhandlung_f_hren__bridgr_transform.txt",
+      "file_hash": "29e74647ac0018f3503f081fcb2aefe3e7841495dc1e48a3f81deab9b55acb7b",
+      "process_id": "_84e79573-cce1-d10f-ddaf-be63c1f06841"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Verschaffung_berblick__bridgr_transform.txt",
+      "file_hash": "5cfeedbbbd6a54bf63ae957a8ad93052ec71d08e72f027a169b96bc8f198c6c5",
+      "process_id": "_a7211a97-aa14-61dd-08ca-a4481c396bc5"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Vertrag_abschlie_en__bridgr_transform.txt",
+      "file_hash": "a112bc4be8e9afdf0612bd5a19c51a3753a36362e14fbb01577ef31eb4dd3c87",
+      "process_id": "_a88449c2-95f2-d02e-bba0-525c0bce9fec"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Vertragsabschluss_kommunizieren__bridgr_transform.txt",
+      "file_hash": "8e67d7f1faba4270c2be64367eba4e92031a00606c5e1e7e6a656c3098e2d612",
+      "process_id": "_e1f29824-faa6-4c37-1a4a-4dd641e84ef6"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Vertragsverhandlung_mit_Dienstleister_Lieferanten_f_hren__bridgr_transform.txt",
+      "file_hash": "5935c0ebc17b46dc1cac681a2b166d1f968a020d3813d4ba6a0bbc991d8346c5",
+      "process_id": "_85e941da-7615-ca8d-78a2-3190b42b919e"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Vertragsvorlage_aktualisieren__bridgr_transform.txt",
+      "file_hash": "24bf2d2589e560cb3a7be3176fb8f0e6a415d56f78d772a6ada92b95dfa02dc9",
+      "process_id": "_48efe72a-32f1-0ca7-1264-78d7cbaf4033"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Vertragsvorlage_erstellen__bridgr_transform.txt",
+      "file_hash": "8f603045bd11bf10f4794fa242120fc5d8dbb341fae4c86999bdd68a2dfc6fc0",
+      "process_id": "_02a89828-7868-2d21-d2f2-18cd2b03b9c9"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Vertriebskampagne_durchf_hren__bridgr_transform.txt",
+      "file_hash": "0d514367981ff57dcb18796bdfa014a2a0e13176b0162255c9ce56368dacfb71",
+      "process_id": "_3e89757d-241a-fa0d-47df-19ad06eae878"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__VMs_verwalten__bridgr_transform.txt",
+      "file_hash": "547b490aef0e792a2320145f8ceaf284906bacec94aa00394af96453eaf1e850",
+      "process_id": "_6e92fc22-84a6-a670-31cf-84854aab3e63"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__voraussichtliche_Kosten_ermitteln__bridgr_transform.txt",
+      "file_hash": "1ad4a488bc13642221ea5c19ed9d97a5569063df0c7ab21720a262b9679f3bbe",
+      "process_id": "_1a73dcd5-72ac-e53b-2c4c-f0400f10551d"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__voraussichtlichen_Umsatz_ermitteln__bridgr_transform.txt",
+      "file_hash": "ab42aa5fe46ff434c9fb066aae9e9bea14f56ce423a7010fc83717fbd34933ab",
+      "process_id": "_5dc9b760-28ec-ce31-577c-3feaa59dcb48"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Wartungsauftrag_bearbeiten__bridgr_transform.txt",
+      "file_hash": "b9c256a24a5c9a87f46c714dab4c253e3b45a442570152a8d594ebb14900154b",
+      "process_id": "_d295f8b0-2649-c3a5-58d0-bad3b4f65e6c"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Webinar_durchf_hren__bridgr_transform.txt",
+      "file_hash": "d2d87903845078b3eb1e2e862400cfe8924ebed1f91eef5e7d1b2a98cdff0bfe",
+      "process_id": "_1a8f409a-46bf-759f-90bf-71d878f92d2a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Werbekampagne_durchf_hren__bridgr_transform.txt",
+      "file_hash": "dfe5dc1c96edc7611f991cc327358966082fd37530de3052436a646c0eb17539",
+      "process_id": "_5265d9c7-f8ca-657c-5ffb-c9f3335b473e"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Werkauftrag_bearbeiten__bridgr_transform.txt",
+      "file_hash": "c888529e6fe7aeb65bdce4c62fe926a9e21185bba0079fb53ff1351a53d91756",
+      "process_id": "_73d8ebe3-d6cf-d717-043a-411b2e630fee"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Zahlungslauf_durchf_hren__bridgr_transform.txt",
+      "file_hash": "f676a19c62ee3a4527058ba04f627317a0c85bdd04b3ffe26b1dfd874963b3e5",
+      "process_id": "_b01eafda-5316-b751-df50-d680dc39d030"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Zielerreichung_pr_fen__bridgr_transform.txt",
+      "file_hash": "c9b2c06606cd1a23196978619a3dcfb2b291f1fdf8b76d2d9c3ba689607ea6ed",
+      "process_id": "_0c4b7179-3be9-c200-61df-65f79f45a49a"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Zug_nge_bearbeiten__bridgr_transform.txt",
+      "file_hash": "d09244b2088da2b0c0a28ea526fd16d7b0b9c25f7ee141452ab0da3e33f25d9a",
+      "process_id": "_016fcdc2-49b8-c8e5-aa22-3ae6329f0f67"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Zugangsrechte_aufheben__bridgr_transform.txt",
+      "file_hash": "167e7f58ebcd0c8a1dfef62d53c2315a1ac83b18d19172da3be0df48f4d430c4",
+      "process_id": "Process_1_3f8fe888-2d62-49b6-bc2d-9ae7d26f9e90"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Zugangsrechte_erteilen__bridgr_transform.txt",
+      "file_hash": "19e3743c454ca9bf08de68c4c659dc5e05de30b535f66b10ecb63acab73cfeeb",
+      "process_id": "Process_1_2c2d4553-f8d1-4e1b-966d-e1a49d7da237"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Zuordnungs_nderungen_einpflegen__bridgr_transform.txt",
+      "file_hash": "a7300d894a23fde09df8b75ef4c9d84eb3b845b01a15c8ce156d71830fa8ffb0",
+      "process_id": "_208a28de-8737-5e6a-09c0-fdc1114a6e0d"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Zusammenarbeit_aufheben__bridgr_transform.txt",
+      "file_hash": "d5a8ee947b8783f36b78433026c2fe41a09657bdfdf643e5f2c1f221c6cb08aa",
+      "process_id": "_49e76938-cba6-3d8d-7dea-a79aca640c60"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Zusammenarbeit_mit_Subcontractor_nachhalten__bridgr_transform.txt",
+      "file_hash": "38516a300ef390e3f146c1fb51fcb1329973e25699169a9820ea1a630eac62e2",
+      "process_id": "_b3909e4c-2011-472b-75b6-c4c0047f1a73"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN-Gesamt__Zweitgespr_ch_begleiten__bridgr_transform.txt",
+      "file_hash": "fd5e19370e3e913549ef089bdcd14a664b73d886802aee8c90b8bc63fbb60d3a",
+      "process_id": "_93b5a439-f784-7501-0cd0-7349a76672e6"
+    },
+    {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_01_Incident_Management.xml",
       "file_hash": "903817dbe1e49fd03bbd57c83d595e3ed4853b2cf4f542cbbfd5e4136c8f7019",
       "process_id": "WFP-1-1"
@@ -33,7 +1863,7 @@
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\BPMN_Example_02_RFQ_Message.xml",
       "file_hash": "3fa404b4fe7dd61e706187522097669db6a737f2ce61b8ef612f59bcde09b9bd",
-      "process_id": ""
+      "process_id": "sellerProcess"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\Prozess_Bestellabwicklung.txt",

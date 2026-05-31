@@ -4,8 +4,8 @@ from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from app_config import AppConfig, resolve_input_cmdb_path, resolve_input_cmdb_relations_path, resolve_project_path, resolve_runtime_output_path
-from cmdb import load_cmdb_relation_rows, load_cmdb_rows, load_normalized_cmdb, normalize_cmdb_relations
+from app_config import AppConfig, resolve_input_cmdb_path, resolve_project_path, resolve_runtime_output_path
+from cmdb import load_cmdb_rows
 from constants import (
     CONFIDENCE_STRONG,
     DOCUMENT_STATUS_ERROR,
@@ -36,6 +36,8 @@ from skills.extract.extract_txt import TextExtractor, TextExtractorError
 from skills.graph_writer import GraphWritePayload, GraphWriter
 from skills.match import MatchResult, match_application_candidates
 from skills.review import ReviewItem, collect_review_items
+from services.cmdb_service import sync_cmdb_to_neo4j
+from services.alias_service import sync_knowledge_base_aliases
 
 
 @dataclass(slots=True)
@@ -47,6 +49,7 @@ class DocumentRunResult:
     matches: list[MatchResult]
     review_items: list[ReviewItem]
     graph_payload: GraphWritePayload | None
+    process_write_action: str = ""
     error_message: str | None = None
 
 
@@ -70,27 +73,6 @@ def run_pipeline(
         config.cmdb_uuid_column,
         config.cmdb_name_column,
     )
-    normalized_cmdb = load_normalized_cmdb(
-        resolve_input_cmdb_path(config),
-        id_column=config.cmdb_uuid_column,
-        name_column=config.cmdb_name_column,
-        entity_type_column=config.cmdb_entity_type_column,
-        server_type_column=config.cmdb_server_type_column,
-        owner_name_column=config.cmdb_owner_name_column,
-    )
-    relations_path = resolve_input_cmdb_relations_path(config)
-    if relations_path is not None:
-        normalized_cmdb.relations = normalize_cmdb_relations(
-            load_cmdb_relation_rows(
-                relations_path,
-                source_id_column=config.cmdb_relation_source_column,
-                relation_type_column=config.cmdb_relation_type_column,
-                target_id_column=config.cmdb_relation_target_column,
-            ),
-            source_id_column=config.cmdb_relation_source_column,
-            relation_type_column=config.cmdb_relation_type_column,
-            target_id_column=config.cmdb_relation_target_column,
-        )
     import_state = load_import_state(output_path)
     previous_hashes = {document.source_path: document.file_hash for document in import_state.documents}
     llm_client = OpenAICompatibleClient(
@@ -104,16 +86,7 @@ def run_pipeline(
     )
     graph_writer = GraphWriter()
     neo4j_client = build_neo4j_client(config)
-    knowledge_base = update_organization_knowledge_from_cmdb(
-        knowledge_base,
-        normalized_cmdb,
-        source_path=str(resolve_input_cmdb_path(config)),
-    )
-    graph_writer.sync_cmdb(
-        neo4j_client,
-        normalized_cmdb,
-        owner_assignments=resolve_cmdb_owner_assignments(knowledge_base, normalized_cmdb),
-    )
+    _, knowledge_base = sync_cmdb_to_neo4j(config, neo4j_client, knowledge_base)
 
     if input_paths is not None:
         candidate_paths = list(input_paths)
@@ -169,7 +142,7 @@ def run_pipeline(
             knowledge_base = update_organization_knowledge(knowledge_base, document_result.extracted_process)
         document_results.append(document_result)
         if document_result.graph_payload is not None:
-            graph_writer.write_payload(neo4j_client, document_result.graph_payload)
+            document_result.process_write_action = graph_writer.write_payload(neo4j_client, document_result.graph_payload)
         next_state_documents.append(
             DocumentState(
                 source_path=str(path),
@@ -205,6 +178,7 @@ def run_pipeline(
         },
         output_path,
     )
+    sync_knowledge_base_aliases(neo4j_client, knowledge_base)
     if progress_callback is not None:
         progress_callback(
             {

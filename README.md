@@ -28,9 +28,13 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - technischer CMDB-Write-Pfad fuer `USES_INTERFACE` und `RUNS_ON`
 - erste CMDB-Ownership-Logik mit direktem 1:1-Match oder Kandidatenbildung fuer Organisationseinheiten
 - natuerlichsprachlicher Query-Layer mit Session-Chat, LLM -> Cypher -> Neo4j -> Antwort und Rueckfrage bei Mehrdeutigkeiten
+- gehaerteter Query-Prompt mit schema-konservativer Rollenbeschreibung, semantischem Mapping natuerlicher Fachbegriffe und klarer Bevorzugung einfacher Single-Query-Strukturen
+- benutzerverstaendliche Uebersetzung technischer Query-/Validierungsfehler im Chat statt roher Cypher- oder Treibertexte
 - kanonisches Query-Schema in `graph_schema.py` als gemeinsame Grundlage fuer Prompting und Query-Validierung
 - codekuratierter Chat-Kontext fuer Folgefragen mit vorherigen Benutzer-/Assistant-Nachrichten und optionalem Fokusobjekt
 - persistente Knowledge Base
+- Alias-Projektion nach Neo4j fuer kuratierte Kurzformen oder Fehlbezeichnungen aus manuellen App-Mappings und Org-Mappings
+- deterministische Alias-Aufloesung im Query-Lookup, wenn direkte Namenssuche keinen Treffer liefert
 - Streamlit-UI mit 4 Tabs
 - persistente Laufartefakte in `Output/`
 - optionales `debug.log` fuer Query-/LLM-Diagnose im Output-Ordner
@@ -46,6 +50,7 @@ Noch nicht umgesetzt:
 - ausgereifte Query- und Prompt-Haertung jenseits des jetzt kanonisch hinterlegten Query-Schemas
 - Unterstuetzung weiterer CMDB-Dateiformate jenseits von CSV
 - separate Read-only-DB-Identitaet fuer den Query-Layer
+- vollstaendige Ablösung der `knowledge_base/kb.json` als einzige Kurationsquelle; aktuell werden Alias-Informationen zusaetzlich nach Neo4j projiziert, die restliche Kuratierung bleibt dateibasiert
 
 ## Projektstruktur
 
@@ -192,11 +197,16 @@ python main.py --file Input\beispiel.txt
 Aktuell verfuegbar:
 - Session-Chat fuer natuerliche Fragen
 - Rueckfrage bei mehrdeutigen Anwendungsreferenzen
+- Rueckfrage bei mehrdeutigen Alias-Aufloesungen aus kuratiertem Wissen
 - codekuratierter Kontextblock fuer Folgefragen inklusive vorheriger Benutzer- und Assistant-Nachrichten
 - Cypher per LLM generieren
 - Read-only-Validierung auf verbotene Write-Tokens sowie auf das kanonische Query-Schema aus `graph_schema.py`
+- deterministische Alias-Aufloesung als zweiter Schritt nach einer leeren ersten Query-Ergebnismenge gegen denselben identifizierten Suchbegriff
+- bei genau einem Alias-Ziel wird die urspruengliche Benutzerfrage intern auf den kanonischen Zielbegriff umgeschrieben und genau einmal neu ausgefuehrt
+- der restriktive Fokus-Anker fuer Folgefragen wird dabei nur fuer bereits bestehenden Chat-Kontext verwendet, nicht fuer frisch per Alias aufgeloeste Objekte
 - Query gegen Neo4j ausfuehren
 - Ergebnis in kurze natuerliche Sprache umformulieren
+- technische Query-/Validierungsfehler in benutzerverstaendliche Hinweise uebersetzen
 - generierten Cypher als technische Details anzeigen
 
 ### Tab 2 - Link Editing
@@ -245,6 +255,7 @@ Aktuell verfuegbar:
 - Kandidaten auf bestehende Organisationseinheiten mappen
 - Kandidaten als neue Organisationseinheit uebernehmen
 - Kandidaten abweisen
+- gemappte Kandidaten als `(:Alias)-[:KANN_MEINEN]->(:OrgEinheit)` nach Neo4j projizieren
 - bei gemappten oder uebernommenen Kandidaten betroffene Prozesse im letzten Lauf gezielt neu bewerten und `VERANTWORTET`-Beziehungen in Neo4j nachziehen
 
 Wichtige Einordnung:

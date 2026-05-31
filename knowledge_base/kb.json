@@ -151,6 +151,14 @@
       "resolved_to": "SAP SD",
       "bestaetigt_am": "2026-05-28",
       "quelle": "manueller_link"
+    },
+    {
+      "prozess": "Onboarding нового сотрудника",
+      "anwendung_name": "CRM",
+      "cmdb_id": "app-005",
+      "resolved_to": "Microsoft Outlook",
+      "bestaetigt_am": "2026-05-29",
+      "quelle": "manueller_link"
     }
   ],
   "rejected": [],
@@ -448,10 +456,23 @@
       ],
       "process_names": [],
       "role_names": [],
+      "status": "mapped",
+      "mapped_org_unit": "Sales",
+      "first_seen": "2026-05-29",
+      "last_seen": "2026-05-31"
+    },
+    {
+      "candidate_name": "Operations",
+      "normalized_name": "operations",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\cmdb_entities.csv"
+      ],
+      "process_names": [],
+      "role_names": [],
       "status": "open",
       "mapped_org_unit": "",
-      "first_seen": "2026-05-29",
-      "last_seen": "2026-05-29"
+      "first_seen": "2026-05-31",
+      "last_seen": "2026-05-31"
     }
   ]
 }

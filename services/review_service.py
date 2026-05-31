@@ -13,6 +13,7 @@ from knowledge_base import (
 )
 from pipeline import apply_org_unit_mapping, build_manual_matches
 from run_artifacts import load_latest_run, write_latest_run
+from services.alias_service import sync_knowledge_base_aliases
 from services.runtime_service import get_session_neo4j_client
 from skills.extract.extract_base import ApplicationReference, ExtractedProcess
 from skills.graph_writer import GraphWriter
@@ -140,6 +141,7 @@ def persist_single_document_refresh(config: AppConfig, source_path: str, cmdb_ro
     graph_writer = GraphWriter()
     neo4j_client = get_session_neo4j_client(config)
     graph_writer.write_payload(neo4j_client, graph_writer.build_payload(process, matches))
+    sync_knowledge_base_aliases(neo4j_client, knowledge_base)
 
 
 def persist_latest_run_refresh(config: AppConfig, cmdb_rows: list[dict[str, str]]) -> int:
@@ -168,6 +170,7 @@ def persist_latest_run_refresh(config: AppConfig, cmdb_rows: list[dict[str, str]
 
     latest_run["documents"] = updated_documents
     write_latest_run(latest_run, runtime_output_path)
+    sync_knowledge_base_aliases(neo4j_client, knowledge_base)
     return refreshed_count
 
 
@@ -241,6 +244,10 @@ def clear_knowledge_base_and_refresh(config: AppConfig, sections: set[str], succ
     knowledge_base = load_knowledge_base()
     updated_kb = clear_knowledge_base_sections(knowledge_base, sections)
     save_knowledge_base(updated_kb)
+    try:
+        sync_knowledge_base_aliases(get_session_neo4j_client(config), updated_kb)
+    except Exception as exc:
+        return "warning", f"{success_message} Die Alias-Synchronisation nach Neo4j ist fehlgeschlagen: {exc}"
 
     try:
         cmdb_rows = load_cmdb_rows(

@@ -5,7 +5,9 @@ from ui_run_view import (
     build_review_rows,
     deduplicate_documents,
     filter_documents,
+    summarize_org_candidate_scope,
     summarize_run,
+    summarize_review_artifacts,
 )
 
 
@@ -32,6 +34,7 @@ def sample_run() -> dict:
                     {"cmdb_id": None, "confidence": "schwach", "source": "unmatched", "application_name": "Unknown Tool", "matched_name": None},
                 ],
                 "review_items": [{"process_name": "Auftragsabwicklung", "application_name": "Legacy Tool", "reason": "fuzzy"}],
+                "process_write_action": "inserted",
             },
             {
                 "source_path": "Input/b.bpmn",
@@ -41,6 +44,7 @@ def sample_run() -> dict:
                 "extracted_process": None,
                 "matches": [],
                 "review_items": [],
+                "process_write_action": "",
             },
         ],
     }
@@ -51,8 +55,74 @@ def test_summarize_run_counts_statuses() -> None:
 
     assert summary["run_mode"] == "partial"
     assert summary["documents"] == 2
-    assert summary["processed"] == 1
+    assert summary["identified_processes"] == 1
+    assert summary["new_processes"] == 1
+    assert summary["existing_processes"] == 0
     assert summary["errors"] == 1
+
+
+def test_summarize_review_artifacts_counts_application_and_org_unit_outcomes() -> None:
+    run = sample_run()
+    run["documents"][0]["extracted_process"]["org_units"] = ["Vertrieb"]
+
+    summary = summarize_review_artifacts(
+        run["documents"],
+        [
+            {
+                "candidate_name": "Sales Team",
+                "normalized_name": "sales team",
+                "source_paths": ["Input/a.bpmn"],
+                "process_names": ["Auftragsabwicklung"],
+                "role_names": ["Sales"],
+                "status": "open",
+                "mapped_org_unit": "",
+                "first_seen": "2026-05-30",
+                "last_seen": "2026-05-30",
+            }
+        ],
+    )
+
+    assert summary == {
+        "exact_application_matches": 1,
+        "review_application_matches": 2,
+        "exact_org_unit_matches": 1,
+        "review_org_unit_candidates": 1,
+    }
+
+
+def test_summarize_org_candidate_scope_separates_process_import_and_external_candidates() -> None:
+    summary = summarize_org_candidate_scope(
+        sample_run()["documents"],
+        [
+            {
+                "candidate_name": "Sales Team",
+                "normalized_name": "sales team",
+                "source_paths": ["Input/a.bpmn"],
+                "process_names": ["Auftragsabwicklung"],
+                "role_names": ["Sales"],
+                "status": "open",
+                "mapped_org_unit": "",
+                "first_seen": "2026-05-30",
+                "last_seen": "2026-05-30",
+            },
+            {
+                "candidate_name": "Finance Owner",
+                "normalized_name": "finance owner",
+                "source_paths": ["Input/cmdb.csv"],
+                "process_names": [],
+                "role_names": [],
+                "status": "open",
+                "mapped_org_unit": "",
+                "first_seen": "2026-05-30",
+                "last_seen": "2026-05-30",
+            },
+        ],
+    )
+
+    assert summary == {
+        "scoped_open_candidates": 1,
+        "external_open_candidates": 1,
+    }
 
 
 def test_filter_documents_filters_by_status() -> None:

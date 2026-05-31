@@ -487,6 +487,7 @@ def test_persist_org_unit_node_merges_org_unit_node(monkeypatch) -> None:
 
 def test_persist_org_candidate_mapping_refresh_syncs_org_unit_node_without_latest_run(monkeypatch) -> None:
     synced_org_units = []
+    alias_sync_calls = []
 
     monkeypatch.setattr(
         organization_service,
@@ -513,6 +514,8 @@ def test_persist_org_candidate_mapping_refresh_syncs_org_unit_node_without_lates
         ),
     )
     monkeypatch.setattr(organization_service, "persist_org_unit_node", lambda _config, name: synced_org_units.append(name))
+    monkeypatch.setattr(organization_service, "sync_knowledge_base_aliases", lambda _client, _kb: alias_sync_calls.append(True))
+    monkeypatch.setattr(organization_service, "get_session_neo4j_client", lambda _config: object())
     monkeypatch.setattr(organization_service, "resolve_runtime_output_path", lambda _path: (None, False))
     monkeypatch.setattr(organization_service, "load_latest_run", lambda _path: None)
 
@@ -520,6 +523,7 @@ def test_persist_org_candidate_mapping_refresh_syncs_org_unit_node_without_lates
 
     assert refreshed_count == 0
     assert synced_org_units == ["People & Culture"]
+    assert alias_sync_calls == [True]
 
 
 def test_rerun_single_document_from_artifact_applies_org_unit_candidate_mapping() -> None:
@@ -571,6 +575,7 @@ def test_rerun_single_document_from_artifact_applies_org_unit_candidate_mapping(
 
 
 def test_persist_organization_sync_syncs_all_org_units_and_refreshes_latest_run(monkeypatch) -> None:
+    alias_sync_calls = []
     monkeypatch.setattr(
         organization_service,
         "load_knowledge_base",
@@ -588,6 +593,8 @@ def test_persist_organization_sync_syncs_all_org_units_and_refreshes_latest_run(
     )
     synced_names = []
     monkeypatch.setattr(organization_service, "persist_org_unit_node", lambda _config, name: synced_names.append(name))
+    monkeypatch.setattr(organization_service, "sync_knowledge_base_aliases", lambda _client, _kb: alias_sync_calls.append(True))
+    monkeypatch.setattr(organization_service, "get_session_neo4j_client", lambda _config: object())
     monkeypatch.setattr(organization_service, "load_cmdb_rows", lambda *_args, **_kwargs: [])
     monkeypatch.setattr(organization_service, "persist_latest_run_refresh", lambda _config, _cmdb_rows: 3)
 
@@ -596,6 +603,7 @@ def test_persist_organization_sync_syncs_all_org_units_and_refreshes_latest_run(
     assert synced_names == ["QM", "Sales"]
     assert synced_org_units == 2
     assert refreshed_documents == 3
+    assert alias_sync_calls == [True]
 
 
 def test_run_query_chat_turn_logs_cypher_on_query_error(tmp_path, monkeypatch) -> None:
@@ -626,6 +634,7 @@ def test_run_query_chat_turn_logs_cypher_on_query_error(tmp_path, monkeypatch) -
 
 def test_extract_name_lookup_term_detects_named_lookup_question() -> None:
     assert query_service.extract_name_lookup_term("was weißt du über den seller service?") == "seller service"
+    assert query_service.extract_name_lookup_term("was weisst du über das Team Plattform?") == "Team Plattform"
     assert query_service.extract_name_lookup_term('ich meinte den "Seller Service"') == "Seller Service"
     assert query_service.extract_name_lookup_term("wer verantwortet Customer Care1?") == "Customer Care1"
     assert query_service.extract_name_lookup_term("Wie viele Prozesse kennst du?") == ""
@@ -694,6 +703,185 @@ def test_resolve_name_lookup_keeps_exact_multiple_matches_ambiguous() -> None:
 
     assert result["mode"] == "ambiguous"
     assert result["options"] == ["Anwendung: Seller Service", "Schnittstelle: Seller Service"]
+
+
+def test_resolve_name_lookup_skips_when_direct_lookup_finds_no_graph_match() -> None:
+    class FakeNeo4jClient:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def execute_read(self, query: str, parameters=None):
+            self.calls += 1
+            return []
+
+    result = query_service.resolve_name_lookup("wer verantwortet Sales?", FakeNeo4jClient())
+
+    assert result["mode"] == "skip"
+
+
+def test_extract_lookup_terms_from_cypher_reads_search_literals() -> None:
+    query = (
+        "MATCH (o:OrgEinheit)\n"
+        "WHERE toLower(o.name) CONTAINS toLower('team plattform')\n"
+        "RETURN o.name AS organization"
+    )
+
+    assert query_service.extract_lookup_terms_from_cypher(query) == ["team plattform"]
+
+
+def test_resolve_alias_retry_from_empty_result_uses_cypher_literals() -> None:
+    class FakeNeo4jClient:
+        def execute_read_unvalidated(self, query: str, parameters=None):
+            return [
+                {
+                    "entity_type": "OrgEinheit",
+                    "entity_name": "IT Infrastructure",
+                    "entity_id": "",
+                    "alias_name": "Team Plattform",
+                }
+            ]
+
+    result = query_service.resolve_alias_retry_from_empty_result(
+        "was weisst du über das Team Plattform?",
+        "MATCH (o:OrgEinheit) WHERE toLower(o.name) CONTAINS toLower('team plattform') RETURN o.name AS organization",
+        FakeNeo4jClient(),
+    )
+
+    assert result["mode"] == "resolved"
+    assert result["lookup_term"] == "Team Plattform"
+    assert result["entity_type"] == "OrgEinheit"
+    assert result["entity_name"] == "IT Infrastructure"
+
+
+def test_run_query_chat_turn_retries_with_alias_after_empty_result(monkeypatch) -> None:
+    st.session_state.clear()
+    ensure_query_chat_defaults()
+
+    captured_questions = []
+
+    class FakeLlmClient:
+        def __init__(self, _config) -> None:
+            return None
+
+    class FakeNeo4jClient:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def execute_read(self, query: str, parameters=None):
+            self.calls += 1
+            if self.calls == 1:
+                return []
+            return [{"organization": "IT Infrastructure"}]
+
+    monkeypatch.setattr(query_service, "OpenAICompatibleClient", FakeLlmClient)
+    monkeypatch.setattr(query_service, "get_session_neo4j_client", lambda _config: FakeNeo4jClient())
+    monkeypatch.setattr(query_service, "resolve_name_lookup", lambda _question, _client: {"mode": "skip"})
+    monkeypatch.setattr(
+        query_service,
+        "lookup_alias_matches",
+        lambda _client, term: [
+            {
+                "entity_type": "OrgEinheit",
+                "entity_name": "IT Infrastructure",
+                "entity_id": "",
+                "alias_name": term,
+            }
+        ]
+        if term == "Team Plattform"
+        else [],
+    )
+
+    def fake_generate_cypher_from_question(**kwargs):
+        captured_questions.append(kwargs["question"])
+        if len(captured_questions) == 1:
+            return "MATCH (o:OrgEinheit) WHERE toLower(o.name) CONTAINS toLower('team plattform') RETURN o.name AS organization"
+        return "MATCH (o:OrgEinheit {name: 'IT Infrastructure'}) RETURN o.name AS organization"
+
+    monkeypatch.setattr(query_service, "generate_cypher_from_question", fake_generate_cypher_from_question)
+    monkeypatch.setattr(query_service, "build_natural_language_answer", lambda **_kwargs: "IT Infrastructure ist bekannt.")
+
+    run_query_chat_turn("was weisst du über das Team Plattform?", AppConfig(neo4j_password="secret", llm_model="qwen"))
+
+    assert len(captured_questions) == 2
+    assert captured_questions[1] == "was weisst du über IT Infrastructure?"
+    assert (
+        st.session_state[CHAT_MESSAGES_STATE_KEY][-1]["content"]
+        == '"Team Plattform" kann laut den mir vorliegenden Informationen auch "IT Infrastructure" meinen. IT Infrastructure ist bekannt.'
+    )
+
+
+def test_build_alias_retry_question_rewrites_original_term_to_canonical_name() -> None:
+    rewritten = query_service.build_alias_retry_question(
+        "was weisst du über das team Platform?",
+        {
+            "lookup_term": "team Platform",
+            "entity_name": "IT Infrastructure",
+        },
+    )
+
+    assert rewritten == "was weisst du über IT Infrastructure?"
+
+
+def test_build_alias_resolution_answer_prefix_uses_data_wording() -> None:
+    prefix = query_service.build_alias_resolution_answer_prefix(
+        {
+            "lookup_term": "Team Plattform",
+            "entity_name": "IT Infrastructure",
+        }
+    )
+
+    assert prefix == '"Team Plattform" kann laut den mir vorliegenden Informationen auch "IT Infrastructure" meinen.'
+
+
+def test_run_query_chat_turn_requests_alias_disambiguation_and_keeps_context(monkeypatch) -> None:
+    st.session_state.clear()
+    ensure_query_chat_defaults()
+
+    class FakeLlmClient:
+        def __init__(self, _config) -> None:
+            return None
+
+    class FakeNeo4jClient:
+        def execute_read(self, query: str, parameters=None):
+            return []
+
+    monkeypatch.setattr(query_service, "OpenAICompatibleClient", FakeLlmClient)
+    monkeypatch.setattr(query_service, "get_session_neo4j_client", lambda _config: FakeNeo4jClient())
+    monkeypatch.setattr(query_service, "resolve_name_lookup", lambda _question, _client: {"mode": "skip"})
+    monkeypatch.setattr(
+        query_service,
+        "generate_cypher_from_question",
+        lambda **_kwargs: "MATCH (o:OrgEinheit) WHERE toLower(o.name) CONTAINS toLower('plattform') RETURN o.name AS orgunit",
+    )
+    monkeypatch.setattr(
+        query_service,
+        "lookup_alias_matches",
+        lambda _client, term: [
+            {
+                "entity_type": "OrgEinheit",
+                "entity_name": "IT Infrastructure",
+                "entity_id": "",
+                "alias_name": term,
+            },
+            {
+                "entity_type": "OrgEinheit",
+                "entity_name": "Team Platform Services",
+                "entity_id": "",
+                "alias_name": term,
+            },
+        ]
+        if term == "Team Plattform"
+        else [],
+    )
+
+    run_query_chat_turn("was weisst du über das Team Plattform?", AppConfig(neo4j_password="secret", llm_model="qwen"))
+
+    assert st.session_state[CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY] == "was weisst du über das Team Plattform?"
+    assert st.session_state[CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY] == [
+        "OrgEinheit: IT Infrastructure",
+        "OrgEinheit: Team Platform Services",
+    ]
+    assert 'kann stehen fuer' in st.session_state[CHAT_MESSAGES_STATE_KEY][-1]["content"]
 
 
 def test_run_query_chat_turn_appends_focus_anchor_instruction(monkeypatch) -> None:

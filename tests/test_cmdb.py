@@ -10,6 +10,8 @@ from cmdb import (
     load_normalized_cmdb,
     normalize_cmdb_entities,
     normalize_cmdb_relations,
+    validate_cmdb_entity_file,
+    validate_cmdb_relation_file,
 )
 
 
@@ -201,3 +203,40 @@ def test_find_cmdb_row_by_label_returns_none_for_unknown_label() -> None:
     result = find_cmdb_row_by_label(rows, "Unknown App [cmdb-99]", uuid_column="app_id", name_column="application_name")
 
     assert result is None
+
+
+def test_validate_cmdb_entity_file_reports_row_shape_issues(tmp_path: Path) -> None:
+    cmdb_path = tmp_path / "cmdb.csv"
+    cmdb_path.write_text(
+        "id,name,entity_type,server_type,owner_name\n"
+        "app-1,SAP Sales,application,,Sales\n"
+        "app-2,Salesforce,Salesdepartment\n",
+        encoding="utf-8",
+    )
+
+    issues = validate_cmdb_entity_file(
+        cmdb_path,
+        id_column="id",
+        name_column="name",
+        entity_type_column="entity_type",
+        server_type_column="server_type",
+        owner_name_column="owner_name",
+    )
+
+    assert any(issue.line_number == 3 for issue in issues)
+    assert any("Strukturfehler" in issue.message for issue in issues)
+
+
+def test_validate_cmdb_relation_file_reports_incomplete_rows(tmp_path: Path) -> None:
+    relations_path = tmp_path / "cmdb_relations.csv"
+    relations_path.write_text(
+        "source_id,relation_type,target_id\n"
+        "app-1,USES_INTERFACE,\n",
+        encoding="utf-8",
+    )
+
+    issues = validate_cmdb_relation_file(relations_path)
+
+    assert len(issues) == 1
+    assert issues[0].line_number == 2
+    assert "Strukturfehler" in issues[0].message

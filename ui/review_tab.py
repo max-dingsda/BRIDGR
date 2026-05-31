@@ -28,18 +28,21 @@ from ui_run_view import (
     build_duplicate_application_warnings,
     build_review_rows,
     filter_documents,
+    summarize_org_candidate_scope,
     summarize_run,
+    summarize_review_artifacts,
 )
 
 
 def render_latest_run_summary(latest_run: dict, documents: list[dict]) -> None:
     summary = summarize_run(latest_run, documents)
-    metric_columns = st.columns(5)
-    metric_columns[0].metric("Run Mode", str(summary["run_mode"]))
-    metric_columns[1].metric("Documents", int(summary["documents"]))
-    metric_columns[2].metric("Processed", int(summary["processed"]))
-    metric_columns[3].metric("Skipped", int(summary["skipped"]))
-    metric_columns[4].metric("Errors", int(summary["errors"]))
+    metric_columns = st.columns(6)
+    metric_columns[0].metric("Modus", str(summary["run_mode"]))
+    metric_columns[1].metric("Anzahl Dokumente", int(summary["documents"]))
+    metric_columns[2].metric("Identifizierte Prozesse", int(summary["identified_processes"]))
+    metric_columns[3].metric("Davon neu", int(summary["new_processes"]))
+    metric_columns[4].metric("Davon bestehend", int(summary["existing_processes"]))
+    metric_columns[5].metric("Fehlerhafte Dokumente", int(summary["errors"]))
     if summary["no_matches"]:
         st.caption(f"Documents without application matches: {summary['no_matches']}")
 
@@ -51,6 +54,16 @@ def render_document_status_table(documents: list[dict]) -> None:
         st.dataframe(rows, width="stretch")
     else:
         st.info("Keine Dokumente fuer den aktuellen Filter gefunden.")
+
+
+def render_review_artifact_summary(documents: list[dict]) -> None:
+    knowledge_base = load_knowledge_base()
+    summary = summarize_review_artifacts(documents, knowledge_base.org_unit_candidates)
+    st.markdown("**Der letzte Import hat folgendes gefunden**")
+    st.markdown(f"- {summary['exact_application_matches']} eindeutige Applikationszuordnungen")
+    st.markdown(f"- {summary['review_application_matches']} zu pruefende Applikationszuordnungen")
+    st.markdown(f"- {summary['exact_org_unit_matches']} eindeutige Organisationseinheiten")
+    st.markdown(f"- {summary['review_org_unit_candidates']} zu pruefende Organisationseinheiten")
 
 
 def render_duplicate_application_warnings(documents: list[dict]) -> None:
@@ -410,17 +423,21 @@ def render_review_tab() -> None:
     except CmdbLoadError as exc:
         st.error(str(exc))
         return
+    render_review_artifact_summary(filtered_documents)
     render_document_status_table(filtered_documents)
-    candidate_count = len(
-        [
-            entry
-            for entry in load_knowledge_base().org_unit_candidates
-            if entry.get("status", "open") == "open"
-        ]
-    )
-    if candidate_count:
+    knowledge_base = load_knowledge_base()
+    candidate_scope = summarize_org_candidate_scope(filtered_documents, knowledge_base.org_unit_candidates)
+    if candidate_scope["scoped_open_candidates"]:
         st.info(
-            f"Es liegen {candidate_count} offene Organisationseinheiten-Kandidat(en) vor. Diese muessen im Tab `Organisation` bestaetigt, gemappt oder abgewiesen werden."
+            f"Es liegen {candidate_scope['scoped_open_candidates']} offene Organisationseinheiten-Kandidat(en) "
+            "aus dem aktuell betrachteten Prozessimport vor. Diese muessen im Tab `Organisation` bestaetigt, "
+            "gemappt oder abgewiesen werden."
+        )
+    if candidate_scope["external_open_candidates"]:
+        st.info(
+            f"Zusaetzlich liegen {candidate_scope['external_open_candidates']} weitere offene "
+            "Organisationseinheiten-Kandidat(en) ausserhalb dieses Prozessimports vor, typischerweise aus dem "
+            "CMDB-Import. Auch diese koennen im Tab `Organisation` bearbeitet werden."
         )
     render_duplicate_application_warnings(filtered_documents)
     render_review_items_table(filtered_documents, config, cmdb_rows)

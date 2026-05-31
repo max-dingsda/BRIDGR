@@ -238,6 +238,7 @@ def test_run_pipeline_writes_artifacts_for_full_runs(tmp_path: Path, monkeypatch
     first_run = run_pipeline(config)
 
     assert first_run.documents[0].status == "processed"
+    assert first_run.documents[0].process_write_action == "inserted"
     assert first_run.output_path == str(output_dir)
     assert first_run.used_output_fallback is False
     assert (output_dir / STATE_FILENAME).exists()

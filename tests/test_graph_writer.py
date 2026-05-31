@@ -46,11 +46,12 @@ def test_graph_writer_removes_existing_process_application_links_before_rewrite(
         ],
     )
 
-    writer.write_payload(client, payload)
+    process_write_action = writer.write_payload(client, payload)
 
     queries = [query for query, _ in client.queries]
     assert any("DELETE r" in query for query in queries)
     assert not any("MERGE (a)-[r:DIENT]->(p)" in query for query in queries)
+    assert process_write_action == "inserted"
 
 
 def test_graph_writer_only_writes_strong_or_confirmed_matches() -> None:
@@ -100,7 +101,7 @@ def test_graph_writer_only_writes_strong_or_confirmed_matches() -> None:
         ],
     )
 
-    writer.write_payload(client, payload)
+    process_write_action = writer.write_payload(client, payload)
 
     dient_writes = [
         parameters
@@ -110,6 +111,7 @@ def test_graph_writer_only_writes_strong_or_confirmed_matches() -> None:
     written_cmdb_ids = {entry["cmdb_id"] for entry in dient_writes}
 
     assert written_cmdb_ids == {"cmdb-1", "cmdb-3"}
+    assert process_write_action == "inserted"
 
 
 def test_graph_writer_marks_follow_up_processes_as_placeholders() -> None:
@@ -131,7 +133,7 @@ def test_graph_writer_marks_follow_up_processes_as_placeholders() -> None:
         matches=[],
     )
 
-    writer.write_payload(client, payload)
+    process_write_action = writer.write_payload(client, payload)
 
     placeholder_queries = [
         query
@@ -139,6 +141,7 @@ def test_graph_writer_marks_follow_up_processes_as_placeholders() -> None:
         if "ON CREATE SET previous.placeholder = true" in query
     ]
     assert len(placeholder_queries) == 1
+    assert process_write_action == "inserted"
 
 
 def test_graph_writer_reuses_single_matching_placeholder_for_real_process() -> None:
@@ -164,7 +167,7 @@ def test_graph_writer_reuses_single_matching_placeholder_for_real_process() -> N
         matches=[],
     )
 
-    writer.write_payload(client, payload)
+    process_write_action = writer.write_payload(client, payload)
 
     reuse_queries = [
         query
@@ -172,6 +175,7 @@ def test_graph_writer_reuses_single_matching_placeholder_for_real_process() -> N
         if "WHERE elementId(p) = $element_id" in query
     ]
     assert len(reuse_queries) == 1
+    assert process_write_action == "updated"
 
 
 def test_graph_writer_can_cleanup_process_placeholders() -> None:
@@ -207,7 +211,7 @@ def test_graph_writer_writes_role_nodes_with_beteiligt_an_relationship() -> None
         matches=[],
     )
 
-    writer.write_payload(client, payload)
+    process_write_action = writer.write_payload(client, payload)
 
     queries = [query for query, _ in client.queries]
     assert any("MERGE (r:Rolle" in query for query in queries)
@@ -215,6 +219,7 @@ def test_graph_writer_writes_role_nodes_with_beteiligt_an_relationship() -> None
     role_params = [params for query, params in client.queries if "MERGE (r:Rolle" in query]
     written_roles = {p["role_name"] for p in role_params if p}
     assert written_roles == {"1st Level Support", "2nd Level Support"}
+    assert process_write_action == "inserted"
 
 
 def test_graph_writer_writes_multiple_org_units_for_one_process() -> None:
@@ -236,13 +241,14 @@ def test_graph_writer_writes_multiple_org_units_for_one_process() -> None:
         matches=[],
     )
 
-    writer.write_payload(client, payload)
+    process_write_action = writer.write_payload(client, payload)
 
     verantwortet_params = [
         params for query, params in client.queries if "MERGE (o)-[:VERANTWORTET]->(p)" in query
     ]
     written_units = {p["org_unit"] for p in verantwortet_params if p}
     assert written_units == {"Team A", "Team B"}
+    assert process_write_action == "inserted"
 
 
 def test_graph_writer_updates_existing_process_node_without_creating_new_one() -> None:
@@ -268,7 +274,7 @@ def test_graph_writer_updates_existing_process_node_without_creating_new_one() -
         matches=[],
     )
 
-    writer.write_payload(client, payload)
+    process_write_action = writer.write_payload(client, payload)
 
     update_queries = [
         query for query, _ in client.queries if "SET p.name = $process_name" in query and "p.placeholder = false" in query
@@ -278,6 +284,7 @@ def test_graph_writer_updates_existing_process_node_without_creating_new_one() -
     ]
     assert len(update_queries) >= 1
     assert len(merge_queries) == 0
+    assert process_write_action == "updated"
 
 
 def test_graph_writer_syncs_cmdb_process_entity_as_prozess_node() -> None:

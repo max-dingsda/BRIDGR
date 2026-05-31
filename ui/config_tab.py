@@ -8,9 +8,12 @@ import streamlit as st
 
 from app_config import AppConfig, load_config, normalize_run_mode, resolve_project_path, resolve_runtime_output_path, save_config
 from bpmn_transformer import BpmnTransformError, transform_bpmn_for_import
+from cmdb import CmdbLoadError, validate_cmdb_entity_file, validate_cmdb_relation_file
 from dialog_utils import pick_directory, pick_file
-from import_utils import list_cmdb_files, list_process_files
+from import_utils import describe_cmdb_file, list_cmdb_entity_files, list_cmdb_relation_files, list_process_files
 from llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleClient
+from neo4j_utils import Neo4jConnectionError, Neo4jQueryError
+from services.cmdb_service import persist_cmdb_sync
 from services.import_service import build_import_completion_message, finalize_import_artifacts
 from services.runtime_service import (
     IMPORT_RUN_FEEDBACK_STATE_KEY,
@@ -144,6 +147,10 @@ def render_import_section(config: AppConfig) -> None:
                         **asdict(config),
                         "last_run_mode": normalize_run_mode(selected_run_mode),
                         "cmdb_filename": st.session_state.get("active_cmdb_filename", config.cmdb_filename),
+                        "cmdb_relations_filename": st.session_state.get(
+                            "active_cmdb_relations_filename",
+                            config.cmdb_relations_filename,
+                        ),
                     }
                 )
                 run_result, duration = run_pipeline_with_live_feedback(
@@ -177,8 +184,18 @@ def render_import_section(config: AppConfig) -> None:
                 set_run_feedback(IMPORT_RUN_FEEDBACK_STATE_KEY, "success", message)
                 st.rerun()
 
-    current_cmdb_files = list_cmdb_files(input_dir)
-    ensure_active_cmdb_selection(config, current_cmdb_files)
+    current_entity_files = list_cmdb_entity_files(input_dir, config.cmdb_uuid_column, config.cmdb_name_column)
+    current_relation_files = list_cmdb_relation_files(
+        input_dir,
+        config.cmdb_relation_source_column,
+        config.cmdb_relation_type_column,
+        config.cmdb_relation_target_column,
+    )
+    ensure_active_cmdb_selection(
+        config,
+        [Path(describe_cmdb_file(path, input_dir)) for path in current_entity_files],
+        [Path(describe_cmdb_file(path, input_dir)) for path in current_relation_files],
+    )
 
     st.caption(f"Aktueller Input-Pfad: `{input_dir}`")
     if current_process_files:
@@ -190,35 +207,106 @@ def render_import_section(config: AppConfig) -> None:
         st.info("Noch keine Prozessdateien im Input-Pfad vorhanden.")
 
     st.caption("Verfuegbare CMDB-Dateien im Input-Pfad")
-    if current_cmdb_files:
-        available_cmdb_filenames = [path.name for path in current_cmdb_files]
+    if current_entity_files or current_relation_files:
+        available_entity_paths = [describe_cmdb_file(path, input_dir) for path in current_entity_files]
+        available_relation_paths = [describe_cmdb_file(path, input_dir) for path in current_relation_files]
         cmdb_config_column, relations_config_column = st.columns(2)
         with cmdb_config_column:
-            selected_cmdb_filename = st.selectbox("Aktive CMDB-Entities-Datei", options=available_cmdb_filenames, key="active_cmdb_filename")
+            selected_cmdb_filename = st.selectbox(
+                "Aktive CMDB-Entities-Datei",
+                options=available_entity_paths,
+                key="active_cmdb_filename",
+            )
         with relations_config_column:
             selected_relations_filename = st.selectbox(
                 "Aktive CMDB-Relationsdatei",
-                options=[""] + available_cmdb_filenames,
+                options=[""] + available_relation_paths,
                 key="active_cmdb_relations_filename",
                 format_func=lambda value: value or "(keine)",
             )
-        if st.button("Aktive CMDB-Dateien uebernehmen", width="stretch"):
-            updated_config = AppConfig(
-                **{
-                    **asdict(config),
-                    "cmdb_filename": selected_cmdb_filename,
-                    "cmdb_relations_filename": selected_relations_filename,
-                }
+        action_column_save, action_column_sync = st.columns(2)
+        with action_column_save:
+            if st.button("Aktive CMDB-Dateien uebernehmen", width="stretch"):
+                updated_config = AppConfig(
+                    **{
+                        **asdict(config),
+                        "cmdb_filename": selected_cmdb_filename,
+                        "cmdb_relations_filename": selected_relations_filename,
+                    }
+                )
+                save_config(updated_config)
+                update_config_session_defaults(updated_config)
+                relations_message = (
+                    f", Relations-Datei auf '{selected_relations_filename}'"
+                    if selected_relations_filename
+                    else ", Relations-Datei deaktiviert"
+                )
+                st.success(f"Aktive CMDB-Entities-Datei auf '{selected_cmdb_filename}' gesetzt{relations_message}.")
+                st.rerun()
+        with action_column_sync:
+            if st.button("CMDB nach Neo4j synchronisieren", width="stretch"):
+                updated_config = AppConfig(
+                    **{
+                        **asdict(config),
+                        "cmdb_filename": selected_cmdb_filename,
+                        "cmdb_relations_filename": selected_relations_filename,
+                    }
+                )
+                save_config(updated_config)
+                update_config_session_defaults(updated_config)
+                try:
+                    result = persist_cmdb_sync(updated_config)
+                except (CmdbLoadError, Neo4jConnectionError, Neo4jQueryError) as exc:
+                    st.error(f"CMDB konnte nicht nach Neo4j synchronisiert werden: {exc}")
+                else:
+                    st.success(
+                        f"CMDB synchronisiert: {result.entity_count} Entity(s), {result.relation_count} Relation(s), "
+                        f"{result.owner_assignment_count} Ownership-Zuordnung(en)."
+                    )
+                st.rerun()
+
+        entity_validation_issues = validate_cmdb_entity_file(
+            input_dir / selected_cmdb_filename,
+            id_column=config.cmdb_uuid_column,
+            name_column=config.cmdb_name_column,
+            entity_type_column=config.cmdb_entity_type_column,
+            server_type_column=config.cmdb_server_type_column,
+            owner_name_column=config.cmdb_owner_name_column,
+        )
+        relation_validation_issues = (
+            validate_cmdb_relation_file(
+                input_dir / selected_relations_filename,
+                source_id_column=config.cmdb_relation_source_column,
+                relation_type_column=config.cmdb_relation_type_column,
+                target_id_column=config.cmdb_relation_target_column,
             )
-            save_config(updated_config)
-            update_config_session_defaults(updated_config)
-            relations_message = (
-                f", Relations-Datei auf '{selected_relations_filename}'"
-                if selected_relations_filename
-                else ", Relations-Datei deaktiviert"
+            if selected_relations_filename
+            else []
+        )
+        if entity_validation_issues:
+            st.error(f"CMDB-Entities-Strukturfehler in `{selected_cmdb_filename}`:")
+            st.dataframe(
+                [
+                    {
+                        "Meldung": f"Zeile {issue.line_number} {issue.message}",
+                    }
+                    for issue in entity_validation_issues
+                ],
+                width="stretch",
+                hide_index=True,
             )
-            st.success(f"Aktive CMDB-Entities-Datei auf '{selected_cmdb_filename}' gesetzt{relations_message}.")
-            st.rerun()
+        if relation_validation_issues:
+            st.error(f"CMDB-Relations-Strukturfehler in `{selected_relations_filename}`:")
+            st.dataframe(
+                [
+                    {
+                        "Meldung": f"Zeile {issue.line_number} {issue.message}",
+                    }
+                    for issue in relation_validation_issues
+                ],
+                width="stretch",
+                hide_index=True,
+            )
     else:
         st.info("Noch keine CMDB-Datei im Input-Pfad vorhanden.")
 

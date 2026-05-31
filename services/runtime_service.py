@@ -405,16 +405,24 @@ def update_config_session_defaults(config: AppConfig) -> None:
     st.session_state["config_neo4j_database"] = config.neo4j_database
 
 
-def ensure_active_cmdb_selection(config: AppConfig, cmdb_files: list[Path]) -> None:
-    available_filenames = [path.name for path in cmdb_files]
+def ensure_active_cmdb_selection(
+    config: AppConfig,
+    entity_files: list[Path],
+    relation_files: list[Path],
+) -> None:
+    available_entity_paths = [path.as_posix() for path in entity_files]
+    available_relation_paths = [path.as_posix() for path in relation_files]
     if "active_cmdb_filename" not in st.session_state:
         st.session_state["active_cmdb_filename"] = config.cmdb_filename
-    if available_filenames and st.session_state["active_cmdb_filename"] not in available_filenames:
-        st.session_state["active_cmdb_filename"] = available_filenames[0]
+    if available_entity_paths and st.session_state["active_cmdb_filename"] not in available_entity_paths:
+        st.session_state["active_cmdb_filename"] = available_entity_paths[0]
     if "active_cmdb_relations_filename" not in st.session_state:
         st.session_state["active_cmdb_relations_filename"] = config.cmdb_relations_filename
-    if available_filenames and st.session_state["active_cmdb_relations_filename"] not in available_filenames:
-        st.session_state["active_cmdb_relations_filename"] = available_filenames[0]
+    if available_relation_paths:
+        if st.session_state["active_cmdb_relations_filename"] not in available_relation_paths:
+            st.session_state["active_cmdb_relations_filename"] = available_relation_paths[0]
+    else:
+        st.session_state["active_cmdb_relations_filename"] = ""
 
 
 def ensure_import_session_defaults(config: AppConfig) -> None:

@@ -79,6 +79,9 @@ class Neo4jClient:
         validate_read_only_cypher(query)
         return self._execute(query, parameters)
 
+    def execute_read_unvalidated(self, query: str, parameters: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+        return self._execute(query, parameters)
+
     def ensure_constraints(self) -> None:
         constraint_queries = [
             "CREATE CONSTRAINT prozess_id IF NOT EXISTS FOR (p:Prozess) REQUIRE p.prozess_id IS UNIQUE",
@@ -86,6 +89,7 @@ class Neo4jClient:
             "CREATE CONSTRAINT schnittstelle_id IF NOT EXISTS FOR (i:Schnittstelle) REQUIRE i.id IS UNIQUE",
             "CREATE CONSTRAINT server_id IF NOT EXISTS FOR (s:Server) REQUIRE s.id IS UNIQUE",
             "CREATE CONSTRAINT orgeinheit_name IF NOT EXISTS FOR (o:OrgEinheit) REQUIRE o.name IS UNIQUE",
+            "CREATE CONSTRAINT alias_normalized_name IF NOT EXISTS FOR (a:Alias) REQUIRE a.normalized_name IS UNIQUE",
         ]
         for query in constraint_queries:
             self._execute(query, {})
@@ -191,8 +195,9 @@ def _extract_return_aliases(branch: str) -> list[str]:
     if return_match is None:
         return []
 
+    return_clause = re.split(r"\bORDER BY\b|\bSKIP\b|\bLIMIT\b", return_match.group(1), maxsplit=1)[0]
     aliases: list[str] = []
-    for item in return_match.group(1).split(","):
+    for item in return_clause.split(","):
         normalized_item = item.strip()
         alias_match = re.search(r"\bAS\s+([A-Z_][A-Z0-9_]*)$", normalized_item)
         if alias_match is not None:

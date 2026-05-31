@@ -16,6 +16,7 @@ from knowledge_base import (
 )
 from neo4j_utils import Neo4jQueryError
 from run_artifacts import load_latest_run, write_latest_run
+from services.alias_service import sync_knowledge_base_aliases
 from services.review_service import (
     persist_latest_run_refresh,
     reconstruct_extracted_process,
@@ -54,6 +55,7 @@ def persist_organization_sync(config: AppConfig) -> tuple[int, int]:
         persist_org_unit_node(config, org_unit_name)
         synced_org_units += 1
         synced_names.append(org_unit_name)
+    sync_knowledge_base_aliases(get_session_neo4j_client(config), knowledge_base)
 
     try:
         cmdb_rows = load_cmdb_rows(
@@ -105,6 +107,7 @@ def persist_org_candidate_mapping_refresh(config: AppConfig, candidate_name: str
     mapped_org_unit = candidate_entry.get("mapped_org_unit", "").strip()
     if mapped_org_unit:
         persist_org_unit_node(config, mapped_org_unit)
+    sync_knowledge_base_aliases(get_session_neo4j_client(config), knowledge_base)
 
     runtime_output_path, _ = resolve_runtime_output_path(config.output_path)
     latest_run = load_latest_run(runtime_output_path)
@@ -155,6 +158,7 @@ def add_org_unit_entry(config: AppConfig, knowledge_base: KnowledgeBase, org_uni
     save_knowledge_base(updated_kb)
     try:
         persist_org_unit_node(config, org_unit_name)
+        sync_knowledge_base_aliases(get_session_neo4j_client(config), updated_kb)
     except Exception as exc:
         return "warning", f"Organisationseinheit wurde in BRIDGR gespeichert, konnte aber nicht nach Neo4j synchronisiert werden: {exc}"
     return "success", "Organisationseinheit gespeichert und nach Neo4j synchronisiert."

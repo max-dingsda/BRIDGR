@@ -6,6 +6,7 @@ from app_config import AppConfig, resolve_project_path
 from llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleClient
 from neo4j_utils import Neo4jConnectionError, Neo4jQueryError, QueryValidationError
 from query_layer import build_natural_language_answer, generate_cypher_from_question
+from services.alias_service import lookup_alias_matches
 from services.runtime_service import (
     CHAT_FOCUS_ENTITY_STATE_KEY,
     CHAT_MESSAGES_STATE_KEY,
@@ -58,6 +59,7 @@ def run_query_chat_turn(question: str, config: AppConfig) -> None:
     from query_layer import find_application_ambiguity_options
 
     cypher_query = ""
+    alias_resolution: dict[str, str] = {}
     try:
         llm_client = OpenAICompatibleClient(
             LlmClientConfig(
@@ -69,6 +71,7 @@ def run_query_chat_turn(question: str, config: AppConfig) -> None:
             )
         )
         neo4j_client = get_session_neo4j_client(config)
+        existing_focus_entity = st.session_state.get(CHAT_FOCUS_ENTITY_STATE_KEY, {})
         name_lookup = resolve_name_lookup(question, neo4j_client)
         if name_lookup["mode"] == "ambiguous":
             options = name_lookup["options"]
@@ -98,7 +101,7 @@ def run_query_chat_turn(question: str, config: AppConfig) -> None:
             )
         conversation_messages = build_query_conversation_messages()
         focus_entity = st.session_state.get(CHAT_FOCUS_ENTITY_STATE_KEY, {})
-        if focus_entity:
+        if existing_focus_entity:
             effective_question += (
                 "\n"
                 "Behandle das aktuell fokussierte Objekt als primaeren Bezugsanker. "
@@ -113,6 +116,48 @@ def run_query_chat_turn(question: str, config: AppConfig) -> None:
             focus_entity=focus_entity,
         )
         rows = neo4j_client.execute_read(cypher_query)
+        if not rows:
+            alias_retry = resolve_alias_retry_from_empty_result(question, cypher_query, neo4j_client)
+            if alias_retry["mode"] == "ambiguous":
+                options = alias_retry["options"]
+                st.session_state[CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY] = options
+                st.session_state[CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY] = question
+                append_chat_message(
+                    "assistant",
+                    f'"{alias_retry["lookup_term"]}" kann stehen fuer: '
+                    + ", ".join(options)
+                    + ". Welches meinen Sie?",
+                    cypher_query=cypher_query,
+                    rows=alias_retry["rows"],
+                )
+                return
+            if alias_retry["mode"] == "resolved":
+                alias_resolution = alias_retry
+                focus_entity = {
+                    "entity_type": alias_retry["entity_type"],
+                    "entity_name": alias_retry["entity_name"],
+                }
+                if alias_retry.get("entity_id"):
+                    focus_entity["entity_id"] = alias_retry["entity_id"]
+                update_chat_focus_entity(focus_entity)
+                effective_question = build_alias_retry_question(question, alias_retry)
+                if alias_retry.get("entity_id"):
+                    effective_question += f'\nDie Alias-Aufloesung nennt zusaetzlich die ID "{alias_retry["entity_id"]}".'
+                if existing_focus_entity:
+                    effective_question += (
+                        "\n"
+                        "Behandle das aktuell fokussierte Objekt als primaeren Bezugsanker. "
+                        "Weiche nicht auf semantisch benachbarte Objekte wie Prozesse, Server oder Schnittstellen aus, "
+                        "wenn die aktuelle Frage nicht ausdruecklich nach solchen Beziehungen fragt."
+                    )
+                cypher_query = generate_cypher_from_question(
+                    question=effective_question,
+                    llm_client=llm_client,
+                    prompt_path=resolve_project_path("prompts/cypher_gen.md"),
+                    conversation_messages=conversation_messages,
+                    focus_entity=focus_entity,
+                )
+                rows = neo4j_client.execute_read(cypher_query)
         answer_text = build_natural_language_answer(
             question=question,
             cypher_query=cypher_query,
@@ -120,13 +165,15 @@ def run_query_chat_turn(question: str, config: AppConfig) -> None:
             llm_client=llm_client,
             prompt_path=resolve_project_path("prompts/answer_query.md"),
         )
+        if alias_resolution:
+            answer_text = build_alias_resolution_answer_prefix(alias_resolution) + " " + answer_text
     except (LlmClientError, Neo4jConnectionError, Neo4jQueryError, QueryValidationError) as exc:
         write_debug_log(
             config,
             "query_error",
             {"question": question, "cypher_query": cypher_query, "error": str(exc)},
         )
-        append_chat_message("assistant", str(exc), cypher_query=cypher_query)
+        append_chat_message("assistant", translate_query_error_for_user(exc), cypher_query=cypher_query)
         return
 
     ambiguity_options = find_application_ambiguity_options(question, rows)
@@ -176,7 +223,7 @@ def resolve_name_lookup(question: str, neo4j_client) -> dict:
 def extract_name_lookup_term(question: str) -> str:
     normalized_question = question.strip()
     patterns = (
-        r"(?i)^was wei[ßs]t du über\s+(.+?)\??$",
+        r"(?i)^was wei(?:ß|ss)t du über\s+(.+?)\??$",
         r"(?i)^gibt es\s+(?:bei|zu)?\s*(.+?)\??$",
         r"(?i)^ich meinte\s+(.+?)\??$",
         r"(?i)^gemeint ist\s+(.+?)\??$",
@@ -231,6 +278,88 @@ def extract_entity_id_reference(text: str) -> str:
     if match is None:
         return ""
     return match.group(1).strip()
+
+
+def resolve_alias_retry_from_empty_result(question: str, cypher_query: str, neo4j_client) -> dict:
+    lookup_term = identify_alias_lookup_term(question, cypher_query)
+    if not lookup_term:
+        return {"mode": "skip"}
+
+    alias_rows: list[dict] = []
+    seen_targets: set[tuple[str, str, str]] = set()
+    for row in lookup_alias_matches(neo4j_client, lookup_term):
+        target_key = (
+            str(row.get("entity_type", "")).strip(),
+            str(row.get("entity_name", "")).strip(),
+            str(row.get("entity_id", "")).strip(),
+        )
+        if not target_key[0] or not target_key[1] or target_key in seen_targets:
+            continue
+        seen_targets.add(target_key)
+        alias_rows.append(row)
+    if not alias_rows:
+        return {"mode": "skip"}
+    if len(alias_rows) == 1:
+        result = {"mode": "resolved", "lookup_term": lookup_term, **alias_rows[0]}
+        if not result.get("entity_id"):
+            result.pop("entity_id", None)
+        return result
+    return {
+        "mode": "ambiguous",
+        "lookup_term": lookup_term,
+        "options": build_lookup_option_labels(alias_rows),
+        "rows": alias_rows,
+    }
+
+
+def identify_alias_lookup_term(question: str, cypher_query: str) -> str:
+    lookup_term = extract_name_lookup_term(question)
+    if lookup_term:
+        return lookup_term
+    lookup_terms = extract_lookup_terms_from_cypher(cypher_query)
+    return lookup_terms[0] if lookup_terms else ""
+
+
+def extract_lookup_terms_from_cypher(cypher_query: str) -> list[str]:
+    terms: list[str] = []
+    for term in re.findall(r"'([^']+)'", cypher_query):
+        cleaned_term = term.strip()
+        if not cleaned_term or cleaned_term in terms:
+            continue
+        if len(cleaned_term) < 2:
+            continue
+        terms.append(cleaned_term)
+    return terms
+
+
+def build_alias_resolution_answer_prefix(alias_resolution: dict[str, str]) -> str:
+    lookup_term = str(alias_resolution.get("lookup_term", "")).strip()
+    entity_name = str(alias_resolution.get("entity_name", "")).strip()
+    if not lookup_term or not entity_name:
+        return ""
+    return (
+        f'"{lookup_term}" kann laut den mir vorliegenden Informationen auch "{entity_name}" meinen.'
+    )
+
+
+def build_alias_retry_question(question: str, alias_resolution: dict[str, str]) -> str:
+    lookup_term = str(alias_resolution.get("lookup_term", "")).strip()
+    entity_name = str(alias_resolution.get("entity_name", "")).strip()
+    if not lookup_term or not entity_name:
+        return question
+
+    rewritten_question = question
+    replacements = 0
+    phrase_pattern = re.compile(
+        rf"(?i)\b(?:der|die|das|den|dem|des|ein|eine|einen|einem|einer)\s+{re.escape(lookup_term)}\b"
+    )
+    rewritten_question, replacements = phrase_pattern.subn(entity_name, rewritten_question, count=1)
+    if replacements == 0:
+        pattern = re.compile(re.escape(lookup_term), re.IGNORECASE)
+        rewritten_question, replacements = pattern.subn(entity_name, rewritten_question, count=1)
+    if replacements == 0:
+        rewritten_question = question
+    return rewritten_question
 
 
 def build_follow_up_query_context(question: str) -> str:
@@ -298,3 +427,45 @@ def should_use_follow_up_context(question: str) -> bool:
         "was davon",
     )
     return any(marker in normalized_question for marker in follow_up_markers)
+
+
+def translate_query_error_for_user(exc: Exception) -> str:
+    error_text = str(exc).strip()
+    normalized_text = error_text.casefold()
+
+    if isinstance(exc, QueryValidationError):
+        if "multiple statements" in normalized_text:
+            return (
+                "Ich konnte die Frage noch nicht in eine konsistente Abfrage uebersetzen. "
+                "Bitte formulieren Sie die Frage etwas konkreter oder stellen Sie Teilfragen nacheinander."
+            )
+        if "union branches must return the same column aliases in the same order" in normalized_text:
+            return (
+                "Ich konnte die Teilaspekte Ihrer Frage noch nicht in einer sauberen Gesamtabfrage zusammenfuehren. "
+                "Bitte teilen Sie die Frage bei Bedarf in zwei einfachere Schritte auf."
+            )
+        if "forbidden token" in normalized_text:
+            return (
+                "Ich kann hier nur lesend auf den Wissensgraphen zugreifen. "
+                "Die Frage wurde intern noch nicht passend in eine reine Leseabfrage uebersetzt."
+            )
+        return (
+            "Ich konnte aus Ihrer Frage noch keine gueltige Abfrage fuer den Wissensgraphen ableiten."
+        )
+
+    if isinstance(exc, Neo4jQueryError):
+        return (
+            "Ich konnte die Frage auf Basis des aktuellen Wissensgraphen noch nicht korrekt auswerten."
+        )
+
+    if isinstance(exc, Neo4jConnectionError):
+        return (
+            "Ich kann den Wissensgraphen im Moment nicht erreichen. Bitte pruefen Sie die Neo4j-Verbindung in der Konfiguration."
+        )
+
+    if isinstance(exc, LlmClientError):
+        return (
+            "Ich konnte die Frage im Moment nicht zuverlaessig verarbeiten. Bitte versuchen Sie es erneut oder formulieren Sie sie etwas konkreter."
+        )
+
+    return "Die Anfrage konnte im Moment nicht verarbeitet werden."

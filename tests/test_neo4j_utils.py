@@ -54,6 +54,15 @@ def test_validate_read_only_cypher_rejects_union_with_different_return_aliases()
         )
 
 
+def test_validate_read_only_cypher_allows_union_with_order_by_after_last_branch() -> None:
+    validate_read_only_cypher(
+        "MATCH (n:Prozess) RETURN 'Prozess' AS entity_type, n.name AS entity_name "
+        "UNION ALL "
+        "MATCH (n:Anwendung) RETURN 'Anwendung' AS entity_type, n.name AS entity_name "
+        "ORDER BY entity_type, entity_name"
+    )
+
+
 def test_validate_read_only_cypher_rejects_unknown_relationship_type() -> None:
     with pytest.raises(QueryValidationError, match="unknown relationship type: HOSTET"):
         validate_read_only_cypher(
