@@ -18,10 +18,13 @@ QUERY_NODE_SCHEMA: dict[str, tuple[str, ...]] = {
     "Schnittstelle": ("id", "name"),
     "Server": ("id", "name", "server_type"),
     "OrgEinheit": ("name",),
+    "Rolle": ("name",),
 }
 
 QUERY_RELATIONSHIP_PATTERNS: tuple[RelationshipPattern, ...] = (
     RelationshipPattern("DIENT", "Anwendung", "Prozess", ("konfidenz",)),
+    RelationshipPattern("BETEILIGT_AN", "Rolle", "Prozess"),
+    RelationshipPattern("KANN_EINNEHMEN", "OrgEinheit", "Rolle"),
     RelationshipPattern("VERANTWORTET", "OrgEinheit", "Prozess"),
     RelationshipPattern("VERANTWORTET", "OrgEinheit", "Anwendung"),
     RelationshipPattern("VERANTWORTET", "OrgEinheit", "Schnittstelle"),

@@ -4,7 +4,7 @@ Return valid JSON with exactly this schema:
 {
   "prozess": "string",
   "prozess_id": "string",
-  "org_einheit": "string",
+  "rollen": ["string"],
   "folgt_auf": ["string"],
   "anwendungen": [
     { "name": "string", "konfidenz": "stark|schwach" }
@@ -14,6 +14,8 @@ Return valid JSON with exactly this schema:
 Rules:
 - Read the BPMN XML as raw text.
 - Use the BPMN process identifier if it is present.
+- Extract all lane names from `<lane>` or `<bpmndi:BPMNShape>` elements as `rollen`. Each lane represents a process participant role.
+- If no lanes are present, return an empty `rollen` array.
 - Only include modeled applications, systems, interfaces, participants, or services that represent actual application/system references.
 - Ignore task names, activity labels, operation names, message names, lane names, and script text as application names.
 - If the BPMN contains both a business-facing modeled name and a technical implementation string for the same application, prefer the modeled name and do not return both variants.

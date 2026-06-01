@@ -186,3 +186,57 @@ def reject_org_candidate(knowledge_base: KnowledgeBase, candidate_name: str) -> 
     updated_kb = reject_org_unit_candidate(knowledge_base, candidate_name)
     save_knowledge_base(updated_kb)
     return "success", "Kandidat wurde abgewiesen."
+
+
+def load_all_processes_with_owner(config: AppConfig) -> list[dict]:
+    neo4j_client = get_session_neo4j_client(config)
+    rows = neo4j_client.execute_write(
+        """
+        MATCH (p:Prozess)
+        WHERE p.placeholder IS NULL OR p.placeholder = false
+        OPTIONAL MATCH (o:OrgEinheit)-[:VERANTWORTET]->(p)
+        RETURN p.prozess_id AS prozess_id, p.name AS prozess, o.name AS eigentuemer
+        ORDER BY p.name
+        """
+    )
+    return [
+        {"prozess_id": row["prozess_id"], "prozess": row["prozess"], "eigentuemer": row["eigentuemer"]}
+        for row in rows
+    ]
+
+
+def set_process_owner(config: AppConfig, process_id: str, org_unit_name: str) -> tuple[str, str]:
+    cleaned = " ".join(org_unit_name.strip().split())
+    if not cleaned:
+        return "error", "Organisationseinheit darf nicht leer sein."
+    neo4j_client = get_session_neo4j_client(config)
+    GraphWriter().write_process_owner(neo4j_client, cleaned, process_id)
+    return "success", f"Eigentümer gesetzt."
+
+
+def clear_process_owner(config: AppConfig, process_id: str) -> tuple[str, str]:
+    neo4j_client = get_session_neo4j_client(config)
+    GraphWriter().remove_process_owner(neo4j_client, process_id)
+    return "success", "Eigentümer entfernt."
+
+
+def load_unassigned_roles(config: AppConfig) -> list[dict]:
+    neo4j_client = get_session_neo4j_client(config)
+    rows = neo4j_client.execute_write(
+        """
+        MATCH (r:Rolle)-[:BETEILIGT_AN]->(p:Prozess)
+        WHERE NOT (:OrgEinheit)-[:KANN_EINNEHMEN]->(r)
+        RETURN r.name AS rolle, collect(p.name) AS prozesse
+        ORDER BY r.name
+        """
+    )
+    return [{"rolle": row["rolle"], "prozesse": row["prozesse"]} for row in rows]
+
+
+def assign_role_to_org_unit(config: AppConfig, role_name: str, org_unit_name: str) -> tuple[str, str]:
+    cleaned_org_unit = " ".join(org_unit_name.strip().split())
+    if not cleaned_org_unit:
+        return "error", "Organisationseinheit darf nicht leer sein."
+    neo4j_client = get_session_neo4j_client(config)
+    GraphWriter().write_role_assignment(neo4j_client, cleaned_org_unit, role_name)
+    return "success", f"Rolle \"{role_name}\" wurde \"{cleaned_org_unit}\" zugeordnet."

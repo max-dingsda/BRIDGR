@@ -54,15 +54,6 @@ class GraphWriter:
         )
         client.execute_write(
             """
-            MATCH (:OrgEinheit)-[r:VERANTWORTET]->(p:Prozess {prozess_id: $process_id})
-            DELETE r
-            """,
-            {
-                "process_id": process.process_id,
-            },
-        )
-        client.execute_write(
-            """
             MATCH (:Rolle)-[r:BETEILIGT_AN]->(p:Prozess {prozess_id: $process_id})
             DELETE r
             """,
@@ -70,19 +61,6 @@ class GraphWriter:
                 "process_id": process.process_id,
             },
         )
-
-        for org_unit_name in process.org_units:
-            client.execute_write(
-                """
-                MERGE (o:OrgEinheit {name: $org_unit})
-                MERGE (p:Prozess {prozess_id: $process_id})
-                MERGE (o)-[:VERANTWORTET]->(p)
-                """,
-                {
-                    "org_unit": org_unit_name,
-                    "process_id": process.process_id,
-                },
-            )
 
         for role_name in process.roles:
             client.execute_write(
@@ -184,6 +162,45 @@ class GraphWriter:
                     "entity_id": entity_id,
                 },
             )
+
+    def write_process_owner(self, client: Neo4jClient, org_unit_name: str, process_id: str) -> None:
+        client.execute_write(
+            """
+            MATCH (:OrgEinheit)-[r:VERANTWORTET]->(p:Prozess {prozess_id: $process_id})
+            DELETE r
+            """,
+            {"process_id": process_id},
+        )
+        client.execute_write(
+            """
+            MERGE (o:OrgEinheit {name: $org_unit_name})
+            MATCH (p:Prozess {prozess_id: $process_id})
+            MERGE (o)-[:VERANTWORTET]->(p)
+            """,
+            {"org_unit_name": org_unit_name, "process_id": process_id},
+        )
+
+    def remove_process_owner(self, client: Neo4jClient, process_id: str) -> None:
+        client.execute_write(
+            """
+            MATCH (:OrgEinheit)-[r:VERANTWORTET]->(p:Prozess {prozess_id: $process_id})
+            DELETE r
+            """,
+            {"process_id": process_id},
+        )
+
+    def write_role_assignment(self, client: Neo4jClient, org_unit_name: str, role_name: str) -> None:
+        client.execute_write(
+            """
+            MERGE (o:OrgEinheit {name: $org_unit_name})
+            MERGE (r:Rolle {name: $role_name})
+            MERGE (o)-[:KANN_EINNEHMEN]->(r)
+            """,
+            {
+                "org_unit_name": org_unit_name,
+                "role_name": role_name,
+            },
+        )
 
     def cleanup_process_placeholders(self, client: Neo4jClient) -> None:
         client.execute_write(

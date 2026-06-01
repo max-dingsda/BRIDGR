@@ -26,7 +26,7 @@ class TextExtractor:
         payload = self._generate_json_with_required_keys(
             system_prompt=prompt,
             user_prompt=document_text,
-            required_keys={"prozess", "rolle", "org_einheit_kandidaten", "anwendungen"},
+            required_keys={"prozess", "rolle", "prozess_eigentuemer", "org_einheit_kandidaten", "anwendungen"},
         )
         return self._to_domain_model(payload, source_path, document_text)
 
@@ -49,6 +49,7 @@ class TextExtractor:
             process_id = self._resolve_process_id(payload, source_path, document_text)
             roles = self._resolve_roles(payload, document_text)
             org_unit_candidates = self._resolve_org_unit_candidates(payload, document_text)
+            process_owner_candidate = self._resolve_process_owner_candidate(payload, document_text)
             return ExtractedProcess(
                 process_name=payload["prozess"],
                 process_id=process_id,
@@ -60,6 +61,7 @@ class TextExtractor:
                 raw_applications=raw_applications,
                 applications=applications,
                 source_path=str(source_path),
+                process_owner_candidate=process_owner_candidate,
             )
         except (KeyError, TypeError) as exc:
             serialized_payload = json.dumps(payload, ensure_ascii=False)
@@ -90,6 +92,12 @@ class TextExtractor:
         if not role_value:
             return []
         return [role_value]
+
+    def _resolve_process_owner_candidate(self, payload: dict, document_text: str) -> str:
+        if self._is_bpmn_transform_text(document_text):
+            return ""
+        raw = str(payload.get("prozess_eigentuemer") or "").strip()
+        return " ".join(raw.split()) if raw else ""
 
     def _resolve_org_unit_candidates(self, payload: dict, document_text: str) -> list[str]:
         if self._is_bpmn_transform_text(document_text):

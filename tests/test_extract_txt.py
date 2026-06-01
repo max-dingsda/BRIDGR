@@ -101,6 +101,69 @@ def test_text_extractor_reads_lane_labels_from_bpmn_transform_text_as_roles(tmp_
     assert result.org_unit_candidates == []
 
 
+def test_text_extractor_extracts_explicit_process_owner(tmp_path: Path) -> None:
+    source_path = tmp_path / "process.txt"
+    prompt_path = tmp_path / "prompt.md"
+    source_path.write_text("Prozessverantwortlicher: Einkauf", encoding="utf-8")
+    prompt_path.write_text("prompt", encoding="utf-8")
+
+    class OwnerLlmClient:
+        def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
+            return {
+                "prozess": "Bestellabwicklung",
+                "prozess_id": "",
+                "rolle": "",
+                "prozess_eigentuemer": "Einkauf",
+                "org_einheit_kandidaten": [],
+                "folgt_auf": [],
+                "anwendungen": [],
+            }
+
+    extractor = TextExtractor(prompt_path=prompt_path, llm_client=OwnerLlmClient())
+    result = extractor.extract(source_path)
+
+    assert result.process_owner_candidate == "Einkauf"
+
+
+def test_text_extractor_returns_empty_process_owner_when_not_stated(tmp_path: Path) -> None:
+    source_path = tmp_path / "process.txt"
+    prompt_path = tmp_path / "prompt.md"
+    source_path.write_text("Incident Handling uses Ticket System.", encoding="utf-8")
+    prompt_path.write_text("prompt", encoding="utf-8")
+
+    extractor = TextExtractor(prompt_path=prompt_path, llm_client=FakeLlmClient())
+    result = extractor.extract(source_path)
+
+    assert result.process_owner_candidate == ""
+
+
+def test_text_extractor_ignores_process_owner_in_bpmn_transform(tmp_path: Path) -> None:
+    source_path = tmp_path / "process.txt"
+    prompt_path = tmp_path / "prompt.md"
+    source_path.write_text(
+        "BRIDGR BPMN Transform\nProcess Name: Bestellabwicklung\nProcess ID: proc-1\nLane Labels: Einkauf\n",
+        encoding="utf-8",
+    )
+    prompt_path.write_text("prompt", encoding="utf-8")
+
+    class OwnerLlmClient:
+        def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
+            return {
+                "prozess": "Bestellabwicklung",
+                "prozess_id": "proc-1",
+                "rolle": "",
+                "prozess_eigentuemer": "Einkauf",
+                "org_einheit_kandidaten": [],
+                "folgt_auf": [],
+                "anwendungen": [],
+            }
+
+    extractor = TextExtractor(prompt_path=prompt_path, llm_client=OwnerLlmClient())
+    result = extractor.extract(source_path)
+
+    assert result.process_owner_candidate == ""
+
+
 def test_text_extractor_rejects_invalid_payload(tmp_path: Path) -> None:
     source_path = tmp_path / "process.txt"
     prompt_path = tmp_path / "prompt.md"

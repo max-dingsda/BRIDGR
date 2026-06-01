@@ -26,7 +26,7 @@ class BpmnExtractor:
         payload = self._generate_json_with_required_keys(
             system_prompt=prompt,
             user_prompt=bpmn_xml,
-            required_keys={"prozess", "prozess_id", "org_einheit", "anwendungen"},
+            required_keys={"prozess", "prozess_id", "rollen", "anwendungen"},
         )
         return self._to_domain_model(payload, source_path)
 
@@ -46,12 +46,12 @@ class BpmnExtractor:
                 for item in payload["anwendungen"]
             ]
             applications = self._deduplicate_applications(payload["anwendungen"])
-            role_value = str(payload.get("rolle") or payload.get("org_einheit") or "").strip()
+            roles = self._parse_roles(payload.get("rollen", []))
             return ExtractedProcess(
                 process_name=payload["prozess"],
                 process_id=payload["prozess_id"],
                 org_unit="",
-                roles=[role_value] if role_value else [],
+                roles=roles,
                 org_units=[],
                 org_unit_candidates=[],
                 follows_after=list(payload.get("folgt_auf", [])),
@@ -62,6 +62,22 @@ class BpmnExtractor:
         except (KeyError, TypeError) as exc:
             serialized_payload = json.dumps(payload, ensure_ascii=False)
             raise BpmnExtractorError(f"LLM extraction payload did not match the expected schema: {serialized_payload}") from exc
+
+    def _parse_roles(self, raw_roles: object) -> list[str]:
+        if not isinstance(raw_roles, list):
+            return []
+        seen: set[str] = set()
+        roles: list[str] = []
+        for item in raw_roles:
+            cleaned = " ".join(str(item).strip().split())
+            if not cleaned:
+                continue
+            key = cleaned.casefold()
+            if key in seen:
+                continue
+            seen.add(key)
+            roles.append(cleaned)
+        return roles
 
     def _generate_json_with_required_keys(
         self,

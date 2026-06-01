@@ -222,7 +222,7 @@ def test_graph_writer_writes_role_nodes_with_beteiligt_an_relationship() -> None
     assert process_write_action == "inserted"
 
 
-def test_graph_writer_writes_multiple_org_units_for_one_process() -> None:
+def test_graph_writer_does_not_write_verantwortet_for_process_extraction() -> None:
     writer = GraphWriter()
     client = RecordingNeo4jClient()
     payload = GraphWritePayload(
@@ -230,8 +230,8 @@ def test_graph_writer_writes_multiple_org_units_for_one_process() -> None:
             process_name="Cross-Team Process",
             process_id="proc-x",
             org_unit="",
-            roles=[],
-            org_units=["Team A", "Team B"],
+            roles=["Team A", "Team B"],
+            org_units=[],
             org_unit_candidates=[],
             follows_after=[],
             raw_applications=[],
@@ -241,14 +241,40 @@ def test_graph_writer_writes_multiple_org_units_for_one_process() -> None:
         matches=[],
     )
 
-    process_write_action = writer.write_payload(client, payload)
+    writer.write_payload(client, payload)
 
-    verantwortet_params = [
-        params for query, params in client.queries if "MERGE (o)-[:VERANTWORTET]->(p)" in query
+    verantwortet_to_process = [
+        query for query, _ in client.queries
+        if "VERANTWORTET" in query and "Prozess" in query
     ]
-    written_units = {p["org_unit"] for p in verantwortet_params if p}
-    assert written_units == {"Team A", "Team B"}
-    assert process_write_action == "inserted"
+    assert verantwortet_to_process == []
+
+
+def test_graph_writer_write_role_assignment_creates_kann_einnehmen() -> None:
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+
+    writer.write_role_assignment(client, "Einkauf", "Einkäufer")
+
+    kann_einnehmen_queries = [
+        (query, params) for query, params in client.queries
+        if "KANN_EINNEHMEN" in query
+    ]
+    assert len(kann_einnehmen_queries) == 1
+    _, params = kann_einnehmen_queries[0]
+    assert params["org_unit_name"] == "Einkauf"
+    assert params["role_name"] == "Einkäufer"
+
+
+def test_graph_writer_write_role_assignment_merges_org_unit_and_role_nodes() -> None:
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+
+    writer.write_role_assignment(client, "Sales Team", "Sales Team")
+
+    queries = [query for query, _ in client.queries]
+    assert any("MERGE (o:OrgEinheit" in query for query in queries)
+    assert any("MERGE (r:Rolle" in query for query in queries)
 
 
 def test_graph_writer_updates_existing_process_node_without_creating_new_one() -> None:

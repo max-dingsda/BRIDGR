@@ -23,6 +23,7 @@ class ExtractedProcess:
     raw_applications: list[ApplicationReference]
     applications: list[ApplicationReference]
     source_path: str
+    process_owner_candidate: str = ""
 
 
 class Extractor(Protocol):
