@@ -331,6 +331,7 @@ def apply_org_unit_mapping(
         raw_applications=list(extracted_process.raw_applications),
         applications=list(extracted_process.applications),
         source_path=extracted_process.source_path,
+        process_owner_candidate=extracted_process.process_owner_candidate,
     )
 
 

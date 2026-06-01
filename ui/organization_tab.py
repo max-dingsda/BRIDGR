@@ -9,14 +9,17 @@ from knowledge_base import load_knowledge_base
 from neo4j_utils import Neo4jConnectionError, Neo4jQueryError
 from services.organization_service import (
     accept_org_candidate,
+    accept_process_owner_candidate,
     add_org_unit_entry,
     assign_role_to_org_unit,
     clear_process_owner,
     load_all_processes_with_owner,
+    load_process_owner_candidates,
     load_unassigned_roles,
     map_org_candidate,
     persist_organization_sync,
     reject_org_candidate,
+    reject_process_owner_candidate,
     set_process_owner,
 )
 
@@ -34,6 +37,7 @@ def render_organization_tab() -> None:
 
     _render_org_units_section(config, knowledge_base, org_units, all_processes)
     _render_process_owner_section(config, org_units, all_processes)
+    _render_process_owner_candidates_section(config, org_units)
     _render_candidates_section(config, knowledge_base, org_units)
     _render_unassigned_roles_section(config, org_units)
     _render_decided_candidates_section(knowledge_base)
@@ -165,6 +169,45 @@ def _render_process_owner_section(config, org_units, all_processes: list[dict]) 
                     level, message = set_process_owner(config, process_id, selected_owner)
                     getattr(st, level)(message)
                     st.rerun()
+
+
+def _render_process_owner_candidates_section(config, org_units) -> None:
+    try:
+        candidates = load_process_owner_candidates(config)
+    except Exception as exc:
+        st.warning(f"Vorgeschlagene Prozess-Eigentümer konnten nicht geladen werden: {exc}")
+        return
+
+    if not candidates:
+        return
+
+    st.markdown("**Vorgeschlagene Prozess-Eigentümer**")
+    existing_org_unit_names = [entry.get("name", "") for entry in org_units if entry.get("name")]
+    for candidate in candidates:
+        process_id = candidate["process_id"]
+        process_name = candidate["process_name"] or process_id
+        suggested = candidate["candidate_org_unit"]
+        source = Path(candidate.get("source_path", "")).name
+        cand_key = (process_id or process_name).replace(" ", "_").replace("/", "_")
+        with st.container(border=True):
+            st.markdown(f"**{process_name}**")
+            st.caption(f"Vorgeschlagener Eigentümer: **{suggested}** | Quelle: {source}")
+            cols = st.columns([2, 1, 1])
+            selected_org = cols[0].selectbox(
+                "Organisationseinheit bestätigen",
+                options=[""] + existing_org_unit_names,
+                index=(existing_org_unit_names.index(suggested) + 1) if suggested in existing_org_unit_names else 0,
+                key=f"poc-select::{cand_key}",
+            )
+            if cols[1].button("Bestätigen", key=f"poc-accept::{cand_key}", width="stretch"):
+                target = selected_org or suggested
+                level, message = accept_process_owner_candidate(config, process_id, target)
+                getattr(st, level)(message)
+                st.rerun()
+            if cols[2].button("Abweisen", key=f"poc-reject::{cand_key}", width="stretch"):
+                level, message = reject_process_owner_candidate(config, process_id)
+                getattr(st, level)(message)
+                st.rerun()
 
 
 def _render_candidates_section(config, knowledge_base, org_units) -> None:

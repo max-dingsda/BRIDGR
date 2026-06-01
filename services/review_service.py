@@ -39,6 +39,7 @@ def reconstruct_extracted_process(payload: dict) -> ExtractedProcess:
             for item in payload.get("applications", [])
         ],
         source_path=payload.get("source_path", ""),
+        process_owner_candidate=payload.get("process_owner_candidate", ""),
     )
 
 

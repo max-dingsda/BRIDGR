@@ -3,10 +3,13 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from services.organization_service import (
+    accept_process_owner_candidate,
     assign_role_to_org_unit,
     clear_process_owner,
     load_all_processes_with_owner,
+    load_process_owner_candidates,
     load_unassigned_roles,
+    reject_process_owner_candidate,
     set_process_owner,
 )
 
@@ -129,6 +132,102 @@ def test_clear_process_owner_deletes_verantwortet(mock_get_client) -> None:
     assert len(delete_queries) == 1
     params = [p for _, p in fake_client.written if p and p.get("process_id")]
     assert params[0]["process_id"] == "proc-1"
+
+
+def _make_run_with_candidate(process_id: str, candidate: str, status: str = "") -> dict:
+    doc: dict = {
+        "extracted_process": {
+            "process_id": process_id,
+            "process_name": "Testprozess",
+            "process_owner_candidate": candidate,
+            "source_path": "Input/test.txt",
+        }
+    }
+    if status:
+        doc["process_owner_candidate_status"] = status
+    return {"documents": [doc]}
+
+
+@patch("services.organization_service.write_latest_run")
+@patch("services.organization_service.load_latest_run")
+@patch("services.organization_service.resolve_runtime_output_path")
+@patch("services.organization_service.get_session_neo4j_client")
+def test_load_process_owner_candidates_returns_pending(mock_neo4j, mock_output, mock_load, mock_write) -> None:
+    mock_output.return_value = (MagicMock(), False)
+    mock_load.return_value = _make_run_with_candidate("proc-1", "Einkauf")
+    mock_neo4j.return_value = FakeNeo4jClient(rows=[])
+
+    result = load_process_owner_candidates(_make_config())
+
+    assert len(result) == 1
+    assert result[0]["process_id"] == "proc-1"
+    assert result[0]["candidate_org_unit"] == "Einkauf"
+
+
+@patch("services.organization_service.write_latest_run")
+@patch("services.organization_service.load_latest_run")
+@patch("services.organization_service.resolve_runtime_output_path")
+@patch("services.organization_service.get_session_neo4j_client")
+def test_load_process_owner_candidates_skips_already_owned(mock_neo4j, mock_output, mock_load, mock_write) -> None:
+    mock_output.return_value = (MagicMock(), False)
+    mock_load.return_value = _make_run_with_candidate("proc-1", "Einkauf")
+    mock_neo4j.return_value = FakeNeo4jClient(rows=[{"prozess_id": "proc-1"}])
+
+    result = load_process_owner_candidates(_make_config())
+
+    assert result == []
+
+
+@patch("services.organization_service.write_latest_run")
+@patch("services.organization_service.load_latest_run")
+@patch("services.organization_service.resolve_runtime_output_path")
+@patch("services.organization_service.get_session_neo4j_client")
+def test_load_process_owner_candidates_skips_rejected(mock_neo4j, mock_output, mock_load, mock_write) -> None:
+    mock_output.return_value = (MagicMock(), False)
+    mock_load.return_value = _make_run_with_candidate("proc-1", "Einkauf", status="rejected")
+    mock_neo4j.return_value = FakeNeo4jClient(rows=[])
+
+    result = load_process_owner_candidates(_make_config())
+
+    assert result == []
+
+
+@patch("services.organization_service.write_latest_run")
+@patch("services.organization_service.load_latest_run")
+@patch("services.organization_service.resolve_runtime_output_path")
+@patch("services.organization_service.get_session_neo4j_client")
+def test_reject_process_owner_candidate_sets_status(mock_neo4j, mock_output, mock_load, mock_write) -> None:
+    run = _make_run_with_candidate("proc-1", "Einkauf")
+    mock_output.return_value = (MagicMock(), False)
+    mock_load.return_value = run
+    mock_neo4j.return_value = FakeNeo4jClient()
+
+    level, _ = reject_process_owner_candidate(_make_config(), "proc-1")
+
+    assert level == "success"
+    written_run = mock_write.call_args[0][0]
+    doc = written_run["documents"][0]
+    assert doc["process_owner_candidate_status"] == "rejected"
+
+
+@patch("services.organization_service.write_latest_run")
+@patch("services.organization_service.load_latest_run")
+@patch("services.organization_service.resolve_runtime_output_path")
+@patch("services.organization_service.get_session_neo4j_client")
+def test_accept_process_owner_candidate_writes_verantwortet_and_status(mock_neo4j, mock_output, mock_load, mock_write) -> None:
+    run = _make_run_with_candidate("proc-1", "Einkauf")
+    mock_output.return_value = (MagicMock(), False)
+    mock_load.return_value = run
+    mock_neo4j.return_value = FakeNeo4jClient()
+
+    level, _ = accept_process_owner_candidate(_make_config(), "proc-1", "Einkauf")
+
+    assert level == "success"
+    verantwortet_queries = [q for q, _ in mock_neo4j.return_value.written if "VERANTWORTET" in q and "MERGE" in q]
+    assert len(verantwortet_queries) == 1
+    written_run = mock_write.call_args[0][0]
+    doc = written_run["documents"][0]
+    assert doc["process_owner_candidate_status"] == "accepted"
 
 
 @patch("services.organization_service.get_session_neo4j_client")

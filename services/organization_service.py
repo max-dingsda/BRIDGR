@@ -220,6 +220,66 @@ def clear_process_owner(config: AppConfig, process_id: str) -> tuple[str, str]:
     return "success", "Eigentümer entfernt."
 
 
+def load_process_owner_candidates(config: AppConfig) -> list[dict]:
+    output_path, _ = resolve_runtime_output_path(config.output_path)
+    latest_run = load_latest_run(output_path)
+    if not latest_run:
+        return []
+
+    neo4j_client = get_session_neo4j_client(config)
+    owned_process_ids: set[str] = {
+        row["prozess_id"]
+        for row in neo4j_client.execute_write(
+            "MATCH (:OrgEinheit)-[:VERANTWORTET]->(p:Prozess) RETURN p.prozess_id AS prozess_id"
+        )
+        if row.get("prozess_id")
+    }
+
+    candidates: list[dict] = []
+    for document in latest_run.get("documents", []):
+        extracted = document.get("extracted_process") or {}
+        candidate_name = (extracted.get("process_owner_candidate") or "").strip()
+        if not candidate_name:
+            continue
+        status = document.get("process_owner_candidate_status", "")
+        if status in ("accepted", "rejected"):
+            continue
+        process_id = extracted.get("process_id", "")
+        if process_id in owned_process_ids:
+            continue
+        candidates.append({
+            "process_id": process_id,
+            "process_name": extracted.get("process_name", ""),
+            "candidate_org_unit": candidate_name,
+            "source_path": extracted.get("source_path", ""),
+        })
+    return candidates
+
+
+def _update_process_owner_candidate_status(config: AppConfig, process_id: str, status: str) -> None:
+    output_path, _ = resolve_runtime_output_path(config.output_path)
+    latest_run = load_latest_run(output_path)
+    if not latest_run:
+        return
+    for document in latest_run.get("documents", []):
+        extracted = document.get("extracted_process") or {}
+        if extracted.get("process_id") == process_id:
+            document["process_owner_candidate_status"] = status
+    write_latest_run(latest_run, output_path)
+
+
+def accept_process_owner_candidate(config: AppConfig, process_id: str, org_unit_name: str) -> tuple[str, str]:
+    level, message = set_process_owner(config, process_id, org_unit_name)
+    if level == "success":
+        _update_process_owner_candidate_status(config, process_id, "accepted")
+    return level, message
+
+
+def reject_process_owner_candidate(config: AppConfig, process_id: str) -> tuple[str, str]:
+    _update_process_owner_candidate_status(config, process_id, "rejected")
+    return "success", "Vorschlag abgewiesen."
+
+
 def load_unassigned_roles(config: AppConfig) -> list[dict]:
     neo4j_client = get_session_neo4j_client(config)
     rows = neo4j_client.execute_write(
