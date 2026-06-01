@@ -363,6 +363,13 @@ def render_config_tab(config_path: Path) -> None:
             fuzzy_threshold = st.number_input("Fuzzy Threshold", min_value=0.0, max_value=1.0, value=float(config.fuzzy_threshold), step=0.01)
             debug_mode = st.checkbox("Debug Mode", value=config.debug_mode)
             last_run_mode = st.selectbox("Last Run Mode", ["full", "partial"], index=["full", "partial"].index(normalize_run_mode(config.last_run_mode)))
+            _chat_mode_options = ["prompt-only", "tool-use"]
+            _chat_mode_index = _chat_mode_options.index(config.chat_mode) if config.chat_mode in _chat_mode_options else 0
+            chat_mode = st.selectbox("Chat-Modus", _chat_mode_options, index=_chat_mode_index)
+            st.caption(
+                "`prompt-only`: Cypher als Textblock (kompatibel mit lokalen Modellen ohne Function-Calling). "
+                "`tool-use`: Formales Function-Calling (erfordert Backend-Unterstuetzung)."
+            )
             submitted = st.form_submit_button("Save Config")
 
         if submitted:
@@ -392,6 +399,7 @@ def render_config_tab(config_path: Path) -> None:
                 cmdb_filename=cmdb_filename,
                 output_path=output_path,
                 last_run_mode=last_run_mode,
+                chat_mode=chat_mode,
                 debug_mode=debug_mode,
             )
             save_config(updated_config, config_path)

@@ -3,7 +3,7 @@
 BRIDGR verbindet Prozessdokumentation mit CMDB-Daten, um einen EA-Wissensgraphen aufzubauen und spaeter ueber eine natuerlichsprachliche Oberflaeche abfragbar zu machen.
 
 Der aktuelle Architektur-Referenzstand fuer die Umsetzung ist:
-- `Specs/Bridgr_Architektur_v18.md`
+- `Specs/Bridgr_Architektur_v19.md`
 
 ## Zielbild
 
@@ -27,11 +27,13 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - normalisierte CMDB-Sicht fuer `Anwendung`, `Schnittstelle` und `Server`
 - technischer CMDB-Write-Pfad fuer `USES_INTERFACE` und `RUNS_ON`
 - erste CMDB-Ownership-Logik mit direktem 1:1-Match oder Kandidatenbildung fuer Organisationseinheiten
-- natuerlichsprachlicher Query-Layer mit Session-Chat, LLM -> Cypher -> Neo4j -> Antwort und Rueckfrage bei Mehrdeutigkeiten
-- gehaerteter Query-Prompt mit schema-konservativer Rollenbeschreibung, semantischem Mapping natuerlicher Fachbegriffe und klarer Bevorzugung einfacher Single-Query-Strukturen
+- natuerlichsprachlicher Chat-Layer: LLM als Orchestrator, generiert und fuehrt Cypher-Abfragen selbststaendig aus und formuliert die Antwort
+- zwei Chat-Modi: `prompt-only` (LLM gibt Cypher als Textblock aus, kompatibel mit lokalen Modellen) und `tool-use` (formales Function Calling, LLM kann mehrere Queries pro Turn ausfuehren)
+- vollstaendige Gesprächshistorie als Grundlage fuer Folgefragen, Praezisierungen und Kontextwechsel ohne imperativische Code-Zustandsverwaltung
+- schema-konservativer System-Prompt mit Rollenbeschreibung, Graph-Schema und Cypher-Regeln; zentraler Prompt in `prompts/chat_system.md`
+- kanonisches Query-Schema in `graph_schema.py` als gemeinsame Grundlage fuer Prompting und Validierung
+- deterministische Alias-Anreicherung bei leeren Ergebnissen: Hinweise auf bekannte Alternativbegriffe werden dem LLM mitgegeben
 - benutzerverstaendliche Uebersetzung technischer Query-/Validierungsfehler im Chat statt roher Cypher- oder Treibertexte
-- kanonisches Query-Schema in `graph_schema.py` als gemeinsame Grundlage fuer Prompting und Query-Validierung
-- codekuratierter Chat-Kontext fuer Folgefragen mit vorherigen Benutzer-/Assistant-Nachrichten und optionalem Fokusobjekt
 - persistente Knowledge Base
 - Alias-Projektion nach Neo4j fuer kuratierte Kurzformen oder Fehlbezeichnungen aus manuellen App-Mappings und Org-Mappings
 - deterministische Alias-Aufloesung im Query-Lookup, wenn direkte Namenssuche keinen Treffer liefert
@@ -42,15 +44,14 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - Hinweise auf uneinheitliche Prozessnotation bei mehrfach extrahierten Rohvarianten
 
 Wichtige Einordnung:
-- Die Spezifikation `v0.15` oeffnet den Scope fuer unstrukturierte Prozessbeschreibungen, trennt Import und Review sauber und dokumentiert zusaetzlich den Transformationspfad fuer grosse BPMN/XML-Dateien.
-- Die aktuelle Implementierung unterstuetzt bereits BPMN, TXT, DOCX und PDF ueber einen gemeinsamen semantischen Extraktionspfad.
+- Die aktuelle Implementierung unterstuetzt BPMN, TXT, DOCX und PDF ueber einen gemeinsamen semantischen Extraktionspfad.
+- Der Chat-Layer basiert seit v0.19 auf dem LLM-als-Orchestrator-Muster; imperativische Gesprächszustandsverwaltung (Disambiguierungslogik, Fokus-Entitaet) entfaellt aus dem Code.
 
 Noch nicht umgesetzt:
 - vollstaendige UI-/Review-Unterstuetzung fuer alle neuen CMDB-Objekttypen
-- ausgereifte Query- und Prompt-Haertung jenseits des jetzt kanonisch hinterlegten Query-Schemas
 - Unterstuetzung weiterer CMDB-Dateiformate jenseits von CSV
 - separate Read-only-DB-Identitaet fuer den Query-Layer
-- vollstaendige Ablösung der `knowledge_base/kb.json` als einzige Kurationsquelle; aktuell werden Alias-Informationen zusaetzlich nach Neo4j projiziert, die restliche Kuratierung bleibt dateibasiert
+- vollstaendige Abloesung der `knowledge_base/kb.json` als einzige Kurationsquelle; aktuell werden Alias-Informationen zusaetzlich nach Neo4j projiziert, die restliche Kuratierung bleibt dateibasiert
 
 ## Projektstruktur
 
@@ -109,6 +110,7 @@ Wichtige Felder:
 - `cmdb_multivalue_separator`: vorgesehener Trenner fuer spaetere Ein-Datei-CMDB-Exporte mit Mehrfachwerten
 - `output_path`: Ziel fuer Laufartefakte
 - `last_run_mode`: Standardlaufmodus fuer den Import (`full` oder `partial`)
+- `chat_mode`: Chat-Betriebsmodus (`prompt-only` oder `tool-use`); Default: `prompt-only`
 - `debug_mode`: schreibt bei aktivierter Diagnose zusaetzliche Ereignisse nach `Output/debug.log`
 
 Beispiel:
@@ -195,17 +197,15 @@ python main.py --file Input\beispiel.txt
 ### Tab 1 - Kommunikation
 
 Aktuell verfuegbar:
-- Session-Chat fuer natuerliche Fragen
-- Rueckfrage bei mehrdeutigen Anwendungsreferenzen
-- Rueckfrage bei mehrdeutigen Alias-Aufloesungen aus kuratiertem Wissen
-- codekuratierter Kontextblock fuer Folgefragen inklusive vorheriger Benutzer- und Assistant-Nachrichten
-- Cypher per LLM generieren
+- Session-Chat fuer natuerlichsprachliche Fragen zur IT-Landschaft
+- LLM als Orchestrator: entscheidet eigenstaendig, ob und welche Cypher-Abfrage benoetigt wird
+- `prompt-only`-Modus: LLM gibt Cypher als Textblock aus, Code extrahiert und fuehrt aus (kompatibel mit lokalen Modellen)
+- `tool-use`-Modus: formales Function Calling, LLM kann mehrere Queries pro Turn ausfuehren
+- vollstaendige Gesprächshistorie fuer Folgefragen, Praezisierungen und Kontextwechsel
+- deterministische Alias-Anreicherung: bei leeren Ergebnissen werden bekannte Alternativbegriffe als Hinweise an den LLM mitgegeben
+- Cypher-Retry bei korrigierbaren Syntaxfehlern (bis zu 2 Versuche mit Fehlerfeedback an den LLM)
 - Read-only-Validierung auf verbotene Write-Tokens sowie auf das kanonische Query-Schema aus `graph_schema.py`
-- deterministische Alias-Aufloesung als zweiter Schritt nach einer leeren ersten Query-Ergebnismenge gegen denselben identifizierten Suchbegriff
-- bei genau einem Alias-Ziel wird die urspruengliche Benutzerfrage intern auf den kanonischen Zielbegriff umgeschrieben und genau einmal neu ausgefuehrt
-- der restriktive Fokus-Anker fuer Folgefragen wird dabei nur fuer bereits bestehenden Chat-Kontext verwendet, nicht fuer frisch per Alias aufgeloeste Objekte
-- Query gegen Neo4j ausfuehren
-- Ergebnis in kurze natuerliche Sprache umformulieren
+- Query gegen Neo4j ausfuehren, Ergebnis in natuerliche Sprache umformulieren
 - technische Query-/Validierungsfehler in benutzerverstaendliche Hinweise uebersetzen
 - generierten Cypher als technische Details anzeigen
 
@@ -238,6 +238,7 @@ Aktuell verfuegbar:
 - einzelne BPMN/XML-Dateien vor dem eigentlichen Import in kompakte Transform-Dateien ueberfuehren
 - Fuzzy-Threshold setzen
 - Debug-Modus aktivieren
+- Chat-Modus `prompt-only` oder `tool-use` waehlen
 - Importmodus `full` oder `partial` direkt beim Starten des Imports waehlen
 - Modellliste ueber `/v1/models` abrufen
 - Neo4j-Erreichbarkeit anhand der aktuell wirksamen Konfiguration pruefen

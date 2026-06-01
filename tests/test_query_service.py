@@ -1,0 +1,203 @@
+from __future__ import annotations
+
+import json
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from services.query_service import (
+    _build_llm_history,
+    _extract_cypher_from_response,
+    _format_query_result,
+    _run_tool_use_turn,
+    _EXECUTE_CYPHER_TOOL_SCHEMA,
+)
+
+
+# --- _extract_cypher_from_response ---
+
+def test_extract_cypher_from_response_returns_query_from_fenced_block() -> None:
+    response = "```cypher\nMATCH (p:Prozess) RETURN p.name AS process\n```"
+    assert _extract_cypher_from_response(response) == "MATCH (p:Prozess) RETURN p.name AS process"
+
+
+def test_extract_cypher_from_response_returns_empty_for_plain_text() -> None:
+    assert _extract_cypher_from_response("Es gibt 5 Prozesse.") == ""
+
+
+def test_extract_cypher_from_response_returns_empty_for_empty_string() -> None:
+    assert _extract_cypher_from_response("") == ""
+
+
+def test_extract_cypher_from_response_handles_plain_fence_without_language_tag() -> None:
+    response = "```\nMATCH (a:Anwendung) RETURN a.name AS application\n```"
+    assert _extract_cypher_from_response(response) == "MATCH (a:Anwendung) RETURN a.name AS application"
+
+
+def test_extract_cypher_from_response_ignores_trailing_text_after_block() -> None:
+    response = "```cypher\nMATCH (p:Prozess) RETURN count(p) AS cnt\n```\nDas wird die Anzahl der Prozesse ergeben."
+    result = _extract_cypher_from_response(response)
+    assert result == "MATCH (p:Prozess) RETURN count(p) AS cnt"
+
+
+def test_extract_cypher_from_response_is_case_insensitive_on_fence_tag() -> None:
+    response = "```CYPHER\nMATCH (s:Server) RETURN s.name AS server\n```"
+    assert _extract_cypher_from_response(response) == "MATCH (s:Server) RETURN s.name AS server"
+
+
+# --- _format_query_result ---
+
+def test_format_query_result_includes_rows_as_json() -> None:
+    rows = [{"process": "Bestellabwicklung"}, {"process": "Reklamationsbearbeitung"}]
+    result = _format_query_result(rows, [])
+    assert "[ABFRAGEERGEBNIS]" in result
+    assert "Bestellabwicklung" in result
+    assert "Reklamationsbearbeitung" in result
+
+
+def test_format_query_result_reports_no_results_when_empty() -> None:
+    result = _format_query_result([], [])
+    assert "[ABFRAGEERGEBNIS]" in result
+    assert "Keine Treffer" in result
+
+
+def test_format_query_result_includes_alias_hints_when_empty() -> None:
+    hints = ['"mail" könnte sich auf "Mail System" (Anwendung) beziehen']
+    result = _format_query_result([], hints)
+    assert "Keine Treffer" in result
+    assert "Mail System" in result
+    assert "Hinweis" in result
+
+
+def test_format_query_result_does_not_include_hints_when_rows_present() -> None:
+    rows = [{"process": "Bestellabwicklung"}]
+    hints = ['"mail" könnte sich auf "Mail System" (Anwendung) beziehen']
+    result = _format_query_result(rows, hints)
+    # hints must not appear when we have actual results
+    assert "Mail System" not in result
+
+
+# --- _build_llm_history ---
+
+def test_build_llm_history_returns_role_and_content_only() -> None:
+    messages = [
+        {"role": "user", "content": "Welche Prozesse gibt es?", "cypher_query": "MATCH ...", "rows": []},
+        {"role": "assistant", "content": "Es gibt 5 Prozesse.", "cypher_query": "MATCH ...", "rows": []},
+    ]
+    history = _build_llm_history(messages)
+    assert history == [
+        {"role": "user", "content": "Welche Prozesse gibt es?"},
+        {"role": "assistant", "content": "Es gibt 5 Prozesse."},
+    ]
+
+
+def test_build_llm_history_skips_messages_with_empty_content() -> None:
+    messages = [
+        {"role": "user", "content": ""},
+        {"role": "assistant", "content": "Antwort"},
+    ]
+    history = _build_llm_history(messages)
+    assert history == [{"role": "assistant", "content": "Antwort"}]
+
+
+def test_build_llm_history_trims_to_max_messages() -> None:
+    messages = [{"role": "user", "content": f"Frage {i}"} for i in range(30)]
+    history = _build_llm_history(messages)
+    assert len(history) == 20
+    assert history[0]["content"] == "Frage 10"
+    assert history[-1]["content"] == "Frage 29"
+
+
+def test_build_llm_history_returns_empty_for_no_messages() -> None:
+    assert _build_llm_history([]) == []
+
+
+# --- _run_tool_use_turn ---
+
+def _make_tool_call(call_id: str, query: str) -> dict:
+    return {
+        "id": call_id,
+        "type": "function",
+        "function": {"name": "execute_cypher", "arguments": json.dumps({"query": query})},
+    }
+
+
+def test_run_tool_use_turn_returns_direct_answer_when_no_tool_calls() -> None:
+    llm_client = MagicMock()
+    llm_client.generate_with_tools.return_value = ("Direkte Antwort", [])
+    neo4j_client = MagicMock()
+
+    messages = [{"role": "user", "content": "Frage"}]
+    content, cypher, rows = _run_tool_use_turn(messages, llm_client, neo4j_client)
+
+    assert content == "Direkte Antwort"
+    assert cypher == ""
+    assert rows == []
+    neo4j_client.execute_read.assert_not_called()
+
+
+def test_run_tool_use_turn_executes_single_tool_call_and_returns_answer() -> None:
+    tool_call = _make_tool_call("call_1", "MATCH (p:Prozess) RETURN p.name AS process")
+    rows_result = [{"process": "Bestellabwicklung"}]
+
+    llm_client = MagicMock()
+    llm_client.generate_with_tools.side_effect = [
+        ("", [tool_call]),
+        ("Es gibt einen Prozess.", []),
+    ]
+    neo4j_client = MagicMock()
+    neo4j_client.execute_read.return_value = rows_result
+
+    messages = [{"role": "user", "content": "Welche Prozesse gibt es?"}]
+    content, cypher, rows = _run_tool_use_turn(messages, llm_client, neo4j_client)
+
+    assert content == "Es gibt einen Prozess."
+    assert cypher == "MATCH (p:Prozess) RETURN p.name AS process"
+    assert rows == rows_result
+    neo4j_client.execute_read.assert_called_once()
+
+
+def test_run_tool_use_turn_appends_tool_result_to_messages() -> None:
+    tool_call = _make_tool_call("call_x", "MATCH (p:Prozess) RETURN count(p) AS cnt")
+    llm_client = MagicMock()
+    llm_client.generate_with_tools.side_effect = [
+        ("", [tool_call]),
+        ("Es gibt 5 Prozesse.", []),
+    ]
+    neo4j_client = MagicMock()
+    neo4j_client.execute_read.return_value = [{"cnt": 5}]
+
+    messages: list[dict] = [{"role": "user", "content": "Wie viele Prozesse?"}]
+    _run_tool_use_turn(messages, llm_client, neo4j_client)
+
+    roles = [m["role"] for m in messages]
+    assert "tool" in roles
+    tool_msg = next(m for m in messages if m["role"] == "tool")
+    assert tool_msg["tool_call_id"] == "call_x"
+    assert "[ABFRAGEERGEBNIS]" in tool_msg["content"]
+
+
+def test_run_tool_use_turn_handles_unknown_tool_gracefully() -> None:
+    tool_call = {"id": "call_u", "type": "function", "function": {"name": "unknown_tool", "arguments": "{}"}}
+    llm_client = MagicMock()
+    llm_client.generate_with_tools.side_effect = [
+        ("", [tool_call]),
+        ("Konnte nicht ausfuehren.", []),
+    ]
+    neo4j_client = MagicMock()
+
+    messages = [{"role": "user", "content": "test"}]
+    content, _, _ = _run_tool_use_turn(messages, llm_client, neo4j_client)
+
+    assert content == "Konnte nicht ausfuehren."
+    neo4j_client.execute_read.assert_not_called()
+    tool_msg = next(m for m in messages if m["role"] == "tool")
+    assert "Unknown tool" in tool_msg["content"]
+
+
+def test_execute_cypher_tool_schema_has_required_structure() -> None:
+    assert _EXECUTE_CYPHER_TOOL_SCHEMA["type"] == "function"
+    fn = _EXECUTE_CYPHER_TOOL_SCHEMA["function"]
+    assert fn["name"] == "execute_cypher"
+    assert "query" in fn["parameters"]["properties"]
+    assert "query" in fn["parameters"]["required"]

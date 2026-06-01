@@ -118,6 +118,66 @@ class OpenAICompatibleClient:
         )
         return content
 
+    def generate_chat(self, messages: list[dict[str, str]]) -> str:
+        self._log_debug(
+            "llm_request",
+            {
+                "attempt": 1,
+                "model": self._config.model,
+                "response_format": None,
+                "messages": messages,
+            },
+        )
+        content = self._generate_content_from_messages(messages)
+        self._log_debug(
+            "llm_response",
+            {
+                "attempt": 1,
+                "model": self._config.model,
+                "content": content,
+            },
+        )
+        return content
+
+    def generate_with_tools(
+        self,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]],
+    ) -> tuple[str, list[dict[str, Any]]]:
+        payload: dict[str, Any] = {
+            "model": self._config.model,
+            "messages": messages,
+            "tools": tools,
+            "tool_choice": "auto",
+        }
+        self._log_debug(
+            "llm_request",
+            {
+                "attempt": 1,
+                "model": self._config.model,
+                "response_format": None,
+                "messages": messages,
+                "tools": tools,
+            },
+        )
+        response = self._request("POST", "/chat/completions", payload)
+        try:
+            message = response["choices"][0]["message"]
+        except (KeyError, IndexError, TypeError) as exc:
+            raise LlmClientError("LLM response did not contain a chat completion message.") from exc
+        content = message.get("content") or ""
+        tool_calls = message.get("tool_calls") or []
+        self._log_debug(
+            "llm_response",
+            {
+                "attempt": 1,
+                "model": self._config.model,
+                "content": content,
+                "tool_calls": tool_calls,
+            },
+        )
+        return content, tool_calls
+
     def _generate_content(
         self,
         system_prompt: str,
@@ -274,4 +334,5 @@ __all__ = [
     "OpenAICompatibleClient",
     "_extract_json_object",
     "_parse_json_content",
+    "generate_chat",
 ]

@@ -1,65 +1,92 @@
 from __future__ import annotations
 
+import json
 import re
 
 from app_config import AppConfig, resolve_project_path
+from graph_schema import build_query_schema_reference
 from llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleClient
 from neo4j_utils import Neo4jConnectionError, Neo4jQueryError, QueryValidationError
-from query_layer import build_natural_language_answer, generate_cypher_from_question
 from services.alias_service import lookup_alias_matches
 from services.runtime_service import (
-    CHAT_FOCUS_ENTITY_STATE_KEY,
     CHAT_MESSAGES_STATE_KEY,
-    CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY,
-    CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY,
     append_chat_message,
     get_session_neo4j_client,
     write_debug_log,
 )
 import streamlit as st
 
-NAME_LOOKUP_LABELS = ("Prozess", "Anwendung", "Schnittstelle", "Server", "OrgEinheit")
-MAX_QUERY_CONTEXT_MESSAGES = 10
+MAX_HISTORY_MESSAGES = 20
+MAX_CYPHER_RETRIES = 2
+MAX_TOOL_CALLS_PER_TURN = 5
 
+_EXECUTE_CYPHER_TOOL_SCHEMA: dict = {
+    "type": "function",
+    "function": {
+        "name": "execute_cypher",
+        "description": (
+            "Execute a read-only Cypher query against the enterprise architecture knowledge graph. "
+            "Returns matching rows as a JSON array. On empty results may include alias hints."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "A valid, read-only Cypher MATCH...RETURN statement.",
+                }
+            },
+            "required": ["query"],
+        },
+    },
+}
 
-def handle_query_clarification(user_message: str, config: AppConfig, options: list[str]) -> None:
-    from query_layer import resolve_application_clarification
+_PROMPT_ONLY_QUERY_PROTOCOL = (
+    "## How to query the graph\n"
+    "\n"
+    "When you need data from the graph to answer a question, output a single read-only Cypher\n"
+    "query in a fenced code block and nothing else:\n"
+    "\n"
+    "```cypher\n"
+    "MATCH ...\n"
+    "RETURN ...\n"
+    "```\n"
+    "\n"
+    "The query will be executed and the result returned to you as the next message. You then\n"
+    "formulate your final answer based on that result.\n"
+    "\n"
+    "Rules for this protocol:\n"
+    "- When outputting a query, output ONLY the ```cypher block — no explanation, no partial\n"
+    "  answer, no surrounding text.\n"
+    "- Output at most one ```cypher block per response.\n"
+    "- After receiving the result, formulate your answer in natural language without any\n"
+    "  ```cypher block. Do not mention Cypher, Neo4j, databases, or technical internals.\n"
+    "- If the result is empty and alias hints are provided in the result message, use them to\n"
+    "  decide whether to re-query with the canonical name or ask the user to clarify.\n"
+    "- If you do not need to query the graph (clarification question, or enough context is\n"
+    "  already in the conversation), respond directly without any ```cypher block."
+)
 
-    resolved_option = resolve_application_clarification(user_message, options)
-    if resolved_option is None:
-        append_chat_message(
-            "assistant",
-            "Ich konnte Ihre Praezisierung noch nicht eindeutig zuordnen. Bitte nennen Sie genau eines dieser Objekte: "
-            + ", ".join(options),
-        )
-        return
-
-    original_question = st.session_state.get(CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY, "")
-    resolved_type, resolved_name = parse_lookup_option_label(resolved_option)
-    focus_entity = {
-        "entity_type": resolved_type,
-        "entity_name": resolved_name,
-    }
-    resolved_id = extract_entity_id_reference(user_message)
-    if resolved_id:
-        focus_entity["entity_id"] = resolved_id
-    update_chat_focus_entity(focus_entity)
-    clarified_question = (
-        f"{original_question}\n"
-        f'Die Rueckfrage wurde so praezisiert: Gemeint ist genau das Objekt vom Typ "{resolved_type}" mit Namen "{resolved_name}".'
-    )
-    if resolved_id:
-        clarified_question += f'\nDie Praezisierung nennt zusaetzlich die ID "{resolved_id}".'
-    st.session_state[CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY] = []
-    st.session_state[CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY] = ""
-    run_query_chat_turn(clarified_question, config)
+_TOOL_USE_QUERY_PROTOCOL = (
+    "## How to query the graph\n"
+    "\n"
+    "When you need data from the graph to answer a question, call the `execute_cypher` tool\n"
+    "with a read-only Cypher query. The tool returns the matching rows as a JSON array.\n"
+    "\n"
+    "Rules for this protocol:\n"
+    "- Call the tool only when you actually need graph data — not for clarification questions.\n"
+    "- You may call the tool multiple times per turn if you need to refine or follow up.\n"
+    "- After receiving the result, formulate your final answer in natural language.\n"
+    "- Do not mention the tool, Cypher, Neo4j, databases, or technical internals in your answer.\n"
+    "- If the result is empty and alias hints are provided, use them to refine your query\n"
+    "  or ask the user to clarify.\n"
+    "- If you do not need to query the graph, respond directly without calling the tool."
+)
 
 
 def run_query_chat_turn(question: str, config: AppConfig) -> None:
-    from query_layer import find_application_ambiguity_options
-
     cypher_query = ""
-    alias_resolution: dict[str, str] = {}
+    rows: list[dict] = []
     try:
         llm_client = OpenAICompatibleClient(
             LlmClientConfig(
@@ -71,401 +98,210 @@ def run_query_chat_turn(question: str, config: AppConfig) -> None:
             )
         )
         neo4j_client = get_session_neo4j_client(config)
-        existing_focus_entity = st.session_state.get(CHAT_FOCUS_ENTITY_STATE_KEY, {})
-        name_lookup = resolve_name_lookup(question, neo4j_client)
-        if name_lookup["mode"] == "ambiguous":
-            options = name_lookup["options"]
-            st.session_state[CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY] = options
-            st.session_state[CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY] = question
-            append_chat_message(
-                "assistant",
-                "Ich habe mehrere passende Objekte gefunden: "
-                + ", ".join(options)
-                + ". Welches meinen Sie?",
-                rows=name_lookup["rows"],
-            )
-            return
 
-        effective_question = question
-        if name_lookup["mode"] == "resolved":
-            update_chat_focus_entity(
-                {
-                    "entity_type": name_lookup["entity_type"],
-                    "entity_name": name_lookup["entity_name"],
-                }
-            )
-            effective_question = (
-                f"{question}\n"
-                f'Die Namensreferenz wurde vorab eindeutig aufgeloest: Gemeint ist das Objekt vom Typ "{name_lookup["entity_type"]}" '
-                f'mit Namen "{name_lookup["entity_name"]}".'
-            )
-        conversation_messages = build_query_conversation_messages()
-        focus_entity = st.session_state.get(CHAT_FOCUS_ENTITY_STATE_KEY, {})
-        if existing_focus_entity:
-            effective_question += (
-                "\n"
-                "Behandle das aktuell fokussierte Objekt als primaeren Bezugsanker. "
-                "Weiche nicht auf semantisch benachbarte Objekte wie Prozesse, Server oder Schnittstellen aus, "
-                "wenn die aktuelle Frage nicht ausdruecklich nach solchen Beziehungen fragt."
-            )
-        cypher_query = generate_cypher_from_question(
-            question=effective_question,
-            llm_client=llm_client,
-            prompt_path=resolve_project_path("prompts/cypher_gen.md"),
-            conversation_messages=conversation_messages,
-            focus_entity=focus_entity,
+        system_prompt = _build_chat_system_prompt(config)
+        all_messages = st.session_state.get(CHAT_MESSAGES_STATE_KEY, [])
+        # Exclude the last message: query_tab already appended the current user question
+        # before calling this function; we add it explicitly below to avoid duplication.
+        history = _build_llm_history(all_messages[:-1] if all_messages else [])
+        turn_messages: list[dict] = (
+            [{"role": "system", "content": system_prompt}]
+            + history
+            + [{"role": "user", "content": question}]
         )
-        rows = neo4j_client.execute_read(cypher_query)
-        if not rows:
-            alias_retry = resolve_alias_retry_from_empty_result(question, cypher_query, neo4j_client)
-            if alias_retry["mode"] == "ambiguous":
-                options = alias_retry["options"]
-                st.session_state[CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY] = options
-                st.session_state[CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY] = question
-                append_chat_message(
-                    "assistant",
-                    f'"{alias_retry["lookup_term"]}" kann stehen fuer: '
-                    + ", ".join(options)
-                    + ". Welches meinen Sie?",
-                    cypher_query=cypher_query,
-                    rows=alias_retry["rows"],
-                )
-                return
-            if alias_retry["mode"] == "resolved":
-                alias_resolution = alias_retry
-                focus_entity = {
-                    "entity_type": alias_retry["entity_type"],
-                    "entity_name": alias_retry["entity_name"],
-                }
-                if alias_retry.get("entity_id"):
-                    focus_entity["entity_id"] = alias_retry["entity_id"]
-                update_chat_focus_entity(focus_entity)
-                effective_question = build_alias_retry_question(question, alias_retry)
-                if alias_retry.get("entity_id"):
-                    effective_question += f'\nDie Alias-Aufloesung nennt zusaetzlich die ID "{alias_retry["entity_id"]}".'
-                if existing_focus_entity:
-                    effective_question += (
-                        "\n"
-                        "Behandle das aktuell fokussierte Objekt als primaeren Bezugsanker. "
-                        "Weiche nicht auf semantisch benachbarte Objekte wie Prozesse, Server oder Schnittstellen aus, "
-                        "wenn die aktuelle Frage nicht ausdruecklich nach solchen Beziehungen fragt."
-                    )
-                cypher_query = generate_cypher_from_question(
-                    question=effective_question,
-                    llm_client=llm_client,
-                    prompt_path=resolve_project_path("prompts/cypher_gen.md"),
-                    conversation_messages=conversation_messages,
-                    focus_entity=focus_entity,
-                )
-                rows = neo4j_client.execute_read(cypher_query)
-        answer_text = build_natural_language_answer(
-            question=question,
-            cypher_query=cypher_query,
-            rows=rows,
-            llm_client=llm_client,
-            prompt_path=resolve_project_path("prompts/answer_query.md"),
-        )
-        if alias_resolution:
-            answer_text = build_alias_resolution_answer_prefix(alias_resolution) + " " + answer_text
+
+        if config.chat_mode == "tool-use":
+            final_response, cypher_query, rows = _run_tool_use_turn(
+                turn_messages, llm_client, neo4j_client
+            )
+        else:
+            final_response, cypher_query, rows = _run_prompt_only_turn(
+                turn_messages, llm_client, neo4j_client
+            )
+
     except (LlmClientError, Neo4jConnectionError, Neo4jQueryError, QueryValidationError) as exc:
         write_debug_log(
             config,
             "query_error",
             {"question": question, "cypher_query": cypher_query, "error": str(exc)},
         )
-        append_chat_message("assistant", translate_query_error_for_user(exc), cypher_query=cypher_query)
+        append_chat_message("assistant", _translate_error_for_user(exc), cypher_query=cypher_query)
         return
 
-    ambiguity_options = find_application_ambiguity_options(question, rows)
-    if ambiguity_options:
-        st.session_state[CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY] = ambiguity_options
-        st.session_state[CHAT_PENDING_ORIGINAL_QUESTION_STATE_KEY] = question
-        append_chat_message(
-            "assistant",
-            "Ich habe mehrere passende Anwendungen gefunden: "
-            + ", ".join(ambiguity_options)
-            + ". Welche meinen Sie?",
-            cypher_query=cypher_query,
-            rows=rows,
-        )
-        return
-
-    append_chat_message("assistant", answer_text, cypher_query=cypher_query, rows=rows)
+    append_chat_message("assistant", final_response.strip(), cypher_query=cypher_query, rows=rows)
 
 
-def resolve_name_lookup(question: str, neo4j_client) -> dict:
-    lookup_name = extract_name_lookup_term(question)
-    if not lookup_name:
-        return {"mode": "skip"}
+def _run_prompt_only_turn(
+    turn_messages: list[dict],
+    llm_client: OpenAICompatibleClient,
+    neo4j_client,
+) -> tuple[str, str, list[dict]]:
+    response = llm_client.generate_chat(turn_messages)
+    cypher_query = _extract_cypher_from_response(response)
 
-    exact_rows = run_name_lookup_query(neo4j_client, lookup_name, exact_match=True)
-    if exact_rows:
-        if len(exact_rows) == 1:
-            return {"mode": "resolved", **exact_rows[0]}
-        return {
-            "mode": "ambiguous",
-            "options": build_lookup_option_labels(exact_rows),
-            "rows": exact_rows,
-        }
+    if not cypher_query:
+        return response.strip(), "", []
 
-    contains_rows = run_name_lookup_query(neo4j_client, lookup_name, exact_match=False)
-    if not contains_rows:
-        return {"mode": "skip"}
-    if len(contains_rows) == 1:
-        return {"mode": "resolved", **contains_rows[0]}
-    return {
-        "mode": "ambiguous",
-        "options": build_lookup_option_labels(contains_rows),
-        "rows": contains_rows,
-    }
+    turn_messages.append({"role": "assistant", "content": response})
+    rows: list[dict] = []
+    for attempt in range(MAX_CYPHER_RETRIES):
+        try:
+            rows = neo4j_client.execute_read(cypher_query)
+            break
+        except (QueryValidationError, Neo4jQueryError) as exc:
+            if attempt == MAX_CYPHER_RETRIES - 1:
+                raise
+            error_feedback = (
+                f"[ABFRAGEFEHLER]\n{str(exc)[:300]}\n\n"
+                "Bitte korrigiere die Cypher-Abfrage und gib nur den korrigierten ```cypher-Block aus."
+            )
+            turn_messages.append({"role": "user", "content": error_feedback})
+            response = llm_client.generate_chat(turn_messages)
+            cypher_query = _extract_cypher_from_response(response) or cypher_query
+            turn_messages.append({"role": "assistant", "content": response})
+
+    alias_hints: list[str] = []
+    if not rows:
+        alias_hints = _collect_alias_hints(cypher_query, neo4j_client)
+
+    result_message = _format_query_result(rows, alias_hints)
+    turn_messages.append({"role": "user", "content": result_message})
+    final_response = llm_client.generate_chat(turn_messages)
+    return final_response, cypher_query, rows
 
 
-def extract_name_lookup_term(question: str) -> str:
-    normalized_question = question.strip()
-    patterns = (
-        r"(?i)^was wei(?:ß|ss)t du über\s+(.+?)\??$",
-        r"(?i)^gibt es\s+(?:bei|zu)?\s*(.+?)\??$",
-        r"(?i)^ich meinte\s+(.+?)\??$",
-        r"(?i)^gemeint ist\s+(.+?)\??$",
-        r"(?i)^ist\s+(.+?)\s+(?:relevant|bekannt|vorhanden)\??$",
-        r"(?i)^wer verantwortet\s+(.+?)\??$",
-        r"(?i)^welche prozesse (?:hängen an|haengen an|nutzen|verwenden)\s+(.+?)\??$",
-        r"(?i)^wo wird\s+(.+?)\s+genutzt\??$",
-        r"(?i)^was kannst du mir über\s+(.+?)\s+sagen\??$",
+def _run_tool_use_turn(
+    turn_messages: list[dict],
+    llm_client: OpenAICompatibleClient,
+    neo4j_client,
+) -> tuple[str, str, list[dict]]:
+    cypher_query = ""
+    rows: list[dict] = []
+
+    for _ in range(MAX_TOOL_CALLS_PER_TURN):
+        content, tool_calls = llm_client.generate_with_tools(turn_messages, [_EXECUTE_CYPHER_TOOL_SCHEMA])
+
+        if not tool_calls:
+            return content or "", cypher_query, rows
+
+        turn_messages.append({"role": "assistant", "content": content or None, "tool_calls": tool_calls})
+
+        for tool_call in tool_calls:
+            tool_call_id = tool_call.get("id", "")
+            fn = tool_call.get("function", {})
+
+            if fn.get("name") != "execute_cypher":
+                turn_messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call_id,
+                    "content": '{"error": "Unknown tool"}',
+                })
+                continue
+
+            try:
+                args = json.loads(fn.get("arguments", "{}"))
+                cypher_query = args.get("query", "").strip()
+            except (json.JSONDecodeError, AttributeError):
+                cypher_query = ""
+
+            if not cypher_query:
+                turn_messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call_id,
+                    "content": '{"error": "No query provided"}',
+                })
+                continue
+
+            try:
+                rows = neo4j_client.execute_read(cypher_query)
+                alias_hints = _collect_alias_hints(cypher_query, neo4j_client) if not rows else []
+                result = _format_query_result(rows, alias_hints)
+            except (QueryValidationError, Neo4jQueryError) as exc:
+                result = json.dumps({"error": str(exc)[:300]}, ensure_ascii=False)
+                rows = []
+
+            turn_messages.append({
+                "role": "tool",
+                "tool_call_id": tool_call_id,
+                "content": result,
+            })
+
+    # Exhausted tool call budget — request final text answer
+    content, _ = llm_client.generate_with_tools(turn_messages, [_EXECUTE_CYPHER_TOOL_SCHEMA])
+    return content or "", cypher_query, rows
+
+
+def _build_chat_system_prompt(config: AppConfig) -> str:
+    template = resolve_project_path("prompts/chat_system.md").read_text(encoding="utf-8")
+    protocol = _TOOL_USE_QUERY_PROTOCOL if config.chat_mode == "tool-use" else _PROMPT_ONLY_QUERY_PROTOCOL
+    return (
+        template
+        .replace("{GRAPH_QUERY_PROTOCOL}", protocol)
+        .replace("{GRAPH_SCHEMA_REFERENCE}", build_query_schema_reference())
     )
-    for pattern in patterns:
-        match = re.match(pattern, normalized_question)
-        if match:
-            candidate = match.group(1).strip().strip("\"'` ")
-            candidate = candidate.rstrip("?.!,;:")
-            candidate = re.sub(r"(?i)^(der|die|das|den|dem|des|ein|eine|einen|einem|einer)\s+", "", candidate)
-            return candidate.strip().strip("\"'` ")
-    return ""
 
 
-def run_name_lookup_query(neo4j_client, lookup_name: str, exact_match: bool) -> list[dict]:
-    branches: list[str] = []
-    parameters = {"lookup_name": lookup_name}
-    if exact_match:
-        predicate = "n.name = $lookup_name"
-    else:
-        predicate = "toLower(n.name) CONTAINS toLower($lookup_name)"
-    for label in NAME_LOOKUP_LABELS:
-        branches.append(
-            f"MATCH (n:{label}) WHERE {predicate} RETURN '{label}' AS entity_type, n.name AS entity_name"
-        )
-    query = "\nUNION ALL\n".join(branches) + "\nORDER BY entity_type, entity_name"
-    return neo4j_client.execute_read(query, parameters)
+def _build_llm_history(chat_messages: list[dict]) -> list[dict[str, str]]:
+    result = []
+    for msg in chat_messages[-MAX_HISTORY_MESSAGES:]:
+        role = str(msg.get("role", "")).strip()
+        content = str(msg.get("content", "")).strip()
+        if role and content:
+            result.append({"role": role, "content": content})
+    return result
 
 
-def build_lookup_option_labels(rows: list[dict]) -> list[str]:
-    return [
-        f'{row.get("entity_type", "Objekt")}: {row.get("entity_name", "")}'
-        for row in rows
-        if row.get("entity_name")
-    ]
-
-
-def parse_lookup_option_label(option_label: str) -> tuple[str, str]:
-    if ":" not in option_label:
-        return "Objekt", option_label.strip()
-    entity_type, entity_name = option_label.split(":", 1)
-    return entity_type.strip(), entity_name.strip()
-
-
-def extract_entity_id_reference(text: str) -> str:
-    match = re.search(r'(?i)\bid\s+"?([a-z0-9][a-z0-9_-]*)"?', text)
-    if match is None:
+def _extract_cypher_from_response(response_text: str) -> str:
+    match = re.search(r"```(?:cypher)?\s*\n(.*?)```", response_text, re.DOTALL | re.IGNORECASE)
+    if not match:
         return ""
     return match.group(1).strip()
 
 
-def resolve_alias_retry_from_empty_result(question: str, cypher_query: str, neo4j_client) -> dict:
-    lookup_term = identify_alias_lookup_term(question, cypher_query)
-    if not lookup_term:
-        return {"mode": "skip"}
+def _collect_alias_hints(cypher_query: str, neo4j_client) -> list[str]:
+    hints: list[str] = []
+    seen: set[str] = set()
+    for term in re.findall(r"'([^']{2,})'", cypher_query):
+        for row in lookup_alias_matches(neo4j_client, term):
+            entity_name = str(row.get("entity_name", "")).strip()
+            entity_type = str(row.get("entity_type", "")).strip()
+            key = f"{entity_type}:{entity_name}"
+            if key not in seen and entity_name and entity_type:
+                hints.append(f'"{term}" könnte sich auf "{entity_name}" ({entity_type}) beziehen')
+                seen.add(key)
+    return hints
 
-    alias_rows: list[dict] = []
-    seen_targets: set[tuple[str, str, str]] = set()
-    for row in lookup_alias_matches(neo4j_client, lookup_term):
-        target_key = (
-            str(row.get("entity_type", "")).strip(),
-            str(row.get("entity_name", "")).strip(),
-            str(row.get("entity_id", "")).strip(),
+
+def _format_query_result(rows: list[dict], alias_hints: list[str]) -> str:
+    if rows:
+        return f"[ABFRAGEERGEBNIS]\n{json.dumps(rows, ensure_ascii=False, indent=2)}"
+    if alias_hints:
+        hints_text = "\n".join(f"- {h}" for h in alias_hints)
+        return (
+            f"[ABFRAGEERGEBNIS]\nKeine Treffer.\n\n"
+            f"Hinweis — mögliche Alternativbegriffe im Wissensgraphen:\n{hints_text}"
         )
-        if not target_key[0] or not target_key[1] or target_key in seen_targets:
-            continue
-        seen_targets.add(target_key)
-        alias_rows.append(row)
-    if not alias_rows:
-        return {"mode": "skip"}
-    if len(alias_rows) == 1:
-        result = {"mode": "resolved", "lookup_term": lookup_term, **alias_rows[0]}
-        if not result.get("entity_id"):
-            result.pop("entity_id", None)
-        return result
-    return {
-        "mode": "ambiguous",
-        "lookup_term": lookup_term,
-        "options": build_lookup_option_labels(alias_rows),
-        "rows": alias_rows,
-    }
+    return "[ABFRAGEERGEBNIS]\nKeine Treffer."
 
 
-def identify_alias_lookup_term(question: str, cypher_query: str) -> str:
-    lookup_term = extract_name_lookup_term(question)
-    if lookup_term:
-        return lookup_term
-    lookup_terms = extract_lookup_terms_from_cypher(cypher_query)
-    return lookup_terms[0] if lookup_terms else ""
-
-
-def extract_lookup_terms_from_cypher(cypher_query: str) -> list[str]:
-    terms: list[str] = []
-    for term in re.findall(r"'([^']+)'", cypher_query):
-        cleaned_term = term.strip()
-        if not cleaned_term or cleaned_term in terms:
-            continue
-        if len(cleaned_term) < 2:
-            continue
-        terms.append(cleaned_term)
-    return terms
-
-
-def build_alias_resolution_answer_prefix(alias_resolution: dict[str, str]) -> str:
-    lookup_term = str(alias_resolution.get("lookup_term", "")).strip()
-    entity_name = str(alias_resolution.get("entity_name", "")).strip()
-    if not lookup_term or not entity_name:
-        return ""
-    return (
-        f'"{lookup_term}" kann laut den mir vorliegenden Informationen auch "{entity_name}" meinen.'
-    )
-
-
-def build_alias_retry_question(question: str, alias_resolution: dict[str, str]) -> str:
-    lookup_term = str(alias_resolution.get("lookup_term", "")).strip()
-    entity_name = str(alias_resolution.get("entity_name", "")).strip()
-    if not lookup_term or not entity_name:
-        return question
-
-    rewritten_question = question
-    replacements = 0
-    phrase_pattern = re.compile(
-        rf"(?i)\b(?:der|die|das|den|dem|des|ein|eine|einen|einem|einer)\s+{re.escape(lookup_term)}\b"
-    )
-    rewritten_question, replacements = phrase_pattern.subn(entity_name, rewritten_question, count=1)
-    if replacements == 0:
-        pattern = re.compile(re.escape(lookup_term), re.IGNORECASE)
-        rewritten_question, replacements = pattern.subn(entity_name, rewritten_question, count=1)
-    if replacements == 0:
-        rewritten_question = question
-    return rewritten_question
-
-
-def build_follow_up_query_context(question: str) -> str:
-    if not should_use_follow_up_context(question):
-        return ""
-
-    messages = st.session_state.get(CHAT_MESSAGES_STATE_KEY, [])
-    last_user_message = ""
-    last_assistant_message = ""
-
-    for message in reversed(messages[:-1]):
-        role = message.get("role", "")
-        content = str(message.get("content", "")).strip()
-        if role == "assistant" and not last_assistant_message and content:
-            last_assistant_message = content
-            continue
-        if role == "user" and content:
-            last_user_message = content
-            break
-
-    if not last_user_message and not last_assistant_message:
-        return ""
-
-    context_lines: list[str] = []
-    if last_user_message:
-        context_lines.append(f"Previous user question: {last_user_message}")
-    if last_assistant_message:
-        context_lines.append(f"Previous assistant answer: {last_assistant_message}")
-    return "\n".join(context_lines)
-
-
-def build_query_conversation_messages() -> list[dict[str, str]]:
-    messages = st.session_state.get(CHAT_MESSAGES_STATE_KEY, [])
-    recent_messages = messages[:-1][-MAX_QUERY_CONTEXT_MESSAGES:]
-    return [
-        {
-            "role": str(message.get("role", "")).strip(),
-            "content": str(message.get("content", "")).strip(),
-        }
-        for message in recent_messages
-        if str(message.get("content", "")).strip()
-    ]
-
-
-def update_chat_focus_entity(focus_entity: dict[str, str]) -> None:
-    st.session_state[CHAT_FOCUS_ENTITY_STATE_KEY] = {
-        key: str(value).strip()
-        for key, value in focus_entity.items()
-        if str(value).strip()
-    }
-
-
-def should_use_follow_up_context(question: str) -> bool:
-    normalized_question = question.casefold().strip()
-    follow_up_markers = (
-        "wieviele sind das",
-        "wie viele sind das",
-        "jeweils",
-        "davon",
-        "und welche",
-        "welche davon",
-        "diese",
-        "die beiden",
-        "die zwei",
-        "was davon",
-    )
-    return any(marker in normalized_question for marker in follow_up_markers)
-
-
-def translate_query_error_for_user(exc: Exception) -> str:
-    error_text = str(exc).strip()
-    normalized_text = error_text.casefold()
-
+def _translate_error_for_user(exc: Exception) -> str:
     if isinstance(exc, QueryValidationError):
-        if "multiple statements" in normalized_text:
+        normalized = str(exc).casefold()
+        if "multiple statements" in normalized:
             return (
                 "Ich konnte die Frage noch nicht in eine konsistente Abfrage uebersetzen. "
                 "Bitte formulieren Sie die Frage etwas konkreter oder stellen Sie Teilfragen nacheinander."
             )
-        if "union branches must return the same column aliases in the same order" in normalized_text:
-            return (
-                "Ich konnte die Teilaspekte Ihrer Frage noch nicht in einer sauberen Gesamtabfrage zusammenfuehren. "
-                "Bitte teilen Sie die Frage bei Bedarf in zwei einfachere Schritte auf."
-            )
-        if "forbidden token" in normalized_text:
+        if "forbidden token" in normalized:
             return (
                 "Ich kann hier nur lesend auf den Wissensgraphen zugreifen. "
                 "Die Frage wurde intern noch nicht passend in eine reine Leseabfrage uebersetzt."
             )
-        return (
-            "Ich konnte aus Ihrer Frage noch keine gueltige Abfrage fuer den Wissensgraphen ableiten."
-        )
-
+        return "Ich konnte aus Ihrer Frage noch keine gueltige Abfrage fuer den Wissensgraphen ableiten."
     if isinstance(exc, Neo4jQueryError):
-        return (
-            "Ich konnte die Frage auf Basis des aktuellen Wissensgraphen noch nicht korrekt auswerten."
-        )
-
+        return "Ich konnte die Frage auf Basis des aktuellen Wissensgraphen noch nicht korrekt auswerten."
     if isinstance(exc, Neo4jConnectionError):
-        return (
-            "Ich kann den Wissensgraphen im Moment nicht erreichen. Bitte pruefen Sie die Neo4j-Verbindung in der Konfiguration."
-        )
-
+        return "Ich kann den Wissensgraphen im Moment nicht erreichen. Bitte pruefen Sie die Neo4j-Verbindung in der Konfiguration."
     if isinstance(exc, LlmClientError):
-        return (
-            "Ich konnte die Frage im Moment nicht zuverlaessig verarbeiten. Bitte versuchen Sie es erneut oder formulieren Sie sie etwas konkreter."
-        )
-
+        return "Ich konnte die Frage im Moment nicht zuverlaessig verarbeiten. Bitte versuchen Sie es erneut oder formulieren Sie sie etwas konkreter."
     return "Die Anfrage konnte im Moment nicht verarbeitet werden."

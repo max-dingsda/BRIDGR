@@ -23,5 +23,6 @@
   "cmdb_filename": "cmdb_entities.csv",
   "output_path": "F:/workspace/BRIDGR/Output",
   "last_run_mode": "partial",
+  "chat_mode": "tool-use",
   "debug_mode": true
 }

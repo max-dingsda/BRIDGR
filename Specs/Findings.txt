@@ -1,89 +1,21 @@
-1. Die Tabs sollten nur Ihre Namen enthalten, nicht die Bezeichnung "Tab1" etc. - erledigt
-2. In Tab3 sollten die auswaehlbaren Pfade zusaetzlich zur manuellen Eingabe einen klickbaren Auswahldialog ermoeglichen - erledigt
-3. warum ist die input struktur geteilt in /input fuer prozesse und /data fuer cmdb eintraege? aus benutzersicht ergibt es keinen sinn. fuer den benutzer sollte es nur einen pfad geben wo er seinen input ablegt, egal ob es aus dem prozessmanagementtool oder der cmdb kommt - erledigt
-4. im konfigurations-tab sollten die bereiche fuer konfig und import in der reihenfolge getauscht werden. ausser beim initialen load wird i.d.r eher in import veranlasst als eine konfig-aenderung. wenn technisch moeglich, waere es auch schoen, die bereiche einklappbar (und inital eingeklappt) zu machen. - erledigt
-5. Dort wo die Pipeline gestartet wird gehoert auch eine Moeglichkeit hin, den Importmodus (Initial, Full, Delta) festzulegen - erledigt
-6. das auswahlmenue fuer prozesse oeffnet sich in /data/input, sollte aber /input sein - erledigt
-7. das eingabefeld auf der seite "Kommunikation" sollte, wenn im fokus, auf druecken der ENTER-Taste reagieren - erledigt
-8. Eine UI-Aktion zum Leeren der KB gesamt, confirmed oder rejected waere hilfreich, um das manuelle Editieren der JSON files zu vermeiden, was grad bei grossen Prozessmodellen und/oder CMDBs sehr aufwaendig werden kann - erledigt
-9. Bei generischen Suchbegriffen wie `mail` antwortet Tab 1 derzeit zu grob und fasst unterschiedliche Anwendungen unter einem unscharfen Sammelbegriff zusammen. Erwartet ist eine differenzierte Antwort, die konkrete Anwendungen getrennt behandelt oder bei Mehrdeutigkeit explizit darauf hinweist, dass mehrere unterschiedliche Treffer vorliegen. - erledigt
-10. Wenn eine Anwendung aus einer Prozessbeschreibung verschwindet oder durch eine andere ersetzt wird, werden bestehende Prozess-Anwendungs-Beziehungen in Neo4j derzeit nicht zuverlaessig bereinigt. Der Graph kann dadurch veraltete `NUTZT`-Kanten behalten, obwohl sie im aktuellen Importstand fachlich nicht mehr gueltig sind. Erwartet ist ein idempotentes Update-Verhalten, bei dem nicht mehr bestaetigte Beziehungen im Rahmen von Full- oder Delta-Updates konsistent entfernt oder angepasst werden. - erledigt
-11. Die Chat-Oberflaeche braucht eine explizite UI-Aktion, um den Gespraechskontext zu leeren und ein neues Gespraech zu beginnen. Nicht jede Folgefrage soll im Kontext der bisherigen Unterhaltung interpretiert werden. Erwartet ist daher ein klar sichtbarer Reset- oder "Neues Gespraech"-Button. - erledigt
-12. Ein sinnvolles weiteres Importformat waere ODF/ODT. Erwartet ist eine Behandlung analog zu den bereits unterstuetzten textnahen Formaten, soweit sich der Dokumenttext daraus stabil extrahieren laesst.
-13. Der Importer setzt beim Prozessimport `org_einheit` derzeit teils aus Rollenbezeichnungen wie `Marketing Manager`, `People & Culture Specialist` oder `Führungskraft` ab. Fachlich muss zwischen Rollen und echten Organisationseinheiten unterschieden werden. Erwartet ist daher eine saubere Trennung bzw. ein explizites Modell dafuer, statt Rollen stillschweigend als Org-Einheiten zu uebernehmen. - erledigt
-14. Wenn die Pipeline kurz nacheinander mehrfach gestartet wird, bleibt die Erfolgsmeldung des vorherigen Laufs waehrend des neuen Laufs sichtbar. Das ist irrefuehrend, weil der Eindruck entsteht, der aktuelle Lauf sei bereits abgeschlossen. Erwartet ist, dass vergangene Erfolgsmeldungen beim Start eines neuen Laufs sofort ausgeblendet oder durch einen aktiven Laufstatus ersetzt werden. Sinnvoll waere zusaetzlich eine Fortschrittsanzeige wie `x von y Dateien bearbeitet`. - erledigt
-15. Im Log sieht man einzelne unsaubere `prozess_id`-Rueckgaben des Modells. Beispiele sind verlorene fuehrende `_` oder veraenderte Zeichenfolgen wie `_cd26e6af-...` -> `c d26e6af-...`. Das blockiert den aktuellen Matching-Lauf nicht zwingend, ist aber fuer stabile Prozessidentitaet, Delta-Logik und spaetere Re-Imports riskant. Erwartet ist, dass die `prozess_id` entweder unveraendert aus dem Input uebernommen oder technisch vor dem Persistieren gegen den Quellwert abgesichert wird. - erledigt
-16. Beim Start eines Pipeline-Preview-Laufs fehlt derzeit eine belastbare Fortschrittsanzeige. Gerade bei umfangreichen Matching-Laeufen ist fuer den Benutzer nicht erkennbar, wie weit der Lauf fortgeschritten ist oder wie lange er voraussichtlich noch dauert. Erwartet ist eine laufende Statusanzeige wie `x von y Dateien bearbeitet` oder `a von b Prozessen verarbeitet`, damit lange Laeufe besser einschaetzbar sind. - erledigt
-17. Die Funktionen in den Tabs `Link Editing` und `Anwendungskonfig` sind fuer fachfremde oder neue Benutzer derzeit nicht selbsterklaerend genug. Begriffe wie `Pipeline Preview`, `Knowledge Base`, `confirmed/rejected`, `Importmodus`, `BPMN transformieren` oder einzelne Reset-/Loeschaktionen lassen ohne zusaetzlichen Kontext offen, was genau passiert, welche Auswirkungen eine Aktion hat und wann sie sinnvoll ist. Erwartet sind daher kurze Erlaeuterungstexte direkt an den relevanten Stellen oder kompakte Info-Hinweise/Tooltips, damit die Bedienung ohne Vorwissen besser nachvollziehbar ist. - erledigt
-18. Im Modus `Nur letzter Import` sollte die zugehoerige Dateiauswahl in einer benutzerfreundlichen Form dargestellt werden. Eine rohe JSON-Ausgabe ist fuer die UI ungeeignet und wirkt wie Debug-Output. Erwartet ist stattdessen eine kompakte, gut lesbare Liste oder Tabelle der betroffenen Dateien, idealerweise mit Dateiname und optional relativem Pfad. - erledigt
-19. Fuer bereits in BRIDGR gepflegte Organisationseinheiten fehlt derzeit eine explizite Sammel-Synchronisation nach Neo4j. Nachtraeglich eingefuehrte Sync-Logik greift nur fuer neu angelegte oder aktuell bearbeitete Eintraege, nicht automatisch fuer bereits bestehende Altbestaende in der Knowledge Base. Erwartet ist perspektivisch eine klare UI-Aktion wie `Organisation nach Neo4j synchronisieren`, die alle bekannten Organisationseinheiten und - soweit vorhanden - ihre bereits aufgeloesten Prozessbeziehungen gesammelt in den Graph schreibt. - erledigt
-20. im folgenden gespräch hätte die antwort bereits bei der ersten frage kommen müssen:
-USER: was weisst du über den seller service?
-BRIDGR: Ich habe dazu aktuell keine passenden Informationen im Wissensgraphen gefunden.
-Keine Treffer gefunden.
-Technische Details
-USER: aber es gibt eine anwendung "seller service", oder?
-BRIDGR: Ich habe mehrere passende Anwendungen gefunden: Seller Service, Seller Service Interface. Welche meinen Sie? - erledigt
-21. in der review-section sollte ein hinweis erscheinen, dass identifizierte Organisationseinheiten Im Tab "Organsation" manuell bestätigt werden müssen, allerdings nur dann, wenn tatsächlich Candidates identifiziert wurden oder aus älteren läufen noch zu bestätigen/zu verwerfen sind
-22. Die Dateiauswahl fuer den Import wirkt aktuell redundant, wenn zugleich ein Importmodus `full`/`partial` vorhanden ist. Erwartet ist eine klarere UI, in der bei `full` keine separate Dateiauswahl sichtbar ist und bei `partial` genau eine eindeutige Auswahl fuer die zu importierenden Dateien erscheint. - erledigt
-23. Der Button `Review oeffnen` wirkt nach der Entkopplung von Review und Import fachlich ueberfluessig. Die relevanten Informationen sind bereits geladen; erwartet ist, dass der gewaehlte Review-Scope direkt ueber Radio-Button und Dateiauswahl wirkt, ohne zusaetzlichen Bestaetigungsbutton. - erledigt
-24. die frage "wie viele organisationseinheiten kennst du und wieviele davon sind mit keinem prozess verbunden?" führt dazu , dass das llm folgendes statement absetzt:
-MATCH (o:OrgEinheit)
-RETURN count(o) AS orgEinheitCount
-UNION ALL
-MATCH (o:OrgEinheit)
-WHERE NOT EXISTS {
-  (o)-[:VERANTWORTET]->(:Prozess)
-}
-RETURN count(o) AS orgEinheitCount, count(o) AS orgEinheitKeinProzess
-und dem benutzer als Feedback liefert: Cypher UNION branches must return the same column aliases in the same order.
+1. weiterführende fragen werden teilweise falsch interpretiert. - erledigt
+Beispiel:
+Frage1: welche Anwendungen nutzt der Prozess Bestellabwicklung?
+Antwort: Der Prozess "Bestellabwicklung" wird von folgenden Anwendungen unterstützt: Mail Interface, Microsoft Outlook, SAP FI Buchungsschnittstelle und SAP SD.
 
-Ein iterativer Ansatz führt letzten Enes zwar zum gewünschten Ergebnis , ist dem unbedarften Benutzer aber nicht zuzumuten:
-ie viele organisationseinheiten kennst du und wieviele davon sind mit keinem prozess verbunden?
-BENUTZER: wie viele organisationseinheiten kennst du und wieviele davon sind mit keinem prozess verbunden?
-BRIDGR: Cypher UNION branches must return the same column aliases in the same order.
-Keine Treffer gefunden.
-Technische Details
-BENUTZER: ok, gehen wir das schritt für schritt an: wieviele organisationseinheiten kennst du?
-BRIDGR: Es gibt 6 Organisationseinheiten.
 Ergebnis
-Technische Details
-BENUTZER: und wieviele prozesse kennst du?
-BRIDGR: Ich kenne 70 Prozesse.
-Ergebnis
-Technische Details
-BENUTZER: und wieviele verbindungen egal welchen typs kennen wir zwischen prozessen und organisationseinheiten?
-BRIDGR: Es gibt insgesamt 5 Verbindungen zwischen Prozessen und Organisationseinheiten.
-Ergebnis
-Technische Details
-BENUTZER: Zeig mir für diese 5 Verbindungen jeweils die Organisationseinheit, den Typ der Verbindung und den Prozess
-BRIDGR: Die Verbindungen umfassen folgende Kombinationen: Das Customer Service Team ist für die Bestellabwicklung zuständig, das Team Accounting ist ebenfalls in die Bestellabwicklung eingebunden und das Team Logistik ist sowohl für die Bestellabwicklung als auch für die Reklamationsbearbeitung zuständig. Schließlich ist die Buchhaltung für die Reklamationsbearbeitung verantwortlich. - erledigt
-25. Das LLM  benötigt via Systempromprt einige allgemeine Informationen. Beispieldialog aktuell:
-BENUTZER: er käre mir deine funktion
-BRIDGR: Ich habe dazu aktuell keine passenden Informationen im Wissensgraphen gefunden.
-26. werden mehrere Importe nacheinander prozessiert, bleibt während des zweiten Laufs die Erfolgsmeldung des ersten Laufs sichtbar. Im Beispiel werden aktuell 47 Dateien prozessiert, im oberen Bereich ist aber sichtbar "Teilimport abgeschlossen in 30s. 4 Prozessdatei(en) wurden verarbeitet und nach F:\workspace\BRIDGR\data\input_archive\20260528_120140 verschoben."
-27. Prompting/queries: queries müssen den Cypher regeln streng entsprechen, ansonsten erscheinen fehlermeldungen die der benutzer potentiell nicht beheben kann.
-USER: gibt es bei den servern eine unterscheidung zwischen physisch und virtuell?
-fehlgeschlagenes Beispiel:
-BRIDGR:Ja, es gibt eine Unterscheidung: Die Server sind sowohl als "physical" (physisch) als auch als "virtual" (virtuell) eingestuft.
-Ergebnis
-Technische Details
-USER: wieviele sind das jeweils?
-BRIDGR:Cypher query appears to contain multiple statements. Use a single query and continue after RETURN only with UNION, or move intermediate results with WITH.
-Keine Treffer gefunden.
-Technische Details
-Cypher
-MATCH (a:Anwendung)
-RETURN count(a) AS applicationCount
+appliation
+Mail Interface
+Microsoft Outlook
+SAP FI Buchungsschnittstelle
+SAP SD
 
-MATCH (p:Prozess)
-RETURN count(p) AS processCount - erledigt
-28. Bei Fragen nach Servern und den darauf laufenden Anwendungen erzeugt das LLM derzeit Cypher mit einem nicht im Schema vorgesehenen Beziehungstyp `HOSTET`, z. B.:
-MATCH (s:Server)-[:HOSTET]->(a:Anwendung)
-RETURN s.name AS server, collect(DISTINCT a.name) AS applications
-ORDER BY server
-Aktuell verwendet BRIDGR fuer diesen Zusammenhang jedoch `(:Anwendung)-[:RUNS_ON]->(:Server)`. Erwartet ist, dass Query-Prompt und Query-Generierung die tatsaechlich vorhandenen Beziehungstypen und Richtungen des aktuellen Graph-Schemas einhalten. - erledigt
-29. Die Praezisierung nach einer Mehrdeutigkeitsrueckfrage ist noch zu strikt. Antworten wie `Ich meinte die Anwendung "Seller Service"` werden derzeit nicht zuverlaessig auf bereits angebotene Optionen wie `Seller Service` oder `Seller Service Interface` normalisiert. Erwartet ist, dass fuehrende Typwoerter wie `Anwendung`, `Prozess`, `OrgEinheit`, `Server` oder `Schnittstelle` sowie einfache natuerliche Einbettungen und Anfuehrungszeichen vor dem Match entfernt werden, solange die Zuordnung danach eindeutig bleibt. - erledigt
-30. Nach einer Mehrdeutigkeitsrueckfrage kann der Benutzer derzeit nur eine der explizit angebotenen Optionen praezisieren. Ein Wechsel auf ein anderes im bereits angezeigten Kontext sichtbares Objekt, z. B. `ich meinte den virtuellen Server mit der ID vm-app-01`, wird noch nicht als gueltiger neuer Fokus erkannt, obwohl dieses Objekt im selben Antwortkontext bereits sichtbar war. Erwartet ist, dass BRIDGR in solchen Faellen nach einem fehlgeschlagenen Match gegen die angebotenen Optionen einen zweiten Lookup-Pfad startet und eine neue eindeutige Objektreferenz aus Name, Typ oder ID als neuen Fokus akzeptiert.
-31. Der fruehere Legacy-Inputpfad `data/input` ist im Code weiterhin als Rueckwaertskompatibilitaetslogik vorhanden, obwohl der Ordner fachlich durch `Input/` ersetzt wurde und lokal bereits entfernt ist. Erwartet ist, dass die verbliebene Legacy-Erkennung (`LEGACY_INPUT_PATH`, `is_legacy_input_path` und zugehoerige Migrationspfade) bei Gelegenheit geprueft und entfernt oder bewusst als befristete Rueckwaertskompatibilitaet dokumentiert wird.
-32. Der Import von CMDB-Aenderungen ist derzeit implizit an den Start eines Prozess-Importlaufs gekoppelt. Fuer Benutzer gibt es keine explizite, eigenstaendige Aktion, um geaenderte CMDB-Entities, Relations und daraus ableitbare Ownership-Zuordnungen unabhaengig von Prozessdateien nach Neo4j zu synchronisieren. Erwartet ist ein separater CMDB-Import-/Sync-Mechanismus mit klarer UI-Aktion und nachvollziehbarem Feedback.
+Frage2: für welche andren Prozesse ist SAP SD relevant?
+Antwort: Ohne den spezifischen Namen des Prozesses kann ich das nicht beantworten. Der Prozess "SAP SD" ist laut dem System für folgende Prozesse relevant: "System anlegen/ändern/löschen → System verwalten", "Bestellabwicklung" und "Reklamationsbearbeitung".
+
+Ergebnis
+appliation
+System anlegen/ändern/löschen → System verwalten
+Bestellabwicklung
+Reklamationsbearbeitung
+

@@ -259,3 +259,74 @@ def test_extract_json_object_handles_nested_json_without_regex() -> None:
     extracted = _extract_json_object('prefix {"outer":{"inner":[1,2,3]}} suffix')
 
     assert extracted == '{"outer":{"inner":[1,2,3]}}'
+
+
+# --- generate_with_tools ---
+
+def test_generate_with_tools_returns_content_when_no_tool_calls(monkeypatch: pytest.MonkeyPatch) -> None:
+    session = FakeSession(
+        responses=[
+            FakeResponse(payload={"choices": [{"message": {"content": "Direkte Antwort", "tool_calls": []}}]})
+        ]
+    )
+    client = build_client(monkeypatch, session)
+
+    content, tool_calls = client.generate_with_tools(
+        [{"role": "user", "content": "Frage"}],
+        [{"type": "function", "function": {"name": "execute_cypher", "parameters": {}}}],
+    )
+
+    assert content == "Direkte Antwort"
+    assert tool_calls == []
+
+
+def test_generate_with_tools_returns_tool_calls_from_llm(monkeypatch: pytest.MonkeyPatch) -> None:
+    tool_calls_payload = [
+        {
+            "id": "call_abc",
+            "type": "function",
+            "function": {"name": "execute_cypher", "arguments": '{"query": "MATCH (p:Prozess) RETURN p.name"}'},
+        }
+    ]
+    session = FakeSession(
+        responses=[
+            FakeResponse(
+                payload={"choices": [{"message": {"content": None, "tool_calls": tool_calls_payload}}]}
+            )
+        ]
+    )
+    client = build_client(monkeypatch, session)
+
+    content, tool_calls = client.generate_with_tools(
+        [{"role": "user", "content": "Frage"}],
+        [{"type": "function", "function": {"name": "execute_cypher", "parameters": {}}}],
+    )
+
+    assert content == ""
+    assert len(tool_calls) == 1
+    assert tool_calls[0]["id"] == "call_abc"
+    assert tool_calls[0]["function"]["name"] == "execute_cypher"
+
+
+def test_generate_with_tools_sends_tools_in_payload(monkeypatch: pytest.MonkeyPatch) -> None:
+    session = FakeSession(
+        responses=[
+            FakeResponse(payload={"choices": [{"message": {"content": "ok", "tool_calls": None}}]})
+        ]
+    )
+    client = build_client(monkeypatch, session)
+    tools = [{"type": "function", "function": {"name": "execute_cypher"}}]
+
+    client.generate_with_tools([{"role": "user", "content": "test"}], tools)
+
+    sent_payload = session.calls[0]["json"]
+    assert sent_payload["tools"] == tools
+    assert sent_payload["tool_choice"] == "auto"
+
+
+def test_generate_with_tools_raises_on_malformed_response(monkeypatch: pytest.MonkeyPatch) -> None:
+    session = FakeSession(responses=[FakeResponse(payload={"choices": []})])
+    client = build_client(monkeypatch, session)
+
+    with pytest.raises(LlmClientError, match="chat completion message"):
+        client.generate_with_tools([{"role": "user", "content": "test"}], [])

@@ -1,0 +1,163 @@
+from __future__ import annotations
+
+import json
+import re
+
+from app_config import AppConfig, resolve_project_path
+from graph_schema import build_query_schema_reference
+from llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleClient
+from neo4j_utils import Neo4jConnectionError, Neo4jQueryError, QueryValidationError
+from services.alias_service import lookup_alias_matches
+from services.runtime_service import (
+    CHAT_MESSAGES_STATE_KEY,
+    append_chat_message,
+    get_session_neo4j_client,
+    write_debug_log,
+)
+import streamlit as st
+
+MAX_HISTORY_MESSAGES = 20
+MAX_CYPHER_RETRIES = 2
+
+
+def run_query_chat_turn(question: str, config: AppConfig) -> None:
+    cypher_query = ""
+    try:
+        llm_client = OpenAICompatibleClient(
+            LlmClientConfig(
+                base_url=config.llm_base_url,
+                model=config.llm_model,
+                api_key_env=config.llm_api_key_env,
+                timeout_seconds=config.llm_timeout_seconds,
+                debug_logger=lambda event, details: write_debug_log(config, event, details),
+            )
+        )
+        neo4j_client = get_session_neo4j_client(config)
+
+        system_prompt = _build_chat_system_prompt(config)
+        history = _build_llm_history(st.session_state.get(CHAT_MESSAGES_STATE_KEY, []))
+        turn_messages = (
+            [{"role": "system", "content": system_prompt}]
+            + history
+            + [{"role": "user", "content": question}]
+        )
+
+        # Step 1: LLM decides whether a query is needed
+        response = llm_client.generate_chat(turn_messages)
+        cypher_query = _extract_cypher_from_response(response)
+
+        if not cypher_query:
+            # Direct answer or clarification question
+            append_chat_message("assistant", response.strip())
+            return
+
+        # Step 2: execute query with retry on correctable errors
+        turn_messages.append({"role": "assistant", "content": response})
+        rows: list[dict] = []
+        for attempt in range(MAX_CYPHER_RETRIES):
+            try:
+                rows = neo4j_client.execute_read(cypher_query)
+                break
+            except (QueryValidationError, Neo4jQueryError) as exc:
+                if attempt == MAX_CYPHER_RETRIES - 1:
+                    raise
+                error_feedback = (
+                    f"[ABFRAGEFEHLER]\n{str(exc)[:300]}\n\n"
+                    "Bitte korrigiere die Cypher-Abfrage und gib nur den korrigierten ```cypher-Block aus."
+                )
+                turn_messages.append({"role": "user", "content": error_feedback})
+                response = llm_client.generate_chat(turn_messages)
+                cypher_query = _extract_cypher_from_response(response) or cypher_query
+                turn_messages.append({"role": "assistant", "content": response})
+
+        # Step 3: enrich empty results with alias hints if available
+        alias_hints: list[str] = []
+        if not rows:
+            alias_hints = _collect_alias_hints(cypher_query, neo4j_client)
+
+        # Step 4: feed result back to LLM for natural language answer
+        result_message = _format_query_result(rows, alias_hints)
+        turn_messages.append({"role": "user", "content": result_message})
+        final_response = llm_client.generate_chat(turn_messages)
+
+    except (LlmClientError, Neo4jConnectionError, Neo4jQueryError, QueryValidationError) as exc:
+        write_debug_log(
+            config,
+            "query_error",
+            {"question": question, "cypher_query": cypher_query, "error": str(exc)},
+        )
+        append_chat_message("assistant", _translate_error_for_user(exc), cypher_query=cypher_query)
+        return
+
+    append_chat_message("assistant", final_response.strip(), cypher_query=cypher_query, rows=rows)
+
+
+def _build_chat_system_prompt(config: AppConfig) -> str:
+    template = resolve_project_path("prompts/chat_system.md").read_text(encoding="utf-8")
+    return template.replace("{GRAPH_SCHEMA_REFERENCE}", build_query_schema_reference())
+
+
+def _build_llm_history(chat_messages: list[dict]) -> list[dict[str, str]]:
+    result = []
+    for msg in chat_messages[-MAX_HISTORY_MESSAGES:]:
+        role = str(msg.get("role", "")).strip()
+        content = str(msg.get("content", "")).strip()
+        if role and content:
+            result.append({"role": role, "content": content})
+    return result
+
+
+def _extract_cypher_from_response(response_text: str) -> str:
+    match = re.search(r"```(?:cypher)?\s*\n(.*?)```", response_text, re.DOTALL | re.IGNORECASE)
+    if not match:
+        return ""
+    return match.group(1).strip()
+
+
+def _collect_alias_hints(cypher_query: str, neo4j_client) -> list[str]:
+    hints: list[str] = []
+    seen: set[str] = set()
+    for term in re.findall(r"'([^']{2,})'", cypher_query):
+        for row in lookup_alias_matches(neo4j_client, term):
+            entity_name = str(row.get("entity_name", "")).strip()
+            entity_type = str(row.get("entity_type", "")).strip()
+            key = f"{entity_type}:{entity_name}"
+            if key not in seen and entity_name and entity_type:
+                hints.append(f'"{term}" könnte sich auf "{entity_name}" ({entity_type}) beziehen')
+                seen.add(key)
+    return hints
+
+
+def _format_query_result(rows: list[dict], alias_hints: list[str]) -> str:
+    if rows:
+        return f"[ABFRAGEERGEBNIS]\n{json.dumps(rows, ensure_ascii=False, indent=2)}"
+    if alias_hints:
+        hints_text = "\n".join(f"- {h}" for h in alias_hints)
+        return (
+            f"[ABFRAGEERGEBNIS]\nKeine Treffer.\n\n"
+            f"Hinweis — mögliche Alternativbegriffe im Wissensgraphen:\n{hints_text}"
+        )
+    return "[ABFRAGEERGEBNIS]\nKeine Treffer."
+
+
+def _translate_error_for_user(exc: Exception) -> str:
+    if isinstance(exc, QueryValidationError):
+        normalized = str(exc).casefold()
+        if "multiple statements" in normalized:
+            return (
+                "Ich konnte die Frage noch nicht in eine konsistente Abfrage uebersetzen. "
+                "Bitte formulieren Sie die Frage etwas konkreter oder stellen Sie Teilfragen nacheinander."
+            )
+        if "forbidden token" in normalized:
+            return (
+                "Ich kann hier nur lesend auf den Wissensgraphen zugreifen. "
+                "Die Frage wurde intern noch nicht passend in eine reine Leseabfrage uebersetzt."
+            )
+        return "Ich konnte aus Ihrer Frage noch keine gueltige Abfrage fuer den Wissensgraphen ableiten."
+    if isinstance(exc, Neo4jQueryError):
+        return "Ich konnte die Frage auf Basis des aktuellen Wissensgraphen noch nicht korrekt auswerten."
+    if isinstance(exc, Neo4jConnectionError):
+        return "Ich kann den Wissensgraphen im Moment nicht erreichen. Bitte pruefen Sie die Neo4j-Verbindung in der Konfiguration."
+    if isinstance(exc, LlmClientError):
+        return "Ich konnte die Frage im Moment nicht zuverlaessig verarbeiten. Bitte versuchen Sie es erneut oder formulieren Sie sie etwas konkreter."
+    return "Die Anfrage konnte im Moment nicht verarbeitet werden."

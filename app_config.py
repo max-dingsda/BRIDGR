@@ -41,6 +41,7 @@ class AppConfig:
     cmdb_filename: str = "cmdb.csv"
     output_path: str = "Output"
     last_run_mode: str = "partial"
+    chat_mode: str = "prompt-only"
     debug_mode: bool = False
 
 
