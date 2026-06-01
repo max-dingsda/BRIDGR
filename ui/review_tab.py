@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import asdict
 from pathlib import Path
 
 import streamlit as st
@@ -8,11 +7,9 @@ import streamlit as st
 from app_config import AppConfig, load_config, resolve_input_cmdb_path, resolve_runtime_output_path
 from cmdb import CmdbLoadError, build_cmdb_option_labels, find_cmdb_row_by_label, load_cmdb_rows
 from constants import DOCUMENT_STATUS_OPTIONS, MATCH_SOURCE_REJECTED
-from input_validation import validate_manual_application_name
 from knowledge_base import load_knowledge_base
 from run_artifacts import load_last_import_context, load_latest_run
 from services.review_service import (
-    clear_knowledge_base_and_refresh,
     confirm_review_link,
     reject_review_link,
     save_manual_link,
@@ -44,7 +41,7 @@ def render_latest_run_summary(latest_run: dict, documents: list[dict]) -> None:
     metric_columns[4].metric("Davon bestehend", int(summary["existing_processes"]))
     metric_columns[5].metric("Fehlerhafte Dokumente", int(summary["errors"]))
     if summary["no_matches"]:
-        st.caption(f"Documents without application matches: {summary['no_matches']}")
+        st.caption(f"Dokumente ohne Anwendungszuordnung: {summary['no_matches']}")
 
 
 def render_document_status_table(documents: list[dict]) -> None:
@@ -53,7 +50,7 @@ def render_document_status_table(documents: list[dict]) -> None:
     if rows:
         st.dataframe(rows, width="stretch")
     else:
-        st.info("Keine Dokumente fuer den aktuellen Filter gefunden.")
+        st.info("Keine Dokumente für den aktuellen Filter gefunden.")
 
 
 def render_review_artifact_summary(documents: list[dict]) -> None:
@@ -61,9 +58,9 @@ def render_review_artifact_summary(documents: list[dict]) -> None:
     summary = summarize_review_artifacts(documents, knowledge_base.org_unit_candidates)
     st.markdown("**Der letzte Import hat folgendes gefunden**")
     st.markdown(f"- {summary['exact_application_matches']} eindeutige Applikationszuordnungen")
-    st.markdown(f"- {summary['review_application_matches']} zu pruefende Applikationszuordnungen")
+    st.markdown(f"- {summary['review_application_matches']} zu prüfende Applikationszuordnungen")
     st.markdown(f"- {summary['exact_org_unit_matches']} eindeutige Organisationseinheiten")
-    st.markdown(f"- {summary['review_org_unit_candidates']} zu pruefende Organisationseinheiten")
+    st.markdown(f"- {summary['review_org_unit_candidates']} zu prüfende Organisationseinheiten")
 
 
 def render_duplicate_application_warnings(documents: list[dict]) -> None:
@@ -110,7 +107,7 @@ def render_review_item_actions(review_row: dict, config: AppConfig, cmdb_rows: l
     row_columns[2].write(matched_name)
     row_columns[3].write(review_row.get("confidence", ""))
 
-    if cmdb_id and row_columns[4].button("Bestaetigen", key=f"review-confirm::{row_id}", width="stretch"):
+    if cmdb_id and row_columns[4].button("Bestätigen", key=f"review-confirm::{row_id}", width="stretch"):
         st.success(confirm_review_link(config, process_name, application_name, cmdb_id, matched_name, source_path, cmdb_rows))
         st.rerun()
 
@@ -139,7 +136,7 @@ def render_review_item_actions(review_row: dict, config: AppConfig, cmdb_rows: l
                 config.cmdb_name_column,
             )
             if selected_row is None:
-                st.error("Ausgewaehltes CMDB-Ziel konnte nicht aufgeloest werden.")
+                st.error("Ausgewähltes CMDB-Ziel konnte nicht aufgelöst werden.")
                 return
             st.success(
                 save_manual_link(
@@ -157,9 +154,9 @@ def render_review_item_actions(review_row: dict, config: AppConfig, cmdb_rows: l
 
 def render_review_items_table(documents: list[dict], config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
     review_rows = build_review_rows(documents)
-    st.markdown("**Review-Items**")
+    st.markdown("**Offene Zuordnungen**")
     if not review_rows:
-        st.success("Keine Review-Items fuer den aktuellen Filter gefunden.")
+        st.success("Keine offenen Zuordnungen für den aktuellen Filter.")
         return
 
     header_columns = st.columns([2, 3, 3, 1, 1, 1, 2])
@@ -167,7 +164,7 @@ def render_review_items_table(documents: list[dict], config: AppConfig, cmdb_row
     header_columns[1].markdown("**Anwendung im Prozess**")
     header_columns[2].markdown("**Anwendung in der CMDB**")
     header_columns[3].markdown("**Bewertung**")
-    header_columns[4].markdown("**Bestaetigen**")
+    header_columns[4].markdown("**Bestätigen**")
     header_columns[5].markdown("**Ablehnen**")
     header_columns[6].markdown("**Manuell anlegen**")
 
@@ -175,106 +172,11 @@ def render_review_items_table(documents: list[dict], config: AppConfig, cmdb_row
         render_review_item_actions(review_row, config, cmdb_rows)
 
 
-def render_review_actions(detail: dict, config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
-    process_name = detail["process_name"]
-    source_path = detail["source_path"]
-    matches = detail["matches"]
-    if not matches:
-        return
-
-    st.markdown("Pruefbare Verknuepfungen")
-    header_columns = st.columns([2, 3, 3, 1, 1, 1])
-    header_columns[0].markdown("**Prozess**")
-    header_columns[1].markdown("**Anwendung im Prozess**")
-    header_columns[2].markdown("**Anwendung in der CMDB**")
-    header_columns[3].markdown("**Bewertung**")
-    header_columns[4].markdown("**Bestaetigen**")
-    header_columns[5].markdown("**Ablehnen**")
-
-    for index, match in enumerate(matches):
-        application_name = match.get("application_name", "")
-        matched_name = match.get("matched_name") or ""
-        cmdb_id = match.get("cmdb_id")
-        source = match.get("source", "")
-        confidence = match.get("confidence", "")
-        if source == MATCH_SOURCE_REJECTED:
-            continue
-
-        action_columns = st.columns([2, 3, 3, 1, 1, 1])
-        action_columns[0].write(process_name)
-        action_columns[1].write(application_name)
-        action_columns[2].write(matched_name or "-")
-        action_columns[3].write(confidence)
-
-        if cmdb_id and action_columns[4].button("Bestaetigen", key=f"confirm::{detail['detail_id']}::{index}", width="stretch"):
-            st.success(confirm_review_link(config, process_name, application_name, cmdb_id, matched_name, source_path, cmdb_rows))
-            st.rerun()
-
-        if action_columns[5].button("Ablehnen", key=f"reject::{detail['detail_id']}::{index}", width="stretch"):
-            st.success(reject_review_link(config, process_name, application_name, cmdb_id, source_path, cmdb_rows))
-            st.rerun()
-
-
-def render_manual_link_form(detail: dict, config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
-    process_name = detail["process_name"]
-    source_path = detail["source_path"]
-    if not process_name:
-        return
-
-    application_rows = _filter_application_cmdb_rows(config, cmdb_rows)
-    cmdb_options = build_cmdb_option_labels(application_rows, config.cmdb_uuid_column, config.cmdb_name_column)
-    if not cmdb_options:
-        st.info("Keine Anwendungs-Eintraege aus der CMDB fuer manuellen Link verfuegbar.")
-        return
-
-    st.markdown("Manuellen Link anlegen")
-    manual_application_name = st.text_input(
-        "Bezeichnung im Prozesskontext",
-        value="",
-        key=f"manual-name::{detail['detail_id']}",
-        placeholder="z.B. SAP Sales oder Vertragssystem",
-    )
-    selected_label = st.selectbox("CMDB-Ziel", options=cmdb_options, key=f"manual-target::{detail['detail_id']}")
-
-    if st.button("Manuellen Link speichern", key=f"manual-submit::{detail['detail_id']}", width="stretch"):
-        selected_row = find_cmdb_row_by_label(
-            application_rows,
-            selected_label,
-            config.cmdb_uuid_column,
-            config.cmdb_name_column,
-        )
-        if selected_row is None:
-            st.error("Ausgewaehltes CMDB-Ziel konnte nicht aufgeloest werden.")
-            return
-
-        if manual_application_name.strip():
-            try:
-                application_name = validate_manual_application_name(manual_application_name)
-            except ValueError as exc:
-                st.error(str(exc))
-                return
-        else:
-            application_name = selected_row.get(config.cmdb_name_column, "")
-
-        st.success(
-            save_manual_link(
-                config,
-                process_name,
-                application_name,
-                selected_row.get(config.cmdb_uuid_column, ""),
-                selected_row.get(config.cmdb_name_column, application_name),
-                source_path,
-                cmdb_rows,
-            )
-        )
-        st.rerun()
-
-
-def render_document_details(documents: list[dict], config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
+def render_document_details(documents: list[dict]) -> None:
     st.markdown("**Dokumentdetails**")
     details = build_document_details(documents)
     if not details:
-        st.info("Keine Detaildaten fuer den aktuellen Filter vorhanden.")
+        st.info("Keine Detaildaten für den aktuellen Filter vorhanden.")
         return
 
     for detail in details:
@@ -296,52 +198,17 @@ def render_document_details(documents: list[dict], config: AppConfig, cmdb_rows:
                 else:
                     st.write({"review_items": detail["review_items"]})
 
-            render_review_actions(detail, config, cmdb_rows)
-            render_manual_link_form(detail, config, cmdb_rows)
             with st.expander("Technische Details", expanded=False):
-                st.markdown("Raw Applications")
+                st.markdown("Rohanwendungen")
                 st.json(detail["raw_applications"])
-                st.markdown("Applications")
+                st.markdown("Anwendungen")
                 st.json(detail["applications"])
-                st.markdown("Matches")
+                st.markdown("Zuordnungen")
                 st.json(detail["matches"])
 
 
-def render_knowledge_base_tools(config: AppConfig) -> None:
-    with st.expander("Knowledge Base verwalten", expanded=False):
-        st.caption("Hilft beim Zuruecksetzen von Testentscheidungen ohne manuelles Bearbeiten von `knowledge_base/kb.json`.")
-        action_columns = st.columns(3)
-
-        if action_columns[0].button("KB komplett leeren", key="kb-clear-all", width="stretch"):
-            level, message = clear_knowledge_base_and_refresh(
-                config,
-                sections={"confirmed", "rejected", "disambiguation", "process_identity"},
-                success_message="Die gesamte Knowledge Base wurde geleert.",
-            )
-            getattr(st, level)(message)
-            st.rerun()
-
-        if action_columns[1].button("Nur confirmed leeren", key="kb-clear-confirmed", width="stretch"):
-            level, message = clear_knowledge_base_and_refresh(
-                config,
-                sections={"confirmed"},
-                success_message="Die bestaetigten KB-Eintraege wurden geleert.",
-            )
-            getattr(st, level)(message)
-            st.rerun()
-
-        if action_columns[2].button("Nur rejected leeren", key="kb-clear-rejected", width="stretch"):
-            level, message = clear_knowledge_base_and_refresh(
-                config,
-                sections={"rejected"},
-                success_message="Die abgelehnten KB-Eintraege wurden geleert.",
-            )
-            getattr(st, level)(message)
-            st.rerun()
-
-
 def render_review_tab() -> None:
-    st.subheader("Link Editing")
+    st.subheader("Zuordnungen")
     config = load_config(Path("config.json"))
     apply_pending_review_scope_defaults()
     render_run_feedback(REVIEW_RUN_FEEDBACK_STATE_KEY)
@@ -359,14 +226,14 @@ def render_review_tab() -> None:
     action_column, info_column = st.columns([1, 2])
     with action_column:
         review_scope = st.radio(
-            "Review-Umfang",
-            options=["Nur letzter Import", "Dateien manuell waehlen"],
+            "Umfang",
+            options=["Nur letzter Import", "Dateien manuell wählen"],
             key="review_scope_mode",
         )
         selected_review_source_paths: list[str] = []
         if review_scope == "Nur letzter Import":
             if last_import_labels:
-                st.caption(f"{len(last_import_labels)} Datei(en) aus dem letzten Import stehen fuer die Review zur Verfuegung.")
+                st.caption(f"{len(last_import_labels)} Datei(en) aus dem letzten Import stehen zur Verfügung.")
                 st.dataframe([{"Datei": label} for label in last_import_labels], width="stretch")
                 if last_import_archive_path:
                     st.caption(f"Archivpfad des letzten Imports: `{last_import_archive_path}`")
@@ -383,7 +250,7 @@ def render_review_tab() -> None:
                 }
             )
             selected_review_source_paths = st.multiselect(
-                "Dateien fuer Review",
+                "Dateien für Überprüfung",
                 options=manual_review_options,
                 default=[],
                 key="review_process_selection",
@@ -392,13 +259,13 @@ def render_review_tab() -> None:
     with info_column:
         st.caption(
             "Die Ansicht liest den letzten gespeicherten Lauf aus `Output/latest_run.json` "
-            "und zeigt offene bzw. schwache Matching-Faelle zur Bearbeitung."
+            "und zeigt offene bzw. schwache Zuordnungsfälle zur Bearbeitung."
         )
 
     latest_run = load_latest_run(runtime_output_path)
     if latest_run is None:
         if used_output_fallback:
-            st.warning(f"Der konfigurierte Output-Pfad ist nicht beschreibbar. Laufartefakte werden nach `{runtime_output_path}` umgeleitet.")
+            st.warning(f"Der konfigurierte Ausgabepfad ist nicht beschreibbar. Laufartefakte werden nach `{runtime_output_path}` umgeleitet.")
         st.info("Noch kein gespeicherter Pipeline-Lauf vorhanden.")
         return
 
@@ -414,8 +281,8 @@ def render_review_tab() -> None:
             for document in filtered_documents
             if document.get("source_path", "") in active_scope_paths
         ]
-    elif review_scope == "Dateien manuell waehlen":
-        st.info("Bitte waehlen Sie mindestens eine Prozessdatei fuer die Review aus.")
+    elif review_scope == "Dateien manuell wählen":
+        st.info("Bitte wählen Sie mindestens eine Prozessdatei für die Überprüfung aus.")
         filtered_documents = []
     render_latest_run_summary(latest_run, filtered_documents)
     try:
@@ -430,16 +297,15 @@ def render_review_tab() -> None:
     if candidate_scope["scoped_open_candidates"]:
         st.info(
             f"Es liegen {candidate_scope['scoped_open_candidates']} offene Organisationseinheiten-Kandidat(en) "
-            "aus dem aktuell betrachteten Prozessimport vor. Diese muessen im Tab `Organisation` bestaetigt, "
-            "gemappt oder abgewiesen werden."
+            "aus dem aktuell betrachteten Prozessimport vor. Diese müssen im Tab **Organisation** bestätigt, "
+            "zugeordnet oder abgewiesen werden."
         )
     if candidate_scope["external_open_candidates"]:
         st.info(
-            f"Zusaetzlich liegen {candidate_scope['external_open_candidates']} weitere offene "
-            "Organisationseinheiten-Kandidat(en) ausserhalb dieses Prozessimports vor, typischerweise aus dem "
-            "CMDB-Import. Auch diese koennen im Tab `Organisation` bearbeitet werden."
+            f"Zusätzlich liegen {candidate_scope['external_open_candidates']} weitere offene "
+            "Organisationseinheiten-Kandidat(en) außerhalb dieses Prozessimports vor, typischerweise aus dem "
+            "CMDB-Import. Auch diese können im Tab **Organisation** bearbeitet werden."
         )
     render_duplicate_application_warnings(filtered_documents)
     render_review_items_table(filtered_documents, config, cmdb_rows)
-    render_document_details(filtered_documents, config, cmdb_rows)
-    render_knowledge_base_tools(config)
+    render_document_details(filtered_documents)

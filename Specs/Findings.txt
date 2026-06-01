@@ -19,3 +19,15 @@ System anlegen/ändern/löschen → System verwalten
 Bestellabwicklung
 Reklamationsbearbeitung
 
+2. Dual Source of Truth: kb.json vs. Neo4j (offen)
+Die Import-Pipeline liest confirmed/rejected Einträge direkt aus kb.json, während der Chat-Query-Layer
+Alias-Auflösungen aus Neo4j (:Alias)-[:KANN_MEINEN]->() liest. Beide werden nach jeder Aktion via
+sync_knowledge_base_aliases synchron gehalten — es gibt aber zwei kanonische Quellen für dieselbe Information.
+
+Problem: Datei-basierte Speicherung (kb.json) ist anfälliger gegen versehentliche oder böswillige
+Manipulation als ein Datenbanksystem. Außerdem entstehen potenzielle Inkonsistenzen bei Sync-Fehlern.
+
+Ziel: Import-Pipeline auf direktes Lesen aus Neo4j-Aliases umstellen, kb.json als kanonische Quelle
+ablösen. Betrifft: pipeline.py (match_application_candidates, build_manual_matches),
+services/review_service.py, knowledge_base.py (confirmed/rejected sections).
+

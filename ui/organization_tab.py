@@ -43,7 +43,7 @@ def render_organization_tab() -> None:
             else:
                 if refreshed_documents:
                     st.success(
-                        f"{synced_org_units} Organisationseinheit(en) synchronisiert. {refreshed_documents} Dokument(e) aus dem letzten Lauf wurden fuer Prozessbeziehungen neu eingespielt."
+                        f"{synced_org_units} Organisationseinheit(en) synchronisiert. {refreshed_documents} Dokument(e) aus dem letzten Lauf wurden für Prozessbeziehungen neu eingespielt."
                     )
                 else:
                     st.success(f"{synced_org_units} Organisationseinheit(en) nach Neo4j synchronisiert.")
@@ -53,7 +53,7 @@ def render_organization_tab() -> None:
 
     with st.form("organization-add-form"):
         new_org_unit_name = st.text_input("Neue Organisationseinheit")
-        add_submitted = st.form_submit_button("Organisationseinheit hinzufuegen")
+        add_submitted = st.form_submit_button("Organisationseinheit hinzufügen")
     if add_submitted:
         level, message = add_org_unit_entry(config, knowledge_base, new_org_unit_name)
         getattr(st, level)(message)
@@ -83,24 +83,24 @@ def render_organization_tab() -> None:
 
                 action_columns = st.columns([2, 1, 2, 1, 1])
                 selected_target = action_columns[0].selectbox(
-                    "Bestehende Org-Einheit",
+                    "Bestehende Organisationseinheit",
                     options=[""] + existing_org_unit_options,
                     key=f"org-candidate-select::{candidate_key}",
                 )
-                if action_columns[1].button("Mappen", key=f"org-candidate-map::{candidate_key}", width="stretch"):
+                if action_columns[1].button("Zuordnen", key=f"org-candidate-map::{candidate_key}", width="stretch"):
                     if not selected_target:
-                        st.warning("Bitte zuerst eine bestehende Organisationseinheit auswaehlen.")
+                        st.warning("Bitte zuerst eine bestehende Organisationseinheit auswählen.")
                     else:
                         level, message = map_org_candidate(config, knowledge_base, candidate_name, selected_target)
                         getattr(st, level)(message)
                         st.rerun()
 
                 proposed_name = action_columns[2].text_input(
-                    "Als neue Org-Einheit uebernehmen",
+                    "Als neue Organisationseinheit übernehmen",
                     value=candidate_name,
                     key=f"org-candidate-new::{candidate_key}",
                 )
-                if action_columns[3].button("Uebernehmen", key=f"org-candidate-accept::{candidate_key}", width="stretch"):
+                if action_columns[3].button("Übernehmen", key=f"org-candidate-accept::{candidate_key}", width="stretch"):
                     level, message = accept_org_candidate(config, knowledge_base, candidate_name, proposed_name)
                     getattr(st, level)(message)
                     st.rerun()

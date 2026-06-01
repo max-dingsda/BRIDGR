@@ -209,7 +209,7 @@ Aktuell verfuegbar:
 - technische Query-/Validierungsfehler in benutzerverstaendliche Hinweise uebersetzen
 - generierten Cypher als technische Details anzeigen
 
-### Tab 2 - Link Editing
+### Tab 2 - Zuordnungen
 
 Aktuell verfuegbar:
 - Review fuer den letzten Import oder eine manuell gewaehlte Teilmenge oeffnen
@@ -218,12 +218,11 @@ Aktuell verfuegbar:
 - Statusfilter fuer Dokumente
 - aktionsfaehige Review-Liste mit `Bestaetigen`, `Ablehnen` und `Manuell anlegen`
 - mehrere schwache CMDB-Kandidaten pro Prozessanwendung anzeigen
-- Dokumentdetails mit Prozesskontext und technischen Rohdaten
+- Dokumentdetails mit Prozesskontext und technischen Rohdaten (reine Ansicht, keine Aktionen)
 - Hinweise auf moegliche Mehrfachnotation derselben Anwendung innerhalb eines Prozesses
 - nur starke oder KB-bestaetigte Links in Neo4j schreiben; schwache fuzzy-Kandidaten bleiben im Review
-- Knowledge Base gezielt leeren und danach konsistent neu einspielen
 
-### Tab 3 - Anwendungskonfig
+### Tab 3 - Konfiguration
 
 Aktuell verfuegbar:
 - LLM-Endpoint konfigurieren
@@ -245,6 +244,7 @@ Aktuell verfuegbar:
 - LLM-Erreichbarkeit und Modellverfuegbarkeit getrennt pruefen
 - Laufzeit erfolgreicher Pipeline-Laeufe direkt in der UI anzeigen
 - verarbeitete Prozessdateien nach erfolgreichem Import transparent nach `data/input_archive/<timestamp>/` verschieben
+- Wissensbasis gezielt zuruecksetzen: alle Eintraege, nur Bestaetigungen oder nur Ablehnungen leeren (inkl. Alias-Synchronisation nach Neo4j)
 
 ### Tab 4 - Organisation
 

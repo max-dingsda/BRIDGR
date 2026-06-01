@@ -65,7 +65,7 @@ def main() -> None:
     load_env_files()
     st.set_page_config(page_title="BRIDGR", layout="wide")
     st.title("BRIDGR")
-    tabs = st.tabs(["Kommunikation", "Link Editing", "Anwendungskonfig", "Organisation"])
+    tabs = st.tabs(["Kommunikation", "Zuordnungen", "Konfiguration", "Organisation"])
     config_path = Path("config.json")
 
     with tabs[0]:

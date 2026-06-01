@@ -315,9 +315,9 @@ zwei Betriebsmodi, umschaltbar per Konfiguration:
 
 Beide Modi teilen denselben System-Prompt und dieselbe Validierungslogik.
 
-### 10.7 Bereinigung der Code-Zustandsverwaltung
+### 10.7 Bereinigung der Code-Zustandsverwaltung — erledigt
 
-Mit dem Wechsel auf LLM-als-Orchestrator wird folgendes obsolet und kann entfernt werden:
+Mit dem Wechsel auf LLM-als-Orchestrator wurden folgende Bestandteile entfernt:
 
 - `CHAT_PENDING_APPLICATION_OPTIONS_STATE_KEY` und der zugehoerige Disambiguierungsstate
 - `CHAT_FOCUS_ENTITY_STATE_KEY`
@@ -327,30 +327,30 @@ Mit dem Wechsel auf LLM-als-Orchestrator wird folgendes obsolet und kann entfern
 - `run_name_lookup_query`, `run_id_lookup_query`
 - `build_follow_up_query_context`, `should_use_follow_up_context`
 
-Was bleibt:
+Verblieben ist:
 - `execute_cypher`-Implementierung mit Validierung
 - System-Prompt-Zusammenstellung (Schema + Rollenbeschreibung)
 - Alias-Lookup als serverseitige Anreicherung des Tool-Ergebnisses
 - Gesprächshistorie-Verwaltung (Befuellung, Kuerzen auf Maximum)
 - Fehlertranslation fuer nicht behebbare technische Fehler
 
-### 10.8 Migrationshinweis
+### 10.8 Migrationshinweis — erledigt
 
-Der Umbau auf Tool-Use ist ein eigenstaendiger Schritt, der den aktuellen Stand nicht
-destabilisiert. Der Prompt-Only-Modus kann dabei als Zwischenschicht dienen: der LLM
-gibt strukturierte Cypher-Bloecke aus wie heute, aber mit vollstaendiger Gesprächshistorie
-statt imperativischen Pending-Zustaenden. Das entfernt den groessten Wartungsaufwand
-(Disambiguierungslogik) auch ohne vollen Tool-Use-Umbau.
+Der Umbau auf Tool-Use wurde als eigenstaendiger Schritt durchgefuehrt. Beide Modi
+(Tool-Use und Prompt-Only) sind implementiert und per `chat_mode` in der Konfiguration
+umschaltbar. Die imperativische Gesprächszustandsverwaltung ist vollstaendig entfernt.
 
 ---
 
-## 11. Anwendungskonfig
+## 11. Konfiguration
 
-*(unveraendert gegenueber v0.18 mit einer Ergaenzung)*
+*(unveraendert gegenueber v0.18 mit Ergaenzungen)*
 
 Tab 3 verwaltet zusaetzlich:
 
 - Chat-Modus: `tool-use` oder `prompt-only` (mit Hinweis auf Backend-Anforderungen)
+- Wissensbasis-Reset: gesamte KB leeren, nur Bestaetigungen leeren oder nur Ablehnungen leeren
+  (inkl. konsistenter Alias-Synchronisation nach Neo4j)
 
 ---
 

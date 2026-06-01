@@ -34,9 +34,16 @@ def render_query_tab() -> None:
     st.subheader("Kommunikation")
     config = load_config(Path("config.json"))
     ensure_query_chat_defaults()
+
+    if not config.llm_model:
+        st.info(
+            "Startpunkt: Konfigurieren Sie zuerst LLM und Neo4j im Tab **Konfiguration**, "
+            "starten Sie dann einen Import — und stellen Sie hier Fragen zur IT-Landschaft."
+        )
+
     action_column, _ = st.columns([1, 5])
     with action_column:
-        if st.button("Neues Gespraech", key="chat-reset", width="stretch"):
+        if st.button("Neues Gespräch", key="chat-reset", width="stretch"):
             reset_query_chat_state()
             st.rerun()
     render_query_chat_messages()
@@ -45,10 +52,10 @@ def render_query_tab() -> None:
     if not question:
         return
     if not config.llm_model:
-        st.warning("Bitte zuerst ein LLM-Modell konfigurieren.")
+        st.warning("Bitte zuerst ein LLM-Modell im Tab Konfiguration einrichten.")
         return
     if not config.neo4j_password:
-        st.warning("Bitte zuerst die Neo4j-Zugangsdaten konfigurieren.")
+        st.warning("Bitte zuerst die Neo4j-Zugangsdaten im Tab Konfiguration einrichten.")
         return
 
     append_chat_message("user", question)
