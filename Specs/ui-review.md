@@ -33,6 +33,8 @@ Import | Review | Abfrage | Organisation
 ```
 oder Config ganz in eine Sidebar auslagern (Streamlit unterstützt `st.sidebar`).
 
+
+Anmerkung der Projektleitung: Niedrige Prio. In späteren Versionen wird ein Benutzerkonzept implementiert. Danach wird ohnehin nicht mehr jeder alles sehen, erst dann ist es sinnvoll, über die Reihenfolg der Tabs nachzudenken. Im Augenblick, wo ausschliesslich Entwickler auf die Anwendung zugreifen ist der zustand akzeptabel.
 ---
 
 ## 2. Tab 3 — Anwendungskonfig: zwei Welten in einem Tab
@@ -48,6 +50,7 @@ Der Import — die **Kernfunktion der App** — ist hinter zwei Klicks vergraben
 
 Das Konfigurationsformular selbst hat ~20 Felder in einer **flachen, ungruppierten Liste**. Das ist für einen Techniker lesbar, aber einschüchternd. Einfache Gliederung mit `st.divider()` und Abschnittsüberschriften (LLM, Neo4j, CMDB-Spaltenmapping) würde schon viel helfen.
 
+Anmerkung der Projektleitung: Das sollte möglichst bald angepasst werden. Die Konfig ist in der tat unübersichtlich, nicht nur wegen der 2 Abschnitte sondern auch aufgrund der Menge der Informationen, hier könnten "Kapitel" oder "Unterabschnitte" helfen
 ---
 
 ## 3. Tab 2 — Link Editing: Redundanz und kognitive Überlastung
@@ -62,6 +65,7 @@ Ein Nutzer sieht dieselbe Verknüpfung zweimal — einmal in der Tabelle, einmal
 
 Die **Knowledge-Base-Verwaltung** am Ende des Tabs (KB leeren) ist eine technische/destruktive Operation, die semantisch nicht zum Nutzer-Review gehört. Sie gehört in den Config-Tab oder in ein separates Admin-Panel.
 
+Anmerkung der Projektleitung: Zustimmung. die KB-Verwaltung gehört nicht in diesen Tab. Die Tabellen-Ansicht ist den Dokumentendetails vorzuziehen.
 ---
 
 ## 4. Tab 4 — Organisation: Cramped Actions
@@ -78,6 +82,8 @@ Das ist schwer lesbar und die beiden Aktionspfade ("auf bestehende mappen" vs. "
 [Auf bestehende mappen]     vs.    [Als neue übernehmen]
 ```
 
+Anmerkung der Projektleitung: Grundsätzlich stimme ich zu, aber das neue layout müssen wir noch etwas detaillierter ausarbeiten, da die aktuelle beschreibung kein klares bild in meinem kopf erzeugt
+
 ---
 
 ## 5. Sprachliche Konsistenz
@@ -91,6 +97,7 @@ Das ist schwer lesbar und die beiden Aktionspfade ("auf bestehende mappen" vs. "
 
 Das ist bei technischen Tools akzeptabel, sollte aber bewusst sein — und die Wechsel sollten nicht innerhalb eines Kontextes passieren.
 
+Anmerkung der Projektleitung: ich stimme zu. So lange die Oberfläche deutsch-sprachig ist, sollten Umlaute genutzt und alle Beschriftungen in deutscher Sprache sein
 ---
 
 ## 6. Kein Onboarding-Zustand
@@ -102,6 +109,7 @@ Bei leerem System (kein Config, kein Import) zeigt die App:
 
 Ein Nutzer der App zum ersten Mal benutzt, hat keine Orientierung. Ein einfaches `st.info("Startpunkt: Konfigurieren Sie zuerst LLM und Neo4j im Tab Anwendungskonfig, dann starten Sie einen Import.")` auf Tab 1 (wenn kein Modell konfiguriert) würde schon helfen.
 
+Anmerkung der Projektleitung: Ich stimme zu
 ---
 
 ## Priorisierte Empfehlungen
