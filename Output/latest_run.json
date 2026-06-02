@@ -709,20 +709,14 @@
       "matches": [
         {
           "application_name": "salesforce",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-009",
+          "matched_name": "Salesforce",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
         }
       ],
-      "review_items": [
-        {
-          "process_name": "Anfragen in salesforce erfassen",
-          "application_name": "salesforce",
-          "reason": "unmatched"
-        }
-      ],
+      "review_items": [],
       "graph_payload": {
         "process": {
           "process_name": "Anfragen in salesforce erfassen",
@@ -749,11 +743,11 @@
         "matches": [
           {
             "application_name": "salesforce",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-009",
+            "matched_name": "Salesforce",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
           }
         ]
       },
@@ -3554,11 +3548,11 @@
       "matches": [
         {
           "application_name": "Salesforce",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-009",
+          "matched_name": "Salesforce",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
         },
         {
           "application_name": "Hubspot",
@@ -3570,11 +3564,6 @@
         }
       ],
       "review_items": [
-        {
-          "process_name": "Daten in Salesforce und Hubspot löschen",
-          "application_name": "Salesforce",
-          "reason": "unmatched"
-        },
         {
           "process_name": "Daten in Salesforce und Hubspot löschen",
           "application_name": "Hubspot",
@@ -3617,11 +3606,11 @@
         "matches": [
           {
             "application_name": "Salesforce",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-009",
+            "matched_name": "Salesforce",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
           },
           {
             "application_name": "Hubspot",

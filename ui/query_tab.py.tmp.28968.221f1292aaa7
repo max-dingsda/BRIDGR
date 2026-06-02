@@ -16,21 +16,13 @@ from services.runtime_service import (
 
 
 def render_query_chat_messages() -> None:
-    for idx, message in enumerate(st.session_state.get(CHAT_MESSAGES_STATE_KEY, [])):
+    for message in st.session_state.get(CHAT_MESSAGES_STATE_KEY, []):
         with st.chat_message(message["role"]):
             st.write(message["content"])
             rows = message.get("rows", [])
             if rows:
                 st.markdown("**Ergebnis**")
                 st.dataframe(rows, width="stretch")
-                csv_data = pd.DataFrame(rows).to_csv(index=False).encode("utf-8")
-                st.download_button(
-                    label="⬇ Als CSV exportieren",
-                    data=csv_data,
-                    file_name="ergebnis.csv",
-                    mime="text/csv",
-                    key=f"download-csv-{idx}",
-                )
             elif message["role"] == "assistant" and message.get("cypher_query"):
                 st.info("Keine Treffer gefunden.")
             if message.get("cypher_query"):
