@@ -31,3 +31,7 @@ Ziel: Import-Pipeline auf direktes Lesen aus Neo4j-Aliases umstellen, kb.json al
 ablösen. Betrifft: pipeline.py (match_application_candidates, build_manual_matches),
 services/review_service.py, knowledge_base.py (confirmed/rejected sections).
 
+3. auf dem tab organisation sollten die abschnitte einklappbar und initial einklappt sein. im augenblick gehen die überschriften beim schnellen scrollen schnell verloren
+4. auf dem tab organisation sollte im abschnitt "Prozesse ohne Eigentümer" eine batchverarbeitung möglich sein, so dass mehrere prozesse gleichzeitig der gleichen organisationseinheit zugeordnet werden können
+5. um die übersicht der nicht zugeordneten rollen übersichtlicher zu machen, wäre es hilfreich einen button zu haben über den man den begriff als rolle fest definiert und somit klar macht, dass es hierfür keine zuordnung zu einer Organisatinseinheit geben wird
+6. erfolgt über die Bestätigung einer Rolle zu einer Organisationseinheit ist die neue Orgeinheit nicht sofort für die nächste Zuweisung verfügbar, dazu bedarf es eines refresh. Sollte das nicht lösbar sein (zB weil die Dropdowns nur beim laden der Seite gefüllt werden) ist zumindest ein kurzer textueller Hinweis notwendig

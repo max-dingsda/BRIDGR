@@ -469,10 +469,10 @@
       ],
       "process_names": [],
       "role_names": [],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "IT Operations",
       "first_seen": "2026-05-31",
-      "last_seen": "2026-05-31"
+      "last_seen": "2026-06-02"
     }
   ]
 }

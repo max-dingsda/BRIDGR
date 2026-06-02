@@ -1,0 +1,79 @@
+{
+  "language_preference": [
+    "de",
+    "german",
+    "en",
+    "english"
+  ],
+  "fuzzy_match_threshold": 0.85,
+  "elements": {
+    "import": {
+      "BusinessProcess": "Prozess",
+      "ApplicationComponent": "Anwendung",
+      "ApplicationInterface": "Schnittstelle",
+      "Node": "Server",
+      "BusinessActor": "OrgEinheit",
+      "BusinessRole": "Rolle"
+    },
+    "export": {
+      "Prozess": "BusinessProcess",
+      "Anwendung": "ApplicationComponent",
+      "Schnittstelle": "ApplicationInterface",
+      "Server": "Node",
+      "OrgEinheit": "BusinessActor",
+      "Rolle": "BusinessRole"
+    }
+  },
+  "relationships": {
+    "import": {
+      "Anwendung->Prozess": [
+        "ServingRelationship",
+        "RealizationRelationship"
+      ],
+      "Rolle->Prozess": [
+        "AssignmentRelationship"
+      ],
+      "OrgEinheit->Rolle": [
+        "AssignmentRelationship"
+      ],
+      "Prozess->Prozess": [
+        "TriggeringRelationship",
+        "FlowRelationship"
+      ],
+      "Anwendung->Schnittstelle": [
+        "CompositionRelationship",
+        "AggregationRelationship"
+      ],
+      "Anwendung->Server": [
+        "RealizationRelationship",
+        "AssignmentRelationship"
+      ],
+      "Schnittstelle->Server": [
+        "RealizationRelationship"
+      ],
+      "OrgEinheit->Anwendung": [
+        "AssociationRelationship",
+        "AssignmentRelationship"
+      ],
+      "OrgEinheit->Schnittstelle": [
+        "AssociationRelationship"
+      ],
+      "OrgEinheit->Server": [
+        "AssociationRelationship"
+      ]
+    },
+    "export": {
+      "Anwendung->Prozess": "ServingRelationship",
+      "Rolle->Prozess": "AssignmentRelationship",
+      "OrgEinheit->Rolle": "AssignmentRelationship",
+      "Prozess->Prozess": "TriggeringRelationship",
+      "Anwendung->Schnittstelle": "CompositionRelationship",
+      "Anwendung->Server": "RealizationRelationship",
+      "Schnittstelle->Server": "RealizationRelationship",
+      "OrgEinheit->Anwendung": "AssociationRelationship",
+      "OrgEinheit->Schnittstelle": "AssociationRelationship",
+      "OrgEinheit->Server": "AssociationRelationship"
+    }
+  },
+  "pending_candidates": []
+}

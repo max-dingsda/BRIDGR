@@ -133,6 +133,11 @@ def resolve_project_path(path_value: str | Path) -> Path:
     return PROJECT_ROOT / candidate_path
 
 
+def resolve_archimate_mapping_path() -> Path:
+    """Return the path to archimate_mapping.json (always in the project root)."""
+    return resolve_project_path("archimate_mapping.json")
+
+
 def resolve_input_cmdb_path(config: AppConfig) -> Path:
     """Return the absolute path to the configured CMDB file.
 

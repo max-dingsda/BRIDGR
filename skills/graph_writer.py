@@ -356,6 +356,54 @@ class GraphWriter:
             )
             return
 
+    def merge_archimate_node(
+        self,
+        client: Neo4jClient,
+        label: str,
+        name: str,
+        archimate_id: str,
+        archimate_source: str,
+        archimate_type: str,
+    ) -> None:
+        client.execute_write(
+            f"""
+            MERGE (n:{label} {{name: $name}})
+            SET n.archimate_id = $archimate_id,
+                n.archimate_source = $archimate_source,
+                n.archimate_type = $archimate_type
+            """,
+            {
+                "name": name,
+                "archimate_id": archimate_id,
+                "archimate_source": archimate_source,
+                "archimate_type": archimate_type,
+            },
+        )
+
+    def merge_archimate_relation(
+        self,
+        client: Neo4jClient,
+        source_name: str,
+        source_label: str,
+        target_name: str,
+        target_label: str,
+        bridgr_relation: str,
+        archimate_rel_type: str,
+    ) -> None:
+        client.execute_write(
+            f"""
+            MATCH (s:{source_label} {{name: $source_name}})
+            MATCH (t:{target_label} {{name: $target_name}})
+            MERGE (s)-[r:{bridgr_relation}]->(t)
+            SET r.archimate_rel_type = $archimate_rel_type
+            """,
+            {
+                "source_name": source_name,
+                "target_name": target_name,
+                "archimate_rel_type": archimate_rel_type,
+            },
+        )
+
     def _resolve_duplicate_placeholders(self, client: Neo4jClient, process_id: str, process_name: str) -> None:
         client.execute_write(
             """

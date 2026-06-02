@@ -55,6 +55,7 @@ from services.runtime_service import (
     update_pipeline_run_tracker,
     write_debug_log,
 )
+from ui.archimate_tab import render_archimate_tab
 from ui.config_tab import render_config_tab
 from ui.organization_tab import render_organization_tab
 from ui.query_tab import render_query_tab
@@ -65,7 +66,7 @@ def main() -> None:
     load_env_files()
     st.set_page_config(page_title="BRIDGR", layout="wide")
     st.title("BRIDGR")
-    tabs = st.tabs(["Kommunikation", "Zuordnungen", "Konfiguration", "Organisation"])
+    tabs = st.tabs(["Kommunikation", "Zuordnungen", "Konfiguration", "Organisation", "EA-Modell"])
     config_path = Path("config.json")
 
     with tabs[0]:
@@ -76,6 +77,8 @@ def main() -> None:
         render_config_tab(config_path)
     with tabs[3]:
         render_organization_tab()
+    with tabs[4]:
+        render_archimate_tab()
 
 
 if __name__ == "__main__":

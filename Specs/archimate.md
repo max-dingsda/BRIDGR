@@ -1,8 +1,9 @@
 # ArchiMate — Konzeptionelle Planung
 
-> Status: **Konzept abgeschlossen** — alle Designfragen (F1–F5) entschieden.
-> Nächster Schritt: Architekturkapitel in `Bridgr_Architektur_v21.md` schreiben,
-> dann Implementierung starten.
+> Status: **Implementiert** (v0.21) — Konzept, Architektur und Code vollständig.
+> Referenz: `Specs/Bridgr_Architektur_v21.md`, Abschnitt 13.
+> Implementierte Artefakte: `archimate_mapping.json`, `services/archimate_import_service.py`,
+> `services/archimate_export_service.py`, `ui/archimate_tab.py`.
 
 ---
 
@@ -528,14 +529,19 @@ Archi kann Exchange-Format importieren und exportieren.
 
 ## Nächste Schritte
 
-### Architektur finalisieren
-1. Architekturkapitel in `Bridgr_Architektur_v21.md` schreiben
-2. Fuzzy-Match-Schwellwert aus bestehendem CMDB-Matching ablesen und in `archimate_mapping.json`-Default übernehmen
+### Umgesetzt (v0.21)
+1. `Specs/Bridgr_Architektur_v21.md` — vollständiges Architekturkapitel (Abschnitt 13)
+2. `archimate_mapping.json` — Datei mit Defaults im Projekt-Root
+3. `services/archimate_import_service.py` — XML-Parser, Typ-Mapping, Identity Resolution, Neo4j-Schreiben
+4. `services/archimate_export_service.py` — Neo4j lesen, XML generieren
+5. `ui/archimate_tab.py` — Mapping-Editor (Elemente + Beziehungen), Import-Upload, Export-Button
+6. `app.py` — Tab "EA-Modell" als 5. Tab eingebunden
+7. `skills/graph_writer.py` — `merge_archimate_node()` und `merge_archimate_relation()`
+8. `app_config.py` — `resolve_archimate_mapping_path()`
+9. Tests: 28 Tests grün (Parser, Namensauflösung, Identity Resolution, Beziehungen, Export-Roundtrip)
 
-### Implementierungsreihenfolge (Entwurf)
-1. `archimate_mapping.json` — Datei mit Defaults anlegen
-2. `services/archimate_import_service.py` — XML-Parser, Typ-Mapping, Identity Resolution, Neo4j-Schreiben
-3. `services/archimate_export_service.py` — Neo4j lesen, XML generieren
-4. `ui/archimate_tab.py` — Mapping-Editor + Import/Export-Aktionen
-5. `app.py` — neuen Tab einbinden
-6. Tests: Parser, Mapping, Identity Resolution, Roundtrip (import → export → compare)
+### Offen / Spätere Versionen
+- ArchiMate Views/Viewpoints im Export
+- Selektiver Export (setzt Views voraus)
+- Automatischer Beziehungsnachzug nach Kandidaten-Bestätigung (aktuell: Re-Import nötig)
+- Unterstützung für Archi-natives `.archimate`-Format (anderer XML-Namespace)
