@@ -1,8 +1,348 @@
 {
-  "confirmed": [],
+  "confirmed": [
+    {
+      "prozess": "Jahresabschluss",
+      "anwendung_name": "SAP ERP",
+      "cmdb_id": "app-001",
+      "resolved_to": "SAP SD",
+      "bestaetigt_am": "2026-06-03",
+      "quelle": "manueller_link"
+    },
+    {
+      "prozess": "Jahresabschluss",
+      "anwendung_name": "Power BI",
+      "cmdb_id": "app-011",
+      "resolved_to": "Testanwendung",
+      "bestaetigt_am": "2026-06-03",
+      "quelle": "manueller_link"
+    },
+    {
+      "prozess": "Jahresabschluss",
+      "anwendung_name": "SAP BW",
+      "cmdb_id": "app-009",
+      "resolved_to": "Salesforce",
+      "bestaetigt_am": "2026-06-03",
+      "quelle": "manueller_link"
+    }
+  ],
   "rejected": [],
   "disambiguation": [],
   "process_identity": [],
-  "org_units": [],
-  "org_unit_candidates": []
+  "org_units": [
+    {
+      "name": "Rechnungswesen",
+      "created_at": "2026-06-03",
+      "source": "manual"
+    },
+    {
+      "name": "Operations",
+      "created_at": "2026-06-03",
+      "source": "candidate"
+    },
+    {
+      "name": "Sales",
+      "created_at": "2026-06-03",
+      "source": "candidate"
+    },
+    {
+      "name": "Team Accounting",
+      "created_at": "2026-06-03",
+      "source": "candidate"
+    },
+    {
+      "name": "Team Commerce IT",
+      "created_at": "2026-06-03",
+      "source": "candidate"
+    },
+    {
+      "name": "Team Infrastructure",
+      "created_at": "2026-06-03",
+      "source": "candidate"
+    },
+    {
+      "name": "Team Infrastruktur",
+      "created_at": "2026-06-03",
+      "source": "candidate"
+    },
+    {
+      "name": "Team Legal",
+      "created_at": "2026-06-03",
+      "source": "candidate"
+    },
+    {
+      "name": "Team Platform",
+      "created_at": "2026-06-03",
+      "source": "candidate"
+    }
+  ],
+  "org_unit_candidates": [
+    {
+      "candidate_name": "Salesdepartment",
+      "normalized_name": "salesdepartment",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\cmdb_entities.csv"
+      ],
+      "process_names": [],
+      "role_names": [],
+      "status": "mapped",
+      "mapped_org_unit": "Sales",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Accounting",
+      "normalized_name": "accounting",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\cmdb_entities.csv"
+      ],
+      "process_names": [],
+      "role_names": [],
+      "status": "mapped",
+      "mapped_org_unit": "Rechnungswesen",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Team Commerce IT",
+      "normalized_name": "team commerce it",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\cmdb_entities.csv"
+      ],
+      "process_names": [],
+      "role_names": [],
+      "status": "mapped",
+      "mapped_org_unit": "Team Commerce IT",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Customer Service Team",
+      "normalized_name": "customer service team",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\cmdb_entities.csv"
+      ],
+      "process_names": [],
+      "role_names": [],
+      "status": "mapped",
+      "mapped_org_unit": "Rechnungswesen",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Team Infrastructure",
+      "normalized_name": "team infrastructure",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\cmdb_entities.csv"
+      ],
+      "process_names": [],
+      "role_names": [],
+      "status": "mapped",
+      "mapped_org_unit": "Team Infrastructure",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Sales",
+      "normalized_name": "sales",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\cmdb_entities.csv"
+      ],
+      "process_names": [],
+      "role_names": [],
+      "status": "mapped",
+      "mapped_org_unit": "Sales",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Team Legal",
+      "normalized_name": "team legal",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\cmdb_entities.csv"
+      ],
+      "process_names": [],
+      "role_names": [],
+      "status": "mapped",
+      "mapped_org_unit": "Team Legal",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Team Accounting",
+      "normalized_name": "team accounting",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\cmdb_entities.csv"
+      ],
+      "process_names": [],
+      "role_names": [],
+      "status": "mapped",
+      "mapped_org_unit": "Team Accounting",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Team Plattform",
+      "normalized_name": "team plattform",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\cmdb_entities.csv"
+      ],
+      "process_names": [],
+      "role_names": [],
+      "status": "mapped",
+      "mapped_org_unit": "Team Platform",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Team Platform",
+      "normalized_name": "team platform",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\cmdb_entities.csv"
+      ],
+      "process_names": [],
+      "role_names": [],
+      "status": "mapped",
+      "mapped_org_unit": "Team Platform",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Team Infrastruktur",
+      "normalized_name": "team infrastruktur",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\cmdb_entities.csv"
+      ],
+      "process_names": [],
+      "role_names": [],
+      "status": "mapped",
+      "mapped_org_unit": "Team Infrastruktur",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Operations",
+      "normalized_name": "operations",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\cmdb_entities.csv"
+      ],
+      "process_names": [],
+      "role_names": [],
+      "status": "mapped",
+      "mapped_org_unit": "Operations",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Muster GmbH",
+      "normalized_name": "muster gmbh",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx",
+        "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt"
+      ],
+      "process_names": [
+        "Jahresabschluss",
+        "Angebotserstellung"
+      ],
+      "role_names": [
+        "Vertriebsmitarbeiter"
+      ],
+      "status": "mapped",
+      "mapped_org_unit": "Rechnungswesen",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Buchhaltung",
+      "normalized_name": "buchhaltung",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx",
+        "F:\\workspace\\BRIDGR\\Input\\04_Rechnungsstellung.txt",
+        "F:\\workspace\\BRIDGR\\Input\\05_Zahlungsabwicklung.txt"
+      ],
+      "process_names": [
+        "Jahresabschluss",
+        "Rechnungsstellung",
+        "Zahlungsabwicklung"
+      ],
+      "role_names": [
+        "Buchhalter"
+      ],
+      "status": "mapped",
+      "mapped_org_unit": "Rechnungswesen",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Vertriebsinnendienst",
+      "normalized_name": "vertriebsinnendienst",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt"
+      ],
+      "process_names": [
+        "Auftragserfassung"
+      ],
+      "role_names": [
+        "Vertriebsinnendienst"
+      ],
+      "status": "open",
+      "mapped_org_unit": "",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Auftragsbearbeitung",
+      "normalized_name": "auftragsbearbeitung",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\03_Auftragsbearbeitung.txt",
+        "F:\\workspace\\BRIDGR\\Input\\04_Rechnungsstellung.txt"
+      ],
+      "process_names": [
+        "Auftragsbearbeitung",
+        "Rechnungsstellung"
+      ],
+      "role_names": [
+        "Mitarbeiterin der Auftragsbearbeitung",
+        "Buchhalter"
+      ],
+      "status": "open",
+      "mapped_org_unit": "",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Logistik",
+      "normalized_name": "logistik",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\03_Auftragsbearbeitung.txt"
+      ],
+      "process_names": [
+        "Auftragsbearbeitung"
+      ],
+      "role_names": [
+        "Mitarbeiterin der Auftragsbearbeitung"
+      ],
+      "status": "open",
+      "mapped_org_unit": "",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Controlling",
+      "normalized_name": "controlling",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\05_Zahlungsabwicklung.txt"
+      ],
+      "process_names": [
+        "Zahlungsabwicklung"
+      ],
+      "role_names": [
+        "Buchhalter"
+      ],
+      "status": "open",
+      "mapped_org_unit": "",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    }
+  ],
+  "role_decisions": []
 }

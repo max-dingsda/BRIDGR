@@ -1,0 +1,29 @@
+{
+  "documents": [
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt",
+      "file_hash": "6ba77fe802c7bc324ddf1eb1d3a0b3bcdb835914ead1c692f74c003cdabb0be1",
+      "process_id": "01_Angebotserstellung"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt",
+      "file_hash": "a06da306bb885c96af9525d67a8d2a754e25512c25a23244b06cb9c82ac8e9f4",
+      "process_id": "02_Auftragserfassung"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\03_Auftragsbearbeitung.txt",
+      "file_hash": "79a23b5cab41ca8a2cab5643907bb10ef717b8cc9894438cbcbd60aa67d21729",
+      "process_id": "03_Auftragsbearbeitung"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\04_Rechnungsstellung.txt",
+      "file_hash": "fccc6af22988027a1d5e854fa68022ddf8d8ff370214639c60d3917c8937ba6f",
+      "process_id": "04_Rechnungsstellung"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\05_Zahlungsabwicklung.txt",
+      "file_hash": "e628696243eb91ce261bfe665596604799096730fba412ce11c4b8e669a67472",
+      "process_id": "05_Zahlungsabwicklung"
+    }
+  ]
+}

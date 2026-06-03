@@ -8,7 +8,9 @@ from knowledge_base import (
     KnowledgeBase,
     accept_org_unit_candidate_as_new,
     add_org_unit,
+    is_explicit_role,
     load_knowledge_base,
+    mark_role_as_explicit,
     map_org_unit_candidate,
     normalize_org_unit_name,
     reject_org_unit_candidate,
@@ -164,6 +166,23 @@ def add_org_unit_entry(config: AppConfig, knowledge_base: KnowledgeBase, org_uni
     return "success", "Organisationseinheit gespeichert und nach Neo4j synchronisiert."
 
 
+def ensure_org_unit_registered(config: AppConfig, org_unit_name: str, source: str = "manual") -> str:
+    cleaned_name = " ".join(org_unit_name.strip().split())
+    if not cleaned_name:
+        return cleaned_name
+
+    knowledge_base = load_knowledge_base()
+    updated_kb = add_org_unit(knowledge_base, cleaned_name, source=source)
+    if updated_kb != knowledge_base:
+        save_knowledge_base(updated_kb)
+    try:
+        persist_org_unit_node(config, cleaned_name)
+        sync_knowledge_base_aliases(get_session_neo4j_client(config), updated_kb)
+    except Exception:
+        return cleaned_name
+    return cleaned_name
+
+
 def map_org_candidate(config: AppConfig, knowledge_base: KnowledgeBase, candidate_name: str, target_name: str) -> tuple[str, str]:
     updated_kb = map_org_unit_candidate(knowledge_base, candidate_name, target_name)
     save_knowledge_base(updated_kb)
@@ -209,6 +228,7 @@ def set_process_owner(config: AppConfig, process_id: str, org_unit_name: str) ->
     cleaned = " ".join(org_unit_name.strip().split())
     if not cleaned:
         return "error", "Organisationseinheit darf nicht leer sein."
+    ensure_org_unit_registered(config, cleaned, source="manual")
     neo4j_client = get_session_neo4j_client(config)
     GraphWriter().write_process_owner(neo4j_client, cleaned, process_id)
     return "success", f"Eigentümer gesetzt."
@@ -269,6 +289,7 @@ def _update_process_owner_candidate_status(config: AppConfig, process_id: str, s
 
 
 def accept_process_owner_candidate(config: AppConfig, process_id: str, org_unit_name: str) -> tuple[str, str]:
+    ensure_org_unit_registered(config, org_unit_name, source="candidate")
     level, message = set_process_owner(config, process_id, org_unit_name)
     if level == "success":
         _update_process_owner_candidate_status(config, process_id, "accepted")
@@ -281,6 +302,7 @@ def reject_process_owner_candidate(config: AppConfig, process_id: str) -> tuple[
 
 
 def load_unassigned_roles(config: AppConfig) -> list[dict]:
+    knowledge_base = load_knowledge_base()
     neo4j_client = get_session_neo4j_client(config)
     rows = neo4j_client.execute_write(
         """
@@ -290,13 +312,25 @@ def load_unassigned_roles(config: AppConfig) -> list[dict]:
         ORDER BY r.name
         """
     )
-    return [{"rolle": row["rolle"], "prozesse": row["prozesse"]} for row in rows]
+    return [
+        {"rolle": row["rolle"], "prozesse": row["prozesse"]}
+        for row in rows
+        if row.get("rolle") and not is_explicit_role(knowledge_base, row["rolle"])
+    ]
 
 
 def assign_role_to_org_unit(config: AppConfig, role_name: str, org_unit_name: str) -> tuple[str, str]:
     cleaned_org_unit = " ".join(org_unit_name.strip().split())
     if not cleaned_org_unit:
         return "error", "Organisationseinheit darf nicht leer sein."
+    ensure_org_unit_registered(config, cleaned_org_unit, source="manual")
     neo4j_client = get_session_neo4j_client(config)
     GraphWriter().write_role_assignment(neo4j_client, cleaned_org_unit, role_name)
     return "success", f"Rolle \"{role_name}\" wurde \"{cleaned_org_unit}\" zugeordnet."
+
+
+def mark_role_as_role_only(role_name: str) -> tuple[str, str]:
+    knowledge_base = load_knowledge_base()
+    updated_kb = mark_role_as_explicit(knowledge_base, role_name)
+    save_knowledge_base(updated_kb)
+    return "success", f"Rolle \"{role_name}\" wurde als reine Rolle markiert."

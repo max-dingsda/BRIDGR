@@ -1,0 +1,666 @@
+{
+  "run_mode": "partial",
+  "output_path": "F:\\workspace\\BRIDGR\\Output",
+  "used_output_fallback": false,
+  "documents": [
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt",
+      "file_hash": "6ba77fe802c7bc324ddf1eb1d3a0b3bcdb835914ead1c692f74c003cdabb0be1",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Angebotserstellung",
+        "process_id": "01_Angebotserstellung",
+        "org_unit": "Rechnungswesen",
+        "roles": [
+          "Vertriebsmitarbeiter"
+        ],
+        "org_units": [
+          "Rechnungswesen"
+        ],
+        "org_unit_candidates": [
+          "Muster GmbH"
+        ],
+        "follows_after": [
+          "Kundenanfrage"
+        ],
+        "raw_applications": [
+          {
+            "name": "SAP CRM",
+            "confidence": "stark"
+          },
+          {
+            "name": "DocuSign",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP CRM",
+            "confidence": "stark"
+          },
+          {
+            "name": "DocuSign",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt",
+        "process_owner_candidate": "Vertrieb"
+      },
+      "matches": [
+        {
+          "application_name": "SAP CRM",
+          "cmdb_id": "app-006",
+          "matched_name": "SAP SRM",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.8571428571428571
+        },
+        {
+          "application_name": "DocuSign",
+          "cmdb_id": "app-007",
+          "matched_name": "DocuSign",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "DocuSign",
+          "cmdb_id": "if-004",
+          "matched_name": "DocuSign Signing API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Angebotserstellung",
+          "application_name": "SAP CRM",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Angebotserstellung",
+          "application_name": "DocuSign",
+          "reason": "fuzzy"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Angebotserstellung",
+          "process_id": "01_Angebotserstellung",
+          "org_unit": "Rechnungswesen",
+          "roles": [
+            "Vertriebsmitarbeiter"
+          ],
+          "org_units": [
+            "Rechnungswesen"
+          ],
+          "org_unit_candidates": [
+            "Muster GmbH"
+          ],
+          "follows_after": [
+            "Kundenanfrage"
+          ],
+          "raw_applications": [
+            {
+              "name": "SAP CRM",
+              "confidence": "stark"
+            },
+            {
+              "name": "DocuSign",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP CRM",
+              "confidence": "stark"
+            },
+            {
+              "name": "DocuSign",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt",
+          "process_owner_candidate": "Vertrieb"
+        },
+        "matches": [
+          {
+            "application_name": "SAP CRM",
+            "cmdb_id": "app-006",
+            "matched_name": "SAP SRM",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.8571428571428571
+          },
+          {
+            "application_name": "DocuSign",
+            "cmdb_id": "app-007",
+            "matched_name": "DocuSign",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "DocuSign",
+            "cmdb_id": "if-004",
+            "matched_name": "DocuSign Signing API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt",
+      "file_hash": "a06da306bb885c96af9525d67a8d2a754e25512c25a23244b06cb9c82ac8e9f4",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Auftragserfassung",
+        "process_id": "02_Auftragserfassung",
+        "org_unit": "",
+        "roles": [
+          "Vertriebsinnendienst"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [
+          "Vertriebsinnendienst"
+        ],
+        "follows_after": [
+          "Angebotserstellung"
+        ],
+        "raw_applications": [
+          {
+            "name": "SAP CRM",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP CRM",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt",
+        "process_owner_candidate": ""
+      },
+      "matches": [
+        {
+          "application_name": "SAP CRM",
+          "cmdb_id": "app-006",
+          "matched_name": "SAP SRM",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.8571428571428571
+        },
+        {
+          "application_name": "SAP ERP",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Auftragserfassung",
+          "application_name": "SAP CRM",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Auftragserfassung",
+          "application_name": "SAP ERP",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Auftragserfassung",
+          "process_id": "02_Auftragserfassung",
+          "org_unit": "",
+          "roles": [
+            "Vertriebsinnendienst"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [
+            "Vertriebsinnendienst"
+          ],
+          "follows_after": [
+            "Angebotserstellung"
+          ],
+          "raw_applications": [
+            {
+              "name": "SAP CRM",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP CRM",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt",
+          "process_owner_candidate": ""
+        },
+        "matches": [
+          {
+            "application_name": "SAP CRM",
+            "cmdb_id": "app-006",
+            "matched_name": "SAP SRM",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.8571428571428571
+          },
+          {
+            "application_name": "SAP ERP",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\03_Auftragsbearbeitung.txt",
+      "file_hash": "79a23b5cab41ca8a2cab5643907bb10ef717b8cc9894438cbcbd60aa67d21729",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Auftragsbearbeitung",
+        "process_id": "03_Auftragsbearbeitung",
+        "org_unit": "",
+        "roles": [
+          "Mitarbeiterin der Auftragsbearbeitung"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [
+          "Auftragsbearbeitung",
+          "Logistik"
+        ],
+        "follows_after": [
+          "Auftragserfassung"
+        ],
+        "raw_applications": [
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\03_Auftragsbearbeitung.txt",
+        "process_owner_candidate": ""
+      },
+      "matches": [
+        {
+          "application_name": "SAP ERP",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Auftragsbearbeitung",
+          "application_name": "SAP ERP",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Auftragsbearbeitung",
+          "process_id": "03_Auftragsbearbeitung",
+          "org_unit": "",
+          "roles": [
+            "Mitarbeiterin der Auftragsbearbeitung"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [
+            "Auftragsbearbeitung",
+            "Logistik"
+          ],
+          "follows_after": [
+            "Auftragserfassung"
+          ],
+          "raw_applications": [
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\03_Auftragsbearbeitung.txt",
+          "process_owner_candidate": ""
+        },
+        "matches": [
+          {
+            "application_name": "SAP ERP",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\04_Rechnungsstellung.txt",
+      "file_hash": "fccc6af22988027a1d5e854fa68022ddf8d8ff370214639c60d3917c8937ba6f",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Rechnungsstellung",
+        "process_id": "04_Rechnungsstellung",
+        "org_unit": "Rechnungswesen",
+        "roles": [
+          "Buchhalter"
+        ],
+        "org_units": [
+          "Rechnungswesen"
+        ],
+        "org_unit_candidates": [
+          "Buchhaltung",
+          "Auftragsbearbeitung"
+        ],
+        "follows_after": [
+          "Auftragsbearbeitung"
+        ],
+        "raw_applications": [
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          },
+          {
+            "name": "DocuSign",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          },
+          {
+            "name": "DocuSign",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\04_Rechnungsstellung.txt",
+        "process_owner_candidate": "Finanzen"
+      },
+      "matches": [
+        {
+          "application_name": "SAP ERP",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "DocuSign",
+          "cmdb_id": "app-007",
+          "matched_name": "DocuSign",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "DocuSign",
+          "cmdb_id": "if-004",
+          "matched_name": "DocuSign Signing API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Rechnungsstellung",
+          "application_name": "SAP ERP",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Rechnungsstellung",
+          "application_name": "DocuSign",
+          "reason": "fuzzy"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Rechnungsstellung",
+          "process_id": "04_Rechnungsstellung",
+          "org_unit": "Rechnungswesen",
+          "roles": [
+            "Buchhalter"
+          ],
+          "org_units": [
+            "Rechnungswesen"
+          ],
+          "org_unit_candidates": [
+            "Buchhaltung",
+            "Auftragsbearbeitung"
+          ],
+          "follows_after": [
+            "Auftragsbearbeitung"
+          ],
+          "raw_applications": [
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            },
+            {
+              "name": "DocuSign",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            },
+            {
+              "name": "DocuSign",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\04_Rechnungsstellung.txt",
+          "process_owner_candidate": "Finanzen"
+        },
+        "matches": [
+          {
+            "application_name": "SAP ERP",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "DocuSign",
+            "cmdb_id": "app-007",
+            "matched_name": "DocuSign",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "DocuSign",
+            "cmdb_id": "if-004",
+            "matched_name": "DocuSign Signing API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\05_Zahlungsabwicklung.txt",
+      "file_hash": "e628696243eb91ce261bfe665596604799096730fba412ce11c4b8e669a67472",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Zahlungsabwicklung",
+        "process_id": "05_Zahlungsabwicklung",
+        "org_unit": "Rechnungswesen",
+        "roles": [
+          "Buchhalter"
+        ],
+        "org_units": [
+          "Rechnungswesen"
+        ],
+        "org_unit_candidates": [
+          "Buchhaltung",
+          "Controlling"
+        ],
+        "follows_after": [
+          "Rechnungsstellung"
+        ],
+        "raw_applications": [
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\05_Zahlungsabwicklung.txt",
+        "process_owner_candidate": ""
+      },
+      "matches": [
+        {
+          "application_name": "SAP ERP",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Zahlungsabwicklung",
+          "application_name": "SAP ERP",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Zahlungsabwicklung",
+          "process_id": "05_Zahlungsabwicklung",
+          "org_unit": "Rechnungswesen",
+          "roles": [
+            "Buchhalter"
+          ],
+          "org_units": [
+            "Rechnungswesen"
+          ],
+          "org_unit_candidates": [
+            "Buchhaltung",
+            "Controlling"
+          ],
+          "follows_after": [
+            "Rechnungsstellung"
+          ],
+          "raw_applications": [
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\05_Zahlungsabwicklung.txt",
+          "process_owner_candidate": ""
+        },
+        "matches": [
+          {
+            "application_name": "SAP ERP",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    }
+  ],
+  "import_archive_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_123858",
+  "import_archived_files": [
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_123858\\01_Angebotserstellung.txt",
+      "display_path": "01_Angebotserstellung.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_123858\\02_Auftragserfassung.txt",
+      "display_path": "02_Auftragserfassung.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\03_Auftragsbearbeitung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_123858\\03_Auftragsbearbeitung.txt",
+      "display_path": "03_Auftragsbearbeitung.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\04_Rechnungsstellung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_123858\\04_Rechnungsstellung.txt",
+      "display_path": "04_Rechnungsstellung.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\05_Zahlungsabwicklung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_123858\\05_Zahlungsabwicklung.txt",
+      "display_path": "05_Zahlungsabwicklung.txt"
+    }
+  ]
+}

@@ -9,6 +9,7 @@ from services.organization_service import (
     load_all_processes_with_owner,
     load_process_owner_candidates,
     load_unassigned_roles,
+    mark_role_as_role_only,
     reject_process_owner_candidate,
     set_process_owner,
 )
@@ -30,12 +31,14 @@ def _make_config():
 
 
 @patch("services.organization_service.get_session_neo4j_client")
-def test_load_unassigned_roles_returns_roles_from_neo4j(mock_get_client) -> None:
+@patch("services.organization_service.load_knowledge_base")
+def test_load_unassigned_roles_returns_roles_from_neo4j(mock_load_kb, mock_get_client) -> None:
     fake_client = FakeNeo4jClient(rows=[
         {"rolle": "Einkäufer", "prozesse": ["Bestellabwicklung"]},
         {"rolle": "Vertrieb", "prozesse": ["Angebotserstellung", "Auftragsabwicklung"]},
     ])
     mock_get_client.return_value = fake_client
+    mock_load_kb.return_value = MagicMock(role_decisions=[])
 
     result = load_unassigned_roles(_make_config())
 
@@ -46,9 +49,11 @@ def test_load_unassigned_roles_returns_roles_from_neo4j(mock_get_client) -> None
 
 
 @patch("services.organization_service.get_session_neo4j_client")
-def test_load_unassigned_roles_returns_empty_list_when_none_pending(mock_get_client) -> None:
+@patch("services.organization_service.load_knowledge_base")
+def test_load_unassigned_roles_returns_empty_list_when_none_pending(mock_load_kb, mock_get_client) -> None:
     fake_client = FakeNeo4jClient(rows=[])
     mock_get_client.return_value = fake_client
+    mock_load_kb.return_value = MagicMock(role_decisions=[])
 
     result = load_unassigned_roles(_make_config())
 
@@ -56,7 +61,32 @@ def test_load_unassigned_roles_returns_empty_list_when_none_pending(mock_get_cli
 
 
 @patch("services.organization_service.get_session_neo4j_client")
-def test_assign_role_to_org_unit_writes_kann_einnehmen(mock_get_client) -> None:
+@patch("services.organization_service.load_knowledge_base")
+def test_load_unassigned_roles_skips_roles_marked_as_role_only(mock_load_kb, mock_get_client) -> None:
+    fake_client = FakeNeo4jClient(rows=[
+        {"rolle": "Einkäufer", "prozesse": ["Bestellabwicklung"]},
+        {"rolle": "Freigeber", "prozesse": ["Freigabe"]},
+    ])
+    mock_get_client.return_value = fake_client
+    mock_load_kb.return_value = MagicMock(
+        role_decisions=[
+            {
+                "role_name": "Freigeber",
+                "normalized_name": "freigeber",
+                "status": "role_only",
+                "decided_at": "2026-06-03",
+            }
+        ]
+    )
+
+    result = load_unassigned_roles(_make_config())
+
+    assert [entry["rolle"] for entry in result] == ["Einkäufer"]
+
+
+@patch("services.organization_service.get_session_neo4j_client")
+@patch("services.organization_service.ensure_org_unit_registered")
+def test_assign_role_to_org_unit_writes_kann_einnehmen(_mock_register, mock_get_client) -> None:
     fake_client = FakeNeo4jClient()
     mock_get_client.return_value = fake_client
 
@@ -70,7 +100,8 @@ def test_assign_role_to_org_unit_writes_kann_einnehmen(mock_get_client) -> None:
 
 
 @patch("services.organization_service.get_session_neo4j_client")
-def test_assign_role_to_org_unit_rejects_empty_org_unit_name(mock_get_client) -> None:
+@patch("services.organization_service.ensure_org_unit_registered")
+def test_assign_role_to_org_unit_rejects_empty_org_unit_name(_mock_register, mock_get_client) -> None:
     fake_client = FakeNeo4jClient()
     mock_get_client.return_value = fake_client
 
@@ -97,7 +128,8 @@ def test_load_all_processes_with_owner_returns_list(mock_get_client) -> None:
 
 
 @patch("services.organization_service.get_session_neo4j_client")
-def test_set_process_owner_writes_verantwortet(mock_get_client) -> None:
+@patch("services.organization_service.ensure_org_unit_registered")
+def test_set_process_owner_writes_verantwortet(_mock_register, mock_get_client) -> None:
     fake_client = FakeNeo4jClient()
     mock_get_client.return_value = fake_client
 
@@ -111,7 +143,8 @@ def test_set_process_owner_writes_verantwortet(mock_get_client) -> None:
 
 
 @patch("services.organization_service.get_session_neo4j_client")
-def test_set_process_owner_rejects_empty_org_unit(mock_get_client) -> None:
+@patch("services.organization_service.ensure_org_unit_registered")
+def test_set_process_owner_rejects_empty_org_unit(_mock_register, mock_get_client) -> None:
     fake_client = FakeNeo4jClient()
     mock_get_client.return_value = fake_client
 
@@ -214,7 +247,10 @@ def test_reject_process_owner_candidate_sets_status(mock_neo4j, mock_output, moc
 @patch("services.organization_service.load_latest_run")
 @patch("services.organization_service.resolve_runtime_output_path")
 @patch("services.organization_service.get_session_neo4j_client")
-def test_accept_process_owner_candidate_writes_verantwortet_and_status(mock_neo4j, mock_output, mock_load, mock_write) -> None:
+@patch("services.organization_service.ensure_org_unit_registered")
+def test_accept_process_owner_candidate_writes_verantwortet_and_status(
+    _mock_register, mock_neo4j, mock_output, mock_load, mock_write
+) -> None:
     run = _make_run_with_candidate("proc-1", "Einkauf")
     mock_output.return_value = (MagicMock(), False)
     mock_load.return_value = run
@@ -231,7 +267,8 @@ def test_accept_process_owner_candidate_writes_verantwortet_and_status(mock_neo4
 
 
 @patch("services.organization_service.get_session_neo4j_client")
-def test_assign_role_to_org_unit_trims_org_unit_name(mock_get_client) -> None:
+@patch("services.organization_service.ensure_org_unit_registered")
+def test_assign_role_to_org_unit_trims_org_unit_name(_mock_register, mock_get_client) -> None:
     fake_client = FakeNeo4jClient()
     mock_get_client.return_value = fake_client
 
@@ -239,3 +276,25 @@ def test_assign_role_to_org_unit_trims_org_unit_name(mock_get_client) -> None:
 
     params_list = [p for _, p in fake_client.written if p and p.get("org_unit_name")]
     assert params_list[0]["org_unit_name"] == "Einkauf"
+
+
+@patch("services.organization_service.save_knowledge_base")
+@patch("services.organization_service.load_knowledge_base")
+def test_mark_role_as_role_only_persists_decision(mock_load_kb, mock_save_kb) -> None:
+    mock_load_kb.return_value = MagicMock(
+        confirmed=[],
+        rejected=[],
+        disambiguation=[],
+        process_identity=[],
+        org_units=[],
+        org_unit_candidates=[],
+        role_decisions=[],
+    )
+
+    level, message = mark_role_as_role_only("Freigeber")
+
+    assert level == "success"
+    assert "Freigeber" in message
+    saved_kb = mock_save_kb.call_args[0][0]
+    assert saved_kb.role_decisions[0]["normalized_name"] == "freigeber"
+    assert saved_kb.role_decisions[0]["status"] == "role_only"

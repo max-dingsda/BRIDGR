@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import asdict
 from dataclasses import dataclass
+from dataclasses import field
 from datetime import date
 from pathlib import Path
 from typing import Any, Literal, TypedDict
@@ -45,6 +46,13 @@ class OrgUnitCandidate(TypedDict):
     last_seen: str
 
 
+class RoleDecision(TypedDict):
+    role_name: str
+    normalized_name: str
+    status: str
+    decided_at: str
+
+
 @dataclass(slots=True)
 class KnowledgeBase:
     confirmed: list[ConfirmedLink]
@@ -53,6 +61,7 @@ class KnowledgeBase:
     process_identity: list[dict[str, Any]]
     org_units: list[OrgUnitEntry]
     org_unit_candidates: list[OrgUnitCandidate]
+    role_decisions: list[RoleDecision] = field(default_factory=list)
 
 
 KnowledgeBaseSection = Literal[
@@ -79,6 +88,7 @@ def load_knowledge_base(path: Path | None = None) -> KnowledgeBase:
             process_identity=[],
             org_units=[],
             org_unit_candidates=[],
+            role_decisions=[],
         )
 
     with kb_path.open("r", encoding="utf-8") as handle:
@@ -91,6 +101,7 @@ def load_knowledge_base(path: Path | None = None) -> KnowledgeBase:
         process_identity=list(payload.get("process_identity", [])),
         org_units=list(payload.get("org_units", [])),
         org_unit_candidates=list(payload.get("org_unit_candidates", [])),
+        role_decisions=list(payload.get("role_decisions", [])),
     )
 
 
@@ -145,6 +156,7 @@ def confirm_link(
         process_identity=knowledge_base.process_identity,
         org_units=knowledge_base.org_units,
         org_unit_candidates=knowledge_base.org_unit_candidates,
+        role_decisions=knowledge_base.role_decisions,
     )
 
 
@@ -187,6 +199,7 @@ def reject_link(
         process_identity=knowledge_base.process_identity,
         org_units=knowledge_base.org_units,
         org_unit_candidates=knowledge_base.org_unit_candidates,
+        role_decisions=knowledge_base.role_decisions,
     )
 
 
@@ -219,6 +232,7 @@ def add_org_unit(
         process_identity=knowledge_base.process_identity,
         org_units=updated_org_units,
         org_unit_candidates=knowledge_base.org_unit_candidates,
+        role_decisions=knowledge_base.role_decisions,
     )
 
 
@@ -257,6 +271,7 @@ def upsert_org_unit_candidate(
             process_identity=knowledge_base.process_identity,
             org_units=knowledge_base.org_units,
             org_unit_candidates=updated_candidates,
+            role_decisions=knowledge_base.role_decisions,
         )
 
     updated_candidates.append(
@@ -279,6 +294,7 @@ def upsert_org_unit_candidate(
         process_identity=knowledge_base.process_identity,
         org_units=knowledge_base.org_units,
         org_unit_candidates=updated_candidates,
+        role_decisions=knowledge_base.role_decisions,
     )
 
 
@@ -305,6 +321,7 @@ def map_org_unit_candidate(
         process_identity=updated.process_identity,
         org_units=updated.org_units,
         org_unit_candidates=updated_candidates,
+        role_decisions=updated.role_decisions,
     )
 
 
@@ -338,6 +355,48 @@ def reject_org_unit_candidate(
         process_identity=knowledge_base.process_identity,
         org_units=knowledge_base.org_units,
         org_unit_candidates=updated_candidates,
+        role_decisions=knowledge_base.role_decisions,
+    )
+
+
+def mark_role_as_explicit(
+    knowledge_base: KnowledgeBase,
+    role_name: str,
+) -> KnowledgeBase:
+    cleaned_name = " ".join(role_name.strip().split())
+    if not cleaned_name:
+        return knowledge_base
+
+    normalized_name = normalize_org_unit_name(cleaned_name)
+    updated_decisions = [
+        entry
+        for entry in knowledge_base.role_decisions
+        if entry.get("normalized_name") != normalized_name
+    ]
+    updated_decisions.append(
+        {
+            "role_name": cleaned_name,
+            "normalized_name": normalized_name,
+            "status": "role_only",
+            "decided_at": date.today().isoformat(),
+        }
+    )
+    return KnowledgeBase(
+        confirmed=knowledge_base.confirmed,
+        rejected=knowledge_base.rejected,
+        disambiguation=knowledge_base.disambiguation,
+        process_identity=knowledge_base.process_identity,
+        org_units=knowledge_base.org_units,
+        org_unit_candidates=knowledge_base.org_unit_candidates,
+        role_decisions=updated_decisions,
+    )
+
+
+def is_explicit_role(knowledge_base: KnowledgeBase, role_name: str) -> bool:
+    normalized_name = normalize_org_unit_name(role_name)
+    return any(
+        entry.get("normalized_name") == normalized_name and entry.get("status") == "role_only"
+        for entry in knowledge_base.role_decisions
     )
 
 
@@ -352,4 +411,5 @@ def clear_knowledge_base_sections(
         process_identity=[] if "process_identity" in sections else knowledge_base.process_identity,
         org_units=[] if "org_units" in sections else knowledge_base.org_units,
         org_unit_candidates=[] if "org_unit_candidates" in sections else knowledge_base.org_unit_candidates,
+        role_decisions=knowledge_base.role_decisions,
     )

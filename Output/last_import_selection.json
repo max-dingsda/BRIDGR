@@ -1,0 +1,18 @@
+{
+  "source_paths": [
+    "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt",
+    "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt",
+    "F:\\workspace\\BRIDGR\\Input\\03_Auftragsbearbeitung.txt",
+    "F:\\workspace\\BRIDGR\\Input\\04_Rechnungsstellung.txt",
+    "F:\\workspace\\BRIDGR\\Input\\05_Zahlungsabwicklung.txt"
+  ],
+  "display_paths": [
+    "01_Angebotserstellung.txt",
+    "02_Auftragserfassung.txt",
+    "03_Auftragsbearbeitung.txt",
+    "04_Rechnungsstellung.txt",
+    "05_Zahlungsabwicklung.txt"
+  ],
+  "archive_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_123858",
+  "run_mode": "partial"
+}
