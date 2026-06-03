@@ -1,5 +1,5 @@
 {
-  "run_mode": "partial",
+  "run_mode": "full",
   "output_path": "F:\\workspace\\BRIDGR\\Output",
   "used_output_fallback": false,
   "documents": [
@@ -10,16 +10,12 @@
       "extracted_process": {
         "process_name": "Angebotserstellung",
         "process_id": "01_Angebotserstellung",
-        "org_unit": "Rechnungswesen",
+        "org_unit": "",
         "roles": [
           "Vertriebsmitarbeiter"
         ],
-        "org_units": [
-          "Rechnungswesen"
-        ],
-        "org_unit_candidates": [
-          "Muster GmbH"
-        ],
+        "org_units": [],
+        "org_unit_candidates": [],
         "follows_after": [
           "Kundenanfrage"
         ],
@@ -88,16 +84,12 @@
         "process": {
           "process_name": "Angebotserstellung",
           "process_id": "01_Angebotserstellung",
-          "org_unit": "Rechnungswesen",
+          "org_unit": "",
           "roles": [
             "Vertriebsmitarbeiter"
           ],
-          "org_units": [
-            "Rechnungswesen"
-          ],
-          "org_unit_candidates": [
-            "Muster GmbH"
-          ],
+          "org_units": [],
+          "org_unit_candidates": [],
           "follows_after": [
             "Kundenanfrage"
           ],
@@ -151,7 +143,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -166,9 +158,7 @@
           "Vertriebsinnendienst"
         ],
         "org_units": [],
-        "org_unit_candidates": [
-          "Vertriebsinnendienst"
-        ],
+        "org_unit_candidates": [],
         "follows_after": [
           "Angebotserstellung"
         ],
@@ -234,9 +224,7 @@
             "Vertriebsinnendienst"
           ],
           "org_units": [],
-          "org_unit_candidates": [
-            "Vertriebsinnendienst"
-          ],
+          "org_unit_candidates": [],
           "follows_after": [
             "Angebotserstellung"
           ],
@@ -282,7 +270,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -293,14 +281,9 @@
         "process_name": "Auftragsbearbeitung",
         "process_id": "03_Auftragsbearbeitung",
         "org_unit": "",
-        "roles": [
-          "Mitarbeiterin der Auftragsbearbeitung"
-        ],
+        "roles": [],
         "org_units": [],
-        "org_unit_candidates": [
-          "Auftragsbearbeitung",
-          "Logistik"
-        ],
+        "org_unit_candidates": [],
         "follows_after": [
           "Auftragserfassung"
         ],
@@ -341,14 +324,9 @@
           "process_name": "Auftragsbearbeitung",
           "process_id": "03_Auftragsbearbeitung",
           "org_unit": "",
-          "roles": [
-            "Mitarbeiterin der Auftragsbearbeitung"
-          ],
+          "roles": [],
           "org_units": [],
-          "org_unit_candidates": [
-            "Auftragsbearbeitung",
-            "Logistik"
-          ],
+          "org_unit_candidates": [],
           "follows_after": [
             "Auftragserfassung"
           ],
@@ -378,7 +356,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -531,7 +509,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -631,36 +609,3719 @@
           }
         ]
       },
+      "process_write_action": "updated",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\06_Bestellabwicklung.txt",
+      "file_hash": "fc4f9f6142917c2668275f7d5fc61b1dbafa6bc04dcb58e9155663cbe20f31ad",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Bestellabwicklung",
+        "process_id": "06_Bestellabwicklung",
+        "org_unit": "",
+        "roles": [
+          "Einkäufer"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [
+          "Lieferantenauswahl"
+        ],
+        "raw_applications": [
+          {
+            "name": "Ariba",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Ariba",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\06_Bestellabwicklung.txt",
+        "process_owner_candidate": "Einkauf"
+      },
+      "matches": [
+        {
+          "application_name": "Ariba",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "SAP ERP",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Bestellabwicklung",
+          "application_name": "Ariba",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Bestellabwicklung",
+          "application_name": "SAP ERP",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Bestellabwicklung",
+          "process_id": "06_Bestellabwicklung",
+          "org_unit": "",
+          "roles": [
+            "Einkäufer"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [
+            "Lieferantenauswahl"
+          ],
+          "raw_applications": [
+            {
+              "name": "Ariba",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Ariba",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\06_Bestellabwicklung.txt",
+          "process_owner_candidate": "Einkauf"
+        },
+        "matches": [
+          {
+            "application_name": "Ariba",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "SAP ERP",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\07_Lieferantenauswahl.txt",
+      "file_hash": "a44627d1fade054798c3e3577c57c631c0414358226f0867c7dcc8c11eb40748",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Lieferantenauswahl",
+        "process_id": "07_Lieferantenauswahl",
+        "org_unit": "",
+        "roles": [
+          "Einkäufer"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "Ariba",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Ariba",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\07_Lieferantenauswahl.txt",
+        "process_owner_candidate": ""
+      },
+      "matches": [
+        {
+          "application_name": "Ariba",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Lieferantenauswahl",
+          "application_name": "Ariba",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Lieferantenauswahl",
+          "process_id": "07_Lieferantenauswahl",
+          "org_unit": "",
+          "roles": [
+            "Einkäufer"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "Ariba",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Ariba",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\07_Lieferantenauswahl.txt",
+          "process_owner_candidate": ""
+        },
+        "matches": [
+          {
+            "application_name": "Ariba",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "updated",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\08_Wareneingang.txt",
+      "file_hash": "6c64331ad4f807d7bf4473f7f59fa14e8c0dc6a85c6cc0016df6f2dcbc20b69d",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Wareneingang",
+        "process_id": "08_Wareneingang",
+        "org_unit": "",
+        "roles": [
+          "Lagerarbeiter"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [
+          "Bestellabwicklung"
+        ],
+        "raw_applications": [
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          },
+          {
+            "name": "Warehouse Management System",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          },
+          {
+            "name": "Warehouse Management System",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\08_Wareneingang.txt",
+        "process_owner_candidate": "Logistik"
+      },
+      "matches": [
+        {
+          "application_name": "SAP ERP",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "Warehouse Management System",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Wareneingang",
+          "application_name": "SAP ERP",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Wareneingang",
+          "application_name": "Warehouse Management System",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Wareneingang",
+          "process_id": "08_Wareneingang",
+          "org_unit": "",
+          "roles": [
+            "Lagerarbeiter"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [
+            "Bestellabwicklung"
+          ],
+          "raw_applications": [
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            },
+            {
+              "name": "Warehouse Management System",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            },
+            {
+              "name": "Warehouse Management System",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\08_Wareneingang.txt",
+          "process_owner_candidate": "Logistik"
+        },
+        "matches": [
+          {
+            "application_name": "SAP ERP",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "Warehouse Management System",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\09_Lagerhaltung.txt",
+      "file_hash": "3bb977b2b602656da4d049b76f6fc1a4db9e40b1e0c891e83954a28f79f408e3",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Lagerhaltung",
+        "process_id": "09_Lagerhaltung",
+        "org_unit": "Rechnungswesen",
+        "roles": [
+          "Lagerarbeiter"
+        ],
+        "org_units": [
+          "Rechnungswesen"
+        ],
+        "org_unit_candidates": [
+          "Muster GmbH"
+        ],
+        "follows_after": [
+          "Wareneingang"
+        ],
+        "raw_applications": [
+          {
+            "name": "Warehouse Management System",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Warehouse Management System",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\09_Lagerhaltung.txt",
+        "process_owner_candidate": ""
+      },
+      "matches": [
+        {
+          "application_name": "Warehouse Management System",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Lagerhaltung",
+          "application_name": "Warehouse Management System",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Lagerhaltung",
+          "process_id": "09_Lagerhaltung",
+          "org_unit": "Rechnungswesen",
+          "roles": [
+            "Lagerarbeiter"
+          ],
+          "org_units": [
+            "Rechnungswesen"
+          ],
+          "org_unit_candidates": [
+            "Muster GmbH"
+          ],
+          "follows_after": [
+            "Wareneingang"
+          ],
+          "raw_applications": [
+            {
+              "name": "Warehouse Management System",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Warehouse Management System",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\09_Lagerhaltung.txt",
+          "process_owner_candidate": ""
+        },
+        "matches": [
+          {
+            "application_name": "Warehouse Management System",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\10_Kommissionierung.txt",
+      "file_hash": "38ce0c99e150df74437f87bf86b9addab49472b7884e3875875fc4a1eabf9d6a",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Kommissionierung",
+        "process_id": "10_Kommissionierung",
+        "org_unit": "",
+        "roles": [
+          "Kommissionierer"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [
+          "Lagerhaltung"
+        ],
+        "raw_applications": [
+          {
+            "name": "Warehouse Management System",
+            "confidence": "stark"
+          },
+          {
+            "name": "Transport Management System",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Warehouse Management System",
+            "confidence": "stark"
+          },
+          {
+            "name": "Transport Management System",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\10_Kommissionierung.txt",
+        "process_owner_candidate": "Logistik"
+      },
+      "matches": [
+        {
+          "application_name": "Warehouse Management System",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "Transport Management System",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Kommissionierung",
+          "application_name": "Warehouse Management System",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Kommissionierung",
+          "application_name": "Transport Management System",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Kommissionierung",
+          "process_id": "10_Kommissionierung",
+          "org_unit": "",
+          "roles": [
+            "Kommissionierer"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [
+            "Lagerhaltung"
+          ],
+          "raw_applications": [
+            {
+              "name": "Warehouse Management System",
+              "confidence": "stark"
+            },
+            {
+              "name": "Transport Management System",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Warehouse Management System",
+              "confidence": "stark"
+            },
+            {
+              "name": "Transport Management System",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\10_Kommissionierung.txt",
+          "process_owner_candidate": "Logistik"
+        },
+        "matches": [
+          {
+            "application_name": "Warehouse Management System",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "Transport Management System",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\11_Versand.txt",
+      "file_hash": "8f5ddab12994a953f2209fed3bdb72d824c3e1a34e4c1e703276469408e6525f",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Versand",
+        "process_id": "11_Versand",
+        "org_unit": "",
+        "roles": [
+          "Versandmitarbeiter"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [
+          "Kommissionierung"
+        ],
+        "raw_applications": [
+          {
+            "name": "Transport Management System",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Transport Management System",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\11_Versand.txt",
+        "process_owner_candidate": ""
+      },
+      "matches": [
+        {
+          "application_name": "Transport Management System",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "SAP ERP",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Versand",
+          "application_name": "Transport Management System",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Versand",
+          "application_name": "SAP ERP",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Versand",
+          "process_id": "11_Versand",
+          "org_unit": "",
+          "roles": [
+            "Versandmitarbeiter"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [
+            "Kommissionierung"
+          ],
+          "raw_applications": [
+            {
+              "name": "Transport Management System",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Transport Management System",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\11_Versand.txt",
+          "process_owner_candidate": ""
+        },
+        "matches": [
+          {
+            "application_name": "Transport Management System",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "SAP ERP",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\12_Produktionsplanung.txt",
+      "file_hash": "e2e3641e54c994856926ab8a38d5368704a5b6a3e242f1498030269679f495da",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Produktionsplanung",
+        "process_id": "12_Produktionsplanung",
+        "org_unit": "",
+        "roles": [
+          "Produktionsplaner"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          },
+          {
+            "name": "Produktionsplanungssystem",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          },
+          {
+            "name": "Produktionsplanungssystem",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\12_Produktionsplanung.txt",
+        "process_owner_candidate": "Produktion"
+      },
+      "matches": [
+        {
+          "application_name": "SAP ERP",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "Produktionsplanungssystem",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Produktionsplanung",
+          "application_name": "SAP ERP",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Produktionsplanung",
+          "application_name": "Produktionsplanungssystem",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Produktionsplanung",
+          "process_id": "12_Produktionsplanung",
+          "org_unit": "",
+          "roles": [
+            "Produktionsplaner"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            },
+            {
+              "name": "Produktionsplanungssystem",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            },
+            {
+              "name": "Produktionsplanungssystem",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\12_Produktionsplanung.txt",
+          "process_owner_candidate": "Produktion"
+        },
+        "matches": [
+          {
+            "application_name": "SAP ERP",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "Produktionsplanungssystem",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\13_Fertigungssteuerung.txt",
+      "file_hash": "302b0371d963e31ef6c3d154ce43b0d9e8cb8a9540255a89daf6704e16b187c0",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Fertigungssteuerung",
+        "process_id": "13_Fertigungssteuerung",
+        "org_unit": "",
+        "roles": [
+          "Fertigungsleiter"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [
+          "Produktionsplanung"
+        ],
+        "raw_applications": [
+          {
+            "name": "Produktionsplanungssystem",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Produktionsplanungssystem",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\13_Fertigungssteuerung.txt",
+        "process_owner_candidate": ""
+      },
+      "matches": [
+        {
+          "application_name": "Produktionsplanungssystem",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Fertigungssteuerung",
+          "application_name": "Produktionsplanungssystem",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Fertigungssteuerung",
+          "process_id": "13_Fertigungssteuerung",
+          "org_unit": "",
+          "roles": [
+            "Fertigungsleiter"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [
+            "Produktionsplanung"
+          ],
+          "raw_applications": [
+            {
+              "name": "Produktionsplanungssystem",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Produktionsplanungssystem",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\13_Fertigungssteuerung.txt",
+          "process_owner_candidate": ""
+        },
+        "matches": [
+          {
+            "application_name": "Produktionsplanungssystem",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\14_Qualitaetspruefung_Eingang.txt",
+      "file_hash": "b0086a1d16486459d8d6746db4ba1428034a36d167130375e1f797e00ce69f54",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Qualitätsprüfung Eingang",
+        "process_id": "14_Qualitaetspruefung_Eingang",
+        "org_unit": "",
+        "roles": [
+          "Qualitätsprüfer"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [
+          "Wareneingang"
+        ],
+        "raw_applications": [
+          {
+            "name": "Qualitätsmanagementsystem",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Qualitätsmanagementsystem",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\14_Qualitaetspruefung_Eingang.txt",
+        "process_owner_candidate": "Qualitätssicherung"
+      },
+      "matches": [
+        {
+          "application_name": "Qualitätsmanagementsystem",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "SAP ERP",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Qualitätsprüfung Eingang",
+          "application_name": "Qualitätsmanagementsystem",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Qualitätsprüfung Eingang",
+          "application_name": "SAP ERP",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Qualitätsprüfung Eingang",
+          "process_id": "14_Qualitaetspruefung_Eingang",
+          "org_unit": "",
+          "roles": [
+            "Qualitätsprüfer"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [
+            "Wareneingang"
+          ],
+          "raw_applications": [
+            {
+              "name": "Qualitätsmanagementsystem",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Qualitätsmanagementsystem",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\14_Qualitaetspruefung_Eingang.txt",
+          "process_owner_candidate": "Qualitätssicherung"
+        },
+        "matches": [
+          {
+            "application_name": "Qualitätsmanagementsystem",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "SAP ERP",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\15_Qualitaetspruefung_Ausgang.txt",
+      "file_hash": "d4afcc0c1b5a40227cdfc97bf4f383ca92f78823d898524a97de458cbbe104b7",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Qualitätsprüfung Ausgang",
+        "process_id": "15_Qualitaetspruefung_Ausgang",
+        "org_unit": "",
+        "roles": [
+          "Qualitätsprüfer"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [
+          "Fertigungssteuerung"
+        ],
+        "raw_applications": [
+          {
+            "name": "Qualitätsmanagementsystem",
+            "confidence": "stark"
+          },
+          {
+            "name": "Dokumentenmanagementsystem",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Qualitätsmanagementsystem",
+            "confidence": "stark"
+          },
+          {
+            "name": "Dokumentenmanagementsystem",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\15_Qualitaetspruefung_Ausgang.txt",
+        "process_owner_candidate": ""
+      },
+      "matches": [
+        {
+          "application_name": "Qualitätsmanagementsystem",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "Dokumentenmanagementsystem",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Qualitätsprüfung Ausgang",
+          "application_name": "Qualitätsmanagementsystem",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Qualitätsprüfung Ausgang",
+          "application_name": "Dokumentenmanagementsystem",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Qualitätsprüfung Ausgang",
+          "process_id": "15_Qualitaetspruefung_Ausgang",
+          "org_unit": "",
+          "roles": [
+            "Qualitätsprüfer"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [
+            "Fertigungssteuerung"
+          ],
+          "raw_applications": [
+            {
+              "name": "Qualitätsmanagementsystem",
+              "confidence": "stark"
+            },
+            {
+              "name": "Dokumentenmanagementsystem",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Qualitätsmanagementsystem",
+              "confidence": "stark"
+            },
+            {
+              "name": "Dokumentenmanagementsystem",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\15_Qualitaetspruefung_Ausgang.txt",
+          "process_owner_candidate": ""
+        },
+        "matches": [
+          {
+            "application_name": "Qualitätsmanagementsystem",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "Dokumentenmanagementsystem",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\16_Reklamationsbearbeitung.txt",
+      "file_hash": "451d22d60858a3379a9b70c32c9ce6b14b983c0e706791520445b3212e1c56d0",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Reklamationsbearbeitung",
+        "process_id": "16_Reklamationsbearbeitung",
+        "org_unit": "",
+        "roles": [
+          "Kundenbetreuer"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [
+          "Versand, Qualitätsprüfung Ausgang"
+        ],
+        "raw_applications": [
+          {
+            "name": "SAP CRM",
+            "confidence": "stark"
+          },
+          {
+            "name": "ServiceNow",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP CRM",
+            "confidence": "stark"
+          },
+          {
+            "name": "ServiceNow",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\16_Reklamationsbearbeitung.txt",
+        "process_owner_candidate": "Kundenservice"
+      },
+      "matches": [
+        {
+          "application_name": "SAP CRM",
+          "cmdb_id": "app-006",
+          "matched_name": "SAP SRM",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.8571428571428571
+        },
+        {
+          "application_name": "ServiceNow",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Reklamationsbearbeitung",
+          "application_name": "SAP CRM",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Reklamationsbearbeitung",
+          "application_name": "ServiceNow",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Reklamationsbearbeitung",
+          "process_id": "16_Reklamationsbearbeitung",
+          "org_unit": "",
+          "roles": [
+            "Kundenbetreuer"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [
+            "Versand, Qualitätsprüfung Ausgang"
+          ],
+          "raw_applications": [
+            {
+              "name": "SAP CRM",
+              "confidence": "stark"
+            },
+            {
+              "name": "ServiceNow",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP CRM",
+              "confidence": "stark"
+            },
+            {
+              "name": "ServiceNow",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\16_Reklamationsbearbeitung.txt",
+          "process_owner_candidate": "Kundenservice"
+        },
+        "matches": [
+          {
+            "application_name": "SAP CRM",
+            "cmdb_id": "app-006",
+            "matched_name": "SAP SRM",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.8571428571428571
+          },
+          {
+            "application_name": "ServiceNow",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\17_Kundenanlage.txt",
+      "file_hash": "6d00a65b91fee9c8d1e64451d7de66046aa631153ba36f1c7d4440de418a6be6",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Kundenanlage und -pflege",
+        "process_id": "17_Kundenanlage",
+        "org_unit": "",
+        "roles": [],
+        "org_units": [],
+        "org_unit_candidates": [
+          "Vertriebsinnendienst"
+        ],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "SAP CRM",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP CRM",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\17_Kundenanlage.txt",
+        "process_owner_candidate": ""
+      },
+      "matches": [
+        {
+          "application_name": "SAP CRM",
+          "cmdb_id": "app-006",
+          "matched_name": "SAP SRM",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.8571428571428571
+        },
+        {
+          "application_name": "SAP ERP",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Kundenanlage und -pflege",
+          "application_name": "SAP CRM",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Kundenanlage und -pflege",
+          "application_name": "SAP ERP",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Kundenanlage und -pflege",
+          "process_id": "17_Kundenanlage",
+          "org_unit": "",
+          "roles": [],
+          "org_units": [],
+          "org_unit_candidates": [
+            "Vertriebsinnendienst"
+          ],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "SAP CRM",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP CRM",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\17_Kundenanlage.txt",
+          "process_owner_candidate": ""
+        },
+        "matches": [
+          {
+            "application_name": "SAP CRM",
+            "cmdb_id": "app-006",
+            "matched_name": "SAP SRM",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.8571428571428571
+          },
+          {
+            "application_name": "SAP ERP",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\18_Lieferantenanlage.txt",
+      "file_hash": "a79880a5ffdda880b359057ef774e7a7c608aa66427c61216df69e8c2bd266a9",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Lieferantenanlage und -pflege",
+        "process_id": "18_Lieferantenanlage",
+        "org_unit": "",
+        "roles": [
+          "Einkäufer"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [
+          "Lieferantenauswahl"
+        ],
+        "raw_applications": [
+          {
+            "name": "Ariba",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Ariba",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\18_Lieferantenanlage.txt",
+        "process_owner_candidate": "Einkauf"
+      },
+      "matches": [
+        {
+          "application_name": "Ariba",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "SAP ERP",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Lieferantenanlage und -pflege",
+          "application_name": "Ariba",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Lieferantenanlage und -pflege",
+          "application_name": "SAP ERP",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Lieferantenanlage und -pflege",
+          "process_id": "18_Lieferantenanlage",
+          "org_unit": "",
+          "roles": [
+            "Einkäufer"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [
+            "Lieferantenauswahl"
+          ],
+          "raw_applications": [
+            {
+              "name": "Ariba",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Ariba",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\18_Lieferantenanlage.txt",
+          "process_owner_candidate": "Einkauf"
+        },
+        "matches": [
+          {
+            "application_name": "Ariba",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "SAP ERP",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt",
+      "file_hash": "787c8063bb0ff55aaf8c4368b402cd60df7f8594c3fd28fbfad3b27db8bb76f8",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Berichtswesen",
+        "process_id": "19_Berichtswesen",
+        "org_unit": "",
+        "roles": [
+          "Controller"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "SAP BW",
+            "confidence": "stark"
+          },
+          {
+            "name": "Power BI",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP BW",
+            "confidence": "stark"
+          },
+          {
+            "name": "Power BI",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt",
+        "process_owner_candidate": "Controlling"
+      },
+      "matches": [
+        {
+          "application_name": "SAP BW",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "Power BI",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "SAP ERP",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Berichtswesen",
+          "application_name": "SAP BW",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Berichtswesen",
+          "application_name": "Power BI",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Berichtswesen",
+          "application_name": "SAP ERP",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Berichtswesen",
+          "process_id": "19_Berichtswesen",
+          "org_unit": "",
+          "roles": [
+            "Controller"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "SAP BW",
+              "confidence": "stark"
+            },
+            {
+              "name": "Power BI",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP BW",
+              "confidence": "stark"
+            },
+            {
+              "name": "Power BI",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt",
+          "process_owner_candidate": "Controlling"
+        },
+        "matches": [
+          {
+            "application_name": "SAP BW",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "Power BI",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "SAP ERP",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\20_Vertragsmanagement.txt",
+      "file_hash": "68b32e388716102d841204b66daf959bf1e94fb173dba1137a0142e264ba8790",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Vertragsmanagement",
+        "process_id": "20_Vertragsmanagement",
+        "org_unit": "",
+        "roles": [
+          "Verantwortlichen"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [
+          "Rechtsabteilung"
+        ],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "Vertragsmanagement-System",
+            "confidence": "stark"
+          },
+          {
+            "name": "DocuSign",
+            "confidence": "stark"
+          },
+          {
+            "name": "SharePoint",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Vertragsmanagement-System",
+            "confidence": "stark"
+          },
+          {
+            "name": "DocuSign",
+            "confidence": "stark"
+          },
+          {
+            "name": "SharePoint",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\20_Vertragsmanagement.txt",
+        "process_owner_candidate": ""
+      },
+      "matches": [
+        {
+          "application_name": "Vertragsmanagement-System",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "DocuSign",
+          "cmdb_id": "app-007",
+          "matched_name": "DocuSign",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0
+        },
+        {
+          "application_name": "DocuSign",
+          "cmdb_id": "if-004",
+          "matched_name": "DocuSign Signing API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9
+        },
+        {
+          "application_name": "SharePoint",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Vertragsmanagement",
+          "application_name": "Vertragsmanagement-System",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Vertragsmanagement",
+          "application_name": "DocuSign",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Vertragsmanagement",
+          "application_name": "SharePoint",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Vertragsmanagement",
+          "process_id": "20_Vertragsmanagement",
+          "org_unit": "",
+          "roles": [
+            "Verantwortlichen"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [
+            "Rechtsabteilung"
+          ],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "Vertragsmanagement-System",
+              "confidence": "stark"
+            },
+            {
+              "name": "DocuSign",
+              "confidence": "stark"
+            },
+            {
+              "name": "SharePoint",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Vertragsmanagement-System",
+              "confidence": "stark"
+            },
+            {
+              "name": "DocuSign",
+              "confidence": "stark"
+            },
+            {
+              "name": "SharePoint",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\20_Vertragsmanagement.txt",
+          "process_owner_candidate": ""
+        },
+        "matches": [
+          {
+            "application_name": "Vertragsmanagement-System",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "DocuSign",
+            "cmdb_id": "app-007",
+            "matched_name": "DocuSign",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0
+          },
+          {
+            "application_name": "DocuSign",
+            "cmdb_id": "if-004",
+            "matched_name": "DocuSign Signing API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9
+          },
+          {
+            "application_name": "SharePoint",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\21_Schulungsmanagement.txt",
+      "file_hash": "344101fbd19435a42eb2e180ac8cd474ab97d0920f5a30be268cf11ce9b2c028",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Schulungsmanagement",
+        "process_id": "21_Schulungsmanagement",
+        "org_unit": "",
+        "roles": [
+          "HR-Mitarbeiter"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "E-Learning-Plattform",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP HCM",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "E-Learning-Plattform",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP HCM",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\21_Schulungsmanagement.txt",
+        "process_owner_candidate": "Personalwesen"
+      },
+      "matches": [
+        {
+          "application_name": "E-Learning-Plattform",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "SAP HCM",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Schulungsmanagement",
+          "application_name": "E-Learning-Plattform",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Schulungsmanagement",
+          "application_name": "SAP HCM",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Schulungsmanagement",
+          "process_id": "21_Schulungsmanagement",
+          "org_unit": "",
+          "roles": [
+            "HR-Mitarbeiter"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "E-Learning-Plattform",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP HCM",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "E-Learning-Plattform",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP HCM",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\21_Schulungsmanagement.txt",
+          "process_owner_candidate": "Personalwesen"
+        },
+        "matches": [
+          {
+            "application_name": "E-Learning-Plattform",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "SAP HCM",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx",
+      "file_hash": "fc4bacadf27500c3dcca553bbaf7d882783bdcbfd24c4486180d953c4d5129c1",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "IT-Support",
+        "process_id": "22_IT-Support",
+        "org_unit": "Rechnungswesen",
+        "roles": [
+          "IT-Mitarbeiter"
+        ],
+        "org_units": [
+          "Rechnungswesen"
+        ],
+        "org_unit_candidates": [
+          "Muster GmbH"
+        ],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "ServiceNow",
+            "confidence": "stark"
+          },
+          {
+            "name": "JIRA",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "ServiceNow",
+            "confidence": "stark"
+          },
+          {
+            "name": "JIRA",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx",
+        "process_owner_candidate": "IT-Abteilung"
+      },
+      "matches": [
+        {
+          "application_name": "ServiceNow",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "JIRA",
+          "cmdb_id": "app-004",
+          "matched_name": "Jira Service Management",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "IT-Support",
+          "application_name": "ServiceNow",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "IT-Support",
+          "application_name": "JIRA",
+          "reason": "fuzzy"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "IT-Support",
+          "process_id": "22_IT-Support",
+          "org_unit": "Rechnungswesen",
+          "roles": [
+            "IT-Mitarbeiter"
+          ],
+          "org_units": [
+            "Rechnungswesen"
+          ],
+          "org_unit_candidates": [
+            "Muster GmbH"
+          ],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "ServiceNow",
+              "confidence": "stark"
+            },
+            {
+              "name": "JIRA",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "ServiceNow",
+              "confidence": "stark"
+            },
+            {
+              "name": "JIRA",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx",
+          "process_owner_candidate": "IT-Abteilung"
+        },
+        "matches": [
+          {
+            "application_name": "ServiceNow",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "JIRA",
+            "cmdb_id": "app-004",
+            "matched_name": "Jira Service Management",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx",
+      "file_hash": "8bee5f1147343cd5bf3a90967ea56a7855d9f3f8a3abd736708fe526aa8f0d02",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Softwarefreigabe",
+        "process_id": "23_Softwarefreigabe",
+        "org_unit": "",
+        "roles": [
+          "IT-Mitarbeiter"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [
+          "Fachabteilung",
+          "IT-Mitarbeiter",
+          "IT-Teamleiter",
+          "IT-Leiter"
+        ],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "JIRA",
+            "confidence": "stark"
+          },
+          {
+            "name": "Confluence",
+            "confidence": "stark"
+          },
+          {
+            "name": "ServiceNow",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "JIRA",
+            "confidence": "stark"
+          },
+          {
+            "name": "Confluence",
+            "confidence": "stark"
+          },
+          {
+            "name": "ServiceNow",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx",
+        "process_owner_candidate": ""
+      },
+      "matches": [
+        {
+          "application_name": "JIRA",
+          "cmdb_id": "app-004",
+          "matched_name": "Jira Service Management",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9
+        },
+        {
+          "application_name": "Confluence",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "ServiceNow",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Softwarefreigabe",
+          "application_name": "JIRA",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Softwarefreigabe",
+          "application_name": "Confluence",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Softwarefreigabe",
+          "application_name": "ServiceNow",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Softwarefreigabe",
+          "process_id": "23_Softwarefreigabe",
+          "org_unit": "",
+          "roles": [
+            "IT-Mitarbeiter"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [
+            "Fachabteilung",
+            "IT-Mitarbeiter",
+            "IT-Teamleiter",
+            "IT-Leiter"
+          ],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "JIRA",
+              "confidence": "stark"
+            },
+            {
+              "name": "Confluence",
+              "confidence": "stark"
+            },
+            {
+              "name": "ServiceNow",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "JIRA",
+              "confidence": "stark"
+            },
+            {
+              "name": "Confluence",
+              "confidence": "stark"
+            },
+            {
+              "name": "ServiceNow",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx",
+          "process_owner_candidate": ""
+        },
+        "matches": [
+          {
+            "application_name": "JIRA",
+            "cmdb_id": "app-004",
+            "matched_name": "Jira Service Management",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9
+          },
+          {
+            "application_name": "Confluence",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "ServiceNow",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\24_Datensicherung.docx",
+      "file_hash": "07d6938d0e90fdd50a90db5cdf4b92679a9bbe48afefc503bbd9537fe433de3f",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Datensicherung",
+        "process_id": "24_Datensicherung",
+        "org_unit": "",
+        "roles": [
+          "IT-Mitarbeiter"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "Backup-Software",
+            "confidence": "stark"
+          },
+          {
+            "name": "ServiceNow",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Backup-Software",
+            "confidence": "stark"
+          },
+          {
+            "name": "ServiceNow",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\24_Datensicherung.docx",
+        "process_owner_candidate": "IT-Abteilung"
+      },
+      "matches": [
+        {
+          "application_name": "Backup-Software",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "ServiceNow",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Datensicherung",
+          "application_name": "Backup-Software",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Datensicherung",
+          "application_name": "ServiceNow",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Datensicherung",
+          "process_id": "24_Datensicherung",
+          "org_unit": "",
+          "roles": [
+            "IT-Mitarbeiter"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "Backup-Software",
+              "confidence": "stark"
+            },
+            {
+              "name": "ServiceNow",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Backup-Software",
+              "confidence": "stark"
+            },
+            {
+              "name": "ServiceNow",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\24_Datensicherung.docx",
+          "process_owner_candidate": "IT-Abteilung"
+        },
+        "matches": [
+          {
+            "application_name": "Backup-Software",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "ServiceNow",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx",
+      "file_hash": "6c72528451cea05cc09ed1eee190b536faa8cb398cfdc5a381c2bff1efe8f69b",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Jahresabschluss",
+        "process_id": "25_Jahresabschluss",
+        "org_unit": "Rechnungswesen",
+        "roles": [],
+        "org_units": [
+          "Rechnungswesen"
+        ],
+        "org_unit_candidates": [
+          "Muster GmbH"
+        ],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP BW",
+            "confidence": "stark"
+          },
+          {
+            "name": "Power BI",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP BW",
+            "confidence": "stark"
+          },
+          {
+            "name": "Power BI",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx",
+        "process_owner_candidate": "Finanzen"
+      },
+      "matches": [
+        {
+          "application_name": "SAP ERP",
+          "cmdb_id": "app-001",
+          "matched_name": "SAP SD",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        },
+        {
+          "application_name": "SAP BW",
+          "cmdb_id": "app-009",
+          "matched_name": "Salesforce",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        },
+        {
+          "application_name": "Power BI",
+          "cmdb_id": "app-011",
+          "matched_name": "Testanwendung",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
+        }
+      ],
+      "review_items": [],
+      "graph_payload": {
+        "process": {
+          "process_name": "Jahresabschluss",
+          "process_id": "25_Jahresabschluss",
+          "org_unit": "Rechnungswesen",
+          "roles": [],
+          "org_units": [
+            "Rechnungswesen"
+          ],
+          "org_unit_candidates": [
+            "Muster GmbH"
+          ],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP BW",
+              "confidence": "stark"
+            },
+            {
+              "name": "Power BI",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP BW",
+              "confidence": "stark"
+            },
+            {
+              "name": "Power BI",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx",
+          "process_owner_candidate": "Finanzen"
+        },
+        "matches": [
+          {
+            "application_name": "SAP ERP",
+            "cmdb_id": "app-001",
+            "matched_name": "SAP SD",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          },
+          {
+            "application_name": "SAP BW",
+            "cmdb_id": "app-009",
+            "matched_name": "Salesforce",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          },
+          {
+            "application_name": "Power BI",
+            "cmdb_id": "app-011",
+            "matched_name": "Testanwendung",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
+          }
+        ]
+      },
+      "process_write_action": "updated",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\26_Budgetplanung.docx",
+      "file_hash": "610c0aefddeb4115459aa68c03c2bda0fc0eedd3cc7a147391a38278f6d49bb3",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Budgetplanung",
+        "process_id": "26_Budgetplanung",
+        "org_unit": "",
+        "roles": [
+          "Abteilungsleiter"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "SAP BW",
+            "confidence": "stark"
+          },
+          {
+            "name": "Power BI",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP BW",
+            "confidence": "stark"
+          },
+          {
+            "name": "Power BI",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\26_Budgetplanung.docx",
+        "process_owner_candidate": ""
+      },
+      "matches": [
+        {
+          "application_name": "SAP BW",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "Power BI",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Budgetplanung",
+          "application_name": "SAP BW",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Budgetplanung",
+          "application_name": "Power BI",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Budgetplanung",
+          "process_id": "26_Budgetplanung",
+          "org_unit": "",
+          "roles": [
+            "Abteilungsleiter"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "SAP BW",
+              "confidence": "stark"
+            },
+            {
+              "name": "Power BI",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP BW",
+              "confidence": "stark"
+            },
+            {
+              "name": "Power BI",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\26_Budgetplanung.docx",
+          "process_owner_candidate": ""
+        },
+        "matches": [
+          {
+            "application_name": "SAP BW",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "Power BI",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\27_Personaleinstellung.txt",
+      "file_hash": "8fa97fc44d95aacec6dcbff3e2d9359257f85a9dc7b8eddf14b06a1db68fae41",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Personaleinstellung",
+        "process_id": "27_Personaleinstellung",
+        "org_unit": "",
+        "roles": [
+          "HR-Mitarbeiter"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [
+          "Fachbereich"
+        ],
+        "follows_after": [
+          "Abteilungsleiter"
+        ],
+        "raw_applications": [
+          {
+            "name": "SAP HCM",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP HCM",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\27_Personaleinstellung.txt",
+        "process_owner_candidate": "Personalwesen"
+      },
+      "matches": [
+        {
+          "application_name": "SAP HCM",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Personaleinstellung",
+          "application_name": "SAP HCM",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Personaleinstellung",
+          "process_id": "27_Personaleinstellung",
+          "org_unit": "",
+          "roles": [
+            "HR-Mitarbeiter"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [
+            "Fachbereich"
+          ],
+          "follows_after": [
+            "Abteilungsleiter"
+          ],
+          "raw_applications": [
+            {
+              "name": "SAP HCM",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP HCM",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\27_Personaleinstellung.txt",
+          "process_owner_candidate": "Personalwesen"
+        },
+        "matches": [
+          {
+            "application_name": "SAP HCM",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\28_Mitarbeiter-Onboarding.txt",
+      "file_hash": "05408064301f89d63b91f75ca6f281761cd88e82f8b891da616155956a29fc90",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Mitarbeiter-Onboarding",
+        "process_id": "28_Mitarbeiter-Onboarding",
+        "org_unit": "",
+        "roles": [
+          "IT-Mitarbeiter"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [
+          "Personaleinstellung"
+        ],
+        "raw_applications": [
+          {
+            "name": "SAP HCM",
+            "confidence": "stark"
+          },
+          {
+            "name": "ServiceNow",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Active Directory",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP HCM",
+            "confidence": "stark"
+          },
+          {
+            "name": "ServiceNow",
+            "confidence": "stark"
+          },
+          {
+            "name": "Microsoft Active Directory",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\28_Mitarbeiter-Onboarding.txt",
+        "process_owner_candidate": ""
+      },
+      "matches": [
+        {
+          "application_name": "SAP HCM",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "ServiceNow",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "Microsoft Active Directory",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Mitarbeiter-Onboarding",
+          "application_name": "SAP HCM",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Mitarbeiter-Onboarding",
+          "application_name": "ServiceNow",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Mitarbeiter-Onboarding",
+          "application_name": "Microsoft Active Directory",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Mitarbeiter-Onboarding",
+          "process_id": "28_Mitarbeiter-Onboarding",
+          "org_unit": "",
+          "roles": [
+            "IT-Mitarbeiter"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [
+            "Personaleinstellung"
+          ],
+          "raw_applications": [
+            {
+              "name": "SAP HCM",
+              "confidence": "stark"
+            },
+            {
+              "name": "ServiceNow",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Active Directory",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP HCM",
+              "confidence": "stark"
+            },
+            {
+              "name": "ServiceNow",
+              "confidence": "stark"
+            },
+            {
+              "name": "Microsoft Active Directory",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\28_Mitarbeiter-Onboarding.txt",
+          "process_owner_candidate": ""
+        },
+        "matches": [
+          {
+            "application_name": "SAP HCM",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "ServiceNow",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "Microsoft Active Directory",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\29_Zeiterfassung.txt",
+      "file_hash": "8393b344db0b6d8370a50c709badb22c22ee3006cd421eaf098ab1fc56807d98",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Zeiterfassung und Abrechnung",
+        "process_id": "29_Zeiterfassung",
+        "org_unit": "Rechnungswesen",
+        "roles": [
+          "HR-Mitarbeiter"
+        ],
+        "org_units": [
+          "Rechnungswesen"
+        ],
+        "org_unit_candidates": [
+          "Muster GmbH"
+        ],
+        "follows_after": [],
+        "raw_applications": [
+          {
+            "name": "Zeiterfassungssystem",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP HCM",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Zeiterfassungssystem",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP HCM",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\29_Zeiterfassung.txt",
+        "process_owner_candidate": "Personalwesen"
+      },
+      "matches": [
+        {
+          "application_name": "Zeiterfassungssystem",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "SAP HCM",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Zeiterfassung und Abrechnung",
+          "application_name": "Zeiterfassungssystem",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Zeiterfassung und Abrechnung",
+          "application_name": "SAP HCM",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Zeiterfassung und Abrechnung",
+          "process_id": "29_Zeiterfassung",
+          "org_unit": "Rechnungswesen",
+          "roles": [
+            "HR-Mitarbeiter"
+          ],
+          "org_units": [
+            "Rechnungswesen"
+          ],
+          "org_unit_candidates": [
+            "Muster GmbH"
+          ],
+          "follows_after": [],
+          "raw_applications": [
+            {
+              "name": "Zeiterfassungssystem",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP HCM",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Zeiterfassungssystem",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP HCM",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\29_Zeiterfassung.txt",
+          "process_owner_candidate": "Personalwesen"
+        },
+        "matches": [
+          {
+            "application_name": "Zeiterfassungssystem",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "SAP HCM",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\30_Aenderungsmanagement.bpmn",
+      "file_hash": "a3728c5e8c5ecf78ee229377567f39abfd7a266b1b063ab6204a9e753e4e0067",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Änderungsmanagement",
+        "process_id": "proc_aenderungsmanagement",
+        "org_unit": "",
+        "roles": [
+          "Change Manager",
+          "IT-Mitarbeiter",
+          "Fachbereich"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [
+          "Start"
+        ],
+        "raw_applications": [
+          {
+            "name": "JIRA",
+            "confidence": "stark"
+          },
+          {
+            "name": "Confluence",
+            "confidence": "stark"
+          },
+          {
+            "name": "ServiceNow",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "JIRA",
+            "confidence": "stark"
+          },
+          {
+            "name": "Confluence",
+            "confidence": "stark"
+          },
+          {
+            "name": "ServiceNow",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\30_Aenderungsmanagement.bpmn",
+        "process_owner_candidate": ""
+      },
+      "matches": [
+        {
+          "application_name": "JIRA",
+          "cmdb_id": "app-004",
+          "matched_name": "Jira Service Management",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9
+        },
+        {
+          "application_name": "Confluence",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "ServiceNow",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Änderungsmanagement",
+          "application_name": "JIRA",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Änderungsmanagement",
+          "application_name": "Confluence",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Änderungsmanagement",
+          "application_name": "ServiceNow",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Änderungsmanagement",
+          "process_id": "proc_aenderungsmanagement",
+          "org_unit": "",
+          "roles": [
+            "Change Manager",
+            "IT-Mitarbeiter",
+            "Fachbereich"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [
+            "Start"
+          ],
+          "raw_applications": [
+            {
+              "name": "JIRA",
+              "confidence": "stark"
+            },
+            {
+              "name": "Confluence",
+              "confidence": "stark"
+            },
+            {
+              "name": "ServiceNow",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "JIRA",
+              "confidence": "stark"
+            },
+            {
+              "name": "Confluence",
+              "confidence": "stark"
+            },
+            {
+              "name": "ServiceNow",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\30_Aenderungsmanagement.bpmn",
+          "process_owner_candidate": ""
+        },
+        "matches": [
+          {
+            "application_name": "JIRA",
+            "cmdb_id": "app-004",
+            "matched_name": "Jira Service Management",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9
+          },
+          {
+            "application_name": "Confluence",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "ServiceNow",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\31_Auftragserfassung_Detail.bpmn",
+      "file_hash": "2738329e35b11fc81fbff5021f8c0fc216fd97b91883f8041662f10b16eb4c1b",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Auftragserfassung (Detail)",
+        "process_id": "proc_auftragserfassung_detail",
+        "org_unit": "",
+        "roles": [
+          "Vertriebsinnendienst",
+          "Auftragsbearbeitung"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [
+          "Start"
+        ],
+        "raw_applications": [
+          {
+            "name": "SAP CRM",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "SAP CRM",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\31_Auftragserfassung_Detail.bpmn",
+        "process_owner_candidate": ""
+      },
+      "matches": [
+        {
+          "application_name": "SAP CRM",
+          "cmdb_id": "app-006",
+          "matched_name": "SAP SRM",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.8571428571428571
+        },
+        {
+          "application_name": "SAP ERP",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Auftragserfassung (Detail)",
+          "application_name": "SAP CRM",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Auftragserfassung (Detail)",
+          "application_name": "SAP ERP",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Auftragserfassung (Detail)",
+          "process_id": "proc_auftragserfassung_detail",
+          "org_unit": "",
+          "roles": [
+            "Vertriebsinnendienst",
+            "Auftragsbearbeitung"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [
+            "Start"
+          ],
+          "raw_applications": [
+            {
+              "name": "SAP CRM",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "SAP CRM",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\31_Auftragserfassung_Detail.bpmn",
+          "process_owner_candidate": ""
+        },
+        "matches": [
+          {
+            "application_name": "SAP CRM",
+            "cmdb_id": "app-006",
+            "matched_name": "SAP SRM",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.8571428571428571
+          },
+          {
+            "application_name": "SAP ERP",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
+      "process_write_action": "inserted",
+      "error_message": null
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\32_Wareneingang_Detail.bpmn",
+      "file_hash": "c90e003393f3eca3e3aeded89f212d68d56f66d573993f8f6b5ebc02a5022de1",
+      "status": "processed",
+      "extracted_process": {
+        "process_name": "Wareneingang (Detail)",
+        "process_id": "proc_wareneingang_detail",
+        "org_unit": "",
+        "roles": [
+          "Lagerarbeiter",
+          "Qualitätsprüfer",
+          "Einkauf"
+        ],
+        "org_units": [],
+        "org_unit_candidates": [],
+        "follows_after": [
+          "Start"
+        ],
+        "raw_applications": [
+          {
+            "name": "Warehouse Management System",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          },
+          {
+            "name": "Qualitätsmanagementsystem",
+            "confidence": "stark"
+          }
+        ],
+        "applications": [
+          {
+            "name": "Warehouse Management System",
+            "confidence": "stark"
+          },
+          {
+            "name": "SAP ERP",
+            "confidence": "stark"
+          },
+          {
+            "name": "Qualitätsmanagementsystem",
+            "confidence": "stark"
+          }
+        ],
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\32_Wareneingang_Detail.bpmn",
+        "process_owner_candidate": ""
+      },
+      "matches": [
+        {
+          "application_name": "Warehouse Management System",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "SAP ERP",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        },
+        {
+          "application_name": "Qualitätsmanagementsystem",
+          "cmdb_id": null,
+          "matched_name": null,
+          "confidence": "schwach",
+          "source": "unmatched",
+          "score": 0.0
+        }
+      ],
+      "review_items": [
+        {
+          "process_name": "Wareneingang (Detail)",
+          "application_name": "Warehouse Management System",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Wareneingang (Detail)",
+          "application_name": "SAP ERP",
+          "reason": "unmatched"
+        },
+        {
+          "process_name": "Wareneingang (Detail)",
+          "application_name": "Qualitätsmanagementsystem",
+          "reason": "unmatched"
+        }
+      ],
+      "graph_payload": {
+        "process": {
+          "process_name": "Wareneingang (Detail)",
+          "process_id": "proc_wareneingang_detail",
+          "org_unit": "",
+          "roles": [
+            "Lagerarbeiter",
+            "Qualitätsprüfer",
+            "Einkauf"
+          ],
+          "org_units": [],
+          "org_unit_candidates": [],
+          "follows_after": [
+            "Start"
+          ],
+          "raw_applications": [
+            {
+              "name": "Warehouse Management System",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            },
+            {
+              "name": "Qualitätsmanagementsystem",
+              "confidence": "stark"
+            }
+          ],
+          "applications": [
+            {
+              "name": "Warehouse Management System",
+              "confidence": "stark"
+            },
+            {
+              "name": "SAP ERP",
+              "confidence": "stark"
+            },
+            {
+              "name": "Qualitätsmanagementsystem",
+              "confidence": "stark"
+            }
+          ],
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\32_Wareneingang_Detail.bpmn",
+          "process_owner_candidate": ""
+        },
+        "matches": [
+          {
+            "application_name": "Warehouse Management System",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "SAP ERP",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          },
+          {
+            "application_name": "Qualitätsmanagementsystem",
+            "cmdb_id": null,
+            "matched_name": null,
+            "confidence": "schwach",
+            "source": "unmatched",
+            "score": 0.0
+          }
+        ]
+      },
       "process_write_action": "inserted",
       "error_message": null
     }
   ],
-  "import_archive_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_123858",
+  "import_archive_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629",
   "import_archived_files": [
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_123858\\01_Angebotserstellung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\01_Angebotserstellung.txt",
       "display_path": "01_Angebotserstellung.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_123858\\02_Auftragserfassung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\02_Auftragserfassung.txt",
       "display_path": "02_Auftragserfassung.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\03_Auftragsbearbeitung.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_123858\\03_Auftragsbearbeitung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\03_Auftragsbearbeitung.txt",
       "display_path": "03_Auftragsbearbeitung.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\04_Rechnungsstellung.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_123858\\04_Rechnungsstellung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\04_Rechnungsstellung.txt",
       "display_path": "04_Rechnungsstellung.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\05_Zahlungsabwicklung.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_123858\\05_Zahlungsabwicklung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\05_Zahlungsabwicklung.txt",
       "display_path": "05_Zahlungsabwicklung.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\06_Bestellabwicklung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\06_Bestellabwicklung.txt",
+      "display_path": "06_Bestellabwicklung.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\07_Lieferantenauswahl.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\07_Lieferantenauswahl.txt",
+      "display_path": "07_Lieferantenauswahl.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\08_Wareneingang.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\08_Wareneingang.txt",
+      "display_path": "08_Wareneingang.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\09_Lagerhaltung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\09_Lagerhaltung.txt",
+      "display_path": "09_Lagerhaltung.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\10_Kommissionierung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\10_Kommissionierung.txt",
+      "display_path": "10_Kommissionierung.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\11_Versand.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\11_Versand.txt",
+      "display_path": "11_Versand.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\12_Produktionsplanung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\12_Produktionsplanung.txt",
+      "display_path": "12_Produktionsplanung.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\13_Fertigungssteuerung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\13_Fertigungssteuerung.txt",
+      "display_path": "13_Fertigungssteuerung.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\14_Qualitaetspruefung_Eingang.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\14_Qualitaetspruefung_Eingang.txt",
+      "display_path": "14_Qualitaetspruefung_Eingang.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\15_Qualitaetspruefung_Ausgang.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\15_Qualitaetspruefung_Ausgang.txt",
+      "display_path": "15_Qualitaetspruefung_Ausgang.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\16_Reklamationsbearbeitung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\16_Reklamationsbearbeitung.txt",
+      "display_path": "16_Reklamationsbearbeitung.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\17_Kundenanlage.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\17_Kundenanlage.txt",
+      "display_path": "17_Kundenanlage.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\18_Lieferantenanlage.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\18_Lieferantenanlage.txt",
+      "display_path": "18_Lieferantenanlage.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\19_Berichtswesen.txt",
+      "display_path": "19_Berichtswesen.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\20_Vertragsmanagement.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\20_Vertragsmanagement.txt",
+      "display_path": "20_Vertragsmanagement.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\21_Schulungsmanagement.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\21_Schulungsmanagement.txt",
+      "display_path": "21_Schulungsmanagement.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\22_IT-Support.docx",
+      "display_path": "22_IT-Support.docx"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\23_Softwarefreigabe.docx",
+      "display_path": "23_Softwarefreigabe.docx"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\24_Datensicherung.docx",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\24_Datensicherung.docx",
+      "display_path": "24_Datensicherung.docx"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\25_Jahresabschluss.docx",
+      "display_path": "25_Jahresabschluss.docx"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\26_Budgetplanung.docx",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\26_Budgetplanung.docx",
+      "display_path": "26_Budgetplanung.docx"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\27_Personaleinstellung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\27_Personaleinstellung.txt",
+      "display_path": "27_Personaleinstellung.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\28_Mitarbeiter-Onboarding.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\28_Mitarbeiter-Onboarding.txt",
+      "display_path": "28_Mitarbeiter-Onboarding.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\29_Zeiterfassung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\29_Zeiterfassung.txt",
+      "display_path": "29_Zeiterfassung.txt"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\30_Aenderungsmanagement.bpmn",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\30_Aenderungsmanagement.bpmn",
+      "display_path": "30_Aenderungsmanagement.bpmn"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\31_Auftragserfassung_Detail.bpmn",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\31_Auftragserfassung_Detail.bpmn",
+      "display_path": "31_Auftragserfassung_Detail.bpmn"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\32_Wareneingang_Detail.bpmn",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260603_134629\\32_Wareneingang_Detail.bpmn",
+      "display_path": "32_Wareneingang_Detail.bpmn"
     }
   ]
 }

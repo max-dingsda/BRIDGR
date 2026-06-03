@@ -35,6 +35,7 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - deterministische Alias-Anreicherung bei leeren Ergebnissen: Hinweise auf bekannte Alternativbegriffe werden dem LLM mitgegeben
 - benutzerverstaendliche Uebersetzung technischer Query-/Validierungsfehler im Chat statt roher Cypher- oder Treibertexte
 - persistente Knowledge Base
+- persistente Knowledge Base inklusive expliziter Rollen-Markierungen in `knowledge_base/kb.json`
 - Alias-Projektion nach Neo4j fuer kuratierte Kurzformen oder Fehlbezeichnungen aus manuellen App-Mappings und Org-Mappings
 - deterministische Alias-Aufloesung im Query-Lookup, wenn direkte Namenssuche keinen Treffer liefert
 - Streamlit-UI mit 4 Tabs
@@ -82,6 +83,11 @@ Aktuell relevante Output-Dateien:
 - `Output/import_state.json`: letzter bekannter Dokumentzustand
 - `Output/latest_run.json`: letzter gespeicherter Import-/Reviewlauf fuer die UI
 - `Output/debug.log`: optionale JSONL-Diagnoseausgabe bei aktiviertem Debug-Modus
+
+Relevante Knowledge-Base-Bereiche:
+- `knowledge_base/kb.json` enthaelt weiterhin die kuratierten Zuordnungen und Kandidaten.
+- `org_unit_candidates` speichert offene, uebernommene, gemappte oder abgewiesene Organisationskandidaten.
+- `role_decisions` speichert explizit als reine Rolle markierte Begriffe, damit sie im Organisations-Tab nicht dauerhaft als offene Zuordnung auftauchen.
 
 ## Konfiguration
 
@@ -250,12 +256,18 @@ Aktuell verfuegbar:
 
 Aktuell verfuegbar:
 - bekannte Organisationseinheiten manuell pflegen
+- Abschnitte als initial eingeklappte Bereiche fuer bessere Uebersicht
 - Organisationseinheiten direkt als `:OrgEinheit` nach Neo4j synchronisieren
 - offene Kandidaten aus unstrukturierten Dokumenten anzeigen
 - offene Kandidaten aus CMDB-Owner-Bezeichnungen anzeigen
 - Kandidaten auf bestehende Organisationseinheiten mappen
 - Kandidaten als neue Organisationseinheit uebernehmen
 - Kandidaten abweisen
+- vorgeschlagene Prozess-Eigentuemer vor den manuell zu pflegenden Prozessen anzeigen
+- Prozesse ohne Eigentuemer einzeln oder per Batch derselben Organisationseinheit zuordnen
+- Rollen bestehenden Organisationseinheiten zuordnen oder direkt als neue Organisationseinheit anlegen
+- Begriffe explizit als `Rolle` markieren, wenn bewusst keine Zuordnung zu einer Organisationseinheit erfolgen soll
+- neu bestaetigte oder neu angelegte Organisationseinheiten nach dem UI-Rerun sofort in den folgenden Auswahllisten verfuegbar machen
 - gemappte Kandidaten als `(:Alias)-[:KANN_MEINEN]->(:OrgEinheit)` nach Neo4j projizieren
 - bei gemappten oder uebernommenen Kandidaten betroffene Prozesse im letzten Lauf gezielt neu bewerten und `VERANTWORTET`-Beziehungen in Neo4j nachziehen
 

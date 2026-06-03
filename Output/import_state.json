@@ -24,6 +24,141 @@
       "source_path": "F:\\workspace\\BRIDGR\\Input\\05_Zahlungsabwicklung.txt",
       "file_hash": "e628696243eb91ce261bfe665596604799096730fba412ce11c4b8e669a67472",
       "process_id": "05_Zahlungsabwicklung"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\06_Bestellabwicklung.txt",
+      "file_hash": "fc4f9f6142917c2668275f7d5fc61b1dbafa6bc04dcb58e9155663cbe20f31ad",
+      "process_id": "06_Bestellabwicklung"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\07_Lieferantenauswahl.txt",
+      "file_hash": "a44627d1fade054798c3e3577c57c631c0414358226f0867c7dcc8c11eb40748",
+      "process_id": "07_Lieferantenauswahl"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\08_Wareneingang.txt",
+      "file_hash": "6c64331ad4f807d7bf4473f7f59fa14e8c0dc6a85c6cc0016df6f2dcbc20b69d",
+      "process_id": "08_Wareneingang"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\09_Lagerhaltung.txt",
+      "file_hash": "3bb977b2b602656da4d049b76f6fc1a4db9e40b1e0c891e83954a28f79f408e3",
+      "process_id": "09_Lagerhaltung"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\10_Kommissionierung.txt",
+      "file_hash": "38ce0c99e150df74437f87bf86b9addab49472b7884e3875875fc4a1eabf9d6a",
+      "process_id": "10_Kommissionierung"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\11_Versand.txt",
+      "file_hash": "8f5ddab12994a953f2209fed3bdb72d824c3e1a34e4c1e703276469408e6525f",
+      "process_id": "11_Versand"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\12_Produktionsplanung.txt",
+      "file_hash": "e2e3641e54c994856926ab8a38d5368704a5b6a3e242f1498030269679f495da",
+      "process_id": "12_Produktionsplanung"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\13_Fertigungssteuerung.txt",
+      "file_hash": "302b0371d963e31ef6c3d154ce43b0d9e8cb8a9540255a89daf6704e16b187c0",
+      "process_id": "13_Fertigungssteuerung"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\14_Qualitaetspruefung_Eingang.txt",
+      "file_hash": "b0086a1d16486459d8d6746db4ba1428034a36d167130375e1f797e00ce69f54",
+      "process_id": "14_Qualitaetspruefung_Eingang"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\15_Qualitaetspruefung_Ausgang.txt",
+      "file_hash": "d4afcc0c1b5a40227cdfc97bf4f383ca92f78823d898524a97de458cbbe104b7",
+      "process_id": "15_Qualitaetspruefung_Ausgang"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\16_Reklamationsbearbeitung.txt",
+      "file_hash": "451d22d60858a3379a9b70c32c9ce6b14b983c0e706791520445b3212e1c56d0",
+      "process_id": "16_Reklamationsbearbeitung"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\17_Kundenanlage.txt",
+      "file_hash": "6d00a65b91fee9c8d1e64451d7de66046aa631153ba36f1c7d4440de418a6be6",
+      "process_id": "17_Kundenanlage"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\18_Lieferantenanlage.txt",
+      "file_hash": "a79880a5ffdda880b359057ef774e7a7c608aa66427c61216df69e8c2bd266a9",
+      "process_id": "18_Lieferantenanlage"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt",
+      "file_hash": "787c8063bb0ff55aaf8c4368b402cd60df7f8594c3fd28fbfad3b27db8bb76f8",
+      "process_id": "19_Berichtswesen"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\20_Vertragsmanagement.txt",
+      "file_hash": "68b32e388716102d841204b66daf959bf1e94fb173dba1137a0142e264ba8790",
+      "process_id": "20_Vertragsmanagement"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\21_Schulungsmanagement.txt",
+      "file_hash": "344101fbd19435a42eb2e180ac8cd474ab97d0920f5a30be268cf11ce9b2c028",
+      "process_id": "21_Schulungsmanagement"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx",
+      "file_hash": "fc4bacadf27500c3dcca553bbaf7d882783bdcbfd24c4486180d953c4d5129c1",
+      "process_id": "22_IT-Support"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx",
+      "file_hash": "8bee5f1147343cd5bf3a90967ea56a7855d9f3f8a3abd736708fe526aa8f0d02",
+      "process_id": "23_Softwarefreigabe"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\24_Datensicherung.docx",
+      "file_hash": "07d6938d0e90fdd50a90db5cdf4b92679a9bbe48afefc503bbd9537fe433de3f",
+      "process_id": "24_Datensicherung"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx",
+      "file_hash": "6c72528451cea05cc09ed1eee190b536faa8cb398cfdc5a381c2bff1efe8f69b",
+      "process_id": "25_Jahresabschluss"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\26_Budgetplanung.docx",
+      "file_hash": "610c0aefddeb4115459aa68c03c2bda0fc0eedd3cc7a147391a38278f6d49bb3",
+      "process_id": "26_Budgetplanung"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\27_Personaleinstellung.txt",
+      "file_hash": "8fa97fc44d95aacec6dcbff3e2d9359257f85a9dc7b8eddf14b06a1db68fae41",
+      "process_id": "27_Personaleinstellung"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\28_Mitarbeiter-Onboarding.txt",
+      "file_hash": "05408064301f89d63b91f75ca6f281761cd88e82f8b891da616155956a29fc90",
+      "process_id": "28_Mitarbeiter-Onboarding"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\29_Zeiterfassung.txt",
+      "file_hash": "8393b344db0b6d8370a50c709badb22c22ee3006cd421eaf098ab1fc56807d98",
+      "process_id": "29_Zeiterfassung"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\30_Aenderungsmanagement.bpmn",
+      "file_hash": "a3728c5e8c5ecf78ee229377567f39abfd7a266b1b063ab6204a9e753e4e0067",
+      "process_id": "proc_aenderungsmanagement"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\31_Auftragserfassung_Detail.bpmn",
+      "file_hash": "2738329e35b11fc81fbff5021f8c0fc216fd97b91883f8041662f10b16eb4c1b",
+      "process_id": "proc_auftragserfassung_detail"
+    },
+    {
+      "source_path": "F:\\workspace\\BRIDGR\\Input\\32_Wareneingang_Detail.bpmn",
+      "file_hash": "c90e003393f3eca3e3aeded89f212d68d56f66d573993f8f6b5ebc02a5022de1",
+      "process_id": "proc_wareneingang_detail"
     }
   ]
 }

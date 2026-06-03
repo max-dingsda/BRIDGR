@@ -237,14 +237,23 @@
       "normalized_name": "muster gmbh",
       "source_paths": [
         "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx",
-        "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt"
+        "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt",
+        "F:\\workspace\\BRIDGR\\Input\\09_Lagerhaltung.txt",
+        "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx",
+        "F:\\workspace\\BRIDGR\\Input\\29_Zeiterfassung.txt"
       ],
       "process_names": [
         "Jahresabschluss",
-        "Angebotserstellung"
+        "Angebotserstellung",
+        "Lagerhaltung",
+        "IT-Support",
+        "Zeiterfassung und Abrechnung"
       ],
       "role_names": [
-        "Vertriebsmitarbeiter"
+        "Vertriebsmitarbeiter",
+        "Lagerarbeiter",
+        "IT-Mitarbeiter",
+        "HR-Mitarbeiter"
       ],
       "status": "mapped",
       "mapped_org_unit": "Rechnungswesen",
@@ -276,10 +285,12 @@
       "candidate_name": "Vertriebsinnendienst",
       "normalized_name": "vertriebsinnendienst",
       "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt"
+        "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt",
+        "F:\\workspace\\BRIDGR\\Input\\17_Kundenanlage.txt"
       ],
       "process_names": [
-        "Auftragserfassung"
+        "Auftragserfassung",
+        "Kundenanlage und -pflege"
       ],
       "role_names": [
         "Vertriebsinnendienst"
@@ -337,6 +348,108 @@
       ],
       "role_names": [
         "Buchhalter"
+      ],
+      "status": "open",
+      "mapped_org_unit": "",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Rechtsabteilung",
+      "normalized_name": "rechtsabteilung",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\20_Vertragsmanagement.txt"
+      ],
+      "process_names": [
+        "Vertragsmanagement"
+      ],
+      "role_names": [
+        "Verantwortlichen"
+      ],
+      "status": "open",
+      "mapped_org_unit": "",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Fachabteilung",
+      "normalized_name": "fachabteilung",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx"
+      ],
+      "process_names": [
+        "Softwarefreigabe"
+      ],
+      "role_names": [
+        "IT-Mitarbeiter"
+      ],
+      "status": "open",
+      "mapped_org_unit": "",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "IT-Mitarbeiter",
+      "normalized_name": "it-mitarbeiter",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx"
+      ],
+      "process_names": [
+        "Softwarefreigabe"
+      ],
+      "role_names": [
+        "IT-Mitarbeiter"
+      ],
+      "status": "open",
+      "mapped_org_unit": "",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "IT-Teamleiter",
+      "normalized_name": "it-teamleiter",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx"
+      ],
+      "process_names": [
+        "Softwarefreigabe"
+      ],
+      "role_names": [
+        "IT-Mitarbeiter"
+      ],
+      "status": "open",
+      "mapped_org_unit": "",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "IT-Leiter",
+      "normalized_name": "it-leiter",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx"
+      ],
+      "process_names": [
+        "Softwarefreigabe"
+      ],
+      "role_names": [
+        "IT-Mitarbeiter"
+      ],
+      "status": "open",
+      "mapped_org_unit": "",
+      "first_seen": "2026-06-03",
+      "last_seen": "2026-06-03"
+    },
+    {
+      "candidate_name": "Fachbereich",
+      "normalized_name": "fachbereich",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\27_Personaleinstellung.txt"
+      ],
+      "process_names": [
+        "Personaleinstellung"
+      ],
+      "role_names": [
+        "HR-Mitarbeiter"
       ],
       "status": "open",
       "mapped_org_unit": "",
