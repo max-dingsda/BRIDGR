@@ -97,13 +97,14 @@ def test_export_relation_uses_canonical_type(tmp_path: Path) -> None:
         {"src_label": "Anwendung", "src_name": "SAP SD",
          "tgt_label": "Prozess",   "tgt_name": "Posteingang",
          "rel_type": "DIENT",      "archimate_rel_type": None},
+
     ]
     result = _run(tmp_path, nodes, relations)
     assert result.relations_exported == 1
     root = _parse_export(result.output_path)
     rels_el = root.find(f"{{{_ARCHIMATE_NS}}}relationships")
     rel = rels_el.find(f"{{{_ARCHIMATE_NS}}}relationship")
-    assert rel.get(f"{{{_XSI_NS}}}type") == "ServingRelationship"
+    assert rel.get(f"{{{_XSI_NS}}}type") == "Serving"
 
 
 def test_export_relation_uses_original_rel_type_for_roundtrip(tmp_path: Path) -> None:
@@ -114,14 +115,31 @@ def test_export_relation_uses_original_rel_type_for_roundtrip(tmp_path: Path) ->
     relations = [
         {"src_label": "Prozess", "src_name": "Prozess A",
          "tgt_label": "Prozess", "tgt_name": "Prozess B",
-         "rel_type": "FOLGT_AUF", "archimate_rel_type": "FlowRelationship"},
+         "rel_type": "FOLGT_AUF", "archimate_rel_type": "Flow"},
     ]
     result = _run(tmp_path, nodes, relations)
     assert result.relations_exported == 1
     root = _parse_export(result.output_path)
     rels_el = root.find(f"{{{_ARCHIMATE_NS}}}relationships")
     rel = rels_el.find(f"{{{_ARCHIMATE_NS}}}relationship")
-    assert rel.get(f"{{{_XSI_NS}}}type") == "FlowRelationship"
+    assert rel.get(f"{{{_XSI_NS}}}type") == "Flow"
+
+
+def test_export_normalizes_legacy_long_rel_type(tmp_path: Path) -> None:
+    nodes = [
+        {"label": "Prozess", "name": "A", "archimate_id": None, "archimate_type": None},
+        {"label": "Prozess", "name": "B", "archimate_id": None, "archimate_type": None},
+    ]
+    relations = [
+        {"src_label": "Prozess", "src_name": "A",
+         "tgt_label": "Prozess", "tgt_name": "B",
+         "rel_type": "FOLGT_AUF", "archimate_rel_type": "TriggeringRelationship"},
+    ]
+    result = _run(tmp_path, nodes, relations)
+    root = _parse_export(result.output_path)
+    rels_el = root.find(f"{{{_ARCHIMATE_NS}}}relationships")
+    rel = rels_el.find(f"{{{_ARCHIMATE_NS}}}relationship")
+    assert rel.get(f"{{{_XSI_NS}}}type") == "Triggering"
 
 
 def test_export_counts_correct(tmp_path: Path) -> None:

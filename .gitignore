@@ -229,3 +229,6 @@ Input/*
 graphify-out/*
 data/input_archive/*
 .tmp_*/
+
+# Local maintenance scripts (not for distribution)
+reset_to_delivery_state.py

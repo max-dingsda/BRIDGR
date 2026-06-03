@@ -596,28 +596,28 @@ konfigurierten kanonischen Typ.
   },
   "relationships": {
     "import": {
-      "Anwendung->Prozess":        ["ServingRelationship", "RealizationRelationship"],
-      "Rolle->Prozess":            ["AssignmentRelationship"],
-      "OrgEinheit->Rolle":         ["AssignmentRelationship"],
-      "Prozess->Prozess":          ["TriggeringRelationship", "FlowRelationship"],
-      "Anwendung->Schnittstelle":  ["CompositionRelationship", "AggregationRelationship"],
-      "Anwendung->Server":         ["RealizationRelationship", "AssignmentRelationship"],
-      "Schnittstelle->Server":     ["RealizationRelationship"],
-      "OrgEinheit->Anwendung":     ["AssociationRelationship", "AssignmentRelationship"],
-      "OrgEinheit->Schnittstelle": ["AssociationRelationship"],
-      "OrgEinheit->Server":        ["AssociationRelationship"]
+      "Anwendung->Prozess":        ["Serving", "Realization"],
+      "Rolle->Prozess":            ["Assignment"],
+      "OrgEinheit->Rolle":         ["Assignment"],
+      "Prozess->Prozess":          ["Triggering", "Flow"],
+      "Anwendung->Schnittstelle":  ["Composition", "Aggregation"],
+      "Anwendung->Server":         ["Realization", "Assignment"],
+      "Schnittstelle->Server":     ["Realization"],
+      "OrgEinheit->Anwendung":     ["Association", "Assignment"],
+      "OrgEinheit->Schnittstelle": ["Association"],
+      "OrgEinheit->Server":        ["Association"]
     },
     "export": {
-      "Anwendung->Prozess":        "ServingRelationship",
-      "Rolle->Prozess":            "AssignmentRelationship",
-      "OrgEinheit->Rolle":         "AssignmentRelationship",
-      "Prozess->Prozess":          "TriggeringRelationship",
-      "Anwendung->Schnittstelle":  "CompositionRelationship",
-      "Anwendung->Server":         "RealizationRelationship",
-      "Schnittstelle->Server":     "RealizationRelationship",
-      "OrgEinheit->Anwendung":     "AssociationRelationship",
-      "OrgEinheit->Schnittstelle": "AssociationRelationship",
-      "OrgEinheit->Server":        "AssociationRelationship"
+      "Anwendung->Prozess":        "Serving",
+      "Rolle->Prozess":            "Assignment",
+      "OrgEinheit->Rolle":         "Assignment",
+      "Prozess->Prozess":          "Triggering",
+      "Anwendung->Schnittstelle":  "Composition",
+      "Anwendung->Server":         "Realization",
+      "Schnittstelle->Server":     "Realization",
+      "OrgEinheit->Anwendung":     "Association",
+      "OrgEinheit->Schnittstelle": "Association",
+      "OrgEinheit->Server":        "Association"
     }
   }
 }
@@ -656,6 +656,24 @@ Kandidaten zur Bestaetigung: 7
 
 Letzter Export: archimate_export_<timestamp>.xml
 ```
+
+### 13.6 Bekannte Einschraenkungen (v0.21)
+
+**Realization-Richtung bei RUNS_ON:**
+
+BRIDGR exportiert `RUNS_ON`-Kanten als `Realization` in der Richtung
+`Anwendung → Server` (bzw. `Schnittstelle → Server`). In ArchiMate's formalem
+Metamodell gilt fuer Deployment-Beziehungen die umgekehrte Richtung:
+`Node → ApplicationComponent` (der Node realisiert den Deployment-Kontext der Anwendung).
+
+Konsequenz: Tools mit strenger Metamodell-Validierung (z.B. MID Innovator) korrigieren
+die Richtung beim Import automatisch. Das importierte Modell ist inhaltlich korrekt,
+aber die Pfeilrichtung entspricht nicht dem ArchiMate-Standard.
+
+Behebung: Im Export-Service die Source- und Target-Felder fuer `RUNS_ON`-Kanten
+tauschen (Server als Source, Anwendung/Schnittstelle als Target).
+Noch nicht umgesetzt, da der Import trotz Richtungskorrektur funktioniert und
+die Semantik erhalten bleibt.
 
 ---
 

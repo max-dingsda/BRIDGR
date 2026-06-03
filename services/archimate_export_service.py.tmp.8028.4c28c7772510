@@ -45,7 +45,10 @@ def _build_archimate_export(
     export_elem_map: dict[str, str] = mapping.get("elements", {}).get("export", {})
     export_rel_map: dict[str, str] = mapping.get("relationships", {}).get("export", {})
 
-    ET.register_namespace("", _ARCHIMATE_NS)
+    # Use an explicit prefix so xsi:type values are unambiguous across tools.
+    # Default namespace (no prefix) causes some parsers (e.g. MID Innovator) to
+    # expand unprefixed xsi:type values incorrectly against the default namespace URI.
+    ET.register_namespace("archimate3", _ARCHIMATE_NS)
     ET.register_namespace("xsi", _XSI_NS)
 
     model_id = f"id-{uuid.uuid4().hex[:12]}"
@@ -88,7 +91,7 @@ def _build_archimate_export(
             elements_el,
             f"{{{_ARCHIMATE_NS}}}element",
             attrib={
-                f"{{{_XSI_NS}}}type": archimate_type,
+                f"{{{_XSI_NS}}}type": f"archimate3:{archimate_type}",
                 "identifier": elem_id,
             },
         )
@@ -117,7 +120,6 @@ def _build_archimate_export(
         archimate_rel_type = rel.get("archimate_rel_type") or export_rel_map.get(pair_key)
         if not archimate_rel_type:
             continue
-        archimate_rel_type = _normalize_rel_type(archimate_rel_type)
 
         rel_id = f"id-{uuid.uuid4().hex[:12]}"
         ET.SubElement(
@@ -146,14 +148,6 @@ def _build_archimate_export(
         relations_exported=relations_exported,
         output_path=str(output_path),
     )
-
-
-def _normalize_rel_type(rel_type: str) -> str:
-    """Ensure relationship type uses the schema-correct short name (no 'Relationship' suffix).
-    Handles values stored before this fix was applied."""
-    if rel_type.endswith("Relationship"):
-        return rel_type[: -len("Relationship")]
-    return rel_type
 
 
 def _read_nodes(client: Neo4jClient) -> list[dict]:

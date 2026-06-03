@@ -27,52 +27,52 @@
   "relationships": {
     "import": {
       "Anwendung->Prozess": [
-        "ServingRelationship",
-        "RealizationRelationship"
+        "Serving",
+        "Realization"
       ],
       "Rolle->Prozess": [
-        "AssignmentRelationship"
+        "Assignment"
       ],
       "OrgEinheit->Rolle": [
-        "AssignmentRelationship"
+        "Assignment"
       ],
       "Prozess->Prozess": [
-        "TriggeringRelationship",
-        "FlowRelationship"
+        "Triggering",
+        "Flow"
       ],
       "Anwendung->Schnittstelle": [
-        "CompositionRelationship",
-        "AggregationRelationship"
+        "Composition",
+        "Aggregation"
       ],
       "Anwendung->Server": [
-        "RealizationRelationship",
-        "AssignmentRelationship"
+        "Realization",
+        "Assignment"
       ],
       "Schnittstelle->Server": [
-        "RealizationRelationship"
+        "Realization"
       ],
       "OrgEinheit->Anwendung": [
-        "AssociationRelationship",
-        "AssignmentRelationship"
+        "Association",
+        "Assignment"
       ],
       "OrgEinheit->Schnittstelle": [
-        "AssociationRelationship"
+        "Association"
       ],
       "OrgEinheit->Server": [
-        "AssociationRelationship"
+        "Association"
       ]
     },
     "export": {
-      "Anwendung->Prozess": "ServingRelationship",
-      "Rolle->Prozess": "AssignmentRelationship",
-      "OrgEinheit->Rolle": "AssignmentRelationship",
-      "Prozess->Prozess": "TriggeringRelationship",
-      "Anwendung->Schnittstelle": "CompositionRelationship",
-      "Anwendung->Server": "RealizationRelationship",
-      "Schnittstelle->Server": "RealizationRelationship",
-      "OrgEinheit->Anwendung": "AssociationRelationship",
-      "OrgEinheit->Schnittstelle": "AssociationRelationship",
-      "OrgEinheit->Server": "AssociationRelationship"
+      "Anwendung->Prozess": "Serving",
+      "Rolle->Prozess": "Assignment",
+      "OrgEinheit->Rolle": "Assignment",
+      "Prozess->Prozess": "Triggering",
+      "Anwendung->Schnittstelle": "Composition",
+      "Anwendung->Server": "Realization",
+      "Schnittstelle->Server": "Realization",
+      "OrgEinheit->Anwendung": "Assignment",
+      "OrgEinheit->Schnittstelle": "Assignment",
+      "OrgEinheit->Server": "Assignment"
     }
   },
   "pending_candidates": []

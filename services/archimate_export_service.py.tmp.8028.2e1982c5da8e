@@ -88,7 +88,7 @@ def _build_archimate_export(
             elements_el,
             f"{{{_ARCHIMATE_NS}}}element",
             attrib={
-                f"{{{_XSI_NS}}}type": archimate_type,
+                f"{{{_XSI_NS}}}type": f"archimate3:{archimate_type}",
                 "identifier": elem_id,
             },
         )
@@ -124,7 +124,7 @@ def _build_archimate_export(
             relationships_el,
             f"{{{_ARCHIMATE_NS}}}relationship",
             attrib={
-                f"{{{_XSI_NS}}}type": archimate_rel_type,
+                f"{{{_XSI_NS}}}type": f"archimate3:{archimate_rel_type}",
                 "identifier": rel_id,
                 "source": src_id,
                 "target": tgt_id,

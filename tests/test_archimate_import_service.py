@@ -30,7 +30,7 @@ _MINIMAL_XML = """\
     </element>
   </elements>
   <relationships>
-    <relationship identifier="id-3" xsi:type="ServingRelationship"
+    <relationship identifier="id-3" xsi:type="Serving"
                   source="id-2" target="id-1"/>
   </relationships>
 </model>
@@ -83,8 +83,8 @@ _DEFAULT_MAPPING = {
     },
     "relationships": {
         "import": {
-            "Anwendung->Prozess": ["ServingRelationship"],
-            "Prozess->Prozess": ["TriggeringRelationship", "FlowRelationship"],
+            "Anwendung->Prozess": ["Serving"],
+            "Prozess->Prozess": ["Triggering", "Flow"],
         },
         "export": {},
     },
@@ -144,7 +144,7 @@ def test_parse_minimal_xml(tmp_path: Path) -> None:
     assert elements[0].name == "Posteingang"
     assert elements[0].bridgr_label == "Prozess"
     assert len(relations) == 1
-    assert relations[0].archimate_rel_type == "ServingRelationship"
+    assert relations[0].archimate_rel_type == "Serving"
     assert relations[0].source_archimate_id == "id-2"
     assert relations[0].target_archimate_id == "id-1"
 
@@ -263,7 +263,7 @@ def test_import_relation_imported_when_both_endpoints_resolved() -> None:
         ArchiMateElement("id-1", "BusinessProcess", "Posteingang", "Prozess"),
         ArchiMateElement("id-2", "ApplicationComponent", "SAP SD", "Anwendung"),
     ]
-    relation = ArchiMateRelation("id-3", "ServingRelationship", "id-2", "id-1")
+    relation = ArchiMateRelation("id-3", "Serving", "id-2", "id-1")
     client = RecordingNeo4jClient(read_results={})
     result = _import_to_neo4j(client, elements, [relation], _DEFAULT_MAPPING, "test.xml")
     assert result.elements_imported == 2
@@ -278,7 +278,7 @@ def test_import_relation_skipped_when_type_not_accepted() -> None:
         ArchiMateElement("id-1", "BusinessProcess", "Posteingang", "Prozess"),
         ArchiMateElement("id-2", "ApplicationComponent", "SAP SD", "Anwendung"),
     ]
-    relation = ArchiMateRelation("id-3", "AggregationRelationship", "id-2", "id-1")
+    relation = ArchiMateRelation("id-3", "Aggregation", "id-2", "id-1")
     client = RecordingNeo4jClient(read_results={})
     result = _import_to_neo4j(client, elements, [relation], _DEFAULT_MAPPING, "test.xml")
     assert result.relations_skipped == 1
