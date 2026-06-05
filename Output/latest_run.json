@@ -39,17 +39,16 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt",
-        "process_owner_candidate": "Vertrieb"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt"
       },
       "matches": [
         {
           "application_name": "SAP CRM",
-          "cmdb_id": "app-006",
-          "matched_name": "SAP SRM",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.8571428571428571
+          "cmdb_id": "app-005",
+          "matched_name": "Microsoft Outlook",
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
         },
         {
           "application_name": "DocuSign",
@@ -69,11 +68,6 @@
         }
       ],
       "review_items": [
-        {
-          "process_name": "Angebotserstellung",
-          "application_name": "SAP CRM",
-          "reason": "fuzzy"
-        },
         {
           "process_name": "Angebotserstellung",
           "application_name": "DocuSign",
@@ -113,17 +107,16 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt",
-          "process_owner_candidate": "Vertrieb"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt"
         },
         "matches": [
           {
             "application_name": "SAP CRM",
-            "cmdb_id": "app-006",
-            "matched_name": "SAP SRM",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.8571428571428571
+            "cmdb_id": "app-005",
+            "matched_name": "Microsoft Outlook",
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
           },
           {
             "application_name": "DocuSign",

@@ -23,6 +23,14 @@
       "resolved_to": "Salesforce",
       "bestaetigt_am": "2026-06-03",
       "quelle": "manueller_link"
+    },
+    {
+      "prozess": "Angebotserstellung",
+      "anwendung_name": "SAP CRM",
+      "cmdb_id": "app-005",
+      "resolved_to": "Microsoft Outlook",
+      "bestaetigt_am": "2026-06-05",
+      "quelle": "manueller_link"
     }
   ],
   "rejected": [],

@@ -1,0 +1,724 @@
+# Benutzeranleitung BRIDGR
+
+## 1. Zweck der Anwendung
+
+BRIDGR verbindet Prozessdokumente mit Daten aus einer CMDB und baut daraus einen Wissensgraphen auf. Ziel ist es, fachliche Prozesse, Anwendungen, Schnittstellen, Server und organisatorische Zuständigkeiten gemeinsam sichtbar zu machen.
+
+Für Benutzer bedeutet das:
+
+- Prozessdokumente können eingelesen und ausgewertet werden.
+- CMDB-Daten können mit den Prozessen verknüpft werden.
+- unklare Zuordnungen können manuell geprüft und entschieden werden.
+- vorhandene Informationen können anschließend per natürlicher Sprache abgefragt werden.
+
+Die Leitfrage der Anwendung lautet:
+
+> Welche IT-Bausteine unterstützen welche Geschäftsprozesse, und wie sicher wissen wir das?
+
+---
+
+## 2. Für wen ist BRIDGR gedacht?
+
+Diese Anleitung richtet sich an Benutzer ohne Entwicklungswissen und ohne Vorwissen zu BRIDGR.
+
+Sie ist besonders geeignet für:
+
+- Enterprise-Architecture-Teams
+- Fachbereiche mit Prozessverantwortung
+- IT-Architektur, IT-Betrieb oder CMDB-verantwortliche Personen
+- Anwender, die Importläufe prüfen und offene Zuordnungen freigeben sollen
+
+---
+
+## 3. Voraussetzungen
+
+Vor der ersten Nutzung sollten folgende Voraussetzungen erfüllt sein:
+
+- BRIDGR ist lokal installiert und startbar.
+- die benötigten Python-Pakete aus `requirements.txt` beziehungsweise für eine vollständige lokale Entwicklungs- und Testumgebung aus `requirements-dev.txt` sind installiert
+- Ein Neo4j-System ist erreichbar.
+- Ein LLM-Endpunkt mit OpenAI-kompatibler API ist erreichbar.
+- Die benötigten Zugangsdaten liegen vor.
+- Prozessdateien und CMDB-Dateien sind fachlich vorbereitet.
+
+### 3.1 Benötigte Daten
+
+BRIDGR arbeitet mit folgenden Eingaben:
+
+- Prozessdokumente als `.bpmn`, `.txt`, `.docx` oder `.pdf`
+- optional große BPMN/XML-Dateien zur Vortransformation
+- CMDB-Entities-Datei als `.csv`
+- optional CMDB-Relationsdatei als `.csv`
+- optional ArchiMate-Datei als `.xml` oder `.archimate`
+
+### 3.2 Benötigte technische Angaben
+
+Vor dem Setup sollten Sie diese Informationen bereithalten:
+
+- URL des LLM-Endpunkts
+- Modellname des LLM
+- Name der Umgebungsvariable für den API-Schlüssel
+- Neo4j-URL
+- Neo4j-Benutzer
+- Neo4j-Passwort
+- Neo4j-Datenbankname
+
+### 3.3 Wichtige Ordner
+
+- `Input/`: Eingangsordner für neue Prozess- und CMDB-Dateien
+- `Output/`: Ausgabedaten und Laufartefakte
+- `data/input_archive/`: Archiv bereits verarbeiteter Prozessdateien
+
+Wichtig:
+
+- `Input/` ist eine Inbox, kein Dauerarchiv.
+- Nach erfolgreichem Import werden verarbeitete Prozessdateien aus `Input/` entfernt und archiviert.
+
+---
+
+## 4. Initiales Setup
+
+### 4.1 Anwendung starten
+
+BRIDGR wird lokal als Streamlit-Anwendung gestartet.
+
+Typischer Start:
+
+```powershell
+streamlit run app.py
+```
+
+Danach öffnet sich die Oberfläche im Browser.
+
+Falls BRIDGR lokal noch nicht lauffähig ist, müssen vorher die Abhängigkeiten installiert werden, zum Beispiel:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+Für eine vollständige lokale Entwicklungs- und Testumgebung:
+
+```powershell
+python -m pip install -r requirements-dev.txt
+```
+
+### 4.2 Grundkonfiguration in BRIDGR
+
+Öffnen Sie den Tab `Konfiguration` und bearbeiten Sie dort zunächst den Bereich `Einstellungen`.
+
+Empfohlene Reihenfolge:
+
+1. LLM konfigurieren
+2. Neo4j konfigurieren
+3. Eingabe- und Ausgabepfade prüfen
+4. CMDB-Dateien festlegen
+5. Verbindungen testen
+6. Erst danach den ersten Import durchführen
+
+### 4.3 Dateien vorbereiten
+
+Legen Sie vor dem ersten Import Ihre Dateien in den Eingabeordner:
+
+- Prozessdateien in `Input/`
+- aktive CMDB-Datei ebenfalls in `Input/`
+- optional die Relationsdatei der CMDB ebenfalls in `Input/`
+
+Wenn sehr große BPMN/XML-Dateien verwendet werden, empfiehlt es sich, diese vor dem eigentlichen Import über die BPMN-Transformation zu reduzieren.
+
+---
+
+## 5. Empfohlener Arbeitsablauf
+
+Auch wenn die Tabs in anderer Reihenfolge angezeigt werden, ist der typische Ablauf:
+
+1. `Konfiguration`: technische Einstellungen prüfen und Import vorbereiten
+2. `Konfiguration > Import`: Prozessdateien importieren und CMDB synchronisieren
+3. `Zuordnungen`: offene Anwendungszuordnungen prüfen
+4. `Organisation`: Organisationskandidaten, Prozesseigentümer und Rollen klären
+5. `EA-Modell`: optional ArchiMate-Mapping pflegen sowie ArchiMate importieren/exportieren
+6. `Kommunikation`: Fragen an den aufgebauten Wissensgraphen stellen
+
+---
+
+## 6. Tab `Kommunikation`
+
+### 6.1 Zweck
+
+In diesem Tab stellen Sie Fragen in natürlicher Sprache zum vorhandenen Wissensgraphen.
+
+Beispiele:
+
+- Welche Anwendungen unterstützen Prozess X?
+- Welche Server hängen an Anwendung Y?
+- Welche Organisationseinheit verantwortet Anwendung Z?
+
+### 6.2 Bereich und Elemente
+
+#### `Neues Gespräch`
+
+Setzt die aktuelle Gesprächshistorie zurück und startet einen neuen Chatkontext.
+
+#### Chat-Eingabe `Frage an den Wissensgraphen`
+
+Hier geben Sie Ihre Frage in normaler Sprache ein.
+
+#### Chat-Antworten
+
+BRIDGR zeigt Antworten des Systems direkt im Gesprächsverlauf an.
+
+Mögliche zusätzliche Inhalte:
+
+- tabellarische Ergebnisse
+- technischer Cypher-Query unter `Technische Details`
+- CSV-Export eines Ergebnisses
+
+#### Button `Als CSV exportieren`
+
+Erscheint bei tabellarischen Treffern und exportiert das sichtbare Ergebnis als CSV-Datei.
+
+### 6.3 Wichtige Hinweise
+
+- Ohne konfiguriertes LLM kann der Chat nicht verwendet werden.
+- Ohne Neo4j-Zugangsdaten kann der Chat keine Graphabfragen ausführen.
+- Wenn keine Treffer gefunden werden, heißt das nicht automatisch, dass keine Daten existieren; es kann auch an uneinheitlichen Bezeichnungen liegen.
+
+---
+
+## 7. Tab `Zuordnungen`
+
+### 7.1 Zweck
+
+Hier prüfen Sie offene oder unsichere Anwendungszuordnungen aus dem letzten Importlauf. Es wird in diesem Tab kein neuer Import gestartet.
+
+### 7.2 Abschnitt `Umfang`
+
+#### Radio-Option `Nur letzter Import`
+
+Zeigt nur Dateien aus dem zuletzt importierten Lauf an.
+
+#### Radio-Option `Dateien manuell wählen`
+
+Erlaubt die gezielte Auswahl einzelner Dateien aus bereits vorhandenen Laufartefakten.
+
+Wichtige Konsequenz:
+
+Wenn Sie hier zum Beispiel nur 1 von 10 Dateien auswählen, bezieht sich die Anzeige in diesem Tab nur noch auf diese ausgewählte Datei beziehungsweise Dateimenge. Sie blenden damit die übrigen Dateien nur aus; deren Review-Fälle werden dadurch weder gelöscht noch automatisch entschieden. Offene Zuordnungen der nicht ausgewählten Dateien bleiben also weiterhin bestehen und müssen später separat geprüft werden.
+
+#### Feld `Dateien für Überprüfung`
+
+Multiselect für die manuelle Auswahl der Prozessdateien, die geprüft werden sollen.
+
+### 7.3 Feld `Statusfilter`
+
+Filtert die angezeigten Dokumente nach Status. So können Sie sich zum Beispiel nur problematische oder offene Fälle anzeigen lassen.
+
+### 7.4 Bereich `Dokumentstatus`
+
+Tabellarische Übersicht über die Dokumente im aktuellen Filter.
+
+Typische Informationen:
+
+- Dateistatus
+- erkannte Prozesse
+- Fehlerfälle
+
+### 7.5 Bereich `Offene Zuordnungen`
+
+Hier sehen Sie pro Review-Fall:
+
+- `Prozess`
+- `Anwendung im Prozess`
+- `Anwendung in der CMDB`
+- `Bewertung`
+
+Zu jedem Fall gibt es folgende Aktionen:
+
+#### Button `Bestätigen`
+
+Übernimmt die vorgeschlagene Zuordnung als korrekt.
+
+#### Button `Ablehnen`
+
+Lehnt die vorgeschlagene Zuordnung ab.
+
+#### Popover `Manuell anlegen`
+
+Öffnet eine manuelle Auswahl.
+
+Darin enthalten:
+
+- Feld `CMDB-Ziel`: Auswahl eines CMDB-Eintrags
+- Button `Speichern`: speichert die manuell gewählte Zuordnung
+
+### 7.6 Bereich `Dokumentdetails`
+
+Zeigt pro Dokument technische und fachliche Details.
+
+Enthalten sein können:
+
+- Prozessname
+- Prozess-ID
+- erkannte Organisationseinheit
+- Vorgängerprozess
+- Dateihash
+- Review-Items
+
+#### Expander `Technische Details`
+
+Zeigt Rohdaten aus der Extraktion:
+
+- Rohanwendungen
+- Anwendungen
+- Zuordnungen
+
+### 7.7 Wann Sie diesen Tab nutzen sollten
+
+Nutzen Sie diesen Tab immer nach einem Import, wenn BRIDGR nicht sicher genug war, eine Anwendungszuordnung automatisch freizugeben.
+
+---
+
+## 8. Tab `Konfiguration`
+
+Dieser Tab ist für Setup, Import und technische Prüfungen zentral.
+
+Er enthält drei Bereiche:
+
+- `Import`
+- `Einstellungen`
+- `Wissensbasis`
+
+### 8.1 Bereich `Import`
+
+#### Feld `Importmodus`
+
+Werte:
+
+- `full`: verarbeitet alle Prozessdateien im Eingabepfad
+- `partial`: verarbeitet nur die explizit ausgewählten Dateien
+
+#### Feld `Dateien für Teilimport`
+
+Erscheint nur im Modus `partial`. Hier wählen Sie die Prozessdateien aus, die importiert werden sollen.
+
+#### Feld `BPMN für Transformation`
+
+Auswahl großer BPMN/XML-Dateien, die vor dem eigentlichen Import reduziert werden sollen.
+
+#### Button `BPMN transformieren`
+
+Erzeugt aus den gewählten BPMN/XML-Dateien kompaktere Transform-Dateien. Das ist hilfreich bei sehr großen oder komplexen BPMN-Modellen.
+
+#### Button `Pipeline starten`
+
+Startet den eigentlichen Prozessimport nach Neo4j.
+
+Dabei werden Prozessdateien analysiert, mit der CMDB abgeglichen und Ergebnisse als Laufartefakte gespeichert.
+
+#### Tabelle `Aktueller Eingabepfad`
+
+Zeigt die aktuell gefundenen Prozessdateien im Eingabepfad.
+
+#### Feld `Aktive CMDB-Entities-Datei`
+
+Wählt die Haupt-CMDB-Datei mit den Entitäten aus.
+
+#### Feld `Aktive CMDB-Relationsdatei`
+
+Wählt optional eine zweite CMDB-Datei mit Beziehungen aus.
+
+#### Button `Aktive CMDB-Dateien übernehmen`
+
+Speichert die aktuell ausgewählten CMDB-Dateien als aktive Konfiguration.
+
+#### Button `CMDB nach Neo4j synchronisieren`
+
+Überträgt die ausgewählten CMDB-Daten nach Neo4j.
+
+#### Tabellen zu `CMDB-...Strukturfehler`
+
+Zeigen Probleme in der CSV-Struktur an, zum Beispiel fehlende Spalten oder unvollständige Zeilen.
+
+### 8.2 Bereich `Einstellungen`
+
+#### Abschnitt `Pfade auswählen`
+
+Buttons:
+
+- `Eingabe-Ordner wählen`
+- `CMDB-Datei im Eingabe-Ordner wählen`
+- `CMDB-Relationsdatei wählen`
+- `Ausgabe-Ordner wählen`
+
+Diese Buttons öffnen Dateiauswahl- oder Ordnerdialoge.
+
+#### Abschnitt `LLM`
+
+Felder:
+
+- `LLM-Endpunkt`: URL des OpenAI-kompatiblen LLM-Dienstes
+- `LLM-Modell`: Name des verwendeten Modells
+- `API-Schlüssel (Umgebungsvariable)`: Name der Umgebungsvariable mit dem API-Key
+- `Kontextfenster`: Anzahl von Kontextnachrichten für den Chat
+- `LLM-Timeout (Sekunden)`: maximale Wartezeit auf LLM-Antworten
+- `Chat-Modus`: Auswahl zwischen `prompt-only` und `tool-use`
+
+Hinweis zu `Chat-Modus`:
+
+- `prompt-only` ist der kompatiblere Fallback für einfache oder lokale Modelle.
+- `tool-use` nutzt formales Function Calling und setzt Backend-Unterstützung voraus.
+
+#### Abschnitt `Neo4j`
+
+Felder:
+
+- `Neo4j-URL`
+- `Neo4j-Benutzer`
+- `Neo4j-Passwort`
+- `Neo4j-Datenbank`
+
+Diese Felder steuern die Verbindung zur Graphdatenbank.
+
+#### Abschnitt `Datei-Pfade`
+
+Felder:
+
+- `Eingabepfad`
+- `CMDB-Dateiname (Entities)`
+- `CMDB-Dateiname (Relationen)`
+- `Ausgabepfad`
+
+#### Abschnitt `CMDB-Spaltenmapping — Entities`
+
+Felder:
+
+- `ID-Spalte`
+- `Namensspalte`
+- `Typ-Spalte`
+- `Servertyp-Spalte`
+- `Eigentümer-Spalte`
+
+Diese Felder müssen zu den Spaltennamen Ihrer CMDB-Entities-CSV passen.
+
+#### Abschnitt `CMDB-Spaltenmapping — Relationen`
+
+Felder:
+
+- `Quell-ID-Spalte`
+- `Relationstyp-Spalte`
+- `Ziel-ID-Spalte`
+- `Mehrwert-Trennzeichen`
+
+#### Abschnitt `Import & Matching`
+
+Felder:
+
+- `Fuzzy-Schwellenwert`: bestimmt, wie tolerant BRIDGR bei unscharfen Namensähnlichkeiten ist
+- `Standard-Importmodus`: Vorgabewert für `full` oder `partial`
+- `Debug-Modus`: schreibt zusätzliche Diagnosedaten
+
+#### Button `Konfiguration speichern`
+
+Speichert alle Änderungen in der Konfiguration.
+
+#### Button `Neo4j-Verbindung neu prüfen`
+
+Prüft, ob die Graphdatenbank mit den aktuellen Angaben erreichbar ist.
+
+#### Button `Modelle aktualisieren`
+
+Fragt die am LLM-Endpunkt verfügbaren Modelle ab.
+
+#### Button `LLM-Verbindung neu prüfen`
+
+Prüft die Verbindung zum LLM und die Modellverfügbarkeit.
+
+#### Bereich `Aktuelle Konfiguration`
+
+Zeigt die derzeit wirksame Konfiguration als JSON an.
+
+### 8.3 Bereich `Wissensbasis`
+
+Dieser Bereich dient administrativen Rücksetzfunktionen.
+
+Buttons:
+
+- `Wissensbasis komplett leeren`
+- `Nur Bestätigungen leeren`
+- `Nur Ablehnungen leeren`
+
+Verwenden Sie diese Funktionen nur bewusst, da dadurch bereits getroffene Entscheidungen entfernt werden.
+
+---
+
+## 9. Tab `Organisation`
+
+### 9.1 Zweck
+
+Hier verwalten Sie Organisationseinheiten, offene Organisationskandidaten, Prozesseigentümer und Rollenbeziehungen.
+
+### 9.2 Abschnitt `Organisationseinheiten`
+
+Zeigt die bereits bekannten Organisationseinheiten.
+
+#### Button `Organisation nach Neo4j synchronisieren`
+
+Schreibt die gepflegten Organisationseinheiten nach Neo4j.
+
+Wichtig:
+
+Diesen Schritt müssen Sie immer ausführen, wenn Sie in diesem Tab organisatorische Änderungen vorgenommen haben, die im Graphen wirksam werden sollen. Dazu gehören insbesondere neue Organisationseinheiten, Kandidatenentscheidungen, Prozesseigentümer-Zuordnungen und Rollenzuordnungen. Ohne die Synchronisation sind Änderungen zwar fachlich erfasst, aber noch nicht vollständig in Neo4j wirksam.
+
+#### Button `Prozesse verwalten`
+
+Öffnet für die jeweilige Organisationseinheit eine Bearbeitungsansicht.
+
+Dort enthalten:
+
+- Feld `Verantwortliche Prozesse`: Multiselect aller Prozesse
+- Button `Speichern`: speichert die Prozesszuordnung
+
+#### Formular `Neue Organisationseinheit`
+
+Feld:
+
+- `Neue Organisationseinheit`
+
+Button:
+
+- `Organisationseinheit hinzufügen`
+
+### 9.3 Abschnitt `Kandidaten`
+
+Zeigt offene Organisationskandidaten, die aus Dokumenten oder CMDB-Daten entstanden sind.
+
+Zu jedem Kandidaten werden typischerweise angezeigt:
+
+- betroffene Prozesse
+- betroffene Rollen
+- Quellen
+
+Eingabefelder und Buttons:
+
+- `Bestehende Organisationseinheit`: Auswahl einer vorhandenen OE
+- `Zuordnen`: mappt den Kandidaten auf eine bestehende OE
+- `Als neue Organisationseinheit übernehmen`: Textfeld für den Zielnamen
+- `Übernehmen`: legt eine neue OE an bzw. übernimmt den Kandidaten
+- `Abweisen`: verwirft den Kandidaten
+
+### 9.4 Abschnitt `Vorgeschlagene Prozess-Eigentümer`
+
+Zeigt Vorschläge für Prozesseigentümer aus der Extraktion.
+
+Eingabefeld:
+
+- `Organisationseinheit bestätigen`
+
+Buttons:
+
+- `Bestätigen`
+- `Abweisen`
+
+Mit `Bestätigen` wird der vorgeschlagene Prozesseigentümer übernommen.
+
+### 9.5 Abschnitt `Prozesse ohne Eigentümer`
+
+Hier sehen Sie Prozesse, denen noch keine Organisationseinheit als Eigentümer zugeordnet wurde.
+
+#### Batch-Zuweisung
+
+Felder:
+
+- `Mehrere Prozesse gleichzeitig zuweisen`
+- `Gemeinsamer Eigentümer`
+
+Button:
+
+- `Batch zuweisen`
+
+#### Einzelzuweisung pro Prozess
+
+Feld:
+
+- `Eigentümer zuweisen`
+
+Button:
+
+- `Zuweisen`
+
+### 9.6 Abschnitt `Nicht zugeordnete Rollen`
+
+Zeigt Rollen aus Prozessmodellen, die noch keiner Organisationseinheit zugeordnet sind.
+
+Felder und Buttons:
+
+- `Bestehende Organisationseinheit`
+- `Zuordnen`
+- `Als neue Organisationseinheit anlegen`
+- `Anlegen & zuordnen`
+- `Rolle`
+
+Bedeutung von `Rolle`:
+
+Damit markieren Sie, dass ein Begriff bewusst nur eine Prozessrolle ist und keine Organisationseinheit darstellen soll.
+
+### 9.7 Abschnitt `Bereits entschiedene Kandidaten`
+
+Zeigt eine Historie bereits bearbeiteter Organisationskandidaten.
+
+Typische Spalten:
+
+- Kandidat
+- Status
+- Gemappt auf
+- Zuletzt gesehen
+
+---
+
+## 10. Tab `EA-Modell`
+
+### 10.1 Zweck
+
+Dieser Tab ist für ArchiMate-bezogene Funktionen zuständig:
+
+- Mapping zwischen BRIDGR und ArchiMate pflegen
+- ArchiMate-Dateien importieren
+- vollständigen BRIDGR-Graphen als ArchiMate exportieren
+
+### 10.2 Abschnitt `Mapping konfigurieren`
+
+#### Expander `Elemente`
+
+Für jedes BRIDGR-Label gibt es zwei Auswahlfelder:
+
+- `Import: ArchiMate-Typ`
+- `Export: ArchiMate-Typ`
+
+Damit legen Sie fest:
+
+- welcher ArchiMate-Typ beim Import welchem BRIDGR-Label zugeordnet wird
+- welcher ArchiMate-Typ beim Export für dieses BRIDGR-Label erzeugt wird
+
+#### Checkbox `Beziehungs-Mapping bearbeiten`
+
+Blendet die Bearbeitung der Beziehungs-Mappings ein.
+
+#### Expander `Beziehungen`
+
+Pro Label-Paar stehen zur Verfügung:
+
+- `Import: akzeptierte AM-Typen`
+- `Export: kanonischer AM-Typ`
+
+#### Button `Mapping speichern`
+
+Speichert das ArchiMate-Mapping dauerhaft.
+
+### 10.3 Abschnitt `Offene Zuordnungen`
+
+Erscheint nur, wenn es unklare ArchiMate-Kandidaten gibt.
+
+Buttons pro Kandidat:
+
+- `✓`: Kandidat bestätigen
+- `✗`: Kandidat verwerfen
+
+### 10.4 Abschnitt `Import`
+
+#### Feld `ArchiMate-Datei hochladen (.xml oder .archimate)`
+
+Dateiupload für eine ArchiMate-Datei.
+
+#### Button `Importieren`
+
+Startet den ArchiMate-Import.
+
+Nach erfolgreichem Import zeigt BRIDGR unter anderem an:
+
+- importierte Elemente
+- erzeugte Kandidaten
+- übersprungene Elemente
+- importierte Beziehungen
+- übersprungene Beziehungen
+
+### 10.5 Abschnitt `Export`
+
+#### Button `Als ArchiMate exportieren`
+
+Exportiert den vollständigen BRIDGR-Graphen als ArchiMate-Datei.
+
+Wichtig:
+
+- Der Export umfasst immer den gesamten Graphen.
+- Teilexporte sind in der aktuellen Version nicht vorgesehen.
+
+---
+
+## 11. Typische Nutzungsszenarien
+
+### 11.1 Erster Import
+
+1. Im Tab `Konfiguration` LLM und Neo4j einrichten
+2. Prozessdateien und CMDB-Dateien in `Input/` ablegen
+3. Im Bereich `Import` die aktive CMDB-Datei wählen
+4. Falls nötig `CMDB nach Neo4j synchronisieren`
+5. `Pipeline starten`
+6. Danach `Zuordnungen` und `Organisation` prüfen
+
+### 11.2 Offene Zuordnungen bereinigen
+
+1. Tab `Zuordnungen` öffnen
+2. Umfang und Statusfilter setzen
+3. offene Fälle bestätigen, ablehnen oder manuell anlegen
+4. anschließend Tab `Organisation` öffnen und offene Organisationsfragen klären
+
+### 11.3 Fragen an den Graph stellen
+
+1. Sicherstellen, dass bereits Daten importiert wurden
+2. Tab `Kommunikation` öffnen
+3. Frage natürlichsprachlich eingeben
+4. Ergebnisse bei Bedarf als CSV exportieren
+
+---
+
+## 12. Häufige Probleme
+
+### Keine Chat-Antwort möglich
+
+Mögliche Ursachen:
+
+- kein LLM-Modell konfiguriert
+- Neo4j-Zugangsdaten fehlen
+- Verbindungen sind nicht erreichbar
+
+### Kein sinnvoller Import
+
+Mögliche Ursachen:
+
+- Dateien liegen nicht im richtigen Eingabepfad
+- CMDB-Spaltenmapping passt nicht zur CSV
+- LLM ist nicht erreichbar
+- BPMN-Datei ist sehr groß und sollte zuerst transformiert werden
+
+### Keine oder wenige Treffer im Review
+
+Mögliche Ursachen:
+
+- es gab bereits starke automatische Zuordnungen
+- die Prozessdatei wurde nicht erfolgreich verarbeitet
+- Statusfilter oder Dateifilter schränken die Ansicht ein
+
+---
+
+## 13. Kurzfassung für neue Benutzer
+
+Wenn Sie BRIDGR zum ersten Mal verwenden, reicht meist dieser Ablauf:
+
+1. `Konfiguration` öffnen
+2. LLM und Neo4j eintragen
+3. Dateien in `Input/` legen
+4. im Bereich `Import` die Pipeline starten
+5. offene Fälle in `Zuordnungen` prüfen
+6. Zuständigkeiten in `Organisation` klären
+7. im Tab `Kommunikation` Fragen an den Graphen stellen
+
+Damit können Sie BRIDGR ohne Entwicklungskenntnisse produktiv nutzen.
