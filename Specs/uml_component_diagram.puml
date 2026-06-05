@@ -1,0 +1,193 @@
+@startuml BRIDGR_Komponentendiagramm
+!theme plain
+skinparam componentFontSize 12
+skinparam packageFontSize 13
+skinparam linetype ortho
+skinparam nodesep 50
+skinparam ranksep 60
+skinparam componentStyle rectangle
+
+title BRIDGR – UML-Komponentendiagramm
+
+' ──────────────────────────────────────────────────────────
+' EXTERNE SYSTEME
+' ──────────────────────────────────────────────────────────
+package "Externe Systeme" #FFEBEE {
+  component [LLM-Dienst\n(OpenAI-kompatibel)] as LLM_EXT #FFCDD2
+  component [Neo4j\nGraph-Datenbank] as NEO4J_EXT #FFCDD2
+  component [Filesystem\n(Input/Output/CMDB)] as FS_EXT #FFCDD2
+}
+
+' ──────────────────────────────────────────────────────────
+' PRÄSENTATIONSSCHICHT
+' ──────────────────────────────────────────────────────────
+package "Präsentationsschicht" #E3F2FD {
+
+  component [app.py\nStreamlit-Einstiegspunkt] as APP #BBDEFB
+
+  package "UI-Tabs" #C5CAE9 {
+    component [ReviewTab] as UI_REVIEW
+    component [ConfigTab] as UI_CONFIG
+    component [OrganizationTab] as UI_ORG
+    component [QueryTab] as UI_QUERY
+    component [ArchiMateTab] as UI_ARCHIMATE
+  }
+
+  component [UIRunView\n(Ansichtshilfen)] as UI_RUN_VIEW #BBDEFB
+  component [dialog_utils.py\n(UI-Dialoge)] as DIALOG
+}
+
+' ──────────────────────────────────────────────────────────
+' ANWENDUNGSSCHICHT / SERVICES
+' ──────────────────────────────────────────────────────────
+package "Anwendungsschicht – Services" #E8F5E9 {
+  component [RuntimeService\n(Session-Verwaltung)] as SVC_RUNTIME #C8E6C9
+  component [CmdbService\n(CMDB-Sync)] as SVC_CMDB #C8E6C9
+  component [ReviewService\n(Review-Verwaltung)] as SVC_REVIEW #C8E6C9
+  component [OrganizationService\n(Org-Einheiten)] as SVC_ORG #C8E6C9
+  component [QueryService\n(Graph-Abfragen)] as SVC_QUERY #C8E6C9
+  component [AliasService\n(Alias-Sync)] as SVC_ALIAS #C8E6C9
+  component [ImportService\n(Archivierung)] as SVC_IMPORT #C8E6C9
+  component [ArchiMateImportService] as SVC_ARCH_IN #C8E6C9
+  component [ArchiMateExportService] as SVC_ARCH_OUT #C8E6C9
+}
+
+' ──────────────────────────────────────────────────────────
+' KERNDOMÄNE – PIPELINE
+' ──────────────────────────────────────────────────────────
+package "Kerndomäne – Verarbeitungs-Pipeline" #FFF3E0 {
+  component [Pipeline\n(Orchestrierung)] as PIPELINE #FFE0B2
+
+  package "Extraktion" #FFE082 {
+    component [TextExtractor] as EXT_TXT
+    component [PdfExtractor] as EXT_PDF
+    component [DocxExtractor] as EXT_DOCX
+    component [BpmnExtractor] as EXT_BPMN
+    component [BpmnTransformer\n(BPMN → Text)] as BPMN_TRANS
+  }
+
+  component [match.py\n(Anwendungs-Matching)] as MATCHER #FFE0B2
+  component [GraphWriter\n(Graph-Persistenz)] as GW #FFE0B2
+  component [review.py\n(Review-Item-Sammlung)] as REVIEWER #FFE0B2
+  component [identity.py\n(Entitäts-Identifikation)] as IDENTITY #FFE0B2
+}
+
+' ──────────────────────────────────────────────────────────
+' DATEN & KONFIGURATION
+' ──────────────────────────────────────────────────────────
+package "Daten & Konfiguration" #F3E5F5 {
+  component [AppConfig\n(Anwendungskonfiguration)] as CONFIG #E1BEE7
+  component [KnowledgeBase\n(Wissensbasis JSON)] as KB #E1BEE7
+  component [cmdb.py\n(CMDB-Datenmodell)] as CMDB #E1BEE7
+  component [graph_schema.py\n(Neo4j-Schema)] as SCHEMA #E1BEE7
+  component [run_artifacts.py\n(Import-Zustandsverwaltung)] as ARTIFACTS #E1BEE7
+  component [constants.py\n(Anwendungskonstanten)] as CONST #E1BEE7
+  component [query_layer.py\n(Cypher-Validierung)] as QUERY_LAYER #E1BEE7
+  component [prompts/\n(LLM-Prompt-Vorlagen)] as PROMPTS #E1BEE7
+  component [archimate_mapping.json\n(Typ-Mapping)] as ARCH_MAP #E1BEE7
+}
+
+' ──────────────────────────────────────────────────────────
+' INFRASTRUKTUR-ADAPTER
+' ──────────────────────────────────────────────────────────
+package "Infrastruktur-Adapter" #ECEFF1 {
+  component [Neo4jClient\n(neo4j_utils.py)] as NEO4J_CLIENT #CFD8DC
+  component [OpenAICompatibleClient\n(llm_client.py)] as LLM_CLIENT #CFD8DC
+  component [import_utils.py\n(Datei-Import)] as IMPORT_UTILS #CFD8DC
+  component [env_loader.py\n(Umgebungsvariablen)] as ENV #CFD8DC
+  component [debug_utils.py\n(Debug-Logging)] as DEBUG #CFD8DC
+  component [input_validation.py\n(Eingabe-Validierung)] as VALIDATION #CFD8DC
+  component [migrate_kb_to_neo4j.py\n(Datenmigration)] as MIGRATE #CFD8DC
+}
+
+' ──────────────────────────────────────────────────────────
+' SCHNITTSTELLEN (Interfaces)
+' ──────────────────────────────────────────────────────────
+
+' Präsentation → Services
+APP --> UI_REVIEW
+APP --> UI_CONFIG
+APP --> UI_ORG
+APP --> UI_QUERY
+APP --> UI_ARCHIMATE
+APP --> UI_RUN_VIEW
+APP --> SVC_RUNTIME
+
+UI_REVIEW --> SVC_REVIEW
+UI_CONFIG --> CONFIG
+UI_ORG --> SVC_ORG
+UI_QUERY --> SVC_QUERY
+UI_ARCHIMATE --> SVC_ARCH_IN
+UI_ARCHIMATE --> SVC_ARCH_OUT
+UI_ARCHIMATE --> ARCH_MAP
+
+' Services → Pipeline / Kern
+SVC_RUNTIME --> NEO4J_CLIENT
+SVC_RUNTIME --> LLM_CLIENT
+SVC_CMDB --> CMDB
+SVC_CMDB --> GW
+SVC_CMDB --> KB
+SVC_CMDB --> SVC_ALIAS
+SVC_REVIEW --> KB
+SVC_REVIEW --> GW
+SVC_REVIEW --> PIPELINE
+SVC_ORG --> NEO4J_CLIENT
+SVC_ORG --> KB
+SVC_ORG --> GW
+SVC_QUERY --> NEO4J_CLIENT
+SVC_QUERY --> LLM_CLIENT
+SVC_QUERY --> SVC_ALIAS
+SVC_QUERY --> QUERY_LAYER
+SVC_ALIAS --> NEO4J_CLIENT
+SVC_ALIAS --> KB
+SVC_IMPORT --> ARTIFACTS
+SVC_ARCH_IN --> NEO4J_CLIENT
+SVC_ARCH_OUT --> NEO4J_CLIENT
+SVC_ARCH_OUT --> ARCH_MAP
+
+' Pipeline → Kern-Komponenten
+PIPELINE --> EXT_TXT
+PIPELINE --> EXT_PDF
+PIPELINE --> EXT_DOCX
+PIPELINE --> EXT_BPMN
+PIPELINE --> BPMN_TRANS
+PIPELINE --> MATCHER
+PIPELINE --> GW
+PIPELINE --> REVIEWER
+PIPELINE --> KB
+PIPELINE --> CMDB
+PIPELINE --> SVC_IMPORT
+PIPELINE --> ARTIFACTS
+
+' Extraktoren → LLM + Prompts
+EXT_TXT --> LLM_CLIENT
+EXT_PDF --> LLM_CLIENT
+EXT_DOCX --> LLM_CLIENT
+EXT_BPMN --> LLM_CLIENT
+EXT_TXT --> PROMPTS
+EXT_BPMN --> PROMPTS
+
+' Matching & GraphWriter → Infrastruktur
+MATCHER --> KB
+GW --> NEO4J_CLIENT
+GW --> SCHEMA
+
+' Infrastruktur-Adapter → Externe Systeme
+NEO4J_CLIENT --> NEO4J_EXT
+LLM_CLIENT --> LLM_EXT
+IMPORT_UTILS --> FS_EXT
+CMDB --> FS_EXT
+ARTIFACTS --> FS_EXT
+KB --> FS_EXT
+PROMPTS --> FS_EXT
+
+' Konfiguration wird systemweit genutzt
+CONFIG --> ENV
+PIPELINE --> CONFIG
+SVC_CMDB --> CONFIG
+SVC_ORG --> CONFIG
+SVC_REVIEW --> CONFIG
+SVC_QUERY --> CONFIG
+SVC_RUNTIME --> CONFIG
+
+@enduml

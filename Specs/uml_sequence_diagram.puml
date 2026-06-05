@@ -1,0 +1,319 @@
+@startuml BRIDGR_Sequenzdiagramme
+!theme plain
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 200
+skinparam sequenceGroupFontSize 12
+
+' ══════════════════════════════════════════════════════════
+' SEQUENZDIAGRAMM 1: Dokument-Import-Pipeline
+' ══════════════════════════════════════════════════════════
+
+title Sequenz 1: Dokument-Import-Pipeline
+
+actor "Benutzer" as User
+participant "app.py\n(Streamlit UI)" as UI
+participant "Pipeline" as Pipeline
+participant "BpmnTransformer" as BpmnT
+participant "Extractor\n(Txt/Pdf/Docx/Bpmn)" as Extractor
+participant "OpenAICompatible\nClient" as LLM
+participant "match.py\n(Matching)" as Matcher
+participant "GraphWriter" as GW
+participant "Neo4jClient" as Neo4j
+participant "KnowledgeBase" as KB
+participant "ImportService" as IS
+
+User -> UI : Import starten\n(run_mode: full/partial)
+activate UI
+
+UI -> Pipeline : run_pipeline(config, input_paths, progress_cb)
+activate Pipeline
+
+Pipeline -> Neo4j : ensure_constraints()
+Pipeline -> KB : load knowledge_base()
+
+loop für jede Eingabedatei
+
+  Pipeline -> Pipeline : should_skip_file(hash, run_mode)
+
+  alt BPMN-Datei
+    Pipeline -> BpmnT : transform_bpmn_for_import(source_path)
+    activate BpmnT
+    BpmnT --> Pipeline : list[txt_paths]
+    deactivate BpmnT
+  end
+
+  Pipeline -> Extractor : extract(source_path)
+  activate Extractor
+
+  Extractor -> Extractor : _read_document_text()
+  Extractor -> LLM : generate_json(system_prompt, user_prompt)
+  activate LLM
+  LLM --> Extractor : JSON-Payload\n(prozess, rollen, anwendungen, org_units)
+  deactivate LLM
+
+  Extractor -> Extractor : _to_domain_model(payload)
+  Extractor --> Pipeline : ExtractedProcess
+  deactivate Extractor
+
+  Pipeline -> Pipeline : apply_org_unit_mapping\n(process, knowledge_base)
+
+  loop für jede ApplicationReference
+    Pipeline -> Matcher : match_application(name, process_name, cmdb_rows, ...)
+    activate Matcher
+    Matcher -> KB : check confirmed_links
+    alt in confirmed_links
+      Matcher --> Pipeline : MatchResult(source=knowledge_base)
+    else in rejected_links
+      Matcher --> Pipeline : MatchResult(source=rejected)
+    else fuzzy match ≥ threshold
+      Matcher --> Pipeline : MatchResult(source=fuzzy, score)
+    else kein Match
+      Matcher --> Pipeline : MatchResult(source=unmatched)
+    end
+    deactivate Matcher
+  end
+
+  Pipeline -> GW : build_payload(process, matches)
+  activate GW
+  GW --> Pipeline : GraphWritePayload
+  deactivate GW
+
+  Pipeline -> GW : write_payload(neo4j_client, payload)
+  activate GW
+  GW -> Neo4j : upsert Prozess-Knoten
+  GW -> Neo4j : upsert Anwendungs-Knoten
+  GW -> Neo4j : merge DIENT-Beziehungen
+  GW -> Neo4j : merge BETEILIGT_AN-Beziehungen
+  GW --> Pipeline : write_action (inserted/updated/none)
+  deactivate GW
+
+  Pipeline --> UI : progress_callback(DocumentRunResult)
+end
+
+Pipeline -> IS : finalize_import_artifacts(config, output_path, ...)
+activate IS
+IS -> IS : archive_processed_input_files()
+IS --> Pipeline : (archive_path, archived_paths)
+deactivate IS
+
+Pipeline --> UI : PipelineRunResult
+deactivate Pipeline
+
+UI --> User : Import-Zusammenfassung\n(Statistiken, Review-Items)
+deactivate UI
+
+newpage
+
+' ══════════════════════════════════════════════════════════
+' SEQUENZDIAGRAMM 2: Natürlichsprachige Graph-Abfrage
+' ══════════════════════════════════════════════════════════
+
+title Sequenz 2: Natürlichsprachige Graph-Abfrage (Query Chat)
+
+actor "Benutzer" as User2
+participant "QueryTab\n(UI)" as QTab
+participant "QueryService" as QS
+participant "OpenAICompatible\nClient" as LLM2
+participant "AliasService" as AS
+participant "Neo4jClient" as Neo4j2
+
+User2 -> QTab : Frage in natürlicher Sprache
+activate QTab
+
+QTab -> QS : run_query_chat_turn(question, config)
+activate QS
+
+QS -> QS : _build_chat_system_prompt(config)
+QS -> QS : _build_llm_history(chat_messages)
+
+alt chat_mode = "prompt-only"
+
+  QS -> LLM2 : generate_chat(messages + question)
+  activate LLM2
+  LLM2 --> QS : Antwort mit Cypher-Query (in Code-Block)
+  deactivate LLM2
+
+  QS -> QS : _extract_cypher_from_response(response)
+
+  QS -> AS : _collect_alias_hints(cypher_query, client)
+  activate AS
+  AS -> Neo4j2 : lookup_alias_matches(...)
+  Neo4j2 --> AS : Alias-Kandidaten
+  AS --> QS : alias_hints
+  deactivate AS
+
+  QS -> Neo4j2 : execute_read(cypher_query)
+  activate Neo4j2
+
+  alt Query-Fehler (bis MAX_CYPHER_RETRIES)
+    Neo4j2 --> QS : Neo4jQueryError
+    QS -> LLM2 : generate_chat(messages + Fehlermeldung)
+    activate LLM2
+    LLM2 --> QS : korrigierte Cypher-Query
+    deactivate LLM2
+    QS -> Neo4j2 : execute_read(korrigierte_query)
+  end
+
+  Neo4j2 --> QS : list[dict] Ergebniszeilen
+  deactivate Neo4j2
+
+  QS -> QS : _format_query_result(rows, alias_hints)
+  QS -> LLM2 : generate_chat(messages + Ergebnisse)
+  activate LLM2
+  LLM2 --> QS : natürlichsprachige Antwort
+  deactivate LLM2
+
+else chat_mode = "tool-use"
+
+  QS -> LLM2 : generate_with_tools(messages, [execute_cypher])
+  activate LLM2
+  LLM2 --> QS : tool_call: execute_cypher(query)
+  deactivate LLM2
+
+  QS -> Neo4j2 : execute_read(cypher_query)
+  activate Neo4j2
+  Neo4j2 --> QS : Ergebniszeilen
+  deactivate Neo4j2
+
+  QS -> LLM2 : generate_with_tools(messages + tool_result)
+  activate LLM2
+  LLM2 --> QS : natürlichsprachige Antwort
+  deactivate LLM2
+
+end
+
+QS -> QS : append_chat_message(role, content, cypher, rows)
+QS --> QTab : Antwort + Cypher + Ergebnisse
+deactivate QS
+
+QTab --> User2 : Antwort, Cypher-Query\nund Ergebnis-Tabelle
+deactivate QTab
+
+newpage
+
+' ══════════════════════════════════════════════════════════
+' SEQUENZDIAGRAMM 3: CMDB-Synchronisation
+' ══════════════════════════════════════════════════════════
+
+title Sequenz 3: CMDB-Synchronisation
+
+actor "Benutzer" as User3
+participant "ConfigTab\n(UI)" as CTab
+participant "CmdbService" as CS
+participant "cmdb.py\n(Loader)" as CL
+participant "KnowledgeBase" as KB3
+participant "GraphWriter" as GW3
+participant "AliasService" as AS3
+participant "Neo4jClient" as Neo4j3
+
+User3 -> CTab : CMDB-Sync auslösen
+activate CTab
+
+CTab -> CS : persist_cmdb_sync(config)
+activate CS
+
+CS -> CL : load_normalized_cmdb(config)
+activate CL
+CL -> CL : CSV einlesen & validieren
+CL --> CS : NormalizedCmdb (entities, relations)
+deactivate CL
+
+CS -> KB3 : load knowledge_base()
+CS -> CS : update_organization_knowledge_from_cmdb(kb, cmdb)
+CS -> CS : resolve_cmdb_owner_assignments(kb, cmdb)
+
+CS -> GW3 : sync_cmdb(neo4j_client, normalized_cmdb, owner_assignments)
+activate GW3
+loop für jede CmdbEntity
+  GW3 -> Neo4j3 : upsert Anwendung/Schnittstelle/Server-Knoten
+end
+loop für jede CmdbRelation
+  GW3 -> Neo4j3 : merge Beziehung (USES_INTERFACE, RUNS_ON, ...)
+end
+loop für Owner-Assignments
+  GW3 -> Neo4j3 : merge VERANTWORTET-Beziehung\n(OrgEinheit → Anwendung)
+end
+GW3 --> CS : void
+deactivate GW3
+
+CS -> AS3 : sync_knowledge_base_aliases(neo4j_client, kb)
+activate AS3
+loop für jede ConfirmedLink / OrgUnitEntry
+  AS3 -> Neo4j3 : merge Alias-Knoten
+  AS3 -> Neo4j3 : merge KANN_MEINEN-Beziehung
+end
+AS3 --> CS : alias_count
+deactivate AS3
+
+CS --> CTab : CmdbSyncResult\n(entity_count, relation_count, ...)
+deactivate CS
+
+CTab --> User3 : Sync-Ergebnis anzeigen
+deactivate CTab
+
+newpage
+
+' ══════════════════════════════════════════════════════════
+' SEQUENZDIAGRAMM 4: Review – Anwendungslink bestätigen
+' ══════════════════════════════════════════════════════════
+
+title Sequenz 4: Review – Anwendungslink bestätigen/ablehnen
+
+actor "Benutzer" as User4
+participant "ReviewTab\n(UI)" as RT
+participant "ReviewService" as RS
+participant "KnowledgeBase" as KB4
+participant "GraphWriter" as GW4
+participant "Neo4jClient" as Neo4j4
+
+User4 -> RT : Review-Items laden
+activate RT
+RT -> RS : persist_latest_run_refresh(config, cmdb_rows)
+activate RS
+RS -> RS : rerun_single_document_from_artifact(...)
+RS --> RT : aktualisierte Review-Items
+deactivate RS
+
+alt Benutzer bestätigt Link
+  User4 -> RT : confirm_review_link(process, app, cmdb_id, matched_name)
+  RT -> RS : confirm_review_link(config, ...)
+  activate RS
+  RS -> KB4 : append ConfirmedLink
+  RS -> KB4 : save knowledge_base()
+  RS -> GW4 : write_payload(client, updated_payload)
+  activate GW4
+  GW4 -> Neo4j4 : merge DIENT-Beziehung (konfidenz=stark)
+  GW4 --> RS : void
+  deactivate GW4
+  RS --> RT : (status, message)
+  deactivate RS
+
+else Benutzer lehnt Link ab
+  User4 -> RT : reject_review_link(process, app, cmdb_id)
+  RT -> RS : reject_review_link(config, ...)
+  activate RS
+  RS -> KB4 : append RejectedLink
+  RS -> KB4 : save knowledge_base()
+  RS --> RT : (status, message)
+  deactivate RS
+
+else Benutzer verknüpft manuell
+  User4 -> RT : save_manual_link(process, app, cmdb_id, matched_name)
+  RT -> RS : save_manual_link(config, kb, ...)
+  activate RS
+  RS -> KB4 : append ConfirmedLink (quelle=manual)
+  RS -> KB4 : save knowledge_base()
+  RS -> GW4 : write_payload(client, updated_payload)
+  activate GW4
+  GW4 -> Neo4j4 : merge DIENT-Beziehung
+  GW4 --> RS : void
+  deactivate GW4
+  RS --> RT : (status, message)
+  deactivate RS
+end
+
+RT --> User4 : aktualisierte Review-Ansicht
+deactivate RT
+
+@enduml

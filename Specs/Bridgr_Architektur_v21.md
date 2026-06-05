@@ -771,4 +771,56 @@ die Semantik erhalten bleibt.
 
 ---
 
+## 16. UML-Diagramme
+
+### 16.1 Komponentendiagramm
+
+Zeigt die statische Gliederung aller Systemkomponenten in Schichten (Präsentation, Services, Pipeline, Infrastruktur) sowie ihre Abhängigkeiten untereinander und zu externen Systemen (Neo4j, LLM, Filesystem).
+
+![BRIDGR Komponentendiagramm](BRIDGR_Komponentendiagramm.png)
+
+Quelle: [uml_component_diagram.puml](uml_component_diagram.puml)
+
+---
+
+### 16.2 Klassenmodell
+
+Zeigt alle Klassen mit Attributen und Methoden, gegliedert nach den Packages Konfiguration, CMDB-Datenmodell, Wissensbasis, Extraktion & Verarbeitung, Matching & Review, Pipeline & Artefakte, Infrastruktur, Fehlerbehandlung, Services, ArchiMate-Integration und UI-Komponenten.
+
+![BRIDGR Klassenmodell](BRIDGR_Klassenmodell.png)
+
+Quelle: [uml_class_model.puml](uml_class_model.puml)
+
+---
+
+### 16.3 Sequenzdiagramme
+
+#### Sequenz 1 – Dokument-Import-Pipeline
+
+Vollständiger Ablauf vom Import-Start durch die Pipeline über Extraktion, Matching und Graph-Schreiben bis zur Archivierung verarbeiteter Dateien (vgl. Abschnitte 7 und 8).
+
+![Sequenz 1: Dokument-Import-Pipeline](BRIDGR_Sequenzdiagramme.png)
+
+#### Sequenz 2 – Natürlichsprachige Graph-Abfrage
+
+Konversationsfluss im Query-Tab für beide Betriebsmodi (`tool-use` und `prompt-only`) inkl. Alias-Lookup und Cypher-Fehlerkorrektur (vgl. Abschnitt 10).
+
+![Sequenz 2: Graph-Abfrage](BRIDGR_Sequenzdiagramme_001.png)
+
+#### Sequenz 3 – CMDB-Synchronisation
+
+Ablauf des CMDB-Sync vom CSV-Laden über Owner-Auflösung, Graph-Schreiben bis zur Alias-Synchronisation (vgl. Abschnitt 7).
+
+![Sequenz 3: CMDB-Synchronisation](BRIDGR_Sequenzdiagramme_002.png)
+
+#### Sequenz 4 – Review: Anwendungslink bestätigen / ablehnen
+
+Drei Pfade im Review-Tab: Bestätigen, Ablehnen und manuelle Verknüpfung eines Anwendungslinks inkl. Schreiben in KnowledgeBase und Neo4j (vgl. Abschnitt 8).
+
+![Sequenz 4: Review](BRIDGR_Sequenzdiagramme_003.png)
+
+Quelle aller Sequenzdiagramme: [uml_sequence_diagram.puml](uml_sequence_diagram.puml)
+
+---
+
 *Bridgr | Architektur v0.21 | Stand Juni 2026*
