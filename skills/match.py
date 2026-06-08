@@ -34,6 +34,7 @@ def match_application(
     threshold: float,
     uuid_column: str,
     name_column: str,
+    entity_type_column: str = "entity_type",
 ) -> MatchResult:
     candidates = match_application_candidates(
         application_name=application_name,
@@ -44,6 +45,7 @@ def match_application(
         threshold=threshold,
         uuid_column=uuid_column,
         name_column=name_column,
+        entity_type_column=entity_type_column,
     )
     return candidates[0]
 
@@ -57,6 +59,7 @@ def match_application_candidates(
     threshold: float,
     uuid_column: str,
     name_column: str,
+    entity_type_column: str = "entity_type",
 ) -> list[MatchResult]:
     confirmed_matches = [
         MatchResult(
@@ -92,6 +95,7 @@ def match_application_candidates(
         threshold=threshold,
         uuid_column=uuid_column,
         name_column=name_column,
+        entity_type_column=entity_type_column,
     )
     if candidate_matches:
         return candidate_matches
@@ -107,6 +111,10 @@ def match_application_candidates(
     ]
 
 
+_APPLICATION_TYPE_BONUS = 0.05
+_INTERFACE_TYPE_PENALTY = 0.05
+
+
 def build_fuzzy_candidates(
     application_name: str,
     process_name: str,
@@ -115,6 +123,7 @@ def build_fuzzy_candidates(
     threshold: float,
     uuid_column: str,
     name_column: str,
+    entity_type_column: str = "entity_type",
 ) -> list[MatchResult]:
     candidates: list[MatchResult] = []
     normalized_application_name = normalize_name_for_matching(application_name)
@@ -128,6 +137,11 @@ def build_fuzzy_candidates(
         normalized_score = SequenceMatcher(None, normalized_application_name, normalized_candidate_name).ratio()
         containment_score = compute_containment_score(normalized_application_name, normalized_candidate_name)
         score = max(raw_score, normalized_score, containment_score)
+        entity_type = (row.get(entity_type_column) or "").strip().lower()
+        if entity_type == "application":
+            score += _APPLICATION_TYPE_BONUS
+        elif entity_type == "interface":
+            score -= _INTERFACE_TYPE_PENALTY
         if score < threshold:
             continue
         candidates.append(

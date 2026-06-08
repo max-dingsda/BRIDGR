@@ -15,9 +15,18 @@ class ReviewItem:
 
 
 def collect_review_items(process: ExtractedProcess, matches: list[MatchResult]) -> list[ReviewItem]:
+    strongly_matched_apps = {
+        match.application_name
+        for match in matches
+        if match.confidence != CONFIDENCE_WEAK
+        and match.cmdb_id is not None
+        and match.source != MATCH_SOURCE_REJECTED
+    }
     review_items: list[ReviewItem] = []
     for match in matches:
         if match.source == MATCH_SOURCE_REJECTED:
+            continue
+        if match.application_name in strongly_matched_apps:
             continue
         if match.confidence == CONFIDENCE_WEAK or match.cmdb_id is None:
             review_items.append(

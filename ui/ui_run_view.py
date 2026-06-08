@@ -87,10 +87,20 @@ def build_review_rows(documents: list[dict]) -> list[dict]:
     review_rows = []
     for document in documents:
         extracted_process = document.get("extracted_process") or {}
-        for index, match in enumerate(document.get("matches", [])):
+        matches = document.get("matches", [])
+        strongly_matched_apps = {
+            m.get("application_name")
+            for m in matches
+            if m.get("confidence") != CONFIDENCE_WEAK
+            and m.get("cmdb_id")
+            and m.get("source") != MATCH_SOURCE_REJECTED
+        }
+        for index, match in enumerate(matches):
             if match.get("source") == MATCH_SOURCE_REJECTED:
                 continue
             if match.get("confidence") != CONFIDENCE_WEAK and match.get("cmdb_id"):
+                continue
+            if match.get("application_name") in strongly_matched_apps:
                 continue
             review_rows.append(
                 {

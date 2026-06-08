@@ -47,6 +47,14 @@
       "resolved_to": "DocuSign Signing API",
       "bestaetigt_am": "2026-06-08",
       "quelle": "manuell_bestaetigt"
+    },
+    {
+      "prozess": "Auftragserfassung",
+      "anwendung_name": "SAP CRM",
+      "cmdb_id": "app-006",
+      "resolved_to": "SAP SRM",
+      "bestaetigt_am": "2026-06-08",
+      "quelle": "manuell_bestaetigt"
     }
   ],
   "rejected": [

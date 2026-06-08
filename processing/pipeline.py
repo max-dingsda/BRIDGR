@@ -259,6 +259,7 @@ def run_document(
                 threshold=config.fuzzy_threshold,
                 uuid_column=config.cmdb_uuid_column,
                 name_column=config.cmdb_name_column,
+                entity_type_column=config.cmdb_entity_type_column,
             )
         )
     matches.extend(build_manual_matches(extracted_process.process_name, extracted_process.applications, knowledge_base.confirmed))

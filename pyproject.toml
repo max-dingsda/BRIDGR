@@ -22,6 +22,8 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+tmp_path_retention_policy = "failed"
+addopts = "--basetemp=.pytest_tmp"
 
 [tool.setuptools]
 py-modules = ["app", "main"]

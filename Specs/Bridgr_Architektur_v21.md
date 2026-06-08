@@ -248,7 +248,9 @@ sie werden separat ueber Tab 5 ausgeloest.
 
 Reihenfolge: Knowledge Base -> Fuzzy Matching -> optionaler LLM-Fallback.
 
-Schwache Kandidaten bleiben reviewbar.
+Schwache Kandidaten bleiben reviewbar, sofern fuer dieselbe Prozessanwendung kein starker Match existiert. Gibt es bereits einen starken Match (Konfidenz "stark", cmdb_id gesetzt), wird der schwache Kandidat automatisch unterdrückt und erscheint nicht im Review-Tab.
+
+Beim Fuzzy Matching werden CMDB-Eintraege nach `entity_type` gewichtet: Eintraege vom Typ `application` erhalten einen Bonus (+0.05), Eintraege vom Typ `interface` einen Abzug (-0.05) auf den berechneten Score. Damit werden Anwendungen gegenueber Schnittstellen bevorzugt, was dem mentalen Modell der Anwender entspricht.
 
 Der ArchiMate-Import nutzt denselben Fuzzy-Matching-Mechanismus. Der Schwellwert
 ist separat in `archimate_mapping.json` konfigurierbar (initialer Wert entspricht

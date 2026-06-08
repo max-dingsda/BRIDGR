@@ -160,9 +160,9 @@
           "application_name": "SAP CRM",
           "cmdb_id": "app-006",
           "matched_name": "SAP SRM",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.8571428571428571
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
         },
         {
           "application_name": "SAP ERP",
@@ -174,11 +174,6 @@
         }
       ],
       "review_items": [
-        {
-          "process_name": "Auftragserfassung",
-          "application_name": "SAP CRM",
-          "reason": "fuzzy"
-        },
         {
           "process_name": "Auftragserfassung",
           "application_name": "SAP ERP",
@@ -225,9 +220,9 @@
             "application_name": "SAP CRM",
             "cmdb_id": "app-006",
             "matched_name": "SAP SRM",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.8571428571428571
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
           },
           {
             "application_name": "SAP ERP",

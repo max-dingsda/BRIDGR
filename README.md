@@ -228,7 +228,7 @@ Aktuell verfuegbar:
 - mehrere schwache CMDB-Kandidaten pro Prozessanwendung anzeigen
 - Dokumentdetails mit Prozesskontext und technischen Rohdaten (reine Ansicht, keine Aktionen)
 - Hinweise auf moegliche Mehrfachnotation derselben Anwendung innerhalb eines Prozesses
-- nur starke oder KB-bestaetigte Links in Neo4j schreiben; schwache fuzzy-Kandidaten bleiben im Review
+- nur starke oder KB-bestaetigte Links in Neo4j schreiben; schwache fuzzy-Kandidaten erscheinen im Review, sofern kein starker Match fuer dieselbe Anwendung existiert
 
 ### Tab 3 - Konfiguration
 
