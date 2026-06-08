@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from app_config import AppConfig, resolve_input_cmdb_path, resolve_input_cmdb_relations_path
-from cmdb import load_cmdb_relation_rows, load_normalized_cmdb, normalize_cmdb_relations
-from knowledge_base import KnowledgeBase, load_knowledge_base, normalize_org_unit_name, save_knowledge_base, upsert_org_unit_candidate
+from core.app_config import AppConfig, resolve_input_cmdb_path, resolve_input_cmdb_relations_path
+from processing.cmdb import load_cmdb_relation_rows, load_normalized_cmdb, normalize_cmdb_relations
+from processing.knowledge_base import KnowledgeBase, load_knowledge_base, normalize_org_unit_name, save_knowledge_base, upsert_org_unit_candidate
 from skills.graph_writer import GraphWriter
 
 

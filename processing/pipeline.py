@@ -4,9 +4,9 @@ from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from app_config import AppConfig, resolve_input_cmdb_path, resolve_project_path, resolve_runtime_output_path
-from cmdb import load_cmdb_rows
-from constants import (
+from core.app_config import AppConfig, resolve_input_cmdb_path, resolve_project_path, resolve_runtime_output_path
+from processing.cmdb import load_cmdb_rows
+from core.constants import (
     CONFIDENCE_STRONG,
     DOCUMENT_STATUS_ERROR,
     DOCUMENT_STATUS_NO_MATCHES,
@@ -14,13 +14,13 @@ from constants import (
     DOCUMENT_STATUS_SKIPPED_UNCHANGED,
     MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL,
 )
-from debug_utils import write_debug_log
-from import_utils import list_process_files
-from knowledge_base import ConfirmedLink, KnowledgeBase, load_knowledge_base
-from knowledge_base import normalize_org_unit_name, save_knowledge_base, upsert_org_unit_candidate
-from llm_client import LlmClientConfig, OpenAICompatibleClient
-from neo4j_utils import Neo4jClient, Neo4jConfig, Neo4jConnectionError
-from run_artifacts import (
+from core.debug_utils import write_debug_log
+from processing.import_utils import list_process_files
+from processing.knowledge_base import ConfirmedLink, KnowledgeBase, load_knowledge_base
+from processing.knowledge_base import normalize_org_unit_name, save_knowledge_base, upsert_org_unit_candidate
+from core.llm_client import LlmClientConfig, OpenAICompatibleClient
+from core.neo4j_utils import Neo4jClient, Neo4jConfig, Neo4jConnectionError
+from processing.run_artifacts import (
     DocumentState,
     ImportState,
     compute_file_hash,

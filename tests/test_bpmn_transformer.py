@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from bpmn_transformer import BpmnTransformError, transform_bpmn_for_import
+from processing.bpmn_transformer import BpmnTransformError, transform_bpmn_for_import
 
 
 def test_transform_bpmn_for_import_writes_compact_text_file(tmp_path: Path) -> None:

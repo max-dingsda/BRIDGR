@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from knowledge_base import (
+from processing.knowledge_base import (
     KnowledgeBase,
     accept_org_unit_candidate_as_new,
     clear_knowledge_base_sections,

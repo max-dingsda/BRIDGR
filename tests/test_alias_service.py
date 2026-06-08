@@ -1,4 +1,4 @@
-from knowledge_base import KnowledgeBase
+from processing.knowledge_base import KnowledgeBase
 from services.alias_service import lookup_alias_matches, sync_knowledge_base_aliases
 
 

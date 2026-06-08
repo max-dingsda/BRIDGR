@@ -52,28 +52,14 @@
         },
         {
           "application_name": "DocuSign",
-          "cmdb_id": "app-007",
-          "matched_name": "DocuSign",
-          "confidence": "stark",
-          "source": "fuzzy",
-          "score": 1.0
-        },
-        {
-          "application_name": "DocuSign",
           "cmdb_id": "if-004",
           "matched_name": "DocuSign Signing API",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.9
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
         }
       ],
-      "review_items": [
-        {
-          "process_name": "Angebotserstellung",
-          "application_name": "DocuSign",
-          "reason": "fuzzy"
-        }
-      ],
+      "review_items": [],
       "graph_payload": {
         "process": {
           "process_name": "Angebotserstellung",
@@ -120,19 +106,11 @@
           },
           {
             "application_name": "DocuSign",
-            "cmdb_id": "app-007",
-            "matched_name": "DocuSign",
-            "confidence": "stark",
-            "source": "fuzzy",
-            "score": 1.0
-          },
-          {
-            "application_name": "DocuSign",
             "cmdb_id": "if-004",
             "matched_name": "DocuSign Signing API",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.9
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
           }
         ]
       },
@@ -175,8 +153,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt"
       },
       "matches": [
         {
@@ -241,8 +218,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt"
         },
         "matches": [
           {
@@ -292,8 +268,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\03_Auftragsbearbeitung.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\03_Auftragsbearbeitung.txt"
       },
       "matches": [
         {
@@ -335,8 +310,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\03_Auftragsbearbeitung.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\03_Auftragsbearbeitung.txt"
         },
         "matches": [
           {
@@ -359,12 +333,13 @@
       "extracted_process": {
         "process_name": "Rechnungsstellung",
         "process_id": "04_Rechnungsstellung",
-        "org_unit": "Rechnungswesen",
+        "org_unit": "",
         "roles": [
           "Buchhalter"
         ],
         "org_units": [
-          "Rechnungswesen"
+          "Rechnungswesen",
+          "Auftragsbearbeitung"
         ],
         "org_unit_candidates": [
           "Buchhaltung",
@@ -393,8 +368,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\04_Rechnungsstellung.txt",
-        "process_owner_candidate": "Finanzen"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\04_Rechnungsstellung.txt"
       },
       "matches": [
         {
@@ -438,12 +412,13 @@
         "process": {
           "process_name": "Rechnungsstellung",
           "process_id": "04_Rechnungsstellung",
-          "org_unit": "Rechnungswesen",
+          "org_unit": "",
           "roles": [
             "Buchhalter"
           ],
           "org_units": [
-            "Rechnungswesen"
+            "Rechnungswesen",
+            "Auftragsbearbeitung"
           ],
           "org_unit_candidates": [
             "Buchhaltung",
@@ -472,8 +447,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\04_Rechnungsstellung.txt",
-          "process_owner_candidate": "Finanzen"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\04_Rechnungsstellung.txt"
         },
         "matches": [
           {
@@ -538,8 +512,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\05_Zahlungsabwicklung.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\05_Zahlungsabwicklung.txt"
       },
       "matches": [
         {
@@ -588,8 +561,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\05_Zahlungsabwicklung.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\05_Zahlungsabwicklung.txt"
         },
         "matches": [
           {
@@ -641,8 +613,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\06_Bestellabwicklung.txt",
-        "process_owner_candidate": "Einkauf"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\06_Bestellabwicklung.txt"
       },
       "matches": [
         {
@@ -707,8 +678,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\06_Bestellabwicklung.txt",
-          "process_owner_candidate": "Einkauf"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\06_Bestellabwicklung.txt"
         },
         "matches": [
           {
@@ -758,8 +728,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\07_Lieferantenauswahl.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\07_Lieferantenauswahl.txt"
       },
       "matches": [
         {
@@ -801,8 +770,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\07_Lieferantenauswahl.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\07_Lieferantenauswahl.txt"
         },
         "matches": [
           {
@@ -854,8 +822,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\08_Wareneingang.txt",
-        "process_owner_candidate": "Logistik"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\08_Wareneingang.txt"
       },
       "matches": [
         {
@@ -920,8 +887,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\08_Wareneingang.txt",
-          "process_owner_candidate": "Logistik"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\08_Wareneingang.txt"
         },
         "matches": [
           {
@@ -977,8 +943,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\09_Lagerhaltung.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\09_Lagerhaltung.txt"
       },
       "matches": [
         {
@@ -1026,8 +991,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\09_Lagerhaltung.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\09_Lagerhaltung.txt"
         },
         "matches": [
           {
@@ -1079,8 +1043,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\10_Kommissionierung.txt",
-        "process_owner_candidate": "Logistik"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\10_Kommissionierung.txt"
       },
       "matches": [
         {
@@ -1145,8 +1108,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\10_Kommissionierung.txt",
-          "process_owner_candidate": "Logistik"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\10_Kommissionierung.txt"
         },
         "matches": [
           {
@@ -1206,8 +1168,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\11_Versand.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\11_Versand.txt"
       },
       "matches": [
         {
@@ -1272,8 +1233,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\11_Versand.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\11_Versand.txt"
         },
         "matches": [
           {
@@ -1331,8 +1291,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\12_Produktionsplanung.txt",
-        "process_owner_candidate": "Produktion"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\12_Produktionsplanung.txt"
       },
       "matches": [
         {
@@ -1395,8 +1354,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\12_Produktionsplanung.txt",
-          "process_owner_candidate": "Produktion"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\12_Produktionsplanung.txt"
         },
         "matches": [
           {
@@ -1448,8 +1406,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\13_Fertigungssteuerung.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\13_Fertigungssteuerung.txt"
       },
       "matches": [
         {
@@ -1493,8 +1450,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\13_Fertigungssteuerung.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\13_Fertigungssteuerung.txt"
         },
         "matches": [
           {
@@ -1546,8 +1502,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\14_Qualitaetspruefung_Eingang.txt",
-        "process_owner_candidate": "Qualitätssicherung"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\14_Qualitaetspruefung_Eingang.txt"
       },
       "matches": [
         {
@@ -1612,8 +1567,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\14_Qualitaetspruefung_Eingang.txt",
-          "process_owner_candidate": "Qualitätssicherung"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\14_Qualitaetspruefung_Eingang.txt"
         },
         "matches": [
           {
@@ -1673,8 +1627,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\15_Qualitaetspruefung_Ausgang.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\15_Qualitaetspruefung_Ausgang.txt"
       },
       "matches": [
         {
@@ -1739,8 +1692,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\15_Qualitaetspruefung_Ausgang.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\15_Qualitaetspruefung_Ausgang.txt"
         },
         "matches": [
           {
@@ -1800,8 +1752,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\16_Reklamationsbearbeitung.txt",
-        "process_owner_candidate": "Kundenservice"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\16_Reklamationsbearbeitung.txt"
       },
       "matches": [
         {
@@ -1866,8 +1817,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\16_Reklamationsbearbeitung.txt",
-          "process_owner_candidate": "Kundenservice"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\16_Reklamationsbearbeitung.txt"
         },
         "matches": [
           {
@@ -1925,8 +1875,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\17_Kundenanlage.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\17_Kundenanlage.txt"
       },
       "matches": [
         {
@@ -1989,8 +1938,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\17_Kundenanlage.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\17_Kundenanlage.txt"
         },
         "matches": [
           {
@@ -2050,8 +1998,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\18_Lieferantenanlage.txt",
-        "process_owner_candidate": "Einkauf"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\18_Lieferantenanlage.txt"
       },
       "matches": [
         {
@@ -2116,8 +2063,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\18_Lieferantenanlage.txt",
-          "process_owner_candidate": "Einkauf"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\18_Lieferantenanlage.txt"
         },
         "matches": [
           {
@@ -2183,8 +2129,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt",
-        "process_owner_candidate": "Controlling"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt"
       },
       "matches": [
         {
@@ -2268,8 +2213,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt",
-          "process_owner_candidate": "Controlling"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt"
         },
         "matches": [
           {
@@ -2345,8 +2289,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\20_Vertragsmanagement.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\20_Vertragsmanagement.txt"
       },
       "matches": [
         {
@@ -2440,8 +2383,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\20_Vertragsmanagement.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\20_Vertragsmanagement.txt"
         },
         "matches": [
           {
@@ -2515,8 +2457,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\21_Schulungsmanagement.txt",
-        "process_owner_candidate": "Personalwesen"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\21_Schulungsmanagement.txt"
       },
       "matches": [
         {
@@ -2579,8 +2520,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\21_Schulungsmanagement.txt",
-          "process_owner_candidate": "Personalwesen"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\21_Schulungsmanagement.txt"
         },
         "matches": [
           {
@@ -2642,8 +2582,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx",
-        "process_owner_candidate": "IT-Abteilung"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx"
       },
       "matches": [
         {
@@ -2658,9 +2597,9 @@
           "application_name": "JIRA",
           "cmdb_id": "app-004",
           "matched_name": "Jira Service Management",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.9
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
         }
       ],
       "review_items": [
@@ -2668,11 +2607,6 @@
           "process_name": "IT-Support",
           "application_name": "ServiceNow",
           "reason": "unmatched"
-        },
-        {
-          "process_name": "IT-Support",
-          "application_name": "JIRA",
-          "reason": "fuzzy"
         }
       ],
       "graph_payload": {
@@ -2710,8 +2644,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx",
-          "process_owner_candidate": "IT-Abteilung"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx"
         },
         "matches": [
           {
@@ -2726,9 +2659,9 @@
             "application_name": "JIRA",
             "cmdb_id": "app-004",
             "matched_name": "Jira Service Management",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.9
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
           }
         ]
       },
@@ -2782,17 +2715,16 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx"
       },
       "matches": [
         {
           "application_name": "JIRA",
-          "cmdb_id": "app-004",
-          "matched_name": "Jira Service Management",
+          "cmdb_id": null,
+          "matched_name": null,
           "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.9
+          "source": "unmatched",
+          "score": 0.0
         },
         {
           "application_name": "Confluence",
@@ -2815,7 +2747,7 @@
         {
           "process_name": "Softwarefreigabe",
           "application_name": "JIRA",
-          "reason": "fuzzy"
+          "reason": "unmatched"
         },
         {
           "process_name": "Softwarefreigabe",
@@ -2872,17 +2804,16 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx"
         },
         "matches": [
           {
             "application_name": "JIRA",
-            "cmdb_id": "app-004",
-            "matched_name": "Jira Service Management",
+            "cmdb_id": null,
+            "matched_name": null,
             "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.9
+            "source": "unmatched",
+            "score": 0.0
           },
           {
             "application_name": "Confluence",
@@ -2939,8 +2870,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\24_Datensicherung.docx",
-        "process_owner_candidate": "IT-Abteilung"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\24_Datensicherung.docx"
       },
       "matches": [
         {
@@ -3003,8 +2933,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\24_Datensicherung.docx",
-          "process_owner_candidate": "IT-Abteilung"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\24_Datensicherung.docx"
         },
         "matches": [
           {
@@ -3072,8 +3001,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx",
-        "process_owner_candidate": "Finanzen"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx"
       },
       "matches": [
         {
@@ -3143,8 +3071,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx",
-          "process_owner_candidate": "Finanzen"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx"
         },
         "matches": [
           {
@@ -3210,8 +3137,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\26_Budgetplanung.docx",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\26_Budgetplanung.docx"
       },
       "matches": [
         {
@@ -3274,8 +3200,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\26_Budgetplanung.docx",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\26_Budgetplanung.docx"
         },
         "matches": [
           {
@@ -3329,8 +3254,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\27_Personaleinstellung.txt",
-        "process_owner_candidate": "Personalwesen"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\27_Personaleinstellung.txt"
       },
       "matches": [
         {
@@ -3376,8 +3300,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\27_Personaleinstellung.txt",
-          "process_owner_candidate": "Personalwesen"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\27_Personaleinstellung.txt"
         },
         "matches": [
           {
@@ -3437,8 +3360,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\28_Mitarbeiter-Onboarding.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\28_Mitarbeiter-Onboarding.txt"
       },
       "matches": [
         {
@@ -3524,8 +3446,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\28_Mitarbeiter-Onboarding.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\28_Mitarbeiter-Onboarding.txt"
         },
         "matches": [
           {
@@ -3595,8 +3516,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\29_Zeiterfassung.txt",
-        "process_owner_candidate": "Personalwesen"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\29_Zeiterfassung.txt"
       },
       "matches": [
         {
@@ -3663,8 +3583,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\29_Zeiterfassung.txt",
-          "process_owner_candidate": "Personalwesen"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\29_Zeiterfassung.txt"
         },
         "matches": [
           {
@@ -3734,8 +3653,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\30_Aenderungsmanagement.bpmn",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\30_Aenderungsmanagement.bpmn"
       },
       "matches": [
         {
@@ -3823,8 +3741,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\30_Aenderungsmanagement.bpmn",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\30_Aenderungsmanagement.bpmn"
         },
         "matches": [
           {
@@ -3893,8 +3810,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\31_Auftragserfassung_Detail.bpmn",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\31_Auftragserfassung_Detail.bpmn"
       },
       "matches": [
         {
@@ -3960,8 +3876,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\31_Auftragserfassung_Detail.bpmn",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\31_Auftragserfassung_Detail.bpmn"
         },
         "matches": [
           {
@@ -4031,8 +3946,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\32_Wareneingang_Detail.bpmn",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\32_Wareneingang_Detail.bpmn"
       },
       "matches": [
         {
@@ -4120,8 +4034,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\32_Wareneingang_Detail.bpmn",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\32_Wareneingang_Detail.bpmn"
         },
         "matches": [
           {

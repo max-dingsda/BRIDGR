@@ -6,8 +6,8 @@ from difflib import SequenceMatcher
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
-from app_config import AppConfig, resolve_project_path
-from neo4j_utils import Neo4jClient
+from core.app_config import AppConfig, resolve_project_path
+from core.neo4j_utils import Neo4jClient
 from skills.graph_writer import GraphWriter
 
 _ARCHIMATE_NS = "http://www.opengroup.org/xsd/archimate/3.0/"
@@ -36,7 +36,7 @@ ARCHIMATE_RELATION_TYPES: list[str] = [
 
 _BRIDGR_LABELS = {"Prozess", "Anwendung", "Schnittstelle", "Server", "OrgEinheit", "Rolle"}
 
-_DEFAULT_MAPPING_PATH = "archimate_mapping.json"
+_DEFAULT_MAPPING_PATH = "data/archimate_mapping.json"
 
 
 @dataclass(slots=True)

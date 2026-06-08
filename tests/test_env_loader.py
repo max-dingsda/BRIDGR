@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from env_loader import load_env_files
+from core.env_loader import load_env_files
 
 
 def test_load_env_files_reads_specs_env(tmp_path: Path, monkeypatch) -> None:

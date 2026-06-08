@@ -3,7 +3,7 @@ import json
 import pytest
 import requests
 
-from llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleClient, _extract_json_object
+from core.llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleClient, _extract_json_object
 
 
 class FakeResponse:
@@ -36,7 +36,7 @@ class FakeSession:
 
 
 def build_client(monkeypatch: pytest.MonkeyPatch, session: FakeSession) -> OpenAICompatibleClient:
-    monkeypatch.setattr("llm_client.requests.Session", lambda: session)
+    monkeypatch.setattr("core.llm_client.requests.Session", lambda: session)
     return OpenAICompatibleClient(
         LlmClientConfig(
             base_url="https://example.test/v1",
@@ -236,7 +236,7 @@ def test_generate_json_logs_requests_and_responses(monkeypatch: pytest.MonkeyPat
         ]
     )
     logged_events = []
-    monkeypatch.setattr("llm_client.requests.Session", lambda: session)
+    monkeypatch.setattr("core.llm_client.requests.Session", lambda: session)
     client = OpenAICompatibleClient(
         LlmClientConfig(
             base_url="https://example.test/v1",

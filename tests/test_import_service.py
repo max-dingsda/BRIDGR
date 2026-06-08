@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from app_config import AppConfig
-from run_artifacts import load_last_import_context, write_latest_run
+from core.app_config import AppConfig
+from processing.run_artifacts import load_last_import_context, write_latest_run
 from services.import_service import build_import_completion_message, finalize_import_artifacts
 
 
@@ -18,7 +18,7 @@ def test_finalize_import_artifacts_moves_processed_files_and_updates_metadata(tm
     source_file.write_text("hello", encoding="utf-8")
     write_latest_run({"run_mode": "partial", "documents": [{"source_path": str(source_file), "status": "processed"}]}, output_dir)
 
-    monkeypatch.setattr("app_config.PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr("core.app_config.PROJECT_ROOT", tmp_path)
     monkeypatch.chdir(tmp_path)
 
     archive_path, display_paths = finalize_import_artifacts(

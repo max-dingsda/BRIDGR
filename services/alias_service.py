@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from datetime import date
 
-from knowledge_base import KnowledgeBase
-from neo4j_utils import Neo4jClient
+from processing.knowledge_base import KnowledgeBase
+from core.neo4j_utils import Neo4jClient
 
 ALIAS_SOURCE_KIND_KNOWLEDGE_BASE = "knowledge_base"
 

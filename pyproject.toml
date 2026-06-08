@@ -24,21 +24,7 @@ dev = [
 testpaths = ["tests"]
 
 [tool.setuptools]
-py-modules = [
-    "app",
-    "app_config",
-    "cmdb",
-    "constants",
-    "env_loader",
-    "knowledge_base",
-    "llm_client",
-    "main",
-    "neo4j_utils",
-    "pipeline",
-    "query_layer",
-    "run_artifacts",
-    "ui_run_view",
-]
+py-modules = ["app", "main"]
 
 [tool.setuptools.packages.find]
-include = ["skills*"]
+include = ["core*", "processing*", "skills*", "ui*", "services*"]

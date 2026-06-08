@@ -5,7 +5,7 @@ import inspect
 from pathlib import Path
 import re
 
-from llm_client import OpenAICompatibleClient
+from core.llm_client import OpenAICompatibleClient
 from skills.extract.extract_base import ApplicationReference, ExtractedProcess
 from skills.extract.extract_bpmn import BpmnExtractor
 

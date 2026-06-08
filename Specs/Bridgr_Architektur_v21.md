@@ -194,6 +194,8 @@ Diese Property wird fuer den Roundtrip-Export verwendet (siehe Abschnitt 13.3).
 
 ```text
 bridgr/
+├── core/                                # shared foundations (config, Neo4j, LLM, schema)
+├── processing/                          # pipeline, import, KB, CMDB, query layer
 ├── prompts/
 ├── skills/
 ├── services/
@@ -216,7 +218,8 @@ bridgr/
 ├── Input/
 ├── Output/
 ├── data/
-├── archimate_mapping.json               (neu v0.21)
+│   └── archimate_mapping.json           (neu v0.21, verschoben aus Root)
+├── scripts/                             # Wartungsskripte
 ├── config.json
 ├── app.py
 └── main.py

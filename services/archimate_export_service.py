@@ -6,8 +6,8 @@ from pathlib import Path
 import uuid
 import xml.etree.ElementTree as ET
 
-from app_config import AppConfig, resolve_project_path
-from neo4j_utils import Neo4jClient
+from core.app_config import AppConfig, resolve_project_path
+from core.neo4j_utils import Neo4jClient
 
 _ARCHIMATE_NS = "http://www.opengroup.org/xsd/archimate/3.0/"
 _XSI_NS = "http://www.w3.org/2001/XMLSchema-instance"

@@ -1,4 +1,4 @@
-from query_layer import sanitize_cypher_response
+from processing.query_layer import sanitize_cypher_response
 
 
 def test_sanitize_cypher_response_strips_cypher_fence() -> None:

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from app_config import AppConfig, resolve_input_cmdb_path, resolve_runtime_output_path
-from cmdb import CmdbLoadError, load_cmdb_rows
-from knowledge_base import (
+from core.app_config import AppConfig, resolve_input_cmdb_path, resolve_runtime_output_path
+from processing.cmdb import CmdbLoadError, load_cmdb_rows
+from processing.knowledge_base import (
     KnowledgeBase,
     accept_org_unit_candidate_as_new,
     add_org_unit,
@@ -16,8 +16,8 @@ from knowledge_base import (
     reject_org_unit_candidate,
     save_knowledge_base,
 )
-from neo4j_utils import Neo4jQueryError
-from run_artifacts import load_latest_run, write_latest_run
+from core.neo4j_utils import Neo4jQueryError
+from processing.run_artifacts import load_latest_run, write_latest_run
 from services.alias_service import sync_knowledge_base_aliases
 from services.review_service import (
     persist_latest_run_refresh,

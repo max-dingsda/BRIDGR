@@ -4,7 +4,7 @@ from pathlib import Path
 
 import streamlit as st
 
-from env_loader import load_env_files
+from core.env_loader import load_env_files
 from services.organization_service import (
     persist_org_candidate_mapping_refresh,
     persist_organization_sync,

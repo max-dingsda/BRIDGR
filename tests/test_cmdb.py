@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from cmdb import (
+from processing.cmdb import (
     CMDB_ENTITY_TYPE_APPLICATION,
     CMDB_ENTITY_TYPE_SERVER,
     CmdbLoadError,
@@ -135,7 +135,7 @@ def test_normalize_server_type_raises_for_unknown_server_type() -> None:
 
 
 def test_load_cmdb_relation_rows_reads_valid_csv(tmp_path: Path) -> None:
-    from cmdb import load_cmdb_relation_rows
+    from processing.cmdb import load_cmdb_relation_rows
 
     relations_path = tmp_path / "cmdb_relations.csv"
     relations_path.write_text("source_id,relation_type,target_id\napp-1,USES_INTERFACE,if-1\n", encoding="utf-8")
@@ -146,14 +146,14 @@ def test_load_cmdb_relation_rows_reads_valid_csv(tmp_path: Path) -> None:
 
 
 def test_load_cmdb_relation_rows_raises_for_missing_file(tmp_path: Path) -> None:
-    from cmdb import load_cmdb_relation_rows
+    from processing.cmdb import load_cmdb_relation_rows
 
     with pytest.raises(CmdbLoadError):
         load_cmdb_relation_rows(tmp_path / "missing_relations.csv")
 
 
 def test_load_cmdb_relation_rows_raises_for_missing_required_columns(tmp_path: Path) -> None:
-    from cmdb import load_cmdb_relation_rows
+    from processing.cmdb import load_cmdb_relation_rows
 
     relations_path = tmp_path / "cmdb_relations.csv"
     relations_path.write_text("source,type,target\napp-1,USES_INTERFACE,if-1\n", encoding="utf-8")
@@ -170,7 +170,7 @@ def test_normalize_cmdb_relations_raises_for_incomplete_row() -> None:
 
 
 def test_build_cmdb_option_labels_formats_name_and_id() -> None:
-    from cmdb import build_cmdb_option_labels
+    from processing.cmdb import build_cmdb_option_labels
 
     rows = [
         {"app_id": "cmdb-1", "application_name": "SAP Sales"},
@@ -183,7 +183,7 @@ def test_build_cmdb_option_labels_formats_name_and_id() -> None:
 
 
 def test_find_cmdb_row_by_label_returns_matching_row() -> None:
-    from cmdb import find_cmdb_row_by_label
+    from processing.cmdb import find_cmdb_row_by_label
 
     rows = [
         {"app_id": "cmdb-1", "application_name": "SAP Sales"},
@@ -196,7 +196,7 @@ def test_find_cmdb_row_by_label_returns_matching_row() -> None:
 
 
 def test_find_cmdb_row_by_label_returns_none_for_unknown_label() -> None:
-    from cmdb import find_cmdb_row_by_label
+    from processing.cmdb import find_cmdb_row_by_label
 
     rows = [{"app_id": "cmdb-1", "application_name": "SAP Sales"}]
 

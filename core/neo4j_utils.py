@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import re
 from typing import Any
 
-from graph_schema import validate_query_schema
+from core.graph_schema import validate_query_schema
 
 
 class Neo4jExecutionError(RuntimeError):

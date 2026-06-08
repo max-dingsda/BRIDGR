@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Callable
 
 from core.app_config import AppConfig, resolve_project_path
 from core.graph_schema import build_query_schema_reference
@@ -112,9 +111,8 @@ def run_query_chat_turn(question: str, config: AppConfig) -> None:
         )
 
         if config.chat_mode == "tool-use":
-            log_fn = lambda event, details: write_debug_log(config, event, details)
             final_response, cypher_query, rows = _run_tool_use_turn(
-                turn_messages, llm_client, neo4j_client, log_fn
+                turn_messages, llm_client, neo4j_client
             )
         else:
             final_response, cypher_query, rows = _run_prompt_only_turn(
@@ -176,7 +174,6 @@ def _run_tool_use_turn(
     turn_messages: list[dict],
     llm_client: OpenAICompatibleClient,
     neo4j_client,
-    log_fn: Callable[[str, dict], None] | None = None,
 ) -> tuple[str, str, list[dict]]:
     cypher_query = ""
     rows: list[dict] = []
@@ -191,11 +188,6 @@ def _run_tool_use_turn(
             # from training knowledge instead of querying the graph.
             if not cypher_query and not query_reminder_sent:
                 query_reminder_sent = True
-                if log_fn:
-                    log_fn("query_correction_retry", {
-                        "reason": "no_tool_call_on_first_turn",
-                        "first_response": (content or "")[:300],
-                    })
                 turn_messages.append({"role": "assistant", "content": content or ""})
                 turn_messages.append({
                     "role": "user",

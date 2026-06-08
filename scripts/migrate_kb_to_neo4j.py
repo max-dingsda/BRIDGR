@@ -4,10 +4,10 @@ import argparse
 import json
 from pathlib import Path
 
-from app_config import load_config
-from env_loader import load_env_files
-from knowledge_base import DEFAULT_KB_PATH, load_knowledge_base
-from pipeline import build_neo4j_client
+from core.app_config import load_config
+from core.env_loader import load_env_files
+from processing.knowledge_base import DEFAULT_KB_PATH, load_knowledge_base
+from processing.pipeline import build_neo4j_client
 from services.alias_service import sync_knowledge_base_aliases
 
 

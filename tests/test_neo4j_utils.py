@@ -1,7 +1,7 @@
 import pytest
 from neo4j.exceptions import AuthError, ClientError, CypherSyntaxError, DriverError, ServiceUnavailable
 
-from neo4j_utils import (
+from core.neo4j_utils import (
     Neo4jAuthenticationError,
     Neo4jConnectionError,
     Neo4jQueryError,

@@ -31,9 +31,32 @@
       "resolved_to": "Microsoft Outlook",
       "bestaetigt_am": "2026-06-05",
       "quelle": "manueller_link"
+    },
+    {
+      "prozess": "IT-Support",
+      "anwendung_name": "JIRA",
+      "cmdb_id": "app-004",
+      "resolved_to": "Jira Service Management",
+      "bestaetigt_am": "2026-06-08",
+      "quelle": "manuell_bestaetigt"
+    },
+    {
+      "prozess": "Angebotserstellung",
+      "anwendung_name": "DocuSign",
+      "cmdb_id": "if-004",
+      "resolved_to": "DocuSign Signing API",
+      "bestaetigt_am": "2026-06-08",
+      "quelle": "manuell_bestaetigt"
     }
   ],
-  "rejected": [],
+  "rejected": [
+    {
+      "prozess": "Softwarefreigabe",
+      "anwendung_name": "JIRA",
+      "cmdb_id": "app-004",
+      "abgelehnt_am": "2026-06-08"
+    }
+  ],
   "disambiguation": [],
   "process_identity": [],
   "org_units": [
@@ -80,6 +103,11 @@
     {
       "name": "Team Platform",
       "created_at": "2026-06-03",
+      "source": "candidate"
+    },
+    {
+      "name": "Auftragsbearbeitung",
+      "created_at": "2026-06-08",
       "source": "candidate"
     }
   ],
@@ -323,10 +351,10 @@
         "Mitarbeiterin der Auftragsbearbeitung",
         "Buchhalter"
       ],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Auftragsbearbeitung",
       "first_seen": "2026-06-03",
-      "last_seen": "2026-06-03"
+      "last_seen": "2026-06-08"
     },
     {
       "candidate_name": "Logistik",

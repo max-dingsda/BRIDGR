@@ -3,7 +3,7 @@ from __future__ import annotations
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from app_config import AppConfig
+from core.app_config import AppConfig
 from services.archimate_export_service import _build_archimate_export
 
 _ARCHIMATE_NS = "http://www.opengroup.org/xsd/archimate/3.0/"

@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from app_config import load_config
+from core.app_config import load_config
 from services.query_service import run_query_chat_turn
 from services.runtime_service import (
     CHAT_MESSAGES_STATE_KEY,

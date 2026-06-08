@@ -123,8 +123,13 @@ def _make_tool_call(call_id: str, query: str) -> dict:
 
 
 def test_run_tool_use_turn_returns_direct_answer_when_no_tool_calls() -> None:
+    # Model never calls a tool (e.g. greeting). After the correction retry it still
+    # returns no tool call, so we accept the response.
     llm_client = MagicMock()
-    llm_client.generate_with_tools.return_value = ("Direkte Antwort", [])
+    llm_client.generate_with_tools.side_effect = [
+        ("Direkte Antwort", []),  # first attempt — no tool call, correction injected
+        ("Direkte Antwort", []),  # retry after correction — still no tool call, accepted
+    ]
     neo4j_client = MagicMock()
 
     messages = [{"role": "user", "content": "Frage"}]
@@ -133,7 +138,38 @@ def test_run_tool_use_turn_returns_direct_answer_when_no_tool_calls() -> None:
     assert content == "Direkte Antwort"
     assert cypher == ""
     assert rows == []
+    assert llm_client.generate_with_tools.call_count == 2
     neo4j_client.execute_read.assert_not_called()
+
+
+def test_run_tool_use_turn_retries_with_correction_when_model_skips_tool() -> None:
+    # Simulates the hallucination bug: model answers a factual question without calling
+    # the tool on the first try, then correctly calls the tool after the correction.
+    tool_call = _make_tool_call("call_retry", "MATCH (a:Anwendung) RETURN a.name AS application")
+    rows_result = [{"application": "SAP ERP"}]
+
+    llm_client = MagicMock()
+    llm_client.generate_with_tools.side_effect = [
+        ("SAP ERP und Webshop.", []),        # first call: hallucinated answer, no tool
+        ("", [tool_call]),                   # second call (after correction): calls tool
+        ("Die Anwendung ist SAP ERP.", []),  # third call: final answer from query result
+    ]
+    neo4j_client = MagicMock()
+    neo4j_client.execute_read.return_value = rows_result
+
+    log_fn = MagicMock()
+    messages = [{"role": "user", "content": "Welche Anwendungen gibt es?"}]
+    content, cypher, rows = _run_tool_use_turn(messages, llm_client, neo4j_client, log_fn)
+
+    assert content == "Die Anwendung ist SAP ERP."
+    assert cypher == "MATCH (a:Anwendung) RETURN a.name AS application"
+    assert rows == rows_result
+    assert llm_client.generate_with_tools.call_count == 3
+    neo4j_client.execute_read.assert_called_once()
+    log_fn.assert_called_once_with("query_correction_retry", {
+        "reason": "no_tool_call_on_first_turn",
+        "first_response": "SAP ERP und Webshop.",
+    })
 
 
 def test_run_tool_use_turn_executes_single_tool_call_and_returns_answer() -> None:
@@ -180,9 +216,12 @@ def test_run_tool_use_turn_appends_tool_result_to_messages() -> None:
 def test_run_tool_use_turn_handles_unknown_tool_gracefully() -> None:
     tool_call = {"id": "call_u", "type": "function", "function": {"name": "unknown_tool", "arguments": "{}"}}
     llm_client = MagicMock()
+    # After the unknown-tool error, the model may answer without a further tool call.
+    # The correction retry fires once, then the third response is accepted.
     llm_client.generate_with_tools.side_effect = [
         ("", [tool_call]),
-        ("Konnte nicht ausfuehren.", []),
+        ("Konnte nicht ausfuehren.", []),  # no tool call → correction injected
+        ("Konnte nicht ausfuehren.", []),  # retry → still no tool call → accepted
     ]
     neo4j_client = MagicMock()
 

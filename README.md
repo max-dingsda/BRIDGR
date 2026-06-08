@@ -58,17 +58,19 @@ Noch nicht umgesetzt:
 
 ```text
 BRIDGR/
-├── Input/                  # Prozessdokumente und CMDB-Dateien des Benutzers
-├── Output/                 # erzeugte Laufartefakte und spaetere Exportziele
-├── prompts/                # LLM-Prompts
-├── skills/                 # Fachlogik fuer Extract, Match, Review, Graph
+├── core/                   # geteilte Grundbausteine: Config, Neo4j, LLM, Schema, Konstanten
+├── processing/             # Pipeline, Import, KB, CMDB, Query-Layer, Artefakte
 ├── services/               # UI-ausgeloeste Seiteneffekte und Orchestrierung
 ├── ui/                     # Streamlit-Tabmodule
-├── knowledge_base/         # persistente Review-Entscheidungen
-├── data/                   # Archive und lokale Hilfsdaten
+├── skills/                 # Fachlogik fuer Extract, Match, Review, Graph
+├── prompts/                # LLM-Prompts
+├── knowledge_base/         # persistente Review-Entscheidungen (kb.json)
+├── data/                   # Archive, Hilfsdaten und archimate_mapping.json
+├── Input/                  # Prozessdokumente und CMDB-Dateien des Benutzers
+├── Output/                 # erzeugte Laufartefakte und spaetere Exportziele
+├── scripts/                # Wartungsskripte (nicht fuer Produktion)
 ├── app.py                  # Streamlit-Entrypoint
 ├── main.py                 # CLI-Einstieg fuer Pipeline-Laeufe
-├── pipeline.py             # orchestriert den Importlauf
 └── config.json             # technische Konfiguration
 ```
 
@@ -210,7 +212,7 @@ Aktuell verfuegbar:
 - vollstaendige Gesprächshistorie fuer Folgefragen, Praezisierungen und Kontextwechsel
 - deterministische Alias-Anreicherung: bei leeren Ergebnissen werden bekannte Alternativbegriffe als Hinweise an den LLM mitgegeben
 - Cypher-Retry bei korrigierbaren Syntaxfehlern (bis zu 2 Versuche mit Fehlerfeedback an den LLM)
-- Read-only-Validierung auf verbotene Write-Tokens sowie auf das kanonische Query-Schema aus `graph_schema.py`
+- Read-only-Validierung auf verbotene Write-Tokens sowie auf das kanonische Query-Schema aus `core/graph_schema.py`
 - Query gegen Neo4j ausfuehren, Ergebnis in natuerliche Sprache umformulieren
 - technische Query-/Validierungsfehler in benutzerverstaendliche Hinweise uebersetzen
 - generierten Cypher als technische Details anzeigen

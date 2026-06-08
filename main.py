@@ -5,9 +5,9 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
-from app_config import load_config
-from env_loader import load_env_files
-from pipeline import run_pipeline
+from core.app_config import load_config
+from core.env_loader import load_env_files
+from processing.pipeline import run_pipeline
 
 
 def build_argument_parser() -> argparse.ArgumentParser:

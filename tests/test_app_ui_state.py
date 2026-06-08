@@ -37,9 +37,9 @@ from app import (
     sync_config_session_defaults,
     write_debug_log,
 )
-from app_config import AppConfig
-from knowledge_base import KnowledgeBase
-from neo4j_utils import Neo4jConnectionError
+from core.app_config import AppConfig
+from processing.knowledge_base import KnowledgeBase
+from core.neo4j_utils import Neo4jConnectionError
 from skills.extract.extract_base import ApplicationReference
 from services import organization_service, query_service, runtime_service
 

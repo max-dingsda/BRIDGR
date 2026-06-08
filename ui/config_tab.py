@@ -6,13 +6,13 @@ import os
 
 import streamlit as st
 
-from app_config import AppConfig, load_config, normalize_run_mode, resolve_project_path, resolve_runtime_output_path, save_config
-from bpmn_transformer import BpmnTransformError, transform_bpmn_for_import
-from cmdb import CmdbLoadError, validate_cmdb_entity_file, validate_cmdb_relation_file
-from dialog_utils import pick_directory, pick_file
-from import_utils import describe_cmdb_file, list_cmdb_entity_files, list_cmdb_relation_files, list_process_files
-from llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleClient
-from neo4j_utils import Neo4jConnectionError, Neo4jQueryError
+from core.app_config import AppConfig, load_config, normalize_run_mode, resolve_project_path, resolve_runtime_output_path, save_config
+from processing.bpmn_transformer import BpmnTransformError, transform_bpmn_for_import
+from processing.cmdb import CmdbLoadError, validate_cmdb_entity_file, validate_cmdb_relation_file
+from ui.dialog_utils import pick_directory, pick_file
+from processing.import_utils import describe_cmdb_file, list_cmdb_entity_files, list_cmdb_relation_files, list_process_files
+from core.llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleClient
+from core.neo4j_utils import Neo4jConnectionError, Neo4jQueryError
 from services.cmdb_service import persist_cmdb_sync
 from services.import_service import build_import_completion_message, finalize_import_artifacts
 from services.review_service import clear_knowledge_base_and_refresh

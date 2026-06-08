@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from difflib import SequenceMatcher
 import re
 
-from constants import (
+from core.constants import (
     CONFIDENCE_STRONG,
     CONFIDENCE_WEAK,
     MATCH_SOURCE_FUZZY,
@@ -12,7 +12,7 @@ from constants import (
     MATCH_SOURCE_REJECTED,
     MATCH_SOURCE_UNMATCHED,
 )
-from knowledge_base import ConfirmedLink, RejectedLink
+from processing.knowledge_base import ConfirmedLink, RejectedLink
 
 
 @dataclass(slots=True)

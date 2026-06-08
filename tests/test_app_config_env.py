@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from app_config import load_config
+from core.app_config import load_config
 
 
 def test_load_config_uses_neo4j_env_fallbacks(tmp_path: Path, monkeypatch) -> None:

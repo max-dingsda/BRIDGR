@@ -2,9 +2,9 @@ from pathlib import Path
 
 import pytest
 
-from app_config import AppConfig
-from neo4j_utils import Neo4jServiceUnavailableError
-from pipeline import (
+from core.app_config import AppConfig
+from core.neo4j_utils import Neo4jServiceUnavailableError
+from processing.pipeline import (
     apply_org_unit_mapping,
     build_extractor_for_path,
     list_bpmn_files,
@@ -14,14 +14,14 @@ from pipeline import (
     should_skip_file,
     update_organization_knowledge_from_cmdb,
 )
-from run_artifacts import LATEST_RUN_FILENAME, STATE_FILENAME
+from processing.run_artifacts import LATEST_RUN_FILENAME, STATE_FILENAME
 from skills.graph_writer import GraphWriter
 from skills.extract.extract_base import ApplicationReference, ExtractedProcess
 from skills.extract.extract_bpmn import BpmnExtractor
 from skills.extract.extract_docx import DocxExtractor
 from skills.extract.extract_pdf import PdfExtractor
 from skills.extract.extract_txt import TextExtractor
-from knowledge_base import KnowledgeBase
+from processing.knowledge_base import KnowledgeBase
 
 
 class FakeLlmClient:
@@ -52,7 +52,7 @@ def test_build_extractor_for_path_uses_text_extractor_for_txt(monkeypatch, tmp_p
     prompt_path = tmp_path / "prompts" / "extract_generic.md"
     prompt_path.parent.mkdir()
     prompt_path.write_text("prompt", encoding="utf-8")
-    monkeypatch.setattr("app_config.PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr("core.app_config.PROJECT_ROOT", tmp_path)
 
     extractor = build_extractor_for_path(tmp_path / "process.txt", object())
 
@@ -63,7 +63,7 @@ def test_build_extractor_for_path_uses_docx_extractor_for_docx(monkeypatch, tmp_
     prompt_path = tmp_path / "prompts" / "extract_generic.md"
     prompt_path.parent.mkdir()
     prompt_path.write_text("prompt", encoding="utf-8")
-    monkeypatch.setattr("app_config.PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr("core.app_config.PROJECT_ROOT", tmp_path)
 
     extractor = build_extractor_for_path(tmp_path / "process.docx", object())
 
@@ -74,7 +74,7 @@ def test_build_extractor_for_path_uses_pdf_extractor_for_pdf(monkeypatch, tmp_pa
     prompt_path = tmp_path / "prompts" / "extract_generic.md"
     prompt_path.parent.mkdir()
     prompt_path.write_text("prompt", encoding="utf-8")
-    monkeypatch.setattr("app_config.PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr("core.app_config.PROJECT_ROOT", tmp_path)
 
     extractor = build_extractor_for_path(tmp_path / "process.pdf", object())
 
@@ -188,7 +188,7 @@ def test_run_pipeline_writes_artifacts_for_full_runs(tmp_path: Path, monkeypatch
     (prompts_dir / "extract_bpmn.md").write_text("prompt", encoding="utf-8")
 
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr("app_config.PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr("core.app_config.PROJECT_ROOT", tmp_path)
 
     class PipelineLlmClient:
         def __init__(self, config) -> None:
@@ -221,9 +221,9 @@ def test_run_pipeline_writes_artifacts_for_full_runs(tmp_path: Path, monkeypatch
         def ensure_constraints(self) -> None:
             return None
 
-    monkeypatch.setattr("pipeline.OpenAICompatibleClient", PipelineLlmClient)
+    monkeypatch.setattr("processing.pipeline.OpenAICompatibleClient", PipelineLlmClient)
     fake_client = FakeNeo4jClient()
-    monkeypatch.setattr("pipeline.build_neo4j_client", lambda config: fake_client)
+    monkeypatch.setattr("processing.pipeline.build_neo4j_client", lambda config: fake_client)
 
     config = AppConfig(
         llm_base_url="http://localhost:11434/v1",
@@ -259,7 +259,7 @@ def test_run_pipeline_partial_without_explicit_files_returns_empty_run(tmp_path:
     (prompts_dir / "extract_bpmn.md").write_text("prompt", encoding="utf-8")
 
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr("app_config.PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr("core.app_config.PROJECT_ROOT", tmp_path)
 
     class FakeNeo4jClient:
         def close(self) -> None:
@@ -271,8 +271,8 @@ def test_run_pipeline_partial_without_explicit_files_returns_empty_run(tmp_path:
         def ensure_constraints(self) -> None:
             return None
 
-    monkeypatch.setattr("pipeline.build_neo4j_client", lambda config: FakeNeo4jClient())
-    monkeypatch.setattr("pipeline.OpenAICompatibleClient", lambda config: None)
+    monkeypatch.setattr("processing.pipeline.build_neo4j_client", lambda config: FakeNeo4jClient())
+    monkeypatch.setattr("processing.pipeline.OpenAICompatibleClient", lambda config: None)
 
     result = run_pipeline(
         AppConfig(
@@ -304,7 +304,7 @@ def test_run_pipeline_reports_progress_updates(tmp_path: Path, monkeypatch) -> N
     (prompts_dir / "extract_bpmn.md").write_text("prompt", encoding="utf-8")
 
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr("app_config.PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr("core.app_config.PROJECT_ROOT", tmp_path)
 
     class PipelineLlmClient:
         def __init__(self, config) -> None:
@@ -330,8 +330,8 @@ def test_run_pipeline_reports_progress_updates(tmp_path: Path, monkeypatch) -> N
             return None
 
     progress_updates: list[dict] = []
-    monkeypatch.setattr("pipeline.OpenAICompatibleClient", PipelineLlmClient)
-    monkeypatch.setattr("pipeline.build_neo4j_client", lambda config: FakeNeo4jClient())
+    monkeypatch.setattr("processing.pipeline.OpenAICompatibleClient", PipelineLlmClient)
+    monkeypatch.setattr("processing.pipeline.build_neo4j_client", lambda config: FakeNeo4jClient())
 
     config = AppConfig(
         llm_base_url="http://localhost:11434/v1",
@@ -383,7 +383,7 @@ def test_run_pipeline_propagates_neo4j_write_failures(tmp_path: Path, monkeypatc
     (prompts_dir / "extract_bpmn.md").write_text("prompt", encoding="utf-8")
 
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr("app_config.PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr("core.app_config.PROJECT_ROOT", tmp_path)
 
     class PipelineLlmClient:
         def __init__(self, config) -> None:
@@ -408,8 +408,8 @@ def test_run_pipeline_propagates_neo4j_write_failures(tmp_path: Path, monkeypatc
         def ensure_constraints(self) -> None:
             return None
 
-    monkeypatch.setattr("pipeline.OpenAICompatibleClient", PipelineLlmClient)
-    monkeypatch.setattr("pipeline.build_neo4j_client", lambda config: FailingNeo4jClient())
+    monkeypatch.setattr("processing.pipeline.OpenAICompatibleClient", PipelineLlmClient)
+    monkeypatch.setattr("processing.pipeline.build_neo4j_client", lambda config: FailingNeo4jClient())
 
     config = AppConfig(
         llm_base_url="http://localhost:11434/v1",

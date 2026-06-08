@@ -2,17 +2,17 @@ from __future__ import annotations
 
 from dataclasses import asdict
 
-from app_config import AppConfig, resolve_input_cmdb_path, resolve_runtime_output_path
-from cmdb import CmdbLoadError, load_cmdb_rows
-from knowledge_base import (
+from core.app_config import AppConfig, resolve_input_cmdb_path, resolve_runtime_output_path
+from processing.cmdb import CmdbLoadError, load_cmdb_rows
+from processing.knowledge_base import (
     clear_knowledge_base_sections,
     confirm_link,
     load_knowledge_base,
     reject_link,
     save_knowledge_base,
 )
-from pipeline import apply_org_unit_mapping, build_manual_matches
-from run_artifacts import load_latest_run, write_latest_run
+from processing.pipeline import apply_org_unit_mapping, build_manual_matches
+from processing.run_artifacts import load_latest_run, write_latest_run
 from services.alias_service import sync_knowledge_base_aliases
 from services.runtime_service import get_session_neo4j_client
 from skills.extract.extract_base import ApplicationReference, ExtractedProcess

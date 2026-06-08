@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 
-from constants import (
+from core.constants import (
     CONFIDENCE_WEAK,
     CONFIDENCE_STRONG,
     DOCUMENT_STATUS_ERROR,

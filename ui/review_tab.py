@@ -4,11 +4,11 @@ from pathlib import Path
 
 import streamlit as st
 
-from app_config import AppConfig, load_config, resolve_input_cmdb_path, resolve_runtime_output_path
-from cmdb import CmdbLoadError, build_cmdb_option_labels, find_cmdb_row_by_label, load_cmdb_rows
-from constants import DOCUMENT_STATUS_OPTIONS, MATCH_SOURCE_REJECTED
-from knowledge_base import load_knowledge_base
-from run_artifacts import load_last_import_context, load_latest_run
+from core.app_config import AppConfig, load_config, resolve_input_cmdb_path, resolve_runtime_output_path
+from processing.cmdb import CmdbLoadError, build_cmdb_option_labels, find_cmdb_row_by_label, load_cmdb_rows
+from core.constants import DOCUMENT_STATUS_OPTIONS, MATCH_SOURCE_REJECTED
+from processing.knowledge_base import load_knowledge_base
+from processing.run_artifacts import load_last_import_context, load_latest_run
 from services.review_service import (
     confirm_review_link,
     reject_review_link,
@@ -19,7 +19,7 @@ from services.runtime_service import (
     apply_pending_review_scope_defaults,
     render_run_feedback,
 )
-from ui_run_view import (
+from ui.ui_run_view import (
     build_document_details,
     build_document_status_rows,
     build_duplicate_application_warnings,

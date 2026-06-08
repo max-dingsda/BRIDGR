@@ -1,6 +1,6 @@
 import pytest
 
-from input_validation import validate_manual_application_name
+from processing.input_validation import validate_manual_application_name
 
 
 def test_validate_manual_application_name_returns_normalized_value() -> None:

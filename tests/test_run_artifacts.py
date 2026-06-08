@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from run_artifacts import load_last_import_context, load_latest_run, save_last_import_selection, write_latest_run
+from processing.run_artifacts import load_last_import_context, load_latest_run, save_last_import_selection, write_latest_run
 
 
 def test_load_latest_run_reads_saved_payload(tmp_path: Path) -> None:

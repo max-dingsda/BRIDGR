@@ -1,4 +1,4 @@
-from cmdb import CmdbEntity, CmdbRelation, NormalizedCmdb
+from processing.cmdb import CmdbEntity, CmdbRelation, NormalizedCmdb
 from skills.extract.extract_base import ApplicationReference, ExtractedProcess
 from skills.graph_writer import GraphWriter, GraphWritePayload
 from skills.match import MatchResult

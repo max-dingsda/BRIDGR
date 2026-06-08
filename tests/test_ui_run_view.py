@@ -1,4 +1,4 @@
-from ui_run_view import (
+from ui.ui_run_view import (
     build_duplicate_application_warnings,
     build_document_details,
     build_document_status_rows,

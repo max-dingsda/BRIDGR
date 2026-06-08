@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from constants import CONFIDENCE_WEAK, MATCH_SOURCE_REJECTED
+from core.constants import CONFIDENCE_WEAK, MATCH_SOURCE_REJECTED
 from skills.extract.extract_base import ExtractedProcess
 from skills.match import MatchResult
 

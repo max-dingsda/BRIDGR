@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from import_utils import (
+from processing.import_utils import (
     describe_cmdb_file,
     list_cmdb_entity_files,
     list_cmdb_files,

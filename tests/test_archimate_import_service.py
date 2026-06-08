@@ -301,7 +301,7 @@ def test_import_relation_skipped_when_endpoint_unresolved() -> None:
 
 def test_load_archimate_mapping_returns_defaults_when_file_missing(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.chdir(tmp_path)
-    import app_config
+    import core.app_config as app_config
     monkeypatch.setattr(app_config, "PROJECT_ROOT", tmp_path)
     mapping = load_archimate_mapping()
     assert "elements" in mapping
@@ -311,9 +311,10 @@ def test_load_archimate_mapping_returns_defaults_when_file_missing(tmp_path: Pat
 
 def test_load_archimate_mapping_reads_existing_file(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.chdir(tmp_path)
-    import app_config
+    import core.app_config as app_config
     monkeypatch.setattr(app_config, "PROJECT_ROOT", tmp_path)
-    mapping_path = tmp_path / "archimate_mapping.json"
+    mapping_path = tmp_path / "data" / "archimate_mapping.json"
+    mapping_path.parent.mkdir(parents=True, exist_ok=True)
     mapping_path.write_text(json.dumps({"custom": True}), encoding="utf-8")
     mapping = load_archimate_mapping(mapping_path)
     assert mapping.get("custom") is True

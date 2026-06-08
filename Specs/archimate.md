@@ -183,7 +183,7 @@ unabhaengig davon, wie die Konfiguration des Nutzers aussieht.
 ### Mapping-Wissen als externe Datei: `archimate_mapping.json`
 
 **Entscheidung:** Das Mapping-Wissen lebt nicht im Code und nicht in `config.json`,
-sondern in einer eigenen Datei `archimate_mapping.json` (im Projekt-Root, neben `config.json`).
+sondern in einer eigenen Datei `archimate_mapping.json` (unter `data/`, neben `config.json` im Projekt-Root).
 
 **Begründung:** Analogie zum bestehenden "Prompts over code"-Prinzip in BRIDGR.
 Wissen, das sich unabhängig von Code ändert, gehört nicht in den Code.
@@ -531,7 +531,7 @@ Archi kann Exchange-Format importieren und exportieren.
 
 ### Umgesetzt (v0.21)
 1. `Specs/Bridgr_Architektur_v21.md` — vollständiges Architekturkapitel (Abschnitt 13)
-2. `archimate_mapping.json` — Datei mit Defaults im Projekt-Root
+2. `data/archimate_mapping.json` — Datei mit Defaults unter `data/`
 3. `services/archimate_import_service.py` — XML-Parser, Typ-Mapping, Identity Resolution, Neo4j-Schreiben
 4. `services/archimate_export_service.py` — Neo4j lesen, XML generieren
 5. `ui/archimate_tab.py` — Mapping-Editor (Elemente + Beziehungen), Import-Upload, Export-Button

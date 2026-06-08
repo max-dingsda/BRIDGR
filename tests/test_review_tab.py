@@ -1,4 +1,4 @@
-from app_config import AppConfig
+from core.app_config import AppConfig
 from ui.review_tab import _filter_application_cmdb_rows
 
 

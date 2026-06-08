@@ -1,7 +1,7 @@
 import streamlit as st
 from pathlib import Path
 
-from app_config import AppConfig
+from core.app_config import AppConfig
 from services.runtime_service import ensure_active_cmdb_selection
 
 

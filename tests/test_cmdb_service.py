@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from app_config import AppConfig
-from knowledge_base import KnowledgeBase
+from core.app_config import AppConfig
+from processing.knowledge_base import KnowledgeBase
 from services.cmdb_service import sync_cmdb_to_neo4j
 
 
@@ -31,7 +31,7 @@ def test_sync_cmdb_to_neo4j_writes_entities_relations_and_owner_assignments(tmp_
         encoding="utf-8",
     )
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr("app_config.PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr("core.app_config.PROJECT_ROOT", tmp_path)
 
     config = AppConfig(
         input_path="Input",
@@ -75,7 +75,7 @@ def test_sync_cmdb_to_neo4j_adds_unresolved_owner_candidates(tmp_path: Path, mon
         encoding="utf-8",
     )
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr("app_config.PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr("core.app_config.PROJECT_ROOT", tmp_path)
 
     config = AppConfig(
         input_path="Input",

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from cmdb import (
+from processing.cmdb import (
     CMDB_ENTITY_TYPE_APPLICATION,
     CMDB_ENTITY_TYPE_INTERFACE,
     CMDB_ENTITY_TYPE_PROCESS,
@@ -11,8 +11,8 @@ from cmdb import (
     CmdbRelation,
     NormalizedCmdb,
 )
-from constants import CONFIDENCE_STRONG, MATCH_SOURCE_KNOWLEDGE_BASE, MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL
-from neo4j_utils import Neo4jClient
+from core.constants import CONFIDENCE_STRONG, MATCH_SOURCE_KNOWLEDGE_BASE, MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL
+from core.neo4j_utils import Neo4jClient
 from skills.extract.extract_base import ExtractedProcess
 from skills.match import MatchResult
 

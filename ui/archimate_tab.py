@@ -5,7 +5,7 @@ from pathlib import Path
 
 import streamlit as st
 
-from app_config import load_config
+from core.app_config import load_config
 from services.archimate_import_service import (
     ARCHIMATE_ELEMENT_TYPES,
     ARCHIMATE_RELATION_TYPES,

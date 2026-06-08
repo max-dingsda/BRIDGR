@@ -8,11 +8,11 @@ from uuid import uuid4
 
 import streamlit as st
 
-import debug_utils
-from app_config import AppConfig, is_legacy_input_path, resolve_runtime_output_path
-from llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleClient
-from neo4j_utils import Neo4jClient, Neo4jConfig, Neo4jConnectionError, Neo4jQueryError
-from pipeline import run_pipeline
+import core.debug_utils as debug_utils
+from core.app_config import AppConfig, is_legacy_input_path, resolve_runtime_output_path
+from core.llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleClient
+from core.neo4j_utils import Neo4jClient, Neo4jConfig, Neo4jConnectionError, Neo4jQueryError
+from processing.pipeline import run_pipeline
 
 
 NEO4J_CLIENT_STATE_KEY = "neo4j_client"

@@ -4,9 +4,9 @@ from pathlib import Path
 
 import streamlit as st
 
-from app_config import load_config
-from knowledge_base import load_knowledge_base
-from neo4j_utils import Neo4jConnectionError, Neo4jQueryError
+from core.app_config import load_config
+from processing.knowledge_base import load_knowledge_base
+from core.neo4j_utils import Neo4jConnectionError, Neo4jQueryError
 from services.organization_service import (
     accept_org_candidate,
     accept_process_owner_candidate,

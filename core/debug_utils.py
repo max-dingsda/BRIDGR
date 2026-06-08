@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 import json
 
-from app_config import AppConfig, resolve_runtime_output_path
+from core.app_config import AppConfig, resolve_runtime_output_path
 
 
 def write_debug_log(config: AppConfig, event: str, details: dict) -> None:
