@@ -163,9 +163,13 @@ def test_generate_json_retries_after_invalid_json_content(monkeypatch: pytest.Mo
     assert result == {"prozess": "A", "org_einheit": "", "anwendungen": []}
     assert len(session.calls) == 2
     second_messages = session.calls[1]["json"]["messages"]
-    assert second_messages[-2]["role"] == "assistant"
-    assert second_messages[-1]["role"] == "user"
-    assert "Repair your previous answer" in second_messages[-1]["content"]
+    # Retry starts fresh: no broken assistant context, just [system, user_original, user_retry]
+    assert len(second_messages) == 3
+    assert second_messages[0]["role"] == "system"
+    assert second_messages[1]["role"] == "user"
+    assert second_messages[1]["content"] == "user"
+    assert second_messages[2]["role"] == "user"
+    assert "Return only one valid JSON object" in second_messages[2]["content"]
 
 
 def test_generate_json_retries_after_missing_required_keys(monkeypatch: pytest.MonkeyPatch) -> None:

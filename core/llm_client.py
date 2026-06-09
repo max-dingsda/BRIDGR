@@ -18,6 +18,7 @@ class LlmClientConfig:
     model: str
     api_key_env: str = ""
     timeout_seconds: int = 300
+    json_temperature: float = 0.1
     debug_logger: Callable[[str, dict[str, Any]], None] | None = None
 
 
@@ -39,10 +40,11 @@ class OpenAICompatibleClient:
         user_prompt: str,
         required_keys: set[str] | None = None,
     ) -> dict[str, Any]:
-        messages = [
+        original_messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ]
+        messages = list(original_messages)
         last_error_message = "LLM response content was not valid JSON."
 
         for attempt_index in range(self._JSON_REPAIR_MAX_ATTEMPTS):
@@ -55,7 +57,11 @@ class OpenAICompatibleClient:
                     "messages": messages,
                 },
             )
-            content = self._generate_content_from_messages(messages, {"type": "json_object"})
+            content = self._generate_content_from_messages(
+                messages,
+                {"type": "json_object"},
+                temperature=self._config.json_temperature,
+            )
             self._log_debug(
                 "llm_response",
                 {
@@ -81,15 +87,14 @@ class OpenAICompatibleClient:
                 )
                 if attempt_index == self._JSON_REPAIR_MAX_ATTEMPTS - 1:
                     raise
-                messages.extend(
-                    [
-                        {"role": "assistant", "content": content},
-                        {
-                            "role": "user",
-                            "content": self._build_json_repair_instruction(required_keys, last_error_message),
-                        },
-                    ]
-                )
+                # Start fresh — don't carry degenerate output back as assistant context,
+                # since feeding broken JSON back conditions the model to repeat the failure.
+                messages = list(original_messages) + [
+                    {
+                        "role": "user",
+                        "content": self._build_json_repair_instruction(required_keys, last_error_message),
+                    }
+                ]
 
         raise LlmClientError(last_error_message)
 
@@ -194,6 +199,7 @@ class OpenAICompatibleClient:
         self,
         messages: list[dict[str, str]],
         response_format: dict[str, Any] | None = None,
+        temperature: float | None = None,
     ) -> str:
         payload = {
             "model": self._config.model,
@@ -201,6 +207,8 @@ class OpenAICompatibleClient:
         }
         if response_format is not None:
             payload["response_format"] = response_format
+        if temperature is not None:
+            payload["temperature"] = temperature
         response = self._request("POST", "/chat/completions", payload)
         try:
             return response["choices"][0]["message"]["content"]
@@ -267,9 +275,9 @@ class OpenAICompatibleClient:
                 + "."
             )
         return (
-            "Repair your previous answer and return only one valid JSON object with no Markdown, no explanation, "
-            "and no surrounding text."
-            f"{required_keys_text} Previous issue: {error_message}"
+            "Return only one valid JSON object with no Markdown, no explanation, and no surrounding text. "
+            "Ensure all brackets and braces are properly closed and all strings are properly terminated."
+            f"{required_keys_text}"
         )
 
 
