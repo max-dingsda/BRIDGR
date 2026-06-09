@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-import io
+import uuid
+from collections import defaultdict
 from pathlib import Path
 
 import streamlit as st
@@ -13,10 +14,14 @@ from services.archimate_import_service import (
     save_archimate_mapping,
     persist_archimate_import,
 )
-from services.archimate_export_service import export_graph_as_archimate
+from services.archimate_export_service import (
+    export_graph_as_archimate,
+    fetch_untyped_nodes,
+    write_archimate_types,
+)
 
-_BRIDGR_LABELS = ["Prozess", "Anwendung", "Schnittstelle", "Server", "OrgEinheit", "Rolle"]
-_LABEL_PAIRS = [
+_BRIDGR_LABELS: list[str] = ["Prozess", "Anwendung", "Schnittstelle", "Server", "OrgEinheit", "Rolle"]
+_LABEL_PAIRS: list[str] = [
     "Anwendung->Prozess",
     "Rolle->Prozess",
     "OrgEinheit->Rolle",
@@ -29,8 +34,12 @@ _LABEL_PAIRS = [
     "OrgEinheit->Server",
 ]
 _NO_MAPPING = "(nicht mappen)"
-_ELEMENT_TYPE_OPTIONS = [_NO_MAPPING] + sorted(ARCHIMATE_ELEMENT_TYPES)
 _RELATION_TYPE_OPTIONS = sorted(ARCHIMATE_RELATION_TYPES)
+
+# Session state keys
+_STATE_IMPORT_ROWS = "archimate_import_rows"
+_STATE_EXPORT_REVIEW = "archimate_export_review_active"
+_STATE_EXPORT_UNTYPED = "archimate_export_untyped_nodes"
 
 
 def render_archimate_tab() -> None:
@@ -51,54 +60,46 @@ def render_archimate_tab() -> None:
     _render_export_section(config, mapping)
 
 
+# ---------------------------------------------------------------------------
+# Mapping section
+# ---------------------------------------------------------------------------
+
 def _render_mapping_section(mapping: dict) -> None:
     st.markdown("#### Mapping konfigurieren")
 
-    # Import mapping is stored as {ArchiMate-type → BRIDGR-label}.
-    # For display we invert to {BRIDGR-label → ArchiMate-type} so every row
-    # corresponds to one BRIDGR label — same layout as the export column.
     elem_import_storage: dict[str, str] = mapping.get("elements", {}).get("import", {})
-    elem_import_display: dict[str, str] = {v: k for k, v in elem_import_storage.items()}
     elem_export: dict[str, str] = mapping.get("elements", {}).get("export", {})
     rel_import: dict[str, list[str]] = mapping.get("relationships", {}).get("import", {})
     rel_export: dict[str, str] = mapping.get("relationships", {}).get("export", {})
 
-    updated_elem_import_display: dict[str, str] = {}
-    updated_elem_export: dict[str, str] = {}
-    updated_rel_import: dict[str, list[str]] = {}
-    updated_rel_export: dict[str, str] = {}
+    # --- Import mapping (per AM-type rows, m:1 supported) ---
+    with st.expander("Import: ArchiMate → BRIDGR", expanded=False):
+        _ensure_import_rows_initialized(elem_import_storage)
+        updated_import_storage = _render_import_mapping_editor()
 
-    with st.expander("Elemente", expanded=False):
-        col_label, col_import, col_export = st.columns([2, 3, 3])
+    # --- Export mapping (per BRIDGR-label, 1:1) ---
+    updated_elem_export: dict[str, str] = {}
+    with st.expander("Export: BRIDGR → ArchiMate", expanded=False):
+        col_label, col_export = st.columns([2, 4])
         col_label.markdown("**BRIDGR-Label**")
-        col_import.markdown("**Import: ArchiMate-Typ**")
         col_export.markdown("**Export: ArchiMate-Typ**")
 
+        exp_options = [_NO_MAPPING] + sorted(ARCHIMATE_ELEMENT_TYPES)
         for label in _BRIDGR_LABELS:
-            # Display: look up by BRIDGR label (inverted dict)
-            current_import = elem_import_display.get(label, _NO_MAPPING)
             current_export = elem_export.get(label, _NO_MAPPING)
-            c_label, c_imp, c_exp = st.columns([2, 3, 3])
+            c_label, c_exp = st.columns([2, 4])
             c_label.markdown(f"`{label}`")
-
-            imp_idx = _ELEMENT_TYPE_OPTIONS.index(current_import) if current_import in _ELEMENT_TYPE_OPTIONS else 0
-            exp_idx = _ELEMENT_TYPE_OPTIONS.index(current_export) if current_export in _ELEMENT_TYPE_OPTIONS else 0
-
-            chosen_import = c_imp.selectbox(
-                f"import_{label}", _ELEMENT_TYPE_OPTIONS, index=imp_idx,
-                label_visibility="collapsed", key=f"elem_import_{label}",
-            )
+            exp_idx = exp_options.index(current_export) if current_export in exp_options else 0
             chosen_export = c_exp.selectbox(
-                f"export_{label}", _ELEMENT_TYPE_OPTIONS, index=exp_idx,
+                f"export_{label}", exp_options, index=exp_idx,
                 label_visibility="collapsed", key=f"elem_export_{label}",
             )
-            if chosen_import != _NO_MAPPING:
-                updated_elem_import_display[label] = chosen_import
             if chosen_export != _NO_MAPPING:
                 updated_elem_export[label] = chosen_export
 
-    # Relationship widgets are expensive (20 multiselects). Only render when
-    # the user explicitly requests it.
+    # --- Relationship mapping (optional, rarely changed) ---
+    updated_rel_import: dict[str, list[str]] = {}
+    updated_rel_export: dict[str, str] = {}
     show_rel = st.checkbox(
         "Beziehungs-Mapping bearbeiten",
         value=False,
@@ -132,7 +133,6 @@ def _render_mapping_section(mapping: dict) -> None:
                 if chosen_exp != _NO_MAPPING:
                     updated_rel_export[pair] = chosen_exp
     else:
-        # Keep current relationship mapping unchanged when the section is hidden
         updated_rel_import = rel_import
         updated_rel_export = rel_export
 
@@ -141,19 +141,86 @@ def _render_mapping_section(mapping: dict) -> None:
         "archimate_mapping.json geschrieben."
     )
     if st.button("Mapping speichern", key="save_archimate_mapping"):
-        # Invert import display dict back to storage format: {AM-type → BRIDGR-label}
-        storage_elem_import = {am_type: bridgr_label
-                               for bridgr_label, am_type in updated_elem_import_display.items()}
-        mapping["elements"] = {"import": storage_elem_import, "export": updated_elem_export}
+        mapping["elements"] = {"import": updated_import_storage, "export": updated_elem_export}
         mapping["relationships"] = {"import": updated_rel_import, "export": updated_rel_export}
         try:
             save_archimate_mapping(mapping)
+            # Clear session state so rows reinitialize from the saved file
+            st.session_state.pop(_STATE_IMPORT_ROWS, None)
             st.success("Mapping gespeichert.")
         except Exception as exc:
             st.error(f"Fehler beim Speichern: {exc}")
 
     _render_candidates_section(mapping)
 
+
+def _ensure_import_rows_initialized(elem_import_storage: dict[str, str]) -> None:
+    if _STATE_IMPORT_ROWS not in st.session_state:
+        st.session_state[_STATE_IMPORT_ROWS] = [
+            {"id": f"r{i}", "am_type": k, "bridgr_label": v}
+            for i, (k, v) in enumerate(elem_import_storage.items())
+        ]
+
+
+def _render_import_mapping_editor() -> dict[str, str]:
+    """Render per-AM-type rows with add/delete. Returns {AM-type -> BRIDGR-label}."""
+    rows: list[dict] = st.session_state[_STATE_IMPORT_ROWS]
+
+    col_am, col_lbl, col_del = st.columns([4, 4, 1])
+    col_am.markdown("**ArchiMate-Typ**")
+    col_lbl.markdown("**BRIDGR-Label**")
+    col_del.markdown("")
+
+    to_delete: str | None = None
+    for row in rows:
+        row_id = row["id"]
+        am_key = f"imp_am_{row_id}"
+        lbl_key = f"imp_lbl_{row_id}"
+
+        am_current = st.session_state.get(am_key, row["am_type"])
+        lbl_current = st.session_state.get(lbl_key, row["bridgr_label"])
+
+        am_idx = ARCHIMATE_ELEMENT_TYPES.index(am_current) if am_current in ARCHIMATE_ELEMENT_TYPES else 0
+        lbl_idx = _BRIDGR_LABELS.index(lbl_current) if lbl_current in _BRIDGR_LABELS else 0
+
+        c_am, c_lbl, c_del = st.columns([4, 4, 1])
+        c_am.selectbox(
+            "AM-Typ", ARCHIMATE_ELEMENT_TYPES, index=am_idx,
+            label_visibility="collapsed", key=am_key,
+        )
+        c_lbl.selectbox(
+            "BRIDGR-Label", _BRIDGR_LABELS, index=lbl_idx,
+            label_visibility="collapsed", key=lbl_key,
+        )
+        if c_del.button("✕", key=f"imp_del_{row_id}"):
+            to_delete = row_id
+
+    if to_delete is not None:
+        st.session_state[_STATE_IMPORT_ROWS] = [r for r in rows if r["id"] != to_delete]
+        st.rerun()
+
+    if st.button("+ Mapping hinzufügen", key="imp_add_row"):
+        new_id = uuid.uuid4().hex[:8]
+        st.session_state[_STATE_IMPORT_ROWS].append({
+            "id": new_id,
+            "am_type": ARCHIMATE_ELEMENT_TYPES[0],
+            "bridgr_label": _BRIDGR_LABELS[0],
+        })
+        st.rerun()
+
+    # Collect current widget values → storage dict {AM-type -> BRIDGR-label}
+    storage: dict[str, str] = {}
+    for row in st.session_state[_STATE_IMPORT_ROWS]:
+        row_id = row["id"]
+        am_type = st.session_state.get(f"imp_am_{row_id}", row["am_type"])
+        bridgr_label = st.session_state.get(f"imp_lbl_{row_id}", row["bridgr_label"])
+        storage[am_type] = bridgr_label
+    return storage
+
+
+# ---------------------------------------------------------------------------
+# Candidates section
+# ---------------------------------------------------------------------------
 
 def _render_candidates_section(mapping: dict) -> None:
     candidates: list[dict] = mapping.get("pending_candidates", [])
@@ -195,6 +262,10 @@ def _reject_candidate(mapping: dict, candidate: dict) -> None:
     save_archimate_mapping(mapping)
 
 
+# ---------------------------------------------------------------------------
+# Import section
+# ---------------------------------------------------------------------------
+
 def _render_import_section(config, mapping: dict) -> None:
     st.markdown("#### Import")
     uploaded = st.file_uploader(
@@ -227,19 +298,104 @@ def _render_import_section(config, mapping: dict) -> None:
                 tmp_path.unlink(missing_ok=True)
 
 
+# ---------------------------------------------------------------------------
+# Export section with pre-check
+# ---------------------------------------------------------------------------
+
 def _render_export_section(config, mapping: dict) -> None:
     st.markdown("#### Export")
     st.caption(
         "Der Export umfasst immer den vollständigen BRIDGR-Graphen. "
         "Teilexporte sind ohne Views/Viewpoints nicht möglich."
     )
-    if st.button("Als ArchiMate exportieren", key="archimate_export_btn"):
+
+    if st.session_state.get(_STATE_EXPORT_REVIEW):
+        _render_export_review(config, mapping)
+    else:
+        if st.button("Als ArchiMate exportieren", key="archimate_export_btn"):
+            export_elem_map: dict[str, str] = mapping.get("elements", {}).get("export", {})
+            try:
+                untyped = fetch_untyped_nodes(config, export_elem_map)
+            except Exception as exc:
+                st.error(f"Datenbankabfrage fehlgeschlagen: {exc}")
+                return
+            if not untyped:
+                _do_export(config, mapping)
+            else:
+                st.session_state[_STATE_EXPORT_UNTYPED] = untyped
+                st.session_state[_STATE_EXPORT_REVIEW] = True
+                st.rerun()
+
+
+def _render_export_review(config, mapping: dict) -> None:
+    untyped: list[dict] = st.session_state.get(_STATE_EXPORT_UNTYPED, [])
+
+    st.info(
+        f"{len(untyped)} Node(s) ohne ArchiMate-Typ gefunden. "
+        "Bitte Exporttypen prüfen und bestätigen."
+    )
+
+    groups: dict[str, list[dict]] = defaultdict(list)
+    for node in untyped:
+        groups[node["label"]].append(node)
+
+    for label, nodes in sorted(groups.items()):
+        proposed = nodes[0]["proposed_type"]
+        with st.expander(
+            f"{label} — {len(nodes)} Node(s) → {proposed} (Standard)",
+            expanded=False,
+        ):
+            col_name, col_type = st.columns([3, 3])
+            col_name.markdown("**Node**")
+            col_type.markdown("**Export-Typ**")
+            for node in nodes:
+                widget_key = f"exp_rev_{node['label']}_{node['name']}"
+                current = st.session_state.get(widget_key, proposed)
+                am_opts = sorted(ARCHIMATE_ELEMENT_TYPES)
+                idx = am_opts.index(current) if current in am_opts else 0
+                c_name, c_type = st.columns([3, 3])
+                c_name.text(node["name"])
+                c_type.selectbox(
+                    f"t_{node['label']}_{node['name']}",
+                    am_opts,
+                    index=idx,
+                    label_visibility="collapsed",
+                    key=widget_key,
+                )
+
+    col_confirm, col_cancel = st.columns([2, 1])
+    if col_confirm.button("Vorschläge übernehmen und exportieren", key="exp_review_confirm"):
+        write_list = [
+            {
+                "label": n["label"],
+                "name": n["name"],
+                "archimate_type": st.session_state.get(
+                    f"exp_rev_{n['label']}_{n['name']}", n["proposed_type"]
+                ),
+            }
+            for n in untyped
+            if st.session_state.get(f"exp_rev_{n['label']}_{n['name']}", n["proposed_type"])
+        ]
         try:
-            result = export_graph_as_archimate(config, mapping)
-            st.success(
-                f"Export abgeschlossen: {result.elements_exported} Elemente, "
-                f"{result.relations_exported} Beziehungen. "
-                f"Datei: `{result.output_path}`"
-            )
+            write_archimate_types(config, write_list)
         except Exception as exc:
-            st.error(f"Export fehlgeschlagen: {exc}")
+            st.error(f"Fehler beim Schreiben der ArchiMate-Typen: {exc}")
+            return
+        st.session_state[_STATE_EXPORT_REVIEW] = False
+        _do_export(config, mapping)
+
+    if col_cancel.button("Abbrechen", key="exp_review_cancel"):
+        st.session_state[_STATE_EXPORT_REVIEW] = False
+        st.rerun()
+
+
+def _do_export(config, mapping: dict) -> None:
+    try:
+        result = export_graph_as_archimate(config, mapping)
+        st.success(
+            f"Export abgeschlossen: {result.elements_exported} Elemente, "
+            f"{result.relations_exported} Beziehungen. "
+            f"Datei: `{result.output_path}`"
+        )
+    except Exception as exc:
+        st.error(f"Export fehlgeschlagen: {exc}")

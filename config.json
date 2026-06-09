@@ -1,6 +1,6 @@
 {
   "llm_base_url": "http://127.0.0.1:11434/v1",
-  "llm_model": "gemma4:12b",
+  "llm_model": "gemma4:26b",
   "llm_api_key_env": "",
   "llm_context_window": 131072,
   "llm_timeout_seconds": 900,

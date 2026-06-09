@@ -34,6 +34,26 @@ def export_graph_as_archimate(config: AppConfig, mapping: dict) -> ArchiMateExpo
     return _build_archimate_export(neo4j_client, config, mapping)
 
 
+def fetch_untyped_nodes(config: AppConfig, export_elem_map: dict[str, str]) -> list[dict]:
+    """Return nodes lacking archimate_type that have a configured export type."""
+    from services.runtime_service import get_session_neo4j_client
+
+    client = get_session_neo4j_client(config)
+    return _query_untyped_nodes(client, export_elem_map)
+
+
+def write_archimate_types(config: AppConfig, overrides: list[dict]) -> None:
+    """Write archimate_type to specified nodes.
+
+    Attribute-level ownership: only sets archimate_type, no other properties touched.
+    Each entry in overrides must have keys: label, name, archimate_type.
+    """
+    from services.runtime_service import get_session_neo4j_client
+
+    client = get_session_neo4j_client(config)
+    _write_archimate_types(client, overrides)
+
+
 def _build_archimate_export(
     neo4j_client: Neo4jClient,
     config: AppConfig,
@@ -146,6 +166,41 @@ def _build_archimate_export(
         relations_exported=relations_exported,
         output_path=str(output_path),
     )
+
+
+def _query_untyped_nodes(client: Neo4jClient, export_elem_map: dict[str, str]) -> list[dict]:
+    rows = client.execute_read(
+        """
+        MATCH (n)
+        WHERE n.name IS NOT NULL
+          AND any(lbl IN labels(n) WHERE lbl IN
+            ['Prozess','Anwendung','Schnittstelle','Server','OrgEinheit','Rolle'])
+          AND n.archimate_type IS NULL
+        RETURN labels(n)[0] AS label, n.name AS name
+        ORDER BY label, name
+        """,
+        {},
+    )
+    return [
+        {"label": row["label"], "name": row["name"], "proposed_type": export_elem_map.get(row["label"])}
+        for row in rows
+        if export_elem_map.get(row["label"])
+    ]
+
+
+def _write_archimate_types(client: Neo4jClient, overrides: list[dict]) -> None:
+    for item in overrides:
+        label = item.get("label", "")
+        name = item.get("name", "")
+        archimate_type = item.get("archimate_type", "")
+        if not label or not name or not archimate_type:
+            continue
+        if label not in _EXPORT_LABELS:
+            continue
+        client.execute_write(
+            f"MATCH (n:{label} {{name: $name}}) SET n.archimate_type = $archimate_type",
+            {"name": name, "archimate_type": archimate_type},
+        )
 
 
 def _normalize_rel_type(rel_type: str) -> str:

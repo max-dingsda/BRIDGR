@@ -3,7 +3,7 @@
 BRIDGR verbindet Prozessdokumentation mit CMDB-Daten, um einen EA-Wissensgraphen aufzubauen und spaeter ueber eine natuerlichsprachliche Oberflaeche abfragbar zu machen.
 
 Der aktuelle Architektur-Referenzstand fuer die Umsetzung ist:
-- `Specs/Bridgr_Architektur_v19.md`
+- `Specs/Bridgr_Architektur_v22.md`
 
 ## Zielbild
 
@@ -53,6 +53,7 @@ Noch nicht umgesetzt:
 - Unterstuetzung weiterer CMDB-Dateiformate jenseits von CSV
 - separate Read-only-DB-Identitaet fuer den Query-Layer
 - vollstaendige Abloesung der `knowledge_base/kb.json` als einzige Kurationsquelle; aktuell werden Alias-Informationen zusaetzlich nach Neo4j projiziert, die restliche Kuratierung bleibt dateibasiert
+- ArchiMate Views/Viewpoints im Export; selektiver Export (setzt Views voraus)
 
 ## Projektstruktur
 
@@ -278,6 +279,17 @@ Wichtige Einordnung:
 - CMDB-Owner mit sicherem 1:1-Match koennen direkt als `VERANTWORTET` auf CMDB-Objekte landen
 - unsichere CMDB-Owner werden wie andere Org-Kandidaten ueber denselben Review-Pfad behandelt
 
+### Tab 5 - EA-Modell
+
+Aktuell verfuegbar:
+- Import-Mapping konfigurieren: eine Zeile pro ArchiMate-Typ, beliebig viele Eintraege koennen auf dasselbe BRIDGR-Label zeigen (m:1); Zeilen einzeln loeschbar, neue Eintraege hinzufuegbar
+- Export-Mapping konfigurieren: kanonischer ArchiMate-Typ pro BRIDGR-Label fuer Nodes ohne ArchiMate-Herkunft
+- Beziehungs-Mapping konfigurieren (optional): akzeptierte Importtypen und kanonischer Exporttyp pro Label-Paar
+- ArchiMate Exchange Format 3.x importieren; uebersprungene Typen mit Anzahl anzeigen
+- Graphen als ArchiMate Exchange Format 3.x exportieren (vollstaendiger Graph, keine Views/Viewpoints)
+- Export-Precheck: vor dem Export werden Nodes ohne archimate_type angezeigt (nach Label gruppiert), vorgeschlagene Typen koennen per Gruppe oder individuell pro Node bestaetigt oder geaendert werden; Bestaetigung schreibt ausschliesslich archimate_type (Attribut-Eigentuemer-Prinzip)
+- Roundtrip-Konsistenz: ArchiMate-importierte Nodes behalten ihren originalen archimate_type beim Export
+
 ## BPMN-Transformer fuer grosse Modelle
 
 Der BPMN-Transformer ist ein vorbereitender Schritt fuer sehr grosse oder sehr technische BPMN/XML-Dateien.
@@ -340,6 +352,8 @@ Der aktuelle Teststand deckt unter anderem ab:
 - Aufbereitung der UI-Statusdaten und Warnhinweise
 - KB-Aktionen fuer kandidatenspezifisches Bestaetigen und Ablehnen
 - Graph-Write-Pfad inkl. Aufraeumen alter Prozesskanten und neuem `DIENT`-Modell
+- ArchiMate-Import (Parser, Namenswahl, Identity Resolution, Beziehungen) und Export (Roundtrip, Typ-Mapping, XML-Validierung)
+- Export-Precheck: Nodes ohne archimate_type abfragen, Typ-Schreiben mit Attribut-Eigentuemer-Semantik
 
 ## Hinweise
 

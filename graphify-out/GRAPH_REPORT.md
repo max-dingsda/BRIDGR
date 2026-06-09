@@ -1,16 +1,16 @@
-# Graph Report - BRIDGR  (2026-06-05)
+# Graph Report - BRIDGR  (2026-06-09)
 
 ## Corpus Check
-- 97 files · ~96,345 words
+- 99 files · ~197,982 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1596 nodes · 5719 edges · 86 communities (56 shown, 30 thin omitted)
-- Extraction: 81% EXTRACTED · 19% INFERRED · 0% AMBIGUOUS · INFERRED: 1089 edges (avg confidence: 0.52)
+- 1704 nodes · 5864 edges · 100 communities (70 shown, 30 thin omitted)
+- Extraction: 81% EXTRACTED · 19% INFERRED · 0% AMBIGUOUS · INFERRED: 1091 edges (avg confidence: 0.52)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `1b1bcd6d`
+- Built from commit: `7a62e2b9`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -97,10 +97,24 @@
 - [[_COMMUNITY_Community 83|Community 83]]
 - [[_COMMUNITY_Community 84|Community 84]]
 - [[_COMMUNITY_Community 85|Community 85]]
+- [[_COMMUNITY_Community 86|Community 86]]
+- [[_COMMUNITY_Community 87|Community 87]]
+- [[_COMMUNITY_Community 88|Community 88]]
+- [[_COMMUNITY_Community 89|Community 89]]
+- [[_COMMUNITY_Community 90|Community 90]]
+- [[_COMMUNITY_Community 91|Community 91]]
+- [[_COMMUNITY_Community 92|Community 92]]
+- [[_COMMUNITY_Community 93|Community 93]]
+- [[_COMMUNITY_Community 94|Community 94]]
+- [[_COMMUNITY_Community 95|Community 95]]
+- [[_COMMUNITY_Community 96|Community 96]]
+- [[_COMMUNITY_Community 97|Community 97]]
+- [[_COMMUNITY_Community 98|Community 98]]
+- [[_COMMUNITY_Community 99|Community 99]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `AppConfig` - 137 edges
-2. `AppConfig` - 132 edges
+2. `AppConfig` - 134 edges
 3. `ExtractedProcess` - 93 edges
 4. `GraphWriter` - 91 edges
 5. `KnowledgeBase` - 81 edges
@@ -125,35 +139,35 @@
 ## Import Cycles
 - None detected.
 
-## Communities (86 total, 30 thin omitted)
+## Communities (100 total, 30 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.06
-Nodes (121): ApplicationReference, LlmClientConfig, Neo4jClient, Neo4jConfig, Neo4jConnectionError, Neo4jExecutionError, Neo4jServiceUnavailableError, ApplicationReference (dataclass) (+113 more)
+Cohesion: 0.07
+Nodes (125): CmdbEntity, CmdbRelation, Neo4jClient, Neo4jConfig, Neo4jConnectionError, Neo4jServiceUnavailableError, ApplicationReference (extract_base), DOCX Extractor (+117 more)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.08
-Nodes (70): CmdbEntity, CmdbRelation, ApplicationReference (extract_base), ExtractedProcess (extract_base), ExtractedProcess (dataclass), BpmnExtractor (extract_bpmn), DocxExtractor (extract_docx), ApplicationReference (+62 more)
+Nodes (48): ApplicationReference, ApplicationReference (dataclass), ExtractedProcess (dataclass), BPMN Extractor, ApplicationReference, BpmnExtractor, TextExtractor, TextExtractorError (+40 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.05
-Nodes (152): Alias Service, lookup_alias_matches(), sync_knowledge_base_aliases(), sync_knowledge_base_aliases (alias_service), CMDB Service, persist_cmdb_sync(), sync_cmdb_to_neo4j(), Return the absolute path to the configured CMDB file.      The returned path may (+144 more)
+Cohesion: 0.06
+Nodes (84): Alias Service, lookup_alias_matches(), sync_knowledge_base_aliases(), sync_knowledge_base_aliases (alias_service), CMDB Service, persist_cmdb_sync(), sync_cmdb_to_neo4j(), GraphWriter.sync_cmdb() (+76 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.12
-Nodes (51): Fuzzy Matching, float, _add_pending_candidate(), ArchiMateElement, ArchiMateImportResult, ArchiMateRelation, _default_mapping(), _fuzzy_match_name() (+43 more)
+Cohesion: 0.14
+Nodes (43): Fuzzy Matching, float, _add_pending_candidate(), ArchiMateElement, ArchiMateImportResult, ArchiMateRelation, _default_mapping(), _fuzzy_match_name() (+35 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.13
-Nodes (42): test_filter_application_cmdb_rows_keeps_only_applications(), sample_run(), test_build_document_details_includes_error_and_process_context(), test_build_document_details_uses_unique_ids_for_duplicate_hashes(), test_build_document_status_rows_exposes_match_counts(), test_build_duplicate_application_warnings_detects_variant_spellings(), test_build_review_rows_flattens_review_items(), test_build_review_rows_uses_unique_ids_for_duplicate_hashes() (+34 more)
+Cohesion: 0.06
+Nodes (107): Return the absolute path to the configured CMDB file.      The returned path may, Return a writable output directory and whether a fallback was used.      Unlike, resolve_input_cmdb_path(), resolve_runtime_output_path(), build_cmdb_option_labels(), CmdbLoadError, CmdbValidationIssue, _collect_csv_shape_issues() (+99 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.08
-Nodes (41): is_directory_writable(), is_legacy_input_path(), load_config(), normalize_path_value(), normalize_run_mode(), bool, Path, str (+33 more)
+Nodes (42): is_directory_writable(), is_legacy_input_path(), load_config(), normalize_path_value(), normalize_run_mode(), bool, Path, str (+34 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.16
-Nodes (39): build_cmdb_option_labels(), CmdbLoadError, CmdbValidationIssue, _collect_csv_shape_issues(), find_cmdb_row_by_label(), load_cmdb_relation_rows(), load_cmdb_rows(), load_normalized_cmdb() (+31 more)
+Cohesion: 0.15
+Nodes (55): int, Organization Service, persist_org_candidate_mapping_refresh(), persist_organization_sync(), save_knowledge_base(), accept_org_candidate(), accept_process_owner_candidate(), add_org_unit_entry() (+47 more)
 
 ### Community 8 - "Community 8"
 Cohesion: 0.09
@@ -164,12 +178,12 @@ Cohesion: 0.25
 Nodes (20): bytes, _csv_has_columns(), describe_cmdb_file(), list_cmdb_entity_files(), list_cmdb_files(), list_cmdb_relation_files(), list_process_files(), bool (+12 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.08
-Nodes (92): main(), AppConfig, main(), AppConfig, save_config(), AppConfig, str, write_debug_log() (+84 more)
+Cohesion: 0.06
+Nodes (120): main(), Pipeline Run Tracker (app.py), Session & Connection Management (app.py), main(), execute_cypher Tool Schema (LLM tool call), Concept: Conversation History for Context, _extract_json_object(), LlmClientConfig (+112 more)
 
 ### Community 11 - "Community 11"
 Cohesion: 0.10
-Nodes (37): Import Service, build_import_completion_message (import_service), finalize_import_artifacts(), documents, archive_path, display_paths, run_mode, source_paths (+29 more)
+Nodes (36): Import Service, build_import_completion_message (import_service), finalize_import_artifacts(), documents, archive_path, display_paths, run_mode, source_paths (+28 more)
 
 ### Community 12 - "Community 12"
 Cohesion: 0.05
@@ -180,8 +194,8 @@ Cohesion: 0.07
 Nodes (27): chat_mode, cmdb_entity_type_column, cmdb_filename, cmdb_multivalue_separator, cmdb_name_column, cmdb_owner_name_column, cmdb_relation_source_column, cmdb_relation_target_column (+19 more)
 
 ### Community 14 - "Community 14"
-Cohesion: 0.18
-Nodes (24): ArchiMateExportResult, _build_archimate_export(), export_graph_as_archimate(), _normalize_rel_type(), AppConfig, Neo4jClient, str, Ensure relationship type uses the schema-correct short name (no 'Relationship' s (+16 more)
+Cohesion: 0.19
+Nodes (19): FakeNeo4jClient, _parse_export(), Element, Path, str, _RecordingWriteClient, _run(), test_export_counts_correct() (+11 more)
 
 ### Community 15 - "Community 15"
 Cohesion: 0.20
@@ -196,24 +210,24 @@ Cohesion: 0.10
 Nodes (26): Bridgr, ABFRAGE-LAYER (Nutzung), Anwendung, CMDB-Export, Konfiguration, Delta Update, BPMN-Extraktion, generische Extraktion (+18 more)
 
 ### Community 18 - "Community 18"
-Cohesion: 0.12
-Nodes (47): Pipeline Run Tracker (app.py), Session & Connection Management (app.py), execute_cypher Tool Schema (LLM tool call), Concept: Conversation History for Context, QueryValidationError, Finding: Follow-up Questions Misinterpreted by LLM, Query Service (Chat), _run_prompt_only_turn() (+39 more)
+Cohesion: 0.14
+Nodes (34): AppConfig, AppConfig, AppConfig, AppConfig, Inkonsistente Pfadauflösung, test_ensure_import_session_defaults_uses_config_mode(), test_ensure_query_chat_defaults_initializes_chat_state(), test_get_llm_status_reports_endpoint_error() (+26 more)
 
 ### Community 19 - "Community 19"
-Cohesion: 0.08
-Nodes (49): Concept: External Test Review to Catch Self-Written Test Blind Spots, confirmed, disambiguation, org_unit_candidates, org_units, process_identity, rejected, role_decisions (+41 more)
+Cohesion: 0.11
+Nodes (38): Concept: External Test Review to Catch Self-Written Test Blind Spots, RejectedLink, RejectedLink, Skill: Extract Base, build_fuzzy_candidates(), classify_match_confidence(), compute_containment_score(), is_application_rejected() (+30 more)
 
 ### Community 20 - "Community 20"
 Cohesion: 0.07
 Nodes (26): chat_mode, cmdb_entity_type_column, cmdb_filename, cmdb_multivalue_separator, cmdb_name_column, cmdb_owner_name_column, cmdb_relation_source_column, cmdb_relation_target_column (+18 more)
 
 ### Community 21 - "Community 21"
-Cohesion: 0.14
-Nodes (29): _extract_json_object(), LlmClientError, OpenAICompatibleClient, _parse_json_content(), Any, str, build_client(), FakeResponse (+21 more)
+Cohesion: 0.34
+Nodes (19): build_client(), FakeResponse, FakeSession, MonkeyPatch, test_extract_json_object_handles_nested_json_without_regex(), test_generate_json_extracts_json_object_from_markdown_wrapped_response(), test_generate_json_logs_requests_and_responses(), test_generate_json_raises_after_exhausting_repair_attempts() (+11 more)
 
 ### Community 23 - "Community 23"
 Cohesion: 0.10
-Nodes (19): 1. Abhaengigkeiten, 2. Streamlit starten, 3. Pipeline per CLI starten, Aktuelle UI-Funktionen, Aktueller Stand, BPMN-Transformer fuer grosse Modelle, Debug-Modus, Hinweise (+11 more)
+Nodes (20): 1. Abhaengigkeiten, 2. Streamlit starten, 3. Pipeline per CLI starten, Aktuelle UI-Funktionen, Aktueller Stand, BPMN-Transformer fuer grosse Modelle, Debug-Modus, Hinweise (+12 more)
 
 ### Community 24 - "Community 24"
 Cohesion: 0.25
@@ -335,24 +349,80 @@ Nodes (4): 3.1 Eingangsdateien, 3.2 Inbox-Prinzip, 3.3 Archivierung verarbeitete
 Cohesion: 0.67
 Nodes (3): 12. Konfiguration, archimate_mapping.json (ArchiMate-Mapping-Konfiguration), config.json (Laufzeit-Konfiguration)
 
+### Community 86 - "Community 86"
+Cohesion: 0.15
+Nodes (21): ArchiMateExportResult, _build_archimate_export(), export_graph_as_archimate(), fetch_untyped_nodes(), _normalize_rel_type(), AppConfig, Neo4jClient, str (+13 more)
+
+### Community 87 - "Community 87"
+Cohesion: 0.12
+Nodes (16): Allgemeine Workflow-Beobachtungen, Beobachtung: Chat-History nach Seiten-Reload weg, Beobachtung: kein Undo, BRIDGR Feedback — Live-Review via Claude in Chrome, Finding #1 — Kontextauflösung bei Folgefragen / LLM überspringt Tool Call — ✅ ERLEDIGT, Positive Überraschung: Reaktionsgeschwindigkeit der UI, Priorisierungsübersicht, Sitzungsgebundenheit ist der größte Workflow-Bruch (+8 more)
+
+### Community 88 - "Community 88"
+Cohesion: 0.31
+Nodes (14): save_archimate_mapping(), _confirm_candidate(), _do_export(), _ensure_import_rows_initialized(), str, Render per-AM-type rows with add/delete. Returns {AM-type -> BRIDGR-label}., _reject_candidate(), render_archimate_tab() (+6 more)
+
+### Community 89 - "Community 89"
+Cohesion: 0.18
+Nodes (10): 14. Akzeptanzkriterien, 15. Getroffene Entscheidungen, 1. Ziel, 2. Gesamtarchitektur, 4. Scope v0.22, 6. Anwendungsschichten, 7. Importlogik, 8. Matching und Review (+2 more)
+
+### Community 90 - "Community 90"
+Cohesion: 0.18
+Nodes (11): 5. Domaenenmodell, Anwendung, folgt_auf, Neue Properties aus ArchiMate-Import, OrgEinheit, Prozess, Rolle, Rollenzuordnung (+3 more)
+
+### Community 91 - "Community 91"
+Cohesion: 0.25
+Nodes (9): ExtractedProcess (extract_base), BpmnExtractor (extract_bpmn), DocxExtractor (extract_docx), PdfExtractor (extract_pdf), TextExtractor (extract_txt), Test Suite: Extract BPMN, Test Suite: Extract DOCX, Test Suite: Extract PDF (+1 more)
+
+### Community 92 - "Community 92"
+Cohesion: 0.25
+Nodes (8): 16.1 Komponentendiagramm, 16.2 Klassenmodell, 16.3 Sequenzdiagramme, 16. UML-Diagramme, Sequenz 1 – Dokument-Import-Pipeline, Sequenz 2 – Natürlichsprachige Graph-Abfrage, Sequenz 3 – CMDB-Synchronisation, Sequenz 4 – Review: Anwendungslink bestätigen / ablehnen
+
+### Community 93 - "Community 93"
+Cohesion: 0.29
+Nodes (7): 10.1 Visionsziel, 10.2 Architekturprinzip: LLM als Orchestrator, 10.3 Tool: execute_cypher, 10.4 System-Prompt, 10.5 Konversationshistorie, 10.6 Dual-Mode-Betrieb, 10. Abfrage-Layer
+
+### Community 94 - "Community 94"
+Cohesion: 0.29
+Nodes (7): 13.1 Services und Verantwortlichkeiten, 13.2 Import-Pipeline, 13.3 Export-Pipeline, 13.4 archimate_mapping.json — Struktur, 13.5 EA-Modell-Tab (Tab 5), 13.6 Bekannte Einschraenkungen (v0.22), 13. ArchiMate-Integration
+
+### Community 95 - "Community 95"
+Cohesion: 0.33
+Nodes (6): 9.1 Vollstaendiges Schreibmodell, 9.2 Schreibregeln pro Quelle, 9.3 Idempotenz, 9.4 Kardinalitaet Prozess-Owner, 9.5 Attribut-Eigentuemer-Prinzip, 9. Graph Writer
+
+### Community 96 - "Community 96"
+Cohesion: 0.50
+Nodes (3): AppConfig, str, write_debug_log()
+
+### Community 97 - "Community 97"
+Cohesion: 0.50
+Nodes (4): 11.1 Bestehender Flow: OrgEinheiten und CMDB-Kandidaten, 11.2 Flow: Prozess-Owner-Pflege, 11.3 Flow: Rollenzuordnung, 11. Organisation-Tab (Tab 4)
+
+### Community 98 - "Community 98"
+Cohesion: 0.50
+Nodes (4): 3.1 Eingangsdateien, 3.2 Inbox-Prinzip, 3.3 Archivierung verarbeiteter Dateien, 3. Inputs und Dateifluss
+
+### Community 99 - "Community 99"
+Cohesion: 0.67
+Nodes (3): 12. Konfiguration, archimate_mapping.json (ArchiMate-Mapping-Konfiguration), config.json (Laufzeit-Konfiguration)
+
 ## Knowledge Gaps
-- **393 isolated node(s):** `PreToolUse`, `llm_base_url`, `llm_model`, `llm_api_key_env`, `llm_context_window` (+388 more)
+- **454 isolated node(s):** `PreToolUse`, `llm_base_url`, `llm_model`, `llm_api_key_env`, `llm_context_window` (+449 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **30 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `AppConfig` connect `Community 10` to `Community 0`, `Community 1`, `Community 2`, `Community 3`, `Community 4`, `Community 5`, `Community 11`, `Community 14`, `Community 18`?**
-  _High betweenness centrality (0.075) - this node is a cross-community bridge._
-- **Why does `KnowledgeBase` connect `Community 2` to `Community 0`, `Community 1`, `Community 10`, `Community 17`, `Community 19`?**
-  _High betweenness centrality (0.059) - this node is a cross-community bridge._
-- **Why does `Concept: Dual-Mode Chat (tool-use / prompt-only)` connect `Community 33` to `Community 26`, `Community 18`?**
-  _High betweenness centrality (0.055) - this node is a cross-community bridge._
+- **Why does `AppConfig` connect `Community 18` to `Community 0`, `Community 1`, `Community 2`, `Community 3`, `Community 4`, `Community 5`, `Community 7`, `Community 10`, `Community 11`, `Community 14`, `Community 86`?**
+  _High betweenness centrality (0.070) - this node is a cross-community bridge._
+- **Why does `AppConfig` connect `Community 18` to `Community 96`, `Community 0`, `Community 2`, `Community 3`, `Community 4`, `Community 5`, `Community 7`, `Community 10`, `Community 11`, `Community 14`, `Community 86`?**
+  _High betweenness centrality (0.057) - this node is a cross-community bridge._
+- **Why does `Concept: Dual-Mode Chat (tool-use / prompt-only)` connect `Community 33` to `Community 26`, `Community 10`?**
+  _High betweenness centrality (0.040) - this node is a cross-community bridge._
 - **Are the 67 inferred relationships involving `AppConfig` (e.g. with `BPMN Extractor` and `DOCX Extractor`) actually correct?**
   _`AppConfig` has 67 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 71 inferred relationships involving `AppConfig` (e.g. with `AppConfig` and `str`) actually correct?**
-  _`AppConfig` has 71 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 73 inferred relationships involving `AppConfig` (e.g. with `AppConfig` and `str`) actually correct?**
+  _`AppConfig` has 73 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 61 inferred relationships involving `ExtractedProcess` (e.g. with `AppConfig` and `ApplicationReference`) actually correct?**
   _`ExtractedProcess` has 61 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 46 inferred relationships involving `GraphWriter` (e.g. with `Extractor` and `GraphWriter`) actually correct?**
