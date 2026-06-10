@@ -264,7 +264,8 @@ def render_import_section(config: AppConfig) -> None:
                 else:
                     st.success(
                         f"CMDB synchronisiert: {result.entity_count} Eintrag/Einträge, {result.relation_count} Relation(en), "
-                        f"{result.owner_assignment_count} Eigentümer-Zuordnung(en)."
+                        f"{result.owner_assignment_count} Eigentümer-Zuordnung(en), "
+                        f"{result.refreshed_document_count} Dokument(e) im letzten Lauf neu bewertet."
                     )
                 st.rerun()
 

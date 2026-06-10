@@ -178,3 +178,28 @@ def test_text_extractor_rejects_invalid_payload(tmp_path: Path) -> None:
 
     with pytest.raises(TextExtractorError):
         extractor.extract(source_path)
+
+
+def test_text_extractor_splits_comma_separated_roles_and_org_candidates(tmp_path: Path) -> None:
+    source_path = tmp_path / "process.txt"
+    prompt_path = tmp_path / "prompt.md"
+    source_path.write_text("Beteiligte:\n- Buchhaltung\n- Auftragsbearbeitung", encoding="utf-8")
+    prompt_path.write_text("prompt", encoding="utf-8")
+
+    class CombinedLlmClient:
+        def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
+            return {
+                "prozess": "Rechnungsstellung",
+                "prozess_id": "",
+                "rolle": "Buchhaltung, Auftragsbearbeitung",
+                "prozess_eigentuemer": "",
+                "org_einheit_kandidaten": ["Buchhaltung, Controlling"],
+                "folgt_auf": [],
+                "anwendungen": [],
+            }
+
+    extractor = TextExtractor(prompt_path=prompt_path, llm_client=CombinedLlmClient())
+    result = extractor.extract(source_path)
+
+    assert result.roles == ["Buchhaltung", "Auftragsbearbeitung"]
+    assert result.org_unit_candidates == ["Buchhaltung", "Controlling"]

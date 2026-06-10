@@ -84,7 +84,7 @@ Reservierte Ordner:
 
 Aktuell relevante Output-Dateien:
 - `Output/import_state.json`: letzter bekannter Dokumentzustand
-- `Output/latest_run.json`: letzter gespeicherter Import-/Reviewlauf fuer die UI
+- `Output/latest_run.json`: letzter gespeicherter Import-/Reviewlauf fuer die UI; wird nach Prozessimporten und nach einer CMDB-Synchronisation fuer die Neubewertung bestehender Zuordnungen aktualisiert
 - `Output/debug.log`: optionale JSONL-Diagnoseausgabe bei aktiviertem Debug-Modus
 
 Relevante Knowledge-Base-Bereiche:
@@ -230,6 +230,7 @@ Aktuell verfuegbar:
 - Dokumentdetails mit Prozesskontext und technischen Rohdaten (reine Ansicht, keine Aktionen)
 - Hinweise auf moegliche Mehrfachnotation derselben Anwendung innerhalb eines Prozesses
 - nur starke oder KB-bestaetigte Links in Neo4j schreiben; schwache fuzzy-Kandidaten erscheinen im Review, sofern kein starker Match fuer dieselbe Anwendung existiert
+- nach einer CMDB-Synchronisation koennen bisher offene oder schwache Faelle des letzten Laufs automatisch verschwinden, wenn die aktualisierte CMDB jetzt einen starken Match liefert
 
 ### Tab 3 - Konfiguration
 
@@ -242,6 +243,7 @@ Aktuell verfuegbar:
 - gemeinsamen Input- und Output-Pfad setzen
 - aktive CMDB-Datei innerhalb des Input-Ordners waehlen
 - CMDB-Feldmapping fuer das erweiterte Entities-/Relations-Modell setzen
+- CMDB nach Neo4j synchronisieren und dabei den letzten gespeicherten Lauf gegen die aktuelle CMDB neu bewerten
 - Prozessdateien in BPMN, XML, TXT, DOCX und PDF importieren
 - einzelne BPMN/XML-Dateien vor dem eigentlichen Import in kompakte Transform-Dateien ueberfuehren
 - Fuzzy-Threshold setzen

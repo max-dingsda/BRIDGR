@@ -1,8 +1,7 @@
-# Graph Report - BRIDGR  (2026-06-09)
+# Graph Report - F:\workspace\BRIDGR  (2026-06-09)
 
 ## Corpus Check
-- 99 files · ~197,982 words
-- Verdict: corpus is large enough that graph structure adds value.
+- cluster-only mode — file stats not available
 
 ## Summary
 - 1704 nodes · 5864 edges · 100 communities (70 shown, 30 thin omitted)
@@ -10,7 +9,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `7a62e2b9`
+- Built from commit: `66d38317`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -251,7 +250,7 @@ Nodes (9): extract_bpmn_process_ids (identity), extract_bpmn_process_ids(), str,
 
 ### Community 31 - "Community 31"
 Cohesion: 0.14
-Nodes (13): 11.1 Erster Import, 11.2 Offene Zuordnungen bereinigen, 11.3 Fragen an den Graph stellen, 11. Typische Nutzungsszenarien, 12. Häufige Probleme, 13. Kurzfassung für neue Benutzer, 1. Zweck der Anwendung, 2. Für wen ist BRIDGR gedacht? (+5 more)
+Nodes (13): 12. Häufige Probleme, 13. Kurzfassung für neue Benutzer, 1. Zweck der Anwendung, 2. Für wen ist BRIDGR gedacht?, 3.1 Benötigte Daten, 3.2 Benötigte technische Angaben, 3.3 Wichtige Ordner, 3. Voraussetzungen (+5 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.28
@@ -331,7 +330,7 @@ Nodes (5): 9.1 Vollstaendiges Schreibmodell, 9.2 Schreibregeln pro Quelle, 9.3 I
 
 ### Community 68 - "Community 68"
 Cohesion: 0.50
-Nodes (4): 3.1 Benötigte Daten, 3.2 Benötigte technische Angaben, 3.3 Wichtige Ordner, 3. Voraussetzungen
+Nodes (4): 11.1 Erster Import, 11.2 Offene Zuordnungen bereinigen, 11.3 Fragen an den Graph stellen, 11. Typische Nutzungsszenarien
 
 ### Community 69 - "Community 69"
 Cohesion: 0.50

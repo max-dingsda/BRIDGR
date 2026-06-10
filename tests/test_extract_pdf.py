@@ -70,3 +70,40 @@ def test_pdf_extractor_rejects_documents_without_text(tmp_path: Path, monkeypatc
 
     with pytest.raises(PdfExtractorError, match="did not contain extractable text"):
         extractor.extract(source_path)
+
+
+def test_pdf_extractor_splits_comma_separated_roles_and_org_candidates(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    source_path = tmp_path / "process.pdf"
+    prompt_path = tmp_path / "prompt.md"
+    source_path.write_bytes(b"pdf")
+    prompt_path.write_text("prompt", encoding="utf-8")
+
+    class FakePage:
+        def extract_text(self) -> str:
+            return "Beteiligte: Buchhaltung, Auftragsbearbeitung"
+
+    class FakeReader:
+        def __init__(self, path: str) -> None:
+            self.pages = [FakePage()]
+
+    class CombinedLlmClient:
+        def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
+            return {
+                "prozess": "Rechnungsstellung",
+                "prozess_id": "",
+                "rolle": "Buchhaltung, Auftragsbearbeitung",
+                "prozess_eigentuemer": "",
+                "org_einheit_kandidaten": ["Buchhaltung, Controlling"],
+                "folgt_auf": [],
+                "anwendungen": [],
+            }
+
+    fake_pypdf_module = types.ModuleType("pypdf")
+    fake_pypdf_module.PdfReader = FakeReader
+    monkeypatch.setitem(__import__("sys").modules, "pypdf", fake_pypdf_module)
+
+    extractor = PdfExtractor(prompt_path=prompt_path, llm_client=CombinedLlmClient())
+    result = extractor.extract(source_path)
+
+    assert result.roles == ["Buchhaltung", "Auftragsbearbeitung"]
+    assert result.org_unit_candidates == ["Buchhaltung", "Controlling"]

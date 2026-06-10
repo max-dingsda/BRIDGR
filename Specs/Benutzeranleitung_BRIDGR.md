@@ -334,6 +334,8 @@ Speichert die aktuell ausgewählten CMDB-Dateien als aktive Konfiguration.
 
 Überträgt die ausgewählten CMDB-Daten nach Neo4j.
 
+Zusätzlich wird der letzte gespeicherte Lauf in `Output/latest_run.json` mit der aktuellen CMDB neu bewertet. Dadurch können offene oder schwache Zuordnungen im Tab `Zuordnungen` automatisch verschwinden, wenn die aktualisierte CMDB jetzt einen starken Treffer liefert.
+
 #### Tabellen zu `CMDB-...Strukturfehler`
 
 Zeigen Probleme in der CSV-Struktur an, zum Beispiel fehlende Spalten oder unvollständige Zeilen.
@@ -663,6 +665,9 @@ Wichtig:
 4. Falls nötig `CMDB nach Neo4j synchronisieren`
 5. `Pipeline starten`
 6. Danach `Zuordnungen` und `Organisation` prüfen
+
+Hinweis:
+Wenn Sie eine CMDB nachträglich erweitern oder korrigieren, kann Schritt 4 bereits ausreichen, um bestehende offene Zuordnungen aus dem letzten Lauf neu bewerten zu lassen. Ein erneuter Prozessimport ist dafür nicht zwingend erforderlich.
 
 ### 11.2 Offene Zuordnungen bereinigen
 

@@ -10,11 +10,14 @@
       "extracted_process": {
         "process_name": "Angebotserstellung",
         "process_id": "01_Angebotserstellung",
-        "org_unit": "",
+        "org_unit": "Sales",
         "roles": [
-          "Vertriebsmitarbeiter, Vertriebsleiter"
+          "Vertriebsmitarbeiter",
+          "Vertriebsleiter"
         ],
-        "org_units": [],
+        "org_units": [
+          "Sales"
+        ],
         "org_unit_candidates": [
           "Vertrieb"
         ],
@@ -39,7 +42,8 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt",
+        "process_owner_candidate": "Vertrieb"
       },
       "matches": [
         {
@@ -72,11 +76,14 @@
         "process": {
           "process_name": "Angebotserstellung",
           "process_id": "01_Angebotserstellung",
-          "org_unit": "",
+          "org_unit": "Sales",
           "roles": [
-            "Vertriebsmitarbeiter, Vertriebsleiter"
+            "Vertriebsmitarbeiter",
+            "Vertriebsleiter"
           ],
-          "org_units": [],
+          "org_units": [
+            "Sales"
+          ],
           "org_unit_candidates": [
             "Vertrieb"
           ],
@@ -101,7 +108,8 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt",
+          "process_owner_candidate": "Vertrieb"
         },
         "matches": [
           {
@@ -144,7 +152,10 @@
         "roles": [
           "Vertriebsinnendienst"
         ],
-        "org_units": [],
+        "org_units": [
+          "Sales",
+          "Auftragsbearbeitung"
+        ],
         "org_unit_candidates": [
           "Vertriebsinnendienst",
           "Auftragsbearbeitung"
@@ -172,7 +183,8 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
@@ -185,20 +197,14 @@
         },
         {
           "application_name": "SAP ERP",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-019",
+          "matched_name": "SAP ERP",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.05
         }
       ],
-      "review_items": [
-        {
-          "process_name": "Auftragserfassung",
-          "application_name": "SAP ERP",
-          "reason": "unmatched"
-        }
-      ],
+      "review_items": [],
       "graph_payload": {
         "process": {
           "process_name": "Auftragserfassung",
@@ -207,7 +213,10 @@
           "roles": [
             "Vertriebsinnendienst"
           ],
-          "org_units": [],
+          "org_units": [
+            "Sales",
+            "Auftragsbearbeitung"
+          ],
           "org_unit_candidates": [
             "Vertriebsinnendienst",
             "Auftragsbearbeitung"
@@ -235,7 +244,8 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
@@ -248,11 +258,11 @@
           },
           {
             "application_name": "SAP ERP",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-019",
+            "matched_name": "SAP ERP",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.05
           }
         ]
       },
@@ -270,7 +280,10 @@
         "roles": [
           "Mitarbeiterin der Auftragsbearbeitung"
         ],
-        "org_units": [],
+        "org_units": [
+          "Auftragsbearbeitung",
+          "Logistik"
+        ],
         "org_unit_candidates": [
           "Auftragsbearbeitung",
           "Logistik"
@@ -296,20 +309,14 @@
       "matches": [
         {
           "application_name": "SAP ERP",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-019",
+          "matched_name": "SAP ERP",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.05
         }
       ],
-      "review_items": [
-        {
-          "process_name": "Auftragsbearbeitung",
-          "application_name": "SAP ERP",
-          "reason": "unmatched"
-        }
-      ],
+      "review_items": [],
       "graph_payload": {
         "process": {
           "process_name": "Auftragsbearbeitung",
@@ -318,7 +325,10 @@
           "roles": [
             "Mitarbeiterin der Auftragsbearbeitung"
           ],
-          "org_units": [],
+          "org_units": [
+            "Auftragsbearbeitung",
+            "Logistik"
+          ],
           "org_unit_candidates": [
             "Auftragsbearbeitung",
             "Logistik"
@@ -344,11 +354,11 @@
         "matches": [
           {
             "application_name": "SAP ERP",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-019",
+            "matched_name": "SAP ERP",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.05
           }
         ]
       },
@@ -364,9 +374,13 @@
         "process_id": "04_Rechnungsstellung",
         "org_unit": "",
         "roles": [
-          "Buchhaltung, Auftragsbearbeitung"
+          "Buchhaltung",
+          "Auftragsbearbeitung"
         ],
-        "org_units": [],
+        "org_units": [
+          "Buchhaltung",
+          "Auftragsbearbeitung"
+        ],
         "org_unit_candidates": [
           "Buchhaltung",
           "Auftragsbearbeitung"
@@ -400,11 +414,11 @@
       "matches": [
         {
           "application_name": "SAP ERP",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-019",
+          "matched_name": "SAP ERP",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.05
         },
         {
           "application_name": "DocuSign",
@@ -423,22 +437,20 @@
           "score": 0.85
         }
       ],
-      "review_items": [
-        {
-          "process_name": "Rechnungsstellung",
-          "application_name": "SAP ERP",
-          "reason": "unmatched"
-        }
-      ],
+      "review_items": [],
       "graph_payload": {
         "process": {
           "process_name": "Rechnungsstellung",
           "process_id": "04_Rechnungsstellung",
           "org_unit": "",
           "roles": [
-            "Buchhaltung, Auftragsbearbeitung"
+            "Buchhaltung",
+            "Auftragsbearbeitung"
           ],
-          "org_units": [],
+          "org_units": [
+            "Buchhaltung",
+            "Auftragsbearbeitung"
+          ],
           "org_unit_candidates": [
             "Buchhaltung",
             "Auftragsbearbeitung"
@@ -472,11 +484,11 @@
         "matches": [
           {
             "application_name": "SAP ERP",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-019",
+            "matched_name": "SAP ERP",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.05
           },
           {
             "application_name": "DocuSign",
@@ -496,7 +508,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -508,9 +520,13 @@
         "process_id": "05_Zahlungsabwicklung",
         "org_unit": "",
         "roles": [
-          "Buchhaltung, Controlling"
+          "Buchhaltung",
+          "Controlling"
         ],
-        "org_units": [],
+        "org_units": [
+          "Buchhaltung",
+          "Controlling"
+        ],
         "org_unit_candidates": [
           "Buchhaltung",
           "Controlling"
@@ -536,29 +552,27 @@
       "matches": [
         {
           "application_name": "SAP ERP",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-019",
+          "matched_name": "SAP ERP",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.05
         }
       ],
-      "review_items": [
-        {
-          "process_name": "Zahlungsabwicklung",
-          "application_name": "SAP ERP",
-          "reason": "unmatched"
-        }
-      ],
+      "review_items": [],
       "graph_payload": {
         "process": {
           "process_name": "Zahlungsabwicklung",
           "process_id": "05_Zahlungsabwicklung",
           "org_unit": "",
           "roles": [
-            "Buchhaltung, Controlling"
+            "Buchhaltung",
+            "Controlling"
           ],
-          "org_units": [],
+          "org_units": [
+            "Buchhaltung",
+            "Controlling"
+          ],
           "org_unit_candidates": [
             "Buchhaltung",
             "Controlling"
@@ -584,15 +598,15 @@
         "matches": [
           {
             "application_name": "SAP ERP",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-019",
+            "matched_name": "SAP ERP",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.05
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -602,11 +616,14 @@
       "extracted_process": {
         "process_name": "Bestellabwicklung",
         "process_id": "06_Bestellabwicklung",
-        "org_unit": "",
+        "org_unit": "Einkauf",
         "roles": [
-          "Einkäufer, Einkaufsleiter"
+          "Einkäufer",
+          "Einkaufsleiter"
         ],
-        "org_units": [],
+        "org_units": [
+          "Einkauf"
+        ],
         "org_unit_candidates": [
           "Einkauf"
         ],
@@ -639,42 +656,34 @@
       "matches": [
         {
           "application_name": "Ariba",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-020",
+          "matched_name": "Ariba",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.05
         },
         {
           "application_name": "SAP ERP",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-019",
+          "matched_name": "SAP ERP",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.05
         }
       ],
-      "review_items": [
-        {
-          "process_name": "Bestellabwicklung",
-          "application_name": "Ariba",
-          "reason": "unmatched"
-        },
-        {
-          "process_name": "Bestellabwicklung",
-          "application_name": "SAP ERP",
-          "reason": "unmatched"
-        }
-      ],
+      "review_items": [],
       "graph_payload": {
         "process": {
           "process_name": "Bestellabwicklung",
           "process_id": "06_Bestellabwicklung",
-          "org_unit": "",
+          "org_unit": "Einkauf",
           "roles": [
-            "Einkäufer, Einkaufsleiter"
+            "Einkäufer",
+            "Einkaufsleiter"
           ],
-          "org_units": [],
+          "org_units": [
+            "Einkauf"
+          ],
           "org_unit_candidates": [
             "Einkauf"
           ],
@@ -707,23 +716,23 @@
         "matches": [
           {
             "application_name": "Ariba",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-020",
+            "matched_name": "Ariba",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.05
           },
           {
             "application_name": "SAP ERP",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-019",
+            "matched_name": "SAP ERP",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.05
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -735,7 +744,8 @@
         "process_id": "07_Lieferantenauswahl",
         "org_unit": "",
         "roles": [
-          "Einkäufer, Qualitätsprüfer"
+          "Einkäufer",
+          "Qualitätsprüfer"
         ],
         "org_units": [],
         "org_unit_candidates": [
@@ -760,27 +770,22 @@
       "matches": [
         {
           "application_name": "Ariba",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-020",
+          "matched_name": "Ariba",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.05
         }
       ],
-      "review_items": [
-        {
-          "process_name": "Lieferantenauswahl",
-          "application_name": "Ariba",
-          "reason": "unmatched"
-        }
-      ],
+      "review_items": [],
       "graph_payload": {
         "process": {
           "process_name": "Lieferantenauswahl",
           "process_id": "07_Lieferantenauswahl",
           "org_unit": "",
           "roles": [
-            "Einkäufer, Qualitätsprüfer"
+            "Einkäufer",
+            "Qualitätsprüfer"
           ],
           "org_units": [],
           "org_unit_candidates": [
@@ -805,11 +810,11 @@
         "matches": [
           {
             "application_name": "Ariba",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-020",
+            "matched_name": "Ariba",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.05
           }
         ]
       },
@@ -827,7 +832,11 @@
         "roles": [
           "Logistik"
         ],
-        "org_units": [],
+        "org_units": [
+          "Logistik",
+          "Qualitätssicherung",
+          "Einkauf"
+        ],
         "org_unit_candidates": [
           "Logistik",
           "Qualitätssicherung",
@@ -862,33 +871,22 @@
       "matches": [
         {
           "application_name": "SAP ERP",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-019",
+          "matched_name": "SAP ERP",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.05
         },
         {
           "application_name": "Warehouse Management System",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-021",
+          "matched_name": "Warehouse Management Sytem",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0311320754716982
         }
       ],
-      "review_items": [
-        {
-          "process_name": "Wareneingang",
-          "application_name": "SAP ERP",
-          "reason": "unmatched"
-        },
-        {
-          "process_name": "Wareneingang",
-          "application_name": "Warehouse Management System",
-          "reason": "unmatched"
-        }
-      ],
+      "review_items": [],
       "graph_payload": {
         "process": {
           "process_name": "Wareneingang",
@@ -897,7 +895,11 @@
           "roles": [
             "Logistik"
           ],
-          "org_units": [],
+          "org_units": [
+            "Logistik",
+            "Qualitätssicherung",
+            "Einkauf"
+          ],
           "org_unit_candidates": [
             "Logistik",
             "Qualitätssicherung",
@@ -932,23 +934,23 @@
         "matches": [
           {
             "application_name": "SAP ERP",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-019",
+            "matched_name": "SAP ERP",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.05
           },
           {
             "application_name": "Warehouse Management System",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-021",
+            "matched_name": "Warehouse Management Sytem",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0311320754716982
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -963,7 +965,9 @@
           "Lagerarbeiter"
         ],
         "org_units": [],
-        "org_unit_candidates": [],
+        "org_unit_candidates": [
+          "Muster GmbH"
+        ],
         "follows_after": [
           "Wareneingang"
         ],
@@ -985,20 +989,14 @@
       "matches": [
         {
           "application_name": "Warehouse Management System",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-021",
+          "matched_name": "Warehouse Management Sytem",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0311320754716982
         }
       ],
-      "review_items": [
-        {
-          "process_name": "Lagerhaltung",
-          "application_name": "Warehouse Management System",
-          "reason": "unmatched"
-        }
-      ],
+      "review_items": [],
       "graph_payload": {
         "process": {
           "process_name": "Lagerhaltung",
@@ -1008,7 +1006,9 @@
             "Lagerarbeiter"
           ],
           "org_units": [],
-          "org_unit_candidates": [],
+          "org_unit_candidates": [
+            "Muster GmbH"
+          ],
           "follows_after": [
             "Wareneingang"
           ],
@@ -1030,15 +1030,15 @@
         "matches": [
           {
             "application_name": "Warehouse Management System",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-021",
+            "matched_name": "Warehouse Management Sytem",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0311320754716982
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -1048,11 +1048,14 @@
       "extracted_process": {
         "process_name": "Kommissionierung",
         "process_id": "10_Kommissionierung",
-        "org_unit": "",
+        "org_unit": "Logistik",
         "roles": [
-          "Kommissionierer, Versandmitarbeiter"
+          "Kommissionierer",
+          "Versandmitarbeiter"
         ],
-        "org_units": [],
+        "org_units": [
+          "Logistik"
+        ],
         "org_unit_candidates": [
           "Logistik"
         ],
@@ -1085,11 +1088,11 @@
       "matches": [
         {
           "application_name": "Warehouse Management System",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-021",
+          "matched_name": "Warehouse Management Sytem",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0311320754716982
         },
         {
           "application_name": "Transport Management System",
@@ -1103,11 +1106,6 @@
       "review_items": [
         {
           "process_name": "Kommissionierung",
-          "application_name": "Warehouse Management System",
-          "reason": "unmatched"
-        },
-        {
-          "process_name": "Kommissionierung",
           "application_name": "Transport Management System",
           "reason": "unmatched"
         }
@@ -1116,11 +1114,14 @@
         "process": {
           "process_name": "Kommissionierung",
           "process_id": "10_Kommissionierung",
-          "org_unit": "",
+          "org_unit": "Logistik",
           "roles": [
-            "Kommissionierer, Versandmitarbeiter"
+            "Kommissionierer",
+            "Versandmitarbeiter"
           ],
-          "org_units": [],
+          "org_units": [
+            "Logistik"
+          ],
           "org_unit_candidates": [
             "Logistik"
           ],
@@ -1153,11 +1154,11 @@
         "matches": [
           {
             "application_name": "Warehouse Management System",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-021",
+            "matched_name": "Warehouse Management Sytem",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0311320754716982
           },
           {
             "application_name": "Transport Management System",
@@ -1169,7 +1170,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -1183,7 +1184,10 @@
         "roles": [
           "Versandmitarbeiter"
         ],
-        "org_units": [],
+        "org_units": [
+          "Versand",
+          "Lager"
+        ],
         "org_unit_candidates": [
           "Versand",
           "Lager"
@@ -1225,22 +1229,17 @@
         },
         {
           "application_name": "SAP ERP",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-019",
+          "matched_name": "SAP ERP",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.05
         }
       ],
       "review_items": [
         {
           "process_name": "Versand",
           "application_name": "Transport Management System",
-          "reason": "unmatched"
-        },
-        {
-          "process_name": "Versand",
-          "application_name": "SAP ERP",
           "reason": "unmatched"
         }
       ],
@@ -1252,7 +1251,10 @@
           "roles": [
             "Versandmitarbeiter"
           ],
-          "org_units": [],
+          "org_units": [
+            "Versand",
+            "Lager"
+          ],
           "org_unit_candidates": [
             "Versand",
             "Lager"
@@ -1294,15 +1296,15 @@
           },
           {
             "application_name": "SAP ERP",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-019",
+            "matched_name": "SAP ERP",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.05
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -1312,11 +1314,14 @@
       "extracted_process": {
         "process_name": "Produktionsplanung",
         "process_id": "12_Produktionsplanung",
-        "org_unit": "",
+        "org_unit": "Produktion",
         "roles": [
-          "Produktionsplaner, Fertigungsleiter"
+          "Produktionsplaner",
+          "Fertigungsleiter"
         ],
-        "org_units": [],
+        "org_units": [
+          "Produktion"
+        ],
         "org_unit_candidates": [
           "Produktion"
         ],
@@ -1349,11 +1354,11 @@
       "matches": [
         {
           "application_name": "SAP ERP",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-019",
+          "matched_name": "SAP ERP",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.05
         },
         {
           "application_name": "Produktionsplanungssystem",
@@ -1367,11 +1372,6 @@
       "review_items": [
         {
           "process_name": "Produktionsplanung",
-          "application_name": "SAP ERP",
-          "reason": "unmatched"
-        },
-        {
-          "process_name": "Produktionsplanung",
           "application_name": "Produktionsplanungssystem",
           "reason": "unmatched"
         }
@@ -1380,11 +1380,14 @@
         "process": {
           "process_name": "Produktionsplanung",
           "process_id": "12_Produktionsplanung",
-          "org_unit": "",
+          "org_unit": "Produktion",
           "roles": [
-            "Produktionsplaner, Fertigungsleiter"
+            "Produktionsplaner",
+            "Fertigungsleiter"
           ],
-          "org_units": [],
+          "org_units": [
+            "Produktion"
+          ],
           "org_unit_candidates": [
             "Produktion"
           ],
@@ -1417,11 +1420,11 @@
         "matches": [
           {
             "application_name": "SAP ERP",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-019",
+            "matched_name": "SAP ERP",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.05
           },
           {
             "application_name": "Produktionsplanungssystem",
@@ -1433,7 +1436,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -1445,7 +1448,8 @@
         "process_id": "13_Fertigungssteuerung",
         "org_unit": "",
         "roles": [
-          "Fertigungsleiter, Maschinenführer"
+          "Fertigungsleiter",
+          "Maschinenführer"
         ],
         "org_units": [],
         "org_unit_candidates": [],
@@ -1454,13 +1458,13 @@
         ],
         "raw_applications": [
           {
-            "name": "Produktionsplanungssystem",
+            "name": "Produktionssystem",
             "confidence": "stark"
           }
         ],
         "applications": [
           {
-            "name": "Produktionsplanungssystem",
+            "name": "Produktionssystem",
             "confidence": "stark"
           }
         ],
@@ -1469,7 +1473,7 @@
       },
       "matches": [
         {
-          "application_name": "Produktionsplanungssystem",
+          "application_name": "Produktionssystem",
           "cmdb_id": null,
           "matched_name": null,
           "confidence": "schwach",
@@ -1480,7 +1484,7 @@
       "review_items": [
         {
           "process_name": "Fertigungssteuerung",
-          "application_name": "Produktionsplanungssystem",
+          "application_name": "Produktionssystem",
           "reason": "unmatched"
         }
       ],
@@ -1490,7 +1494,8 @@
           "process_id": "13_Fertigungssteuerung",
           "org_unit": "",
           "roles": [
-            "Fertigungsleiter, Maschinenführer"
+            "Fertigungsleiter",
+            "Maschinenführer"
           ],
           "org_units": [],
           "org_unit_candidates": [],
@@ -1499,13 +1504,13 @@
           ],
           "raw_applications": [
             {
-              "name": "Produktionsplanungssystem",
+              "name": "Produktionssystem",
               "confidence": "stark"
             }
           ],
           "applications": [
             {
-              "name": "Produktionsplanungssystem",
+              "name": "Produktionssystem",
               "confidence": "stark"
             }
           ],
@@ -1514,7 +1519,7 @@
         },
         "matches": [
           {
-            "application_name": "Produktionsplanungssystem",
+            "application_name": "Produktionssystem",
             "cmdb_id": null,
             "matched_name": null,
             "confidence": "schwach",
@@ -1523,7 +1528,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -1535,9 +1540,13 @@
         "process_id": "14_Qualitaetspruefung_Eingang",
         "org_unit": "",
         "roles": [
-          "Qualitätsprüfer, Einkauf"
+          "Qualitätsprüfer",
+          "Einkauf"
         ],
-        "org_units": [],
+        "org_units": [
+          "Einkauf",
+          "Qualitätssicherung"
+        ],
         "org_unit_candidates": [
           "Qualitätssicherung",
           "Einkauf"
@@ -1579,22 +1588,17 @@
         },
         {
           "application_name": "SAP ERP",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-019",
+          "matched_name": "SAP ERP",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.05
         }
       ],
       "review_items": [
         {
           "process_name": "Qualitätsprüfung Eingang",
           "application_name": "Qualitätsmanagementsystem",
-          "reason": "unmatched"
-        },
-        {
-          "process_name": "Qualitätsprüfung Eingang",
-          "application_name": "SAP ERP",
           "reason": "unmatched"
         }
       ],
@@ -1604,9 +1608,13 @@
           "process_id": "14_Qualitaetspruefung_Eingang",
           "org_unit": "",
           "roles": [
-            "Qualitätsprüfer, Einkauf"
+            "Qualitätsprüfer",
+            "Einkauf"
           ],
-          "org_units": [],
+          "org_units": [
+            "Einkauf",
+            "Qualitätssicherung"
+          ],
           "org_unit_candidates": [
             "Qualitätssicherung",
             "Einkauf"
@@ -1648,15 +1656,15 @@
           },
           {
             "application_name": "SAP ERP",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-019",
+            "matched_name": "SAP ERP",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.05
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -1666,11 +1674,14 @@
       "extracted_process": {
         "process_name": "Qualitätsprüfung Ausgang",
         "process_id": "15_Qualitaetspruefung_Ausgang",
-        "org_unit": "",
+        "org_unit": "Qualitätssicherung",
         "roles": [
-          "Qualitätsprüfer, Versandmitarbeiter"
+          "Qualitätsprüfer",
+          "Versandmitarbeiter"
         ],
-        "org_units": [],
+        "org_units": [
+          "Qualitätssicherung"
+        ],
         "org_unit_candidates": [
           "Qualitätssicherung"
         ],
@@ -1734,11 +1745,14 @@
         "process": {
           "process_name": "Qualitätsprüfung Ausgang",
           "process_id": "15_Qualitaetspruefung_Ausgang",
-          "org_unit": "",
+          "org_unit": "Qualitätssicherung",
           "roles": [
-            "Qualitätsprüfer, Versandmitarbeiter"
+            "Qualitätsprüfer",
+            "Versandmitarbeiter"
           ],
-          "org_units": [],
+          "org_units": [
+            "Qualitätssicherung"
+          ],
           "org_unit_candidates": [
             "Qualitätssicherung"
           ],
@@ -1787,7 +1801,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -1797,11 +1811,14 @@
       "extracted_process": {
         "process_name": "Reklamationsbearbeitung",
         "process_id": "16_Reklamationsbearbeitung",
-        "org_unit": "",
+        "org_unit": "Kundenservice",
         "roles": [
-          "Kundenbetreuer, Qualitätsprüfer"
+          "Kundenbetreuer",
+          "Qualitätsprüfer"
         ],
-        "org_units": [],
+        "org_units": [
+          "Kundenservice"
+        ],
         "org_unit_candidates": [
           "Kundenservice"
         ],
@@ -1829,7 +1846,8 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\16_Reklamationsbearbeitung.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\16_Reklamationsbearbeitung.txt",
+        "process_owner_candidate": "Kundenservice"
       },
       "matches": [
         {
@@ -1860,11 +1878,14 @@
         "process": {
           "process_name": "Reklamationsbearbeitung",
           "process_id": "16_Reklamationsbearbeitung",
-          "org_unit": "",
+          "org_unit": "Kundenservice",
           "roles": [
-            "Kundenbetreuer, Qualitätsprüfer"
+            "Kundenbetreuer",
+            "Qualitätsprüfer"
           ],
-          "org_units": [],
+          "org_units": [
+            "Kundenservice"
+          ],
           "org_unit_candidates": [
             "Kundenservice"
           ],
@@ -1892,7 +1913,8 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\16_Reklamationsbearbeitung.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\16_Reklamationsbearbeitung.txt",
+          "process_owner_candidate": "Kundenservice"
         },
         "matches": [
           {
@@ -1913,7 +1935,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -1923,11 +1945,13 @@
       "extracted_process": {
         "process_name": "Kundenanlage und -pflege",
         "process_id": "17_Kundenanlage",
-        "org_unit": "",
+        "org_unit": "Sales",
         "roles": [
           "Vertriebsinnendienst"
         ],
-        "org_units": [],
+        "org_units": [
+          "Sales"
+        ],
         "org_unit_candidates": [
           "Vertriebsinnendienst"
         ],
@@ -1952,7 +1976,8 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\17_Kundenanlage.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\17_Kundenanlage.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
@@ -1965,29 +1990,25 @@
         },
         {
           "application_name": "SAP ERP",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-019",
+          "matched_name": "SAP ERP",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.05
         }
       ],
-      "review_items": [
-        {
-          "process_name": "Kundenanlage und -pflege",
-          "application_name": "SAP ERP",
-          "reason": "unmatched"
-        }
-      ],
+      "review_items": [],
       "graph_payload": {
         "process": {
           "process_name": "Kundenanlage und -pflege",
           "process_id": "17_Kundenanlage",
-          "org_unit": "",
+          "org_unit": "Sales",
           "roles": [
             "Vertriebsinnendienst"
           ],
-          "org_units": [],
+          "org_units": [
+            "Sales"
+          ],
           "org_unit_candidates": [
             "Vertriebsinnendienst"
           ],
@@ -2012,7 +2033,8 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\17_Kundenanlage.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\17_Kundenanlage.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
@@ -2025,15 +2047,15 @@
           },
           {
             "application_name": "SAP ERP",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-019",
+            "matched_name": "SAP ERP",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.05
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -2043,11 +2065,15 @@
       "extracted_process": {
         "process_name": "Lieferantenanlage und -pflege",
         "process_id": "18_Lieferantenanlage",
-        "org_unit": "",
+        "org_unit": "Einkauf",
         "roles": [
-          "Einkäufer, Qualitätsprüfer, Einkaufsleiter"
+          "Einkäufer",
+          "Qualitätsprüfer",
+          "Einkaufsleiter"
         ],
-        "org_units": [],
+        "org_units": [
+          "Einkauf"
+        ],
         "org_unit_candidates": [
           "Einkauf"
         ],
@@ -2080,42 +2106,35 @@
       "matches": [
         {
           "application_name": "Ariba",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-020",
+          "matched_name": "Ariba",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.05
         },
         {
           "application_name": "SAP ERP",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-019",
+          "matched_name": "SAP ERP",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.05
         }
       ],
-      "review_items": [
-        {
-          "process_name": "Lieferantenanlage und -pflege",
-          "application_name": "Ariba",
-          "reason": "unmatched"
-        },
-        {
-          "process_name": "Lieferantenanlage und -pflege",
-          "application_name": "SAP ERP",
-          "reason": "unmatched"
-        }
-      ],
+      "review_items": [],
       "graph_payload": {
         "process": {
           "process_name": "Lieferantenanlage und -pflege",
           "process_id": "18_Lieferantenanlage",
-          "org_unit": "",
+          "org_unit": "Einkauf",
           "roles": [
-            "Einkäufer, Qualitätsprüfer, Einkaufsleiter"
+            "Einkäufer",
+            "Qualitätsprüfer",
+            "Einkaufsleiter"
           ],
-          "org_units": [],
+          "org_units": [
+            "Einkauf"
+          ],
           "org_unit_candidates": [
             "Einkauf"
           ],
@@ -2148,23 +2167,23 @@
         "matches": [
           {
             "application_name": "Ariba",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-020",
+            "matched_name": "Ariba",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.05
           },
           {
             "application_name": "SAP ERP",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-019",
+            "matched_name": "SAP ERP",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.05
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -2178,7 +2197,10 @@
         "roles": [
           "Controlling"
         ],
-        "org_units": [],
+        "org_units": [
+          "Controlling",
+          "Controller"
+        ],
         "org_unit_candidates": [
           "Controller",
           "Abteilungsleiter"
@@ -2204,7 +2226,8 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt",
+        "process_owner_candidate": "Controlling"
       },
       "matches": [
         {
@@ -2239,7 +2262,10 @@
           "roles": [
             "Controlling"
           ],
-          "org_units": [],
+          "org_units": [
+            "Controlling",
+            "Controller"
+          ],
           "org_unit_candidates": [
             "Controller",
             "Abteilungsleiter"
@@ -2265,7 +2291,8 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt",
+          "process_owner_candidate": "Controlling"
         },
         "matches": [
           {
@@ -2286,7 +2313,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -2298,12 +2325,18 @@
         "process_id": "20_Vertragsmanagement",
         "org_unit": "",
         "roles": [
-          "Rechtsabteilung, Vertriebsmitarbeiter"
+          "Rechtsabteilung",
+          "Vertriebsmitarbeiter"
         ],
-        "org_units": [],
+        "org_units": [
+          "Rechtsabteilung",
+          "Sales",
+          "Einkauf"
+        ],
         "org_unit_candidates": [
           "Rechtsabteilung",
-          "Vertrieb"
+          "Vertrieb",
+          "Einkauf"
         ],
         "follows_after": [],
         "raw_applications": [
@@ -2389,12 +2422,18 @@
           "process_id": "20_Vertragsmanagement",
           "org_unit": "",
           "roles": [
-            "Rechtsabteilung, Vertriebsmitarbeiter"
+            "Rechtsabteilung",
+            "Vertriebsmitarbeiter"
           ],
-          "org_units": [],
+          "org_units": [
+            "Rechtsabteilung",
+            "Sales",
+            "Einkauf"
+          ],
           "org_unit_candidates": [
             "Rechtsabteilung",
-            "Vertrieb"
+            "Vertrieb",
+            "Einkauf"
           ],
           "follows_after": [],
           "raw_applications": [
@@ -2463,7 +2502,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -2473,11 +2512,14 @@
       "extracted_process": {
         "process_name": "Schulungsmanagement",
         "process_id": "21_Schulungsmanagement",
-        "org_unit": "",
+        "org_unit": "Personalwesen",
         "roles": [
-          "HR-Mitarbeiter, Abteilungsleiter"
+          "HR-Mitarbeiter",
+          "Abteilungsleiter"
         ],
-        "org_units": [],
+        "org_units": [
+          "Personalwesen"
+        ],
         "org_unit_candidates": [
           "Personalwesen"
         ],
@@ -2539,11 +2581,14 @@
         "process": {
           "process_name": "Schulungsmanagement",
           "process_id": "21_Schulungsmanagement",
-          "org_unit": "",
+          "org_unit": "Personalwesen",
           "roles": [
-            "HR-Mitarbeiter, Abteilungsleiter"
+            "HR-Mitarbeiter",
+            "Abteilungsleiter"
           ],
-          "org_units": [],
+          "org_units": [
+            "Personalwesen"
+          ],
           "org_unit_candidates": [
             "Personalwesen"
           ],
@@ -2590,7 +2635,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -2600,11 +2645,14 @@
       "extracted_process": {
         "process_name": "IT-Support",
         "process_id": "22_IT-Support",
-        "org_unit": "",
+        "org_unit": "IT-Abteilung",
         "roles": [
-          "IT-Mitarbeiter, Endnutzer"
+          "IT-Mitarbeiter",
+          "Endnutzer"
         ],
-        "org_units": [],
+        "org_units": [
+          "IT-Abteilung"
+        ],
         "org_unit_candidates": [
           "IT-Abteilung"
         ],
@@ -2629,7 +2677,8 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx",
+        "process_owner_candidate": "IT-Abteilung"
       },
       "matches": [
         {
@@ -2660,11 +2709,14 @@
         "process": {
           "process_name": "IT-Support",
           "process_id": "22_IT-Support",
-          "org_unit": "",
+          "org_unit": "IT-Abteilung",
           "roles": [
-            "IT-Mitarbeiter, Endnutzer"
+            "IT-Mitarbeiter",
+            "Endnutzer"
           ],
-          "org_units": [],
+          "org_units": [
+            "IT-Abteilung"
+          ],
           "org_unit_candidates": [
             "IT-Abteilung"
           ],
@@ -2689,7 +2741,8 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx",
+          "process_owner_candidate": "IT-Abteilung"
         },
         "matches": [
           {
@@ -2710,7 +2763,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -2722,7 +2775,8 @@
         "process_id": "23_Softwarefreigabe",
         "org_unit": "",
         "roles": [
-          "IT-Mitarbeiter, Fachabteilung"
+          "IT-Mitarbeiter",
+          "Fachabteilung"
         ],
         "org_units": [],
         "org_unit_candidates": [
@@ -2758,7 +2812,8 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
@@ -2804,7 +2859,8 @@
           "process_id": "23_Softwarefreigabe",
           "org_unit": "",
           "roles": [
-            "IT-Mitarbeiter, Fachabteilung"
+            "IT-Mitarbeiter",
+            "Fachabteilung"
           ],
           "org_units": [],
           "org_unit_candidates": [
@@ -2840,7 +2896,8 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
@@ -2869,7 +2926,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -2879,11 +2936,13 @@
       "extracted_process": {
         "process_name": "Datensicherung",
         "process_id": "24_Datensicherung",
-        "org_unit": "",
+        "org_unit": "IT-Abteilung",
         "roles": [
           "IT-Mitarbeiter"
         ],
-        "org_units": [],
+        "org_units": [
+          "IT-Abteilung"
+        ],
         "org_unit_candidates": [
           "IT-Abteilung"
         ],
@@ -2945,11 +3004,13 @@
         "process": {
           "process_name": "Datensicherung",
           "process_id": "24_Datensicherung",
-          "org_unit": "",
+          "org_unit": "IT-Abteilung",
           "roles": [
             "IT-Mitarbeiter"
           ],
-          "org_units": [],
+          "org_units": [
+            "IT-Abteilung"
+          ],
           "org_unit_candidates": [
             "IT-Abteilung"
           ],
@@ -2996,7 +3057,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -3010,7 +3071,10 @@
         "roles": [
           "Finanzen"
         ],
-        "org_units": [],
+        "org_units": [
+          "Buchhaltung",
+          "Controller"
+        ],
         "org_unit_candidates": [
           "Buchhaltung",
           "Controller",
@@ -3045,16 +3109,17 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx",
+        "process_owner_candidate": "Finanzen"
       },
       "matches": [
         {
           "application_name": "SAP ERP",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-019",
+          "matched_name": "SAP ERP",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.05
         },
         {
           "application_name": "SAP BW",
@@ -3076,11 +3141,6 @@
       "review_items": [
         {
           "process_name": "Jahresabschluss",
-          "application_name": "SAP ERP",
-          "reason": "unmatched"
-        },
-        {
-          "process_name": "Jahresabschluss",
           "application_name": "Power BI",
           "reason": "unmatched"
         }
@@ -3093,7 +3153,10 @@
           "roles": [
             "Finanzen"
           ],
-          "org_units": [],
+          "org_units": [
+            "Buchhaltung",
+            "Controller"
+          ],
           "org_unit_candidates": [
             "Buchhaltung",
             "Controller",
@@ -3128,16 +3191,17 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx",
+          "process_owner_candidate": "Finanzen"
         },
         "matches": [
           {
             "application_name": "SAP ERP",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-019",
+            "matched_name": "SAP ERP",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.05
           },
           {
             "application_name": "SAP BW",
@@ -3157,7 +3221,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -3169,9 +3233,13 @@
         "process_id": "26_Budgetplanung",
         "org_unit": "",
         "roles": [
-          "Controller, Abteilungsleiter"
+          "Controller",
+          "Abteilungsleiter"
         ],
-        "org_units": [],
+        "org_units": [
+          "Controller",
+          "Controlling"
+        ],
         "org_unit_candidates": [
           "Controlling"
         ],
@@ -3196,7 +3264,8 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\26_Budgetplanung.docx"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\26_Budgetplanung.docx",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
@@ -3229,9 +3298,13 @@
           "process_id": "26_Budgetplanung",
           "org_unit": "",
           "roles": [
-            "Controller, Abteilungsleiter"
+            "Controller",
+            "Abteilungsleiter"
           ],
-          "org_units": [],
+          "org_units": [
+            "Controller",
+            "Controlling"
+          ],
           "org_unit_candidates": [
             "Controlling"
           ],
@@ -3256,7 +3329,8 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\26_Budgetplanung.docx"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\26_Budgetplanung.docx",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
@@ -3277,7 +3351,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -3287,11 +3361,15 @@
       "extracted_process": {
         "process_name": "Personaleinstellung",
         "process_id": "27_Personaleinstellung",
-        "org_unit": "",
+        "org_unit": "Personalwesen",
         "roles": [
-          "HR-Mitarbeiter, Abteilungsleiter, Bewerber (extern)"
+          "HR-Mitarbeiter",
+          "Abteilungsleiter",
+          "Bewerber (extern)"
         ],
-        "org_units": [],
+        "org_units": [
+          "Personalwesen"
+        ],
         "org_unit_candidates": [
           "Personalwesen",
           "Fachbereich"
@@ -3333,11 +3411,15 @@
         "process": {
           "process_name": "Personaleinstellung",
           "process_id": "27_Personaleinstellung",
-          "org_unit": "",
+          "org_unit": "Personalwesen",
           "roles": [
-            "HR-Mitarbeiter, Abteilungsleiter, Bewerber (extern)"
+            "HR-Mitarbeiter",
+            "Abteilungsleiter",
+            "Bewerber (extern)"
           ],
-          "org_units": [],
+          "org_units": [
+            "Personalwesen"
+          ],
           "org_unit_candidates": [
             "Personalwesen",
             "Fachbereich"
@@ -3369,7 +3451,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -3381,9 +3463,13 @@
         "process_id": "28_Mitarbeiter-Onboarding",
         "org_unit": "",
         "roles": [
-          "HR-Mitarbeiter, IT-Mitarbeiter"
+          "HR-Mitarbeiter",
+          "IT-Mitarbeiter"
         ],
-        "org_units": [],
+        "org_units": [
+          "Personalwesen",
+          "IT-Abteilung"
+        ],
         "org_unit_candidates": [
           "Personalwesen",
           "IT-Abteilung"
@@ -3471,9 +3557,13 @@
           "process_id": "28_Mitarbeiter-Onboarding",
           "org_unit": "",
           "roles": [
-            "HR-Mitarbeiter, IT-Mitarbeiter"
+            "HR-Mitarbeiter",
+            "IT-Mitarbeiter"
           ],
-          "org_units": [],
+          "org_units": [
+            "Personalwesen",
+            "IT-Abteilung"
+          ],
           "org_unit_candidates": [
             "Personalwesen",
             "IT-Abteilung"
@@ -3539,7 +3629,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -3549,11 +3639,13 @@
       "extracted_process": {
         "process_name": "Zeiterfassung und Abrechnung",
         "process_id": "29_Zeiterfassung",
-        "org_unit": "",
+        "org_unit": "Personalwesen",
         "roles": [
-          "Mitarbeiter, HR-Mitarbeiter"
+          "HR-Mitarbeiter"
         ],
-        "org_units": [],
+        "org_units": [
+          "Personalwesen"
+        ],
         "org_unit_candidates": [
           "Personalwesen"
         ],
@@ -3615,11 +3707,13 @@
         "process": {
           "process_name": "Zeiterfassung und Abrechnung",
           "process_id": "29_Zeiterfassung",
-          "org_unit": "",
+          "org_unit": "Personalwesen",
           "roles": [
-            "Mitarbeiter, HR-Mitarbeiter"
+            "HR-Mitarbeiter"
           ],
-          "org_units": [],
+          "org_units": [
+            "Personalwesen"
+          ],
           "org_unit_candidates": [
             "Personalwesen"
           ],
@@ -3666,7 +3760,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -3721,7 +3815,8 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\30_Aenderungsmanagement.bpmn"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\30_Aenderungsmanagement.bpmn",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
@@ -3810,7 +3905,8 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\30_Aenderungsmanagement.bpmn"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\30_Aenderungsmanagement.bpmn",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
@@ -3839,7 +3935,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -3849,12 +3945,14 @@
       "extracted_process": {
         "process_name": "Auftragserfassung (Detail)",
         "process_id": "proc_auftragserfassung_detail",
-        "org_unit": "",
+        "org_unit": "Auftragsbearbeitung",
         "roles": [
           "Vertriebsinnendienst",
           "Auftragsbearbeitung"
         ],
-        "org_units": [],
+        "org_units": [
+          "Auftragsbearbeitung"
+        ],
         "org_unit_candidates": [],
         "follows_after": [],
         "raw_applications": [
@@ -3877,7 +3975,8 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\31_Auftragserfassung_Detail.bpmn"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\31_Auftragserfassung_Detail.bpmn",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
@@ -3890,30 +3989,26 @@
         },
         {
           "application_name": "SAP ERP",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-019",
+          "matched_name": "SAP ERP",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.05
         }
       ],
-      "review_items": [
-        {
-          "process_name": "Auftragserfassung (Detail)",
-          "application_name": "SAP ERP",
-          "reason": "unmatched"
-        }
-      ],
+      "review_items": [],
       "graph_payload": {
         "process": {
           "process_name": "Auftragserfassung (Detail)",
           "process_id": "proc_auftragserfassung_detail",
-          "org_unit": "",
+          "org_unit": "Auftragsbearbeitung",
           "roles": [
             "Vertriebsinnendienst",
             "Auftragsbearbeitung"
           ],
-          "org_units": [],
+          "org_units": [
+            "Auftragsbearbeitung"
+          ],
           "org_unit_candidates": [],
           "follows_after": [],
           "raw_applications": [
@@ -3936,7 +4031,8 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\31_Auftragserfassung_Detail.bpmn"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\31_Auftragserfassung_Detail.bpmn",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
@@ -3949,15 +4045,15 @@
           },
           {
             "application_name": "SAP ERP",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-019",
+            "matched_name": "SAP ERP",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.05
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -3967,13 +4063,15 @@
       "extracted_process": {
         "process_name": "Wareneingang (Detail)",
         "process_id": "proc_wareneingang_detail",
-        "org_unit": "",
+        "org_unit": "Einkauf",
         "roles": [
           "Lagerarbeiter",
           "Qualitätsprüfer",
           "Einkauf"
         ],
-        "org_units": [],
+        "org_units": [
+          "Einkauf"
+        ],
         "org_unit_candidates": [],
         "follows_after": [],
         "raw_applications": [
@@ -4010,19 +4108,19 @@
       "matches": [
         {
           "application_name": "Warehouse Management System",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-021",
+          "matched_name": "Warehouse Management Sytem",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.0311320754716982
         },
         {
           "application_name": "SAP ERP",
-          "cmdb_id": null,
-          "matched_name": null,
-          "confidence": "schwach",
-          "source": "unmatched",
-          "score": 0.0
+          "cmdb_id": "app-019",
+          "matched_name": "SAP ERP",
+          "confidence": "stark",
+          "source": "fuzzy",
+          "score": 1.05
         },
         {
           "application_name": "Qualitätsmanagementsystem",
@@ -4036,16 +4134,6 @@
       "review_items": [
         {
           "process_name": "Wareneingang (Detail)",
-          "application_name": "Warehouse Management System",
-          "reason": "unmatched"
-        },
-        {
-          "process_name": "Wareneingang (Detail)",
-          "application_name": "SAP ERP",
-          "reason": "unmatched"
-        },
-        {
-          "process_name": "Wareneingang (Detail)",
           "application_name": "Qualitätsmanagementsystem",
           "reason": "unmatched"
         }
@@ -4054,13 +4142,15 @@
         "process": {
           "process_name": "Wareneingang (Detail)",
           "process_id": "proc_wareneingang_detail",
-          "org_unit": "",
+          "org_unit": "Einkauf",
           "roles": [
             "Lagerarbeiter",
             "Qualitätsprüfer",
             "Einkauf"
           ],
-          "org_units": [],
+          "org_units": [
+            "Einkauf"
+          ],
           "org_unit_candidates": [],
           "follows_after": [],
           "raw_applications": [
@@ -4097,19 +4187,19 @@
         "matches": [
           {
             "application_name": "Warehouse Management System",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-021",
+            "matched_name": "Warehouse Management Sytem",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.0311320754716982
           },
           {
             "application_name": "SAP ERP",
-            "cmdb_id": null,
-            "matched_name": null,
-            "confidence": "schwach",
-            "source": "unmatched",
-            "score": 0.0
+            "cmdb_id": "app-019",
+            "matched_name": "SAP ERP",
+            "confidence": "stark",
+            "source": "fuzzy",
+            "score": 1.05
           },
           {
             "application_name": "Qualitätsmanagementsystem",
@@ -4121,170 +4211,170 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     }
   ],
-  "import_archive_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740",
+  "import_archive_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004",
   "import_archived_files": [
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\01_Angebotserstellung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\01_Angebotserstellung.txt",
       "display_path": "01_Angebotserstellung.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\02_Auftragserfassung.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\02_Auftragserfassung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\02_Auftragserfassung.txt",
       "display_path": "02_Auftragserfassung.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\03_Auftragsbearbeitung.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\03_Auftragsbearbeitung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\03_Auftragsbearbeitung.txt",
       "display_path": "03_Auftragsbearbeitung.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\04_Rechnungsstellung.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\04_Rechnungsstellung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\04_Rechnungsstellung.txt",
       "display_path": "04_Rechnungsstellung.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\05_Zahlungsabwicklung.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\05_Zahlungsabwicklung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\05_Zahlungsabwicklung.txt",
       "display_path": "05_Zahlungsabwicklung.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\06_Bestellabwicklung.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\06_Bestellabwicklung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\06_Bestellabwicklung.txt",
       "display_path": "06_Bestellabwicklung.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\07_Lieferantenauswahl.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\07_Lieferantenauswahl.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\07_Lieferantenauswahl.txt",
       "display_path": "07_Lieferantenauswahl.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\08_Wareneingang.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\08_Wareneingang.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\08_Wareneingang.txt",
       "display_path": "08_Wareneingang.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\09_Lagerhaltung.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\09_Lagerhaltung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\09_Lagerhaltung.txt",
       "display_path": "09_Lagerhaltung.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\10_Kommissionierung.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\10_Kommissionierung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\10_Kommissionierung.txt",
       "display_path": "10_Kommissionierung.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\11_Versand.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\11_Versand.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\11_Versand.txt",
       "display_path": "11_Versand.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\12_Produktionsplanung.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\12_Produktionsplanung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\12_Produktionsplanung.txt",
       "display_path": "12_Produktionsplanung.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\13_Fertigungssteuerung.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\13_Fertigungssteuerung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\13_Fertigungssteuerung.txt",
       "display_path": "13_Fertigungssteuerung.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\14_Qualitaetspruefung_Eingang.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\14_Qualitaetspruefung_Eingang.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\14_Qualitaetspruefung_Eingang.txt",
       "display_path": "14_Qualitaetspruefung_Eingang.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\15_Qualitaetspruefung_Ausgang.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\15_Qualitaetspruefung_Ausgang.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\15_Qualitaetspruefung_Ausgang.txt",
       "display_path": "15_Qualitaetspruefung_Ausgang.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\16_Reklamationsbearbeitung.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\16_Reklamationsbearbeitung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\16_Reklamationsbearbeitung.txt",
       "display_path": "16_Reklamationsbearbeitung.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\17_Kundenanlage.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\17_Kundenanlage.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\17_Kundenanlage.txt",
       "display_path": "17_Kundenanlage.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\18_Lieferantenanlage.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\18_Lieferantenanlage.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\18_Lieferantenanlage.txt",
       "display_path": "18_Lieferantenanlage.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\19_Berichtswesen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\19_Berichtswesen.txt",
       "display_path": "19_Berichtswesen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\20_Vertragsmanagement.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\20_Vertragsmanagement.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\20_Vertragsmanagement.txt",
       "display_path": "20_Vertragsmanagement.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\21_Schulungsmanagement.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\21_Schulungsmanagement.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\21_Schulungsmanagement.txt",
       "display_path": "21_Schulungsmanagement.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\22_IT-Support.docx",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\22_IT-Support.docx",
       "display_path": "22_IT-Support.docx"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\23_Softwarefreigabe.docx",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\23_Softwarefreigabe.docx",
       "display_path": "23_Softwarefreigabe.docx"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\24_Datensicherung.docx",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\24_Datensicherung.docx",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\24_Datensicherung.docx",
       "display_path": "24_Datensicherung.docx"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\25_Jahresabschluss.docx",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\25_Jahresabschluss.docx",
       "display_path": "25_Jahresabschluss.docx"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\26_Budgetplanung.docx",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\26_Budgetplanung.docx",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\26_Budgetplanung.docx",
       "display_path": "26_Budgetplanung.docx"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\27_Personaleinstellung.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\27_Personaleinstellung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\27_Personaleinstellung.txt",
       "display_path": "27_Personaleinstellung.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\28_Mitarbeiter-Onboarding.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\28_Mitarbeiter-Onboarding.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\28_Mitarbeiter-Onboarding.txt",
       "display_path": "28_Mitarbeiter-Onboarding.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\29_Zeiterfassung.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\29_Zeiterfassung.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\29_Zeiterfassung.txt",
       "display_path": "29_Zeiterfassung.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\30_Aenderungsmanagement.bpmn",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\30_Aenderungsmanagement.bpmn",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\30_Aenderungsmanagement.bpmn",
       "display_path": "30_Aenderungsmanagement.bpmn"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\31_Auftragserfassung_Detail.bpmn",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\31_Auftragserfassung_Detail.bpmn",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\31_Auftragserfassung_Detail.bpmn",
       "display_path": "31_Auftragserfassung_Detail.bpmn"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\32_Wareneingang_Detail.bpmn",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_134740\\32_Wareneingang_Detail.bpmn",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260609_173004\\32_Wareneingang_Detail.bpmn",
       "display_path": "32_Wareneingang_Detail.bpmn"
     }
   ]

@@ -244,6 +244,12 @@ Zwei Importmodi fuer Prozessdateien:
 ArchiMate-Import und CMDB-Import laufen unabhaengig von diesen Modi;
 sie werden separat ueber Tab 5 ausgeloest.
 
+Ein expliziter CMDB-Sync schreibt nicht nur CMDB-Entitaeten, Relationen und
+Owner-Ableitungen nach Neo4j, sondern bewertet auch die Review-Artefakte des
+letzten gespeicherten Laufs gegen den aktuellen CMDB-Stand neu. Dadurch koennen
+zuvor offene oder schwache Anwendungszuordnungen ohne erneuten Prozessimport
+automatisch entfallen, sobald die aktualisierte CMDB einen starken Match liefert.
+
 ---
 
 ## 8. Matching und Review
@@ -251,6 +257,11 @@ sie werden separat ueber Tab 5 ausgeloest.
 Reihenfolge: Knowledge Base -> Fuzzy Matching -> optionaler LLM-Fallback.
 
 Schwache Kandidaten bleiben reviewbar, sofern fuer dieselbe Prozessanwendung kein starker Match existiert. Gibt es bereits einen starken Match (Konfidenz "stark", cmdb_id gesetzt), wird der schwache Kandidat automatisch unterdrückt und erscheint nicht im Review-Tab.
+
+Diese Unterdrueckungsregel gilt auch fuer eine nachtraegliche CMDB-Synchronisation:
+Wenn ein zuvor offener oder schwacher Fall im letzten gespeicherten Lauf durch die
+aktualisierte CMDB nun einen starken Match mit `cmdb_id` erhaelt, wird der
+Review-Fall bei der Neubewertung entfernt.
 
 Beim Fuzzy Matching werden CMDB-Eintraege nach `entity_type` gewichtet: Eintraege vom Typ `application` erhalten einen Bonus (+0.05), Eintraege vom Typ `interface` einen Abzug (-0.05) auf den berechneten Score. Damit werden Anwendungen gegenueber Schnittstellen bevorzugt, was dem mentalen Modell der Anwender entspricht.
 
@@ -905,7 +916,7 @@ Konversationsfluss im Query-Tab für beide Betriebsmodi (`tool-use` und `prompt-
 
 #### Sequenz 3 – CMDB-Synchronisation
 
-Ablauf des CMDB-Sync vom CSV-Laden über Owner-Auflösung, Graph-Schreiben bis zur Alias-Synchronisation (vgl. Abschnitt 7).
+Ablauf des CMDB-Sync vom CSV-Laden über Owner-Auflösung, Graph-Schreiben, Neubewertung des letzten gespeicherten Laufs bis zur Alias-Synchronisation (vgl. Abschnitte 7 und 8).
 
 ![Sequenz 3: CMDB-Synchronisation](BRIDGR_Sequenzdiagramme_002.png)
 

@@ -92,7 +92,98 @@
   "rejected": [],
   "disambiguation": [],
   "process_identity": [],
-  "org_units": [],
+  "org_units": [
+    {
+      "name": "Accounting",
+      "created_at": "2026-06-09",
+      "source": "candidate"
+    },
+    {
+      "name": "Auftragsbearbeitung",
+      "created_at": "2026-06-09",
+      "source": "candidate"
+    },
+    {
+      "name": "Buchhaltung",
+      "created_at": "2026-06-09",
+      "source": "candidate"
+    },
+    {
+      "name": "Controlling",
+      "created_at": "2026-06-09",
+      "source": "candidate"
+    },
+    {
+      "name": "Controller",
+      "created_at": "2026-06-09",
+      "source": "candidate"
+    },
+    {
+      "name": "Customer Service Team",
+      "created_at": "2026-06-09",
+      "source": "candidate"
+    },
+    {
+      "name": "Einkauf",
+      "created_at": "2026-06-09",
+      "source": "candidate"
+    },
+    {
+      "name": "IT-Abteilung",
+      "created_at": "2026-06-09",
+      "source": "candidate"
+    },
+    {
+      "name": "Kundenservice",
+      "created_at": "2026-06-09",
+      "source": "candidate"
+    },
+    {
+      "name": "Lager",
+      "created_at": "2026-06-09",
+      "source": "candidate"
+    },
+    {
+      "name": "Logistik",
+      "created_at": "2026-06-09",
+      "source": "candidate"
+    },
+    {
+      "name": "OPS",
+      "created_at": "2026-06-09",
+      "source": "candidate"
+    },
+    {
+      "name": "Personalwesen",
+      "created_at": "2026-06-09",
+      "source": "candidate"
+    },
+    {
+      "name": "Qualitätssicherung",
+      "created_at": "2026-06-09",
+      "source": "candidate"
+    },
+    {
+      "name": "Produktion",
+      "created_at": "2026-06-09",
+      "source": "candidate"
+    },
+    {
+      "name": "Rechtsabteilung",
+      "created_at": "2026-06-09",
+      "source": "candidate"
+    },
+    {
+      "name": "Sales",
+      "created_at": "2026-06-09",
+      "source": "candidate"
+    },
+    {
+      "name": "Versand",
+      "created_at": "2026-06-09",
+      "source": "candidate"
+    }
+  ],
   "org_unit_candidates": [
     {
       "candidate_name": "Sales",
@@ -102,8 +193,8 @@
       ],
       "process_names": [],
       "role_names": [],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Sales",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -115,8 +206,8 @@
       ],
       "process_names": [],
       "role_names": [],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Accounting",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -128,8 +219,8 @@
       ],
       "process_names": [],
       "role_names": [],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "IT-Abteilung",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -141,8 +232,8 @@
       ],
       "process_names": [],
       "role_names": [],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Customer Service Team",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -154,8 +245,8 @@
       ],
       "process_names": [],
       "role_names": [],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "IT-Abteilung",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -167,8 +258,8 @@
       ],
       "process_names": [],
       "role_names": [],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Rechtsabteilung",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -180,8 +271,8 @@
       ],
       "process_names": [],
       "role_names": [],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Accounting",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -193,8 +284,8 @@
       ],
       "process_names": [],
       "role_names": [],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "IT-Abteilung",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -206,8 +297,8 @@
       ],
       "process_names": [],
       "role_names": [],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "IT-Abteilung",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -219,8 +310,8 @@
       ],
       "process_names": [],
       "role_names": [],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "IT-Abteilung",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -232,8 +323,8 @@
       ],
       "process_names": [],
       "role_names": [],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "OPS",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -245,8 +336,8 @@
       ],
       "process_names": [],
       "role_names": [],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "IT-Abteilung",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -258,8 +349,8 @@
       ],
       "process_names": [],
       "role_names": [],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Sales",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -276,10 +367,12 @@
       ],
       "role_names": [
         "Vertriebsmitarbeiter, Vertriebsleiter",
-        "Rechtsabteilung, Vertriebsmitarbeiter"
+        "Rechtsabteilung, Vertriebsmitarbeiter",
+        "Vertriebsmitarbeiter",
+        "Rechtsabteilung"
       ],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Sales",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -297,8 +390,8 @@
       "role_names": [
         "Vertriebsinnendienst"
       ],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Sales",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -320,8 +413,8 @@
         "Mitarbeiterin der Auftragsbearbeitung",
         "Buchhaltung, Auftragsbearbeitung"
       ],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Auftragsbearbeitung",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -331,7 +424,8 @@
       "source_paths": [
         "F:\\workspace\\BRIDGR\\Input\\03_Auftragsbearbeitung.txt",
         "F:\\workspace\\BRIDGR\\Input\\08_Wareneingang.txt",
-        "F:\\workspace\\BRIDGR\\Input\\10_Kommissionierung.txt"
+        "F:\\workspace\\BRIDGR\\Input\\10_Kommissionierung.txt",
+        "F:\\workspace\\BRIDGR\\Input\\cmdb_entities.csv"
       ],
       "process_names": [
         "Auftragsbearbeitung",
@@ -343,8 +437,8 @@
         "Logistik",
         "Kommissionierer, Versandmitarbeiter"
       ],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Logistik",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -366,8 +460,8 @@
         "Buchhaltung, Controlling",
         "Finanzen"
       ],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Buchhaltung",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -386,8 +480,8 @@
         "Buchhaltung, Controlling",
         "Controller, Abteilungsleiter"
       ],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Controlling",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -412,8 +506,8 @@
         "Qualitätsprüfer, Einkauf",
         "Einkäufer, Qualitätsprüfer, Einkaufsleiter"
       ],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Einkauf",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -421,15 +515,19 @@
       "candidate_name": "Muster GmbH",
       "normalized_name": "muster gmbh",
       "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\07_Lieferantenauswahl.txt"
+        "F:\\workspace\\BRIDGR\\Input\\07_Lieferantenauswahl.txt",
+        "F:\\workspace\\BRIDGR\\Input\\09_Lagerhaltung.txt"
       ],
       "process_names": [
-        "Lieferantenauswahl"
+        "Lieferantenauswahl",
+        "Lagerhaltung"
       ],
       "role_names": [
-        "Einkäufer, Qualitätsprüfer"
+        "Einkäufer, Qualitätsprüfer",
+        "Einkäufer",
+        "Lagerarbeiter"
       ],
-      "status": "open",
+      "status": "rejected",
       "mapped_org_unit": "",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
@@ -452,8 +550,8 @@
         "Qualitätsprüfer, Einkauf",
         "Qualitätsprüfer, Versandmitarbeiter"
       ],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Qualitätssicherung",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -469,8 +567,8 @@
       "role_names": [
         "Versandmitarbeiter"
       ],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Versand",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -486,8 +584,8 @@
       "role_names": [
         "Versandmitarbeiter"
       ],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Lager",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -503,8 +601,8 @@
       "role_names": [
         "Produktionsplaner, Fertigungsleiter"
       ],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Produktion",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -520,8 +618,8 @@
       "role_names": [
         "Kundenbetreuer, Qualitätsprüfer"
       ],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Kundenservice",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -540,8 +638,8 @@
         "Controlling",
         "Finanzen"
       ],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Controller",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -557,7 +655,7 @@
       "role_names": [
         "Controlling"
       ],
-      "status": "open",
+      "status": "rejected",
       "mapped_org_unit": "",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
@@ -574,8 +672,8 @@
       "role_names": [
         "Rechtsabteilung, Vertriebsmitarbeiter"
       ],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Rechtsabteilung",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -600,8 +698,8 @@
         "HR-Mitarbeiter, IT-Mitarbeiter",
         "Mitarbeiter, HR-Mitarbeiter"
       ],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "Personalwesen",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -623,8 +721,8 @@
         "IT-Mitarbeiter",
         "HR-Mitarbeiter, IT-Mitarbeiter"
       ],
-      "status": "open",
-      "mapped_org_unit": "",
+      "status": "mapped",
+      "mapped_org_unit": "IT-Abteilung",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     },
@@ -638,9 +736,10 @@
         "Softwarefreigabe"
       ],
       "role_names": [
-        "IT-Mitarbeiter, Fachabteilung"
+        "IT-Mitarbeiter, Fachabteilung",
+        "IT-Mitarbeiter"
       ],
-      "status": "open",
+      "status": "rejected",
       "mapped_org_unit": "",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
@@ -655,9 +754,10 @@
         "Softwarefreigabe"
       ],
       "role_names": [
-        "IT-Mitarbeiter, Fachabteilung"
+        "IT-Mitarbeiter, Fachabteilung",
+        "IT-Mitarbeiter"
       ],
-      "status": "open",
+      "status": "rejected",
       "mapped_org_unit": "",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
@@ -674,7 +774,7 @@
       "role_names": [
         "Finanzen"
       ],
-      "status": "open",
+      "status": "rejected",
       "mapped_org_unit": "",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
@@ -689,13 +789,51 @@
         "Personaleinstellung"
       ],
       "role_names": [
-        "HR-Mitarbeiter, Abteilungsleiter, Bewerber (extern)"
+        "HR-Mitarbeiter, Abteilungsleiter, Bewerber (extern)",
+        "HR-Mitarbeiter"
       ],
-      "status": "open",
+      "status": "rejected",
       "mapped_org_unit": "",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
     }
   ],
-  "role_decisions": []
+  "role_decisions": [
+    {
+      "role_name": "Change Manager",
+      "normalized_name": "change manager",
+      "status": "role_only",
+      "decided_at": "2026-06-09"
+    },
+    {
+      "role_name": "Abteilungsleiter",
+      "normalized_name": "abteilungsleiter",
+      "status": "role_only",
+      "decided_at": "2026-06-09"
+    },
+    {
+      "role_name": "Bewerber (extern)",
+      "normalized_name": "bewerber (extern)",
+      "status": "role_only",
+      "decided_at": "2026-06-09"
+    },
+    {
+      "role_name": "Endnutzer",
+      "normalized_name": "endnutzer",
+      "status": "role_only",
+      "decided_at": "2026-06-09"
+    },
+    {
+      "role_name": "Fachabteilung",
+      "normalized_name": "fachabteilung",
+      "status": "role_only",
+      "decided_at": "2026-06-09"
+    },
+    {
+      "role_name": "Fachbereich",
+      "normalized_name": "fachbereich",
+      "status": "role_only",
+      "decided_at": "2026-06-09"
+    }
+  ]
 }

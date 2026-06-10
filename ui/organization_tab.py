@@ -5,7 +5,7 @@ from pathlib import Path
 import streamlit as st
 
 from core.app_config import load_config
-from processing.knowledge_base import load_knowledge_base
+from processing.knowledge_base import load_knowledge_base, normalize_org_unit_name
 from core.neo4j_utils import Neo4jConnectionError, Neo4jQueryError
 from services.organization_service import (
     accept_org_candidate,
@@ -42,6 +42,20 @@ def render_organization_tab() -> None:
     _render_process_owner_section(config, org_units, all_processes)
     _render_unassigned_roles_section(config, org_units)
     _render_decided_candidates_section(knowledge_base)
+
+
+def _build_role_assignment_options(org_units: list[dict], role_name: str) -> tuple[list[str], str]:
+    normalized_role_name = normalize_org_unit_name(role_name)
+    existing_org_unit_names = [
+        entry.get("name", "")
+        for entry in org_units
+        if entry.get("name") and normalize_org_unit_name(entry.get("name", "")) != normalized_role_name
+    ]
+    suggested_new_org_name = "" if any(
+        entry.get("name") and normalize_org_unit_name(entry.get("name", "")) == normalized_role_name
+        for entry in org_units
+    ) else role_name
+    return existing_org_unit_names, suggested_new_org_name
 
 
 def _render_org_units_section(config, knowledge_base, org_units, all_processes) -> None:
@@ -317,12 +331,12 @@ def _render_unassigned_roles_section(config, org_units) -> None:
             st.info("Alle Rollen sind bereits einer Organisationseinheit zugeordnet oder wurden als reine Rolle markiert.")
             return
 
-        existing_org_unit_names = [entry.get("name", "") for entry in org_units if entry.get("name")]
         st.caption("Mit \"Rolle\" blendest du Begriffe aus, die bewusst keine Organisationseinheit darstellen.")
         for role_entry in unassigned_roles:
             role_name = role_entry["rolle"]
             process_names = ", ".join(role_entry.get("prozesse", [])) or "-"
             role_key = role_name.casefold().replace(" ", "_")
+            existing_org_unit_names, suggested_new_org_name = _build_role_assignment_options(org_units, role_name)
             with st.container(border=True):
                 st.markdown(f"**{role_name}**")
                 st.caption(f"Prozesse: {process_names}")
@@ -341,7 +355,7 @@ def _render_unassigned_roles_section(config, org_units) -> None:
                         st.rerun()
                 new_org_name = assign_columns[2].text_input(
                     "Als neue Organisationseinheit anlegen",
-                    value=role_name,
+                    value=suggested_new_org_name,
                     key=f"role-assign-new::{role_key}",
                 )
                 if assign_columns[3].button("Anlegen & zuordnen", key=f"role-assign-create::{role_key}", width="stretch"):

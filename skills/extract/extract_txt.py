@@ -91,7 +91,7 @@ class TextExtractor:
         role_value = str(payload.get("rolle") or payload.get("org_einheit") or "").strip()
         if not role_value:
             return []
-        return [role_value]
+        return self._split_multi_value_names([role_value])
 
     def _resolve_process_owner_candidate(self, payload: dict, document_text: str) -> str:
         if self._is_bpmn_transform_text(document_text):
@@ -107,17 +107,21 @@ class TextExtractor:
         if not isinstance(raw_candidates, list):
             return []
 
+        return self._split_multi_value_names(raw_candidates)
+
+    def _split_multi_value_names(self, values: list[object]) -> list[str]:
         candidates: list[str] = []
         seen: set[str] = set()
-        for item in raw_candidates:
-            cleaned_item = " ".join(str(item).strip().split())
-            if not cleaned_item:
-                continue
-            normalized_item = cleaned_item.casefold()
-            if normalized_item in seen:
-                continue
-            seen.add(normalized_item)
-            candidates.append(cleaned_item)
+        for item in values:
+            for part in re.split(r"[;,\n]+", str(item)):
+                cleaned_item = " ".join(part.strip().split())
+                if not cleaned_item:
+                    continue
+                normalized_item = cleaned_item.casefold()
+                if normalized_item in seen:
+                    continue
+                seen.add(normalized_item)
+                candidates.append(cleaned_item)
         return candidates
 
     def _extract_lane_labels_from_transform(self, document_text: str) -> list[str]:

@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from core.app_config import AppConfig, resolve_input_cmdb_path, resolve_input_cmdb_relations_path
-from processing.cmdb import load_cmdb_relation_rows, load_normalized_cmdb, normalize_cmdb_relations
+from processing.cmdb import load_cmdb_relation_rows, load_cmdb_rows, load_normalized_cmdb, normalize_cmdb_relations
 from processing.knowledge_base import KnowledgeBase, load_knowledge_base, normalize_org_unit_name, save_knowledge_base, upsert_org_unit_candidate
 from skills.graph_writer import GraphWriter
 
@@ -14,15 +14,26 @@ class CmdbSyncResult:
     relation_count: int
     owner_assignment_count: int
     owner_candidate_count: int
+    refreshed_document_count: int
 
 
 def persist_cmdb_sync(config: AppConfig) -> CmdbSyncResult:
     from services.runtime_service import get_session_neo4j_client, write_debug_log
+    from services.review_service import persist_latest_run_refresh
 
     neo4j_client = get_session_neo4j_client(config)
     knowledge_base = load_knowledge_base()
     result, updated_knowledge_base = sync_cmdb_to_neo4j(config, neo4j_client, knowledge_base)
     save_knowledge_base(updated_knowledge_base)
+    refreshed_document_count = persist_latest_run_refresh(
+        config,
+        load_cmdb_rows(
+            resolve_input_cmdb_path(config),
+            config.cmdb_uuid_column,
+            config.cmdb_name_column,
+        ),
+    )
+    result.refreshed_document_count = refreshed_document_count
     write_debug_log(
         config,
         "cmdb_sync",
@@ -31,6 +42,7 @@ def persist_cmdb_sync(config: AppConfig) -> CmdbSyncResult:
             "relation_count": result.relation_count,
             "owner_assignment_count": result.owner_assignment_count,
             "owner_candidate_count": result.owner_candidate_count,
+            "refreshed_document_count": result.refreshed_document_count,
             "cmdb_filename": config.cmdb_filename,
             "cmdb_relations_filename": config.cmdb_relations_filename,
         },
@@ -83,6 +95,7 @@ def sync_cmdb_to_neo4j(
         relation_count=len(normalized_cmdb.relations),
         owner_assignment_count=len(owner_assignments),
         owner_candidate_count=len(updated_knowledge_base.org_unit_candidates),
+        refreshed_document_count=0,
     )
     return result, updated_knowledge_base
 
