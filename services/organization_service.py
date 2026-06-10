@@ -303,6 +303,11 @@ def reject_process_owner_candidate(config: AppConfig, process_id: str) -> tuple[
 
 def load_unassigned_roles(config: AppConfig) -> list[dict]:
     knowledge_base = load_knowledge_base()
+    known_org_unit_names = {
+        normalize_org_unit_name(entry.get("name", ""))
+        for entry in knowledge_base.org_units
+        if entry.get("name")
+    }
     neo4j_client = get_session_neo4j_client(config)
     rows = neo4j_client.execute_write(
         """
@@ -315,7 +320,11 @@ def load_unassigned_roles(config: AppConfig) -> list[dict]:
     return [
         {"rolle": row["rolle"], "prozesse": row["prozesse"]}
         for row in rows
-        if row.get("rolle") and not is_explicit_role(knowledge_base, row["rolle"])
+        if (
+            row.get("rolle")
+            and normalize_org_unit_name(row["rolle"]) not in known_org_unit_names
+            and not is_explicit_role(knowledge_base, row["rolle"])
+        )
     ]
 
 

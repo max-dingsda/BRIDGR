@@ -34,6 +34,24 @@ from services.runtime_service import (
     write_debug_log,
 )
 
+_OPENAI_PRESET = {
+    "llm_base_url": "https://api.openai.com/v1",
+    "llm_model": "gpt-4o",
+    "llm_api_key_env": "OPENAI_API_KEY",
+}
+
+_OLLAMA_PRESET = {
+    "llm_base_url": "http://127.0.0.1:11434/v1",
+    "llm_model": "gemma4:12b",
+    "llm_api_key_env": "",
+}
+
+
+def _apply_llm_preset(preset: dict[str, str]) -> None:
+    st.session_state["config_llm_base_url"] = preset["llm_base_url"]
+    st.session_state["config_llm_model"] = preset["llm_model"]
+    st.session_state["config_llm_api_key_env"] = preset["llm_api_key_env"]
+
 
 def render_path_picker_controls() -> None:
     st.markdown("**Pfade auswählen**")
@@ -354,6 +372,15 @@ def render_config_tab(config_path: Path) -> None:
 
     with st.expander("Einstellungen", expanded=False):
         render_path_picker_controls()
+
+        st.markdown("#### LLM-Presets")
+        preset_columns = st.columns(2)
+        if preset_columns[0].button("OpenAI", width="stretch"):
+            _apply_llm_preset(_OPENAI_PRESET)
+            st.rerun()
+        if preset_columns[1].button("Ollama", width="stretch"):
+            _apply_llm_preset(_OLLAMA_PRESET)
+            st.rerun()
 
         with st.form("config_form"):
             st.markdown("#### LLM")

@@ -355,6 +355,11 @@ Diese Buttons öffnen Dateiauswahl- oder Ordnerdialoge.
 
 #### Abschnitt `LLM`
 
+Zusätzliche Hilfe:
+
+- Über die Preset-Buttons `OpenAI` und `Ollama` können typische Standardwerte direkt vorbelegt werden.
+- Das Feld `API-Schlüssel (Umgebungsvariable)` erwartet den Namen der Umgebungsvariable mit dem Schlüssel, nicht den geheimen Schlüsselwert selbst. Für OpenAI ist typischerweise `OPENAI_API_KEY` gemeint.
+
 Felder:
 
 - `LLM-Endpunkt`: URL des OpenAI-kompatiblen LLM-Dienstes

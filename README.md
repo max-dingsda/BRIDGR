@@ -122,6 +122,12 @@ Wichtige Felder:
 - `chat_mode`: Chat-Betriebsmodus (`prompt-only` oder `tool-use`); Default: `prompt-only`
 - `debug_mode`: schreibt bei aktivierter Diagnose zusaetzliche Ereignisse nach `Output/debug.log`
 
+Hinweise zur UI:
+- Im Konfigurations-Tab stehen LLM-Presets fuer `OpenAI` und `Ollama` zur Verfuegung.
+- Das Feld `llm_api_key_env` bzw. `API-Schluessel (Umgebungsvariable)` erwartet den Namen
+  der Umgebungsvariable, nicht den geheimen Schluesselwert selbst, zum Beispiel
+  `OPENAI_API_KEY`.
+
 Beispiel:
 
 ```json
@@ -235,6 +241,7 @@ Aktuell verfuegbar:
 ### Tab 3 - Konfiguration
 
 Aktuell verfuegbar:
+- LLM-Presets fuer `OpenAI` und `Ollama`
 - LLM-Endpoint konfigurieren
 - Modellnamen setzen
 - API-Key-Umgebungsvariable setzen

@@ -42,6 +42,7 @@ from processing.knowledge_base import KnowledgeBase
 from core.neo4j_utils import Neo4jConnectionError
 from skills.extract.extract_base import ApplicationReference
 from services import organization_service, query_service, runtime_service
+from ui.config_tab import _OPENAI_PRESET, _OLLAMA_PRESET, _apply_llm_preset
 
 
 def test_ensure_import_session_defaults_uses_config_mode() -> None:
@@ -161,6 +162,22 @@ def test_update_config_session_defaults_includes_neo4j_values() -> None:
     assert st.session_state["config_neo4j_password"] == "secret"
     assert st.session_state["config_neo4j_database"] == "bridgr-architecture"
     assert st.session_state["config_cmdb_relations_filename"] == "cmdb_relations.csv"
+
+
+def test_apply_llm_preset_updates_session_state() -> None:
+    st.session_state.clear()
+
+    _apply_llm_preset(_OPENAI_PRESET)
+
+    assert st.session_state["config_llm_base_url"] == "https://api.openai.com/v1"
+    assert st.session_state["config_llm_model"] == "gpt-4o"
+    assert st.session_state["config_llm_api_key_env"] == "OPENAI_API_KEY"
+
+    _apply_llm_preset(_OLLAMA_PRESET)
+
+    assert st.session_state["config_llm_base_url"] == "http://127.0.0.1:11434/v1"
+    assert st.session_state["config_llm_model"] == "gemma4:12b"
+    assert st.session_state["config_llm_api_key_env"] == ""
 
 
 def test_sync_config_session_defaults_refreshes_neo4j_values() -> None:
@@ -559,5 +576,3 @@ def test_run_query_chat_turn_logs_error_on_connection_failure(tmp_path, monkeypa
     log_content = (tmp_path / "debug.log").read_text(encoding="utf-8")
     assert '"event": "query_error"' in log_content
     assert st.session_state[CHAT_MESSAGES_STATE_KEY][-1]["role"] == "assistant"
-
-

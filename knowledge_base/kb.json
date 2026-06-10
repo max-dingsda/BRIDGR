@@ -182,6 +182,16 @@
       "name": "Versand",
       "created_at": "2026-06-09",
       "source": "candidate"
+    },
+    {
+      "name": "Vertrieb",
+      "created_at": "2026-06-10",
+      "source": "candidate"
+    },
+    {
+      "name": "Finanzen",
+      "created_at": "2026-06-10",
+      "source": "candidate"
     }
   ],
   "org_unit_candidates": [
@@ -516,16 +526,30 @@
       "normalized_name": "muster gmbh",
       "source_paths": [
         "F:\\workspace\\BRIDGR\\Input\\07_Lieferantenauswahl.txt",
-        "F:\\workspace\\BRIDGR\\Input\\09_Lagerhaltung.txt"
+        "F:\\workspace\\BRIDGR\\Input\\09_Lagerhaltung.txt",
+        "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt",
+        "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt",
+        "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx",
+        "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx",
+        "F:\\workspace\\BRIDGR\\Input\\29_Zeiterfassung.txt"
       ],
       "process_names": [
         "Lieferantenauswahl",
-        "Lagerhaltung"
+        "Lagerhaltung",
+        "Angebotserstellung",
+        "Berichtswesen",
+        "IT-Support",
+        "Jahresabschluss",
+        "Zeiterfassung und Abrechnung"
       ],
       "role_names": [
         "Einkäufer, Qualitätsprüfer",
         "Einkäufer",
-        "Lagerarbeiter"
+        "Lagerarbeiter",
+        "Vertriebsmitarbeiter",
+        "Controller",
+        "IT-Mitarbeiter",
+        "HR-Mitarbeiter"
       ],
       "status": "rejected",
       "mapped_org_unit": "",
@@ -647,13 +671,16 @@
       "candidate_name": "Abteilungsleiter",
       "normalized_name": "abteilungsleiter",
       "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt"
+        "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt",
+        "F:\\workspace\\BRIDGR\\Input\\26_Budgetplanung.docx"
       ],
       "process_names": [
-        "Berichtswesen"
+        "Berichtswesen",
+        "Budgetplanung"
       ],
       "role_names": [
-        "Controlling"
+        "Controlling",
+        "Controller"
       ],
       "status": "rejected",
       "mapped_org_unit": "",
@@ -796,6 +823,53 @@
       "mapped_org_unit": "",
       "first_seen": "2026-06-09",
       "last_seen": "2026-06-09"
+    },
+    {
+      "candidate_name": "Einkaufsteam",
+      "normalized_name": "einkaufsteam",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\07_Lieferantenauswahl.txt"
+      ],
+      "process_names": [
+        "Lieferantenauswahl"
+      ],
+      "role_names": [
+        "Einkäufer"
+      ],
+      "status": "mapped",
+      "mapped_org_unit": "Einkauf",
+      "first_seen": "2026-06-10",
+      "last_seen": "2026-06-10"
+    },
+    {
+      "candidate_name": "IT-Mitarbeiter",
+      "normalized_name": "it-mitarbeiter",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx"
+      ],
+      "process_names": [
+        "Softwarefreigabe"
+      ],
+      "role_names": [],
+      "status": "rejected",
+      "mapped_org_unit": "",
+      "first_seen": "2026-06-10",
+      "last_seen": "2026-06-10"
+    },
+    {
+      "candidate_name": "Fachabteilung",
+      "normalized_name": "fachabteilung",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx"
+      ],
+      "process_names": [
+        "Softwarefreigabe"
+      ],
+      "role_names": [],
+      "status": "rejected",
+      "mapped_org_unit": "",
+      "first_seen": "2026-06-10",
+      "last_seen": "2026-06-10"
     }
   ],
   "role_decisions": [
@@ -834,6 +908,60 @@
       "normalized_name": "fachbereich",
       "status": "role_only",
       "decided_at": "2026-06-09"
+    },
+    {
+      "role_name": "Einkäufer",
+      "normalized_name": "einkäufer",
+      "status": "role_only",
+      "decided_at": "2026-06-10"
+    },
+    {
+      "role_name": "Fertigungsleiter",
+      "normalized_name": "fertigungsleiter",
+      "status": "role_only",
+      "decided_at": "2026-06-10"
+    },
+    {
+      "role_name": "HR-Mitarbeiter",
+      "normalized_name": "hr-mitarbeiter",
+      "status": "role_only",
+      "decided_at": "2026-06-10"
+    },
+    {
+      "role_name": "IT-Mitarbeiter",
+      "normalized_name": "it-mitarbeiter",
+      "status": "role_only",
+      "decided_at": "2026-06-10"
+    },
+    {
+      "role_name": "Kommissionierer",
+      "normalized_name": "kommissionierer",
+      "status": "role_only",
+      "decided_at": "2026-06-10"
+    },
+    {
+      "role_name": "Kundenbetreuer",
+      "normalized_name": "kundenbetreuer",
+      "status": "role_only",
+      "decided_at": "2026-06-10"
+    },
+    {
+      "role_name": "Lagerarbeiter",
+      "normalized_name": "lagerarbeiter",
+      "status": "role_only",
+      "decided_at": "2026-06-10"
+    },
+    {
+      "role_name": "Produktionsplaner",
+      "normalized_name": "produktionsplaner",
+      "status": "role_only",
+      "decided_at": "2026-06-10"
+    },
+    {
+      "role_name": "Qualitätsprüfer",
+      "normalized_name": "qualitätsprüfer",
+      "status": "role_only",
+      "decided_at": "2026-06-10"
     }
   ]
 }

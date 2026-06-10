@@ -85,6 +85,24 @@ def test_load_unassigned_roles_skips_roles_marked_as_role_only(mock_load_kb, moc
 
 
 @patch("services.organization_service.get_session_neo4j_client")
+@patch("services.organization_service.load_knowledge_base")
+def test_load_unassigned_roles_skips_roles_matching_existing_org_units(mock_load_kb, mock_get_client) -> None:
+    fake_client = FakeNeo4jClient(rows=[
+        {"rolle": "Buchhaltung", "prozesse": ["Rechnungsstellung"]},
+        {"rolle": "Einkäufer", "prozesse": ["Bestellabwicklung"]},
+    ])
+    mock_get_client.return_value = fake_client
+    mock_load_kb.return_value = MagicMock(
+        role_decisions=[],
+        org_units=[{"name": "Buchhaltung"}],
+    )
+
+    result = load_unassigned_roles(_make_config())
+
+    assert [entry["rolle"] for entry in result] == ["Einkäufer"]
+
+
+@patch("services.organization_service.get_session_neo4j_client")
 @patch("services.organization_service.ensure_org_unit_registered")
 def test_assign_role_to_org_unit_writes_kann_einnehmen(_mock_register, mock_get_client) -> None:
     fake_client = FakeNeo4jClient()

@@ -1,7 +1,7 @@
 {
-  "llm_base_url": "http://127.0.0.1:11434/v1",
-  "llm_model": "qwen2.5:14b",
-  "llm_api_key_env": "",
+  "llm_base_url": "https://api.openai.com/v1",
+  "llm_model": "gpt-4o",
+  "llm_api_key_env": "OPENAI_API_KEY",
   "llm_context_window": 131072,
   "llm_timeout_seconds": 900,
   "neo4j_url": "neo4j://127.0.0.1:7687",
