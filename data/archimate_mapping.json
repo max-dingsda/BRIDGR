@@ -12,8 +12,9 @@
       "ApplicationComponent": "Anwendung",
       "ApplicationInterface": "Schnittstelle",
       "Node": "Server",
-      "BusinessActor": "OrgEinheit",
-      "BusinessRole": "Rolle"
+      "BusinessActor": "Rolle",
+      "BusinessRole": "Rolle",
+      "Device": "Server"
     },
     "export": {
       "Prozess": "BusinessProcess",
