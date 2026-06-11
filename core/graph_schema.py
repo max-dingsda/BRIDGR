@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 import re
 
 
@@ -13,12 +14,12 @@ class RelationshipPattern:
 
 
 QUERY_NODE_SCHEMA: dict[str, tuple[str, ...]] = {
-    "Prozess": ("prozess_id", "name"),
-    "Anwendung": ("id", "cmdb_id", "name"),
-    "Schnittstelle": ("id", "name"),
-    "Server": ("id", "name", "server_type"),
+    "Prozess": ("prozess_id", "name", "archimate_type", "archimate_id"),
+    "Anwendung": ("id", "cmdb_id", "name", "archimate_type", "archimate_id"),
+    "Schnittstelle": ("id", "name", "archimate_type", "archimate_id"),
+    "Server": ("id", "name", "server_type", "archimate_type", "archimate_id"),
     "OrgEinheit": ("name",),
-    "Rolle": ("name",),
+    "Rolle": ("name", "archimate_type", "archimate_id"),
 }
 
 QUERY_RELATIONSHIP_PATTERNS: tuple[RelationshipPattern, ...] = (
@@ -166,3 +167,34 @@ def _validate_properties(cleaned_query: str, variable_labels: dict[str, set[str]
         allowed_properties = QUERY_NODE_SCHEMA.get(label, ())
         if property_name not in allowed_properties:
             raise ValueError(f"Cypher query uses unknown property `{property_name}` for label `{label}`.")
+
+
+def build_archimate_mapping_reference() -> str:
+    from core.app_config import resolve_archimate_mapping_path
+
+    mapping_path = resolve_archimate_mapping_path()
+    try:
+        raw = json.loads(mapping_path.read_text(encoding="utf-8"))
+        import_map: dict[str, str] = raw.get("elements", {}).get("import", {})
+    except Exception:
+        return ""
+
+    if not import_map:
+        return ""
+
+    rows = "\n".join(
+        f"| {archimate_type:<22} | {bridgr_label} |"
+        for archimate_type, bridgr_label in sorted(import_map.items())
+    )
+    return (
+        "## ArchiMate-Mapping\n\n"
+        "Nodes imported from ArchiMate carry the property `archimate_type`.\n"
+        "Mapping of ArchiMate framework types to BRIDGR labels:\n\n"
+        "| archimate_type         | BRIDGR-Label  |\n"
+        "|------------------------|---------------|\n"
+        f"{rows}\n\n"
+        "When a user asks for a framework type (e.g. 'all ApplicationComponents'), use the\n"
+        "corresponding BRIDGR label (`:Anwendung`). Filter on `archimate_type` only when the\n"
+        "user explicitly asks about the ArchiMate origin. Not all nodes carry `archimate_type`\n"
+        "— only elements imported from ArchiMate files."
+    )

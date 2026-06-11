@@ -262,7 +262,6 @@ def _build_chat_system_prompt(config: AppConfig) -> str:
     return (
         template
         .replace("{GRAPH_QUERY_PROTOCOL}", protocol)
-        .replace("{ARCHIMATE_MAPPING}", build_archimate_mapping_reference())
         .replace("{GRAPH_SCHEMA_REFERENCE}", build_query_schema_reference())
     )
 

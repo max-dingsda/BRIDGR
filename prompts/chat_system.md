@@ -205,6 +205,27 @@ WHERE toLower(a.name) CONTAINS toLower('seller service')
 RETURN a.name AS application, s.name AS server, s.server_type AS server_type
 ```
 
+User: Welche Prozesse wären betroffen, wenn Server vm-app-01 abgeschaltet wird?
+```cypher
+MATCH (s:Server {name: 'vm-app-01'})<-[:RUNS_ON]-(a:Anwendung)-[:DIENT]->(p:Prozess)
+RETURN DISTINCT p.name AS process, a.name AS application
+ORDER BY process, application
+```
+
+User: Welche Anwendungen und Schnittstellen laufen auf Server host-prod-01?
+```cypher
+MATCH (a:Anwendung)-[:RUNS_ON]->(s:Server {name: 'host-prod-01'})
+RETURN a.name AS application, 'Anwendung' AS type
+UNION ALL
+MATCH (i:Schnittstelle)-[:RUNS_ON]->(s:Server {name: 'host-prod-01'})
+RETURN i.name AS application, 'Schnittstelle' AS type
+ORDER BY type, application
+```
+
+---
+
+{ARCHIMATE_MAPPING}
+
 ---
 
 ## Graph schema

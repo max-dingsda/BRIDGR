@@ -152,12 +152,12 @@ def _render_process_manager_for_org_unit(config, org_unit_name: str, org_key: st
 
 
 def _render_process_owner_section(config, org_units, all_processes: list[dict]) -> None:
-    with st.expander("Prozesse ohne Eigentümer", expanded=False):
+    ownerless = [p for p in all_processes if not p["eigentuemer"]]
+    with st.expander(f"Prozesse ohne Eigentümer ({len(ownerless)})", expanded=False):
         if not all_processes:
             st.info("Keine Prozesse im Graphen gefunden.")
             return
 
-        ownerless = [p for p in all_processes if not p["eigentuemer"]]
         if not ownerless:
             st.info("Alle Prozesse haben einen Eigentümer.")
             return
@@ -225,11 +225,16 @@ def _render_process_owner_section(config, org_units, all_processes: list[dict]) 
 
 
 def _render_process_owner_candidates_section(config, org_units) -> None:
-    with st.expander("Vorgeschlagene Prozess-Eigentümer", expanded=False):
-        try:
-            candidates = load_process_owner_candidates(config)
-        except Exception as exc:
-            st.warning(f"Vorgeschlagene Prozess-Eigentümer konnten nicht geladen werden: {exc}")
+    _load_error: Exception | None = None
+    try:
+        candidates = load_process_owner_candidates(config)
+    except Exception as exc:
+        candidates = []
+        _load_error = exc
+
+    with st.expander(f"Vorgeschlagene Prozess-Eigentümer ({len(candidates)})", expanded=False):
+        if _load_error:
+            st.warning(f"Vorgeschlagene Prozess-Eigentümer konnten nicht geladen werden: {_load_error}")
             return
 
         if not candidates:
@@ -266,12 +271,12 @@ def _render_process_owner_candidates_section(config, org_units) -> None:
 
 
 def _render_candidates_section(config, knowledge_base, org_units) -> None:
-    with st.expander("Kandidaten", expanded=False):
-        open_candidates = [
-            entry
-            for entry in knowledge_base.org_unit_candidates
-            if entry.get("status", "open") == "open"
-        ]
+    open_candidates = [
+        entry
+        for entry in knowledge_base.org_unit_candidates
+        if entry.get("status", "open") == "open"
+    ]
+    with st.expander(f"Kandidaten ({len(open_candidates)})", expanded=False):
         if not open_candidates:
             st.info("Aktuell liegen keine offenen Kandidaten vor.")
             return
@@ -320,11 +325,16 @@ def _render_candidates_section(config, knowledge_base, org_units) -> None:
 
 
 def _render_unassigned_roles_section(config, org_units) -> None:
-    with st.expander("Nicht zugeordnete Rollen", expanded=False):
-        try:
-            unassigned_roles = load_unassigned_roles(config)
-        except Exception as exc:
-            st.warning(f"Rollen konnten nicht aus Neo4j geladen werden: {exc}")
+    _load_error: Exception | None = None
+    try:
+        unassigned_roles = load_unassigned_roles(config)
+    except Exception as exc:
+        unassigned_roles = []
+        _load_error = exc
+
+    with st.expander(f"Nicht zugeordnete Rollen ({len(unassigned_roles)})", expanded=False):
+        if _load_error:
+            st.warning(f"Rollen konnten nicht aus Neo4j geladen werden: {_load_error}")
             return
 
         if not unassigned_roles:

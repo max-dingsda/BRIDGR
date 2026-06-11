@@ -237,6 +237,54 @@ Wissensquelle. Kein Mapping-Wissen im Code. `cmdb_service.py` dient als Referenz
 
 ## 7. Importlogik
 
+### 7.1 Extraktionspfad (Prozessdokumente)
+
+Jedes Prozessdokument durchlaeuft dieselbe Verarbeitungskette:
+
+```
+Prozessdokument (BPMN, TXT, DOCX, PDF)
+        |
+        v
+Textgewinnung
+  BPMN:        XML-Parsen, Lane- und Task-Extraktion (LLM-frei)
+  TXT/DOCX/PDF: Volltext-Extraktion (LLM-frei)
+  Grosses BPMN: optionaler BPMN-Transformer als LLM-freier Reduktionsschritt
+        |
+        v
+LLM-Extraktion
+  Eingabe: gewonnener Text + Extraktionsprompt
+  Ausgabe: strukturiertes JSON
+    - Prozessname, Prozess-ID
+    - gefundene Anwendungsbezeichnungen (z.B. "SAP SD", "Outlook")
+    - beteiligte Rollen/Lanes
+    - optionale Eigentuemer-Bezeichnung
+        |
+        v
+Matching gegen CMDB  (pro extrahierter Anwendungsbezeichnung)
+  1. Knowledge Base   — kuratiete Ja-/Nein-Entscheidungen, deterministisch, hoechste Prio
+  2. Fuzzy Matching   — Score-basiert gegen CMDB-Namen, Schwellwert konfigurierbar
+                        Anwendungen erhalten einen Score-Bonus (+0.05) gegenueber Schnittstellen
+  3. kein Match       — Bezeichnung bleibt offen, zur manuellen Klaerung
+        |
+        v
+Konfidenzbewertung
+  "stark"   — exakter KB-Treffer oder Fuzzy-Score >= Schwellwert
+              → direkter Schreibpfad: (:Anwendung)-[:DIENT]->(:Prozess) in Neo4j
+  "schwach" — Fuzzy-Score unterhalb des Schwellwerts
+              → Review-Tab: Bestaetigen / Ablehnen / manuell verknuepfen
+  offen     — kein Match gefunden
+              → Review-Tab: manuelle Zuordnung oder Ablehnung
+        |
+        v
+Neo4j-Wissensgraph
+```
+
+Der LLM benennt, was er im Dokument gefunden hat — er erfindet keine CMDB-Eintraege
+und schreibt nie selbst in den Graphen. Matching, Konfidenzbewertung und Schreibentscheidung
+liegen ausschliesslich im Code.
+
+### 7.2 Importmodi
+
 Zwei Importmodi fuer Prozessdateien:
 - `full`: gesamter Prozessdateibestand aus `Input/`
 - `partial`: vom Benutzer explizit ausgewaehlte Dateien
@@ -402,7 +450,8 @@ Verhalten:
 Der System-Prompt enthaelt:
 
 - Rollenbeschreibung: EA-Chatbot fuer Unternehmen X, kennt den Wissensgraphen
-- vollstaendiges Graph-Schema aus `graph_schema.py`
+- vollstaendiges Graph-Schema aus `graph_schema.py` (inkl. `archimate_type`/`archimate_id` als abfragbare Properties)
+- ArchiMate-Mapping: zur Laufzeit aus `archimate_mapping.json` generiert (Placeholder `{ARCHIMATE_MAPPING}`); bildet Framework-Typen wie `ApplicationComponent` auf BRIDGR-Labels ab
 - Tool-Beschreibung: Zweck, Signatur, Einschraenkungen von `execute_cypher`
 - Ausgaberegeln: Sprache (Deutsch), Format, Umgang mit unbekannten Informationen
 - Query-Regeln: read-only, schema-konservativ, keine erfundenen Beziehungstypen
@@ -410,8 +459,14 @@ Der System-Prompt enthaelt:
 Das Schema in `graph_schema.py` bleibt die kanonische Quelle. Prompt und Validierung
 stuetzen sich auf diese Quelle, nicht auf Live-Introspektion der Datenbank.
 
+Das ArchiMate-Mapping im Prompt wird automatisch aktuell gehalten: `query_service.py`
+liest `archimate_mapping.json` bei jeder Prompt-Zusammenstellung. Aenderungen am
+Mapping (z.B. ueber die UI in Tab 5) erfordern keinen Code-Eingriff.
+
 Auf jede Aenderung am Neo4j-Schreibmodell (Labels, Beziehungstypen, Richtungen,
 abfragbare Properties) muss `graph_schema.py` im gleichen Schritt aktualisiert werden.
+Werden dabei neue Relationstypen eingefuehrt, sind die Cypher-Beispiele in
+`prompts/chat_system.md` im gleichen Schritt zu pruefen und ggf. anzupassen.
 
 ### 10.5 Konversationshistorie
 
@@ -505,6 +560,37 @@ Wird von `archimate_import_service.py` und `archimate_export_service.py` gelesen
 Wird durch Tab 5 (EA-Modell) bearbeitet.
 
 Struktur: siehe Abschnitt 13.4.
+
+### LLM-Modell-Empfehlungen
+
+BRIDGR stellt zwei unterschiedliche Anforderungen an das konfigurierte Modell:
+strukturierte JSON-Extraktion aus Prozessdokumenten (Importpfad) und natuerlichsprachliche
+EA-Analyse im Chat (Query-Layer). Beide Pfade profitieren von Instruction-Following-Qualitaet
+mehr als von roher Parameterzahl.
+
+| Groessenklasse | Eignung | Hinweis |
+|---|---|---|
+| ~8B | Demo / einfache Tests | Schwaechen bei JSON-Extraktion und komplexer Analyse |
+| 12B–14B | Eingeschraenkt, stark modellabhaengig | Vor Produktiveinsatz vollstaendigen Import-Lauf evaluieren |
+| 26B+ | Empfohlene Untergrenze fuer ernsthafte Nutzung | Konsistentere Ergebnisse, weniger manueller Review-Aufwand |
+| Cloud (z.B. GPT-4o) | Beste Qualitaet | Datenschutz- und Kostenanforderungen beachten |
+
+Getestete Modelle: DeepSeek-R1 8B, Ministral 8B, Gemma 4 12B, Qwen 2.5 14B, Gemma 4 26B, GPT-4o
+
+Validiertes Modell fuer Extraktion und Chat auf RTX-GPU mit 16 GB VRAM:
+`qwen2.5:14b` (Q4_K_M, ~9 GB VRAM, 93 % GPU-Auslastung, null Retries auf vollstaendigem Import).
+
+Wichtige Einschraenkungen aus der Praxis:
+- Groessere Modelle sind nicht automatisch bessere Extraktoren. Modelle, die bei
+  `response_format: json_object` instabil werden oder VRAM-bedingt auf CPU ausweichen,
+  koennen schlechter abschneiden als kleinere, stabile Modelle.
+- Fuer den Chat-Layer gilt: Wiederholte Verletzungen des Tool/Answer-Vertrags
+  (Antworten ohne Graph-Query, geleakte Arbeitsnotizen, unvollstaendige Analysen) sind
+  ein Modell-Eignungsproblem, kein loessbares Prompt-Tuning-Problem. Modelle, die dieses
+  Muster zeigen, sollten fuer die EA-Chat-Rolle ausgeschlossen werden.
+- Nach jedem Modellwechsel einen vollstaendigen Import-Lauf als Stabilitaetstest durchfuehren.
+
+Weitergehende Erfahrungen: `Specs/LESSONS_LEARNED.md`.
 
 ---
 

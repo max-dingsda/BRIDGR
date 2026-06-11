@@ -15,6 +15,43 @@ BRIDGR soll fuer v1 bzw. den naechsten Ausbaupfad:
 - unsichere oder offene Links im UI reviewbar machen
 - bestaetigte oder starke Ergebnisse in Neo4j schreiben
 
+## Wie BRIDGR Dokumente verarbeitet
+
+BRIDGR liest Prozessdokumente und uebertraegt deren Inhalte schrittweise in einen strukturierten Wissensgraphen.
+
+```text
+Prozessdokument (BPMN, TXT, DOCX, PDF)
+        |
+        v
+Textgewinnung  (formatspezifisch, ohne LLM)
+        |
+        v
+LLM-Extraktion
+  "Prozess: Auftragserfassung
+   gefundene Anwendungen: SAP SD, Outlook"
+        |
+        v
+Matching gegen CMDB
+  1. Knowledge Base  — kuratierte Entscheidungen, deterministisch
+  2. Fuzzy Matching  — Score-basiert, Schwellwert konfigurierbar
+  3. kein Match      — offen, zur manuellen Klaerung
+        |
+        v
+Konfidenzbewertung
+  "stark"   → direkter Schreibpfad nach Neo4j
+  "schwach" → Review-Tab (Bestaetigen / Ablehnen / manuell verknuepfen)
+  offen     → Review-Tab
+        |
+        v
+Neo4j-Wissensgraph
+```
+
+Der LLM liest das Dokument und benennt, was er gefunden hat.
+Der Code uebernimmt Validierung, Matching und Entscheidung — der LLM
+erfindet keine CMDB-Eintraege und schreibt nie selbst in den Graphen.
+
+---
+
 ## Aktueller Stand
 
 Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikalen Schnitt:
@@ -150,6 +187,36 @@ Beispiel:
   "output_path": "Output"
 }
 ```
+
+## LLM-Modell-Empfehlungen
+
+BRIDGR stellt zwei unterschiedliche Anforderungen an das LLM: strukturierte JSON-Extraktion
+aus Prozessdokumenten und natuerlichsprachliche EA-Analyse im Chat. Beide Aufgaben profitieren
+von Modellen mit guter Instruction-Following-Qualitaet.
+
+| Groessenklasse | Eignung | Hinweis |
+|---|---|---|
+| ~8B | Demo / einfache Tests | Deutliche Schwaechen bei komplexer Extraktion und Analyse |
+| 12B–14B | Eingeschraenkt, stark modellabhaengig | Sorgfaeltige Evaluation vor Produktiveinsatz empfohlen |
+| 26B+ | Empfohlene Untergrenze fuer ernsthafte Nutzung | Konsistentere Ergebnisse, weniger manueller Review-Aufwand |
+| Cloud (z.B. GPT-4o) | Beste Qualitaet | Datenschutz- und Kostenanforderungen beachten |
+
+**Getestete Modelle:** DeepSeek-R1 8B, Ministral 8B, Gemma 4 12B, Qwen 2.5 14B, Gemma 4 26B, GPT-4o
+
+**Erfahrungen aus der Praxis:**
+
+- 8B-Modelle sind fuer einfache Chat-Interaktionen oft ausreichend, zeigen jedoch deutliche
+  Schwaechen bei komplexen Extraktions-, Matching- und Analyseaufgaben.
+- 12B–14B-Modelle liefern stark schwankende Ergebnisse; das Ergebnis haengt stark vom
+  konkreten Modell und der Quantisierung ab. Validiertes Modell fuer Extraktion und Chat
+  auf einer RTX-GPU mit 16 GB VRAM: `qwen2.5:14b` (Q4_K_M, ~9 GB VRAM).
+- Fuer ernsthafte Nutzung empfehlen wir mindestens die Groessenklasse 26B. Groessere Modelle
+  reduzieren erfahrungsgemaess den manuellen Review-Aufwand und liefern konsistentere Ergebnisse.
+- Eine groessere Parameterzahl bedeutet nicht automatisch bessere Extraktion. Modelle, die bei
+  JSON-Schema-Constraints instabil werden oder VRAM-bedingt auf CPU ausweichen, koennen trotz
+  theoretisch hoeherer Kapazitaet schlechter abschneiden als kleinere, besser passende Modelle.
+- Nach jedem Modellwechsel einen vollstaendigen Import-Lauf durchfuehren, bevor der Wechsel
+  als stabil gilt.
 
 ## Secrets und `.env`
 

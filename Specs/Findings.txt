@@ -1,23 +1,4 @@
 1. weiterführende fragen werden teilweise falsch interpretiert. - erledigt
-Beispiel:
-Frage1: welche Anwendungen nutzt der Prozess Bestellabwicklung?
-Antwort: Der Prozess "Bestellabwicklung" wird von folgenden Anwendungen unterstützt: Mail Interface, Microsoft Outlook, SAP FI Buchungsschnittstelle und SAP SD.
-
-Ergebnis
-appliation
-Mail Interface
-Microsoft Outlook
-SAP FI Buchungsschnittstelle
-SAP SD
-
-Frage2: für welche andren Prozesse ist SAP SD relevant?
-Antwort: Ohne den spezifischen Namen des Prozesses kann ich das nicht beantworten. Der Prozess "SAP SD" ist laut dem System für folgende Prozesse relevant: "System anlegen/ändern/löschen → System verwalten", "Bestellabwicklung" und "Reklamationsbearbeitung".
-
-Ergebnis
-appliation
-System anlegen/ändern/löschen → System verwalten
-Bestellabwicklung
-Reklamationsbearbeitung
 
 2. Dual Source of Truth: kb.json vs. Neo4j (offen)
 Die Import-Pipeline liest confirmed/rejected Einträge direkt aus kb.json, während der Chat-Query-Layer
@@ -31,13 +12,25 @@ Ziel: Import-Pipeline auf direktes Lesen aus Neo4j-Aliases umstellen, kb.json al
 ablösen. Betrifft: pipeline.py (match_application_candidates, build_manual_matches),
 services/review_service.py, knowledge_base.py (confirmed/rejected sections).
 
-3. auf dem tab organisation sollten die abschnitte einklappbar und initial einklappt sein. im augenblick gehen die überschriften beim schnellen scrollen schnell verloren - erledigt
-4. auf dem tab organisation sollte im abschnitt "Prozesse ohne Eigentümer" eine batchverarbeitung möglich sein, so dass mehrere prozesse gleichzeitig der gleichen organisationseinheit zugeordnet werden können - erledigt
-5. um die übersicht der nicht zugeordneten rollen übersichtlicher zu machen, wäre es hilfreich einen button zu haben über den man den begriff als rolle fest definiert und somit klar macht, dass es hierfür keine zuordnung zu einer Organisatinseinheit geben wird - erledigt
-6. erfolgt über die Bestätigung einer Rolle zu einer Organisationseinheit ist die neue Orgeinheit nicht sofort für die nächste Zuweisung verfügbar, dazu bedarf es eines refresh. Sollte das nicht lösbar sein (zB weil die Dropdowns nur beim laden der Seite gefüllt werden) ist zumindest ein kurzer textueller Hinweis notwendig - erledigt
-7. Im Organisations-tab sollten die Kandidaten vor/über den zu bestätigenden/zu pflegenden Prozessverantwortlichen stehen, da sie mögliche Prozesseigentümer sind. Sofern sie bestätigt werden, müssen sie ab dem Zeitpunkt auch als Prozesseigentüber auswählbar sein - erledigt
-8. nicht zugeordnete rollen können aktuell einer Organisationseinheit zugewiesen werden, aber erfolgt dies nicht, bleiben sie in der Übersicht. Ein Button "Rolle" oder ähnlich beschriftet, wäre hilfreich, um die Übersicht zu verringern und klar zu machen, dass es sich nur um eine Rolle handelt - erledigt
+3. auf dem tab organisation sollten die abschnitte einklappbar und initial einklappt sein. - erledigt
+4. auf dem tab organisation sollte im abschnitt "Prozesse ohne Eigentümer" eine batchverarbeitung möglich sein. - erledigt
+5. um die übersicht der nicht zugeordneten rollen übersichtlicher zu machen, wäre es hilfreich einen button zu haben über den man den begriff als rolle fest definiert. - erledigt
+6. erfolgt über die Bestätigung einer Rolle zu einer Organisationseinheit ist die neue Orgeinheit nicht sofort für die nächste Zuweisung verfügbar. - erledigt
+7. Im Organisations-tab sollten die Kandidaten vor/über den zu bestätigenden/zu pflegenden Prozessverantwortlichen stehen. - erledigt
+8. nicht zugeordnete rollen können aktuell einer Organisationseinheit zugewiesen werden, aber erfolgt dies nicht, bleiben sie in der Übersicht. - erledigt
 
-9. gemma4:12b beantwortet faktische Fragen zur IT-Landschaft gelegentlich ohne den Graphen abzufragen (nicht-deterministisches Verhalten trotz korrektem System Prompt). Das Modell ignoriert das Tool-Protocol und halluziniert plausibel klingende Antworten aus dem Trainingswissen. - erledigt (theoretisch erledigt, bisher ist im debug modus kein recall protokolliert, aber das beobachtete verhalten trat nicht auf)
-Ursache: tool_choice: "auto" lässt dem Modell die Wahl; gemma4:12b entscheidet sich sporadisch gegen den Tool Call.
-Lösung: Correction-Retry in services/query_service.py (_run_tool_use_turn): Wenn der erste LLM-Response keinen Tool Call enthält und noch keine Query ausgeführt wurde, wird die halluzinierte Antwort ins History-Fenster übernommen, ein [HINWEIS] injiziert und einmal wiederholt. Beim zweiten Tool-losen Response wird die Antwort akzeptiert (legitime Fälle wie Grüße). Das Event "query_correction_retry" wird im debug.log sichtbar gemacht.
+9. gemma4:12b beantwortet faktische Fragen ohne den Graphen abzufragen (halluziniert trotz korrektem System Prompt). - erledigt
+
+10. konfidenz-Eigenschaft auf DIENT-Kanten im Chat nicht nutzbar — abhängig von #13 (offen)
+r.konfidenz ist zwar in graph_schema.py dokumentiert und dem LLM bekannt, aber in der Praxis existiert im Graphen ausschließlich "stark" (verifiziert: MATCH ()-[r]-() WHERE r.konfidenz IS NOT NULL RETURN DISTINCT r.konfidenz). Schwache Matches werden vom graph_writer herausgefiltert und nie geschrieben. Ein Prompt-Beispiel für konfidenz = 'schwach' ist daher aktuell wertlos — es gibt kein Datum zum Abfragen.
+Voraussetzung: #13 muss zuerst gelöst werden. Erst danach ist das Ergänzen eines Cypher-Beispiels in chat_system.md sinnvoll.
+
+11. ArchiMate-Typen nicht im Chat-System-Prompt verankert. - erledigt
+
+12. Transitive Impact-Analysen durch Prompt-Beispiele nicht abgedeckt. - erledigt
+
+13. Schwache Kandidaten nicht im Graphen — Chat kann Unsicherheit nicht abbilden (offen)
+Schwache Nicht-KB-Matches werden vom graph_writer gefiltert und nicht nach Neo4j geschrieben. Sie existieren nur in latest_run.json/Review-Tab. Damit kann der Chat-Layer BRIDGRs Kernfrage ("wie sicher wissen wir das?") nicht beantworten — weder für offene Kandidaten noch für schwache Matches. Dies ist kein Bug, sondern eine bewusste Designentscheidung (conservative write model).
+Ein Ausbau erfordert einen expliziten Designentscheid: Kandidaten als Pending-Nodes/-Kanten in Neo4j schreiben mit eigenem Status-Attribut. #10 ist von dieser Entscheidung abhängig.
+
+14. UI: einklappbare Abschnitte mit To-dos zeigen Item-Anzahl im Titel. - erledigt
