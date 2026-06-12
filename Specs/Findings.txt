@@ -66,8 +66,6 @@ Keine sofortige Aktion nötig, aber vor dem nächsten Release explizit entscheid
 Umgesetzt (b): Bei Bestätigung (promote_candidate_link) wird ein (:Alias {source_kind: 'confirmed_match'})-[:KANN_MEINEN]->(:Anwendung) angelegt, sofern raw_name ≠ matched_name (normalisiert). Der Chat kann den bestätigten Bezeichner damit direkt auflösen.
 Offen (a): Re-Import-Schutz für manuell_bestaetigt-Kanten. Alias-Lifecycle bei Ablehnung: siehe Finding #22.
 
-
-
 17. graph_schema.py: Ablehnung-Node und raw_name/source aus Query-Schema entfernen - erledigt
 Zwei kleine Bereinigungen am Query-Schema, das der LLM zur Laufzeit bekommt:
 
@@ -78,7 +76,6 @@ b) raw_name auf [:DIENT] ist ein Implementation Detail (roher Bezeichner aus dem
 Der LLM könnte theoretisch nach r.raw_name filtern, was fachlich keinen Sinn ergibt.
 Aus den Properties von RelationshipPattern("DIENT") entfernen.
 source dagegen ist potenziell nützlich (manuell_bestaetigt vs strong) und kann bleiben.
-
 
 18. OrgEinheit-Duplikate in Neo4j durch case-sensitive MERGE - erledigt
 Neo4j's MERGE ist case-sensitiv. Wird derselbe Organisationseinheitsname mit unterschiedlicher Schreibweise
@@ -123,6 +120,7 @@ Import/Export-Diskrepanz (Import akzeptiert nur "Association", Export schreibt "
 Ein BRIDGR-Export lässt sich damit nicht verlustfrei reimportieren. Beim Fix von OrgEinheit->Prozess
 sollten diese beiden Einträge mit korrigiert werden (import ebenfalls auf "Assignment" erweitern).
 - erledigt (auch _label_pair_to_relation aus hardcoded Dict in JSON-getriebenes Lookup überführt; neuer bridgr_relation-Abschnitt in archimate_mapping.json)
+
 20. ArchiMate-Import: Detailinformation zu übersprungenen Beziehungen fehlt - erledigt
 Werden bei einem ArchiMate-Import Beziehungen übersprungen, erscheint nur eine Sammel-Meldung,
 z.B. "Übersprungene ArchiMate-Typen: Assignment (4), Serving (1)". Der Benutzer kann nicht
