@@ -5,9 +5,10 @@ from skills.match import MatchResult
 
 
 class RecordingNeo4jClient:
-    def __init__(self) -> None:
+    def __init__(self, read_response: list[dict] | None = None) -> None:
         self.queries: list[tuple[str, dict | None]] = []
         self.responses: list[list[dict]] = []
+        self._read_response = read_response or []
 
     def ensure_constraints(self) -> None:
         self.queries.append(("ENSURE_CONSTRAINTS", None))
@@ -20,7 +21,7 @@ class RecordingNeo4jClient:
 
     def execute_read(self, query: str, parameters=None):
         self.queries.append((query, parameters))
-        return []
+        return list(self._read_response)
 
 
 def test_graph_writer_removes_existing_process_application_links_before_rewrite() -> None:
@@ -457,6 +458,43 @@ def test_graph_writer_promote_candidate_link_deletes_koennte_dienen_and_writes_d
     assert dient_params[0]["source"] == "manuell_bestaetigt"
 
 
+def test_promote_candidate_link_writes_alias_when_raw_name_differs() -> None:
+    """Confirming a weak candidate with a different raw_name creates a confirmed_match Alias node."""
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+
+    writer.promote_candidate_link(client, cmdb_id="cmdb-1", process_id="proc-1", raw_name="SAP CRM", matched_name="SAP SRM")
+
+    alias_queries = [query for query, params in client.queries if "Alias" in query and "KANN_MEINEN" in query]
+    assert len(alias_queries) == 1
+    alias_params = [params for query, params in client.queries if "Alias" in query and "KANN_MEINEN" in query][0]
+    assert alias_params["alias_name"] == "SAP CRM"
+    assert alias_params["normalized_name"] == "sap crm"
+    assert alias_params["source_kind"] == "confirmed_match"
+
+
+def test_promote_candidate_link_skips_alias_when_names_identical() -> None:
+    """No Alias node is written when raw_name and matched_name are the same."""
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+
+    writer.promote_candidate_link(client, cmdb_id="cmdb-1", process_id="proc-1", raw_name="SAP SRM", matched_name="SAP SRM")
+
+    alias_queries = [query for query, _ in client.queries if "Alias" in query and "KANN_MEINEN" in query]
+    assert alias_queries == []
+
+
+def test_promote_candidate_link_skips_alias_when_names_differ_only_in_case() -> None:
+    """No Alias node is written when names differ only in casing (normalize to same value)."""
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+
+    writer.promote_candidate_link(client, cmdb_id="cmdb-1", process_id="proc-1", raw_name="SAP SRM", matched_name="sap srm")
+
+    alias_queries = [query for query, _ in client.queries if "Alias" in query and "KANN_MEINEN" in query]
+    assert alias_queries == []
+
+
 def test_graph_writer_reject_candidate_link_creates_ablehnung_node() -> None:
     writer = GraphWriter()
     client = RecordingNeo4jClient()
@@ -523,3 +561,48 @@ def test_graph_writer_syncs_cmdb_entities_relations_and_owners() -> None:
     assert any("MERGE (source)-[:USES_INTERFACE]->(target)" in query for query in queries)
     assert any("MERGE (source)-[:RUNS_ON]->(target)" in query for query in queries)
     assert any("MERGE (o)-[:VERANTWORTET]->(target)" in query for query in queries)
+
+
+# --- OrgEinheit deduplication via canonical name resolution ---
+
+def test_resolve_org_unit_canonical_name_returns_existing_name() -> None:
+    """When a matching OrgEinheit already exists in DB, its stored name is returned."""
+    writer = GraphWriter()
+    client = RecordingNeo4jClient(read_response=[{"name": "Sales"}])
+    result = writer._resolve_org_unit_canonical_name(client, "SALES")
+    assert result == "Sales"
+
+
+def test_resolve_org_unit_canonical_name_falls_back_to_stripped_input() -> None:
+    """When no matching OrgEinheit exists, the stripped input name is returned."""
+    writer = GraphWriter()
+    client = RecordingNeo4jClient(read_response=[])
+    result = writer._resolve_org_unit_canonical_name(client, "  Sales  ")
+    assert result == "Sales"
+
+
+def test_write_role_assignment_uses_canonical_name_from_db() -> None:
+    """write_role_assignment must use DB-canonical name to prevent case-variant duplicates."""
+    writer = GraphWriter()
+    client = RecordingNeo4jClient(read_response=[{"name": "Sales"}])
+    writer.write_role_assignment(client, "SALES", "Sachbearbeiter")
+    merge_params = [params for query, params in client.queries if "MERGE (o:OrgEinheit" in query]
+    assert len(merge_params) == 1
+    assert merge_params[0]["org_unit_name"] == "Sales"
+
+
+def test_sync_cmdb_uses_canonical_org_unit_name() -> None:
+    """sync_cmdb must resolve canonical OrgEinheit name before writing VERANTWORTET."""
+    writer = GraphWriter()
+    client = RecordingNeo4jClient(read_response=[{"name": "Vertrieb"}])
+    writer.sync_cmdb(
+        client,
+        NormalizedCmdb(entities=[], relations=[]),
+        owner_assignments={"app-1": "VERTRIEB"},
+    )
+    verantwortet_params = [
+        params for query, params in client.queries
+        if params and "org_unit_name" in params
+    ]
+    assert len(verantwortet_params) == 1
+    assert verantwortet_params[0]["org_unit_name"] == "Vertrieb"

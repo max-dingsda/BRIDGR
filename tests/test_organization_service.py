@@ -24,6 +24,9 @@ class FakeNeo4jClient:
         self.written.append((query, parameters))
         return self._rows
 
+    def execute_read(self, query: str, parameters=None):
+        return []
+
 
 def _make_config():
     config = MagicMock()

@@ -25,6 +25,7 @@ _LABEL_PAIRS: list[str] = [
     "Anwendung->Prozess",
     "Rolle->Prozess",
     "OrgEinheit->Rolle",
+    "OrgEinheit->Prozess",
     "Prozess->Prozess",
     "Anwendung->Schnittstelle",
     "Anwendung->Server",
@@ -266,6 +267,22 @@ def _reject_candidate(mapping: dict, candidate: dict) -> None:
 # Import section
 # ---------------------------------------------------------------------------
 
+_SKIP_REASON_LABELS: dict[str, str] = {
+    "unresolvable_endpoint": "unbekannter Endpunkt",
+    "type_not_accepted":     "Typ nicht konfiguriert",
+    "no_bridgr_relation":    "kein BRIDGR-Mapping",
+}
+
+
+def _render_skipped_relations(skipped: list[dict]) -> None:
+    with st.expander(f"Übersprungene Beziehungen ({len(skipped)})", expanded=False):
+        for entry in skipped:
+            reason_label = _SKIP_REASON_LABELS.get(entry["reason"], entry["reason"])
+            st.markdown(
+                f"- `[{reason_label}]` "
+                f"**{entry['source']}** –[{entry['rel_type']}]→ **{entry['target']}**"
+            )
+
 def _render_import_section(config, mapping: dict) -> None:
     st.markdown("#### Import")
     uploaded = st.file_uploader(
@@ -286,11 +303,8 @@ def _render_import_section(config, mapping: dict) -> None:
                 f"{result.relations_imported} Beziehungen importiert, "
                 f"{result.relations_skipped} Beziehungen übersprungen."
             )
-            if result.skipped_types:
-                skipped_summary = ", ".join(
-                    f"{t} ({n})" for t, n in sorted(result.skipped_types.items())
-                )
-                st.info(f"Übersprungene ArchiMate-Typen: {skipped_summary}")
+            if result.skipped_relations:
+                _render_skipped_relations(result.skipped_relations)
         except Exception as exc:
             st.error(f"Import fehlgeschlagen: {exc}")
         finally:

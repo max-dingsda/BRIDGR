@@ -78,6 +78,7 @@ _DEFAULT_MAPPING = {
         "import": {
             "BusinessProcess": "Prozess",
             "ApplicationComponent": "Anwendung",
+            "BusinessActor": "OrgEinheit",
         },
         "export": {},
     },
@@ -85,8 +86,22 @@ _DEFAULT_MAPPING = {
         "import": {
             "Anwendung->Prozess": ["Serving"],
             "Prozess->Prozess": ["Triggering", "Flow"],
+            "OrgEinheit->Prozess": ["Assignment"],
         },
         "export": {},
+        "bridgr_relation": {
+            "Anwendung->Prozess":        "DIENT",
+            "Rolle->Prozess":            "BETEILIGT_AN",
+            "OrgEinheit->Rolle":         "KANN_EINNEHMEN",
+            "Prozess->Prozess":          "FOLGT_AUF",
+            "Anwendung->Schnittstelle":  "USES_INTERFACE",
+            "Anwendung->Server":         "RUNS_ON",
+            "Schnittstelle->Server":     "RUNS_ON",
+            "OrgEinheit->Anwendung":     "VERANTWORTET",
+            "OrgEinheit->Schnittstelle": "VERANTWORTET",
+            "OrgEinheit->Server":        "VERANTWORTET",
+            "OrgEinheit->Prozess":       "VERANTWORTET",
+        },
     },
     "pending_candidates": [],
 }
@@ -194,14 +209,30 @@ def test_fuzzy_match_exact_returns_full_score() -> None:
 
 # --- _label_pair_to_relation ---
 
+_BRIDGR_MAP = _DEFAULT_MAPPING["relationships"]["bridgr_relation"]
+
+
 def test_label_pair_to_relation_known() -> None:
-    assert _label_pair_to_relation("Anwendung", "Prozess") == "DIENT"
-    assert _label_pair_to_relation("Prozess", "Prozess") == "FOLGT_AUF"
-    assert _label_pair_to_relation("OrgEinheit", "Anwendung") == "VERANTWORTET"
+    assert _label_pair_to_relation("Anwendung", "Prozess", _BRIDGR_MAP) == "DIENT"
+    assert _label_pair_to_relation("Prozess", "Prozess", _BRIDGR_MAP) == "FOLGT_AUF"
+    assert _label_pair_to_relation("OrgEinheit", "Anwendung", _BRIDGR_MAP) == "VERANTWORTET"
+
+
+def test_label_pair_org_prozess_returns_verantwortet() -> None:
+    assert _label_pair_to_relation("OrgEinheit", "Prozess", _BRIDGR_MAP) == "VERANTWORTET"
 
 
 def test_label_pair_to_relation_unknown_returns_none() -> None:
-    assert _label_pair_to_relation("Prozess", "Anwendung") is None
+    assert _label_pair_to_relation("Prozess", "Anwendung", _BRIDGR_MAP) is None
+
+
+def test_label_pair_to_relation_empty_map_returns_none() -> None:
+    assert _label_pair_to_relation("Anwendung", "Prozess", {}) is None
+
+
+def test_label_pair_to_relation_reads_custom_map() -> None:
+    custom = {"Anwendung->Prozess": "CUSTOM_REL"}
+    assert _label_pair_to_relation("Anwendung", "Prozess", custom) == "CUSTOM_REL"
 
 
 # --- _import_to_neo4j ---
@@ -295,6 +326,123 @@ def test_import_relation_skipped_when_endpoint_unresolved() -> None:
     client = RecordingNeo4jClient(read_results={})
     result = _import_to_neo4j(client, elements, [relation], _DEFAULT_MAPPING, "test.xml")
     assert result.relations_skipped == 1
+
+
+def test_import_org_prozess_assignment_creates_verantwortet() -> None:
+    """OrgEinheit->Prozess via Assignment must produce a VERANTWORTET relation."""
+    from services.archimate_import_service import ArchiMateElement, ArchiMateRelation
+
+    elements = [
+        ArchiMateElement("id-org", "BusinessActor", "Sales", "OrgEinheit"),
+        ArchiMateElement("id-proc", "BusinessProcess", "Auftragsabwicklung", "Prozess"),
+    ]
+    relation = ArchiMateRelation("id-rel", "Assignment", "id-org", "id-proc")
+    client = RecordingNeo4jClient(read_results={})
+    result = _import_to_neo4j(client, elements, [relation], _DEFAULT_MAPPING, "test.xml")
+    assert result.relations_imported == 1
+    assert result.relations_skipped == 0
+    verantwortet_queries = [q for q, _ in client.queries if "VERANTWORTET" in q]
+    assert len(verantwortet_queries) == 1
+
+
+def test_import_org_prozess_skipped_without_bridgr_relation_entry() -> None:
+    """Without bridgr_relation entry, OrgEinheit->Prozess is skipped even if import type matches."""
+    from services.archimate_import_service import ArchiMateElement, ArchiMateRelation
+
+    mapping_no_bridgr = {
+        **_DEFAULT_MAPPING,
+        "relationships": {
+            **_DEFAULT_MAPPING["relationships"],
+            "bridgr_relation": {},  # empty — no BRIDGR relation defined
+        },
+    }
+    elements = [
+        ArchiMateElement("id-org", "BusinessActor", "Sales", "OrgEinheit"),
+        ArchiMateElement("id-proc", "BusinessProcess", "Auftragsabwicklung", "Prozess"),
+    ]
+    relation = ArchiMateRelation("id-rel", "Assignment", "id-org", "id-proc")
+    client = RecordingNeo4jClient(read_results={})
+    result = _import_to_neo4j(client, elements, [relation], mapping_no_bridgr, "test.xml")
+    assert result.relations_skipped == 1
+    assert result.relations_imported == 0
+
+
+# --- skipped_relations detail ---
+
+def test_skipped_relation_unresolved_endpoint_recorded() -> None:
+    from services.archimate_import_service import ArchiMateElement, ArchiMateRelation
+
+    elements = [
+        ArchiMateElement("id-1", "BusinessProcess", "Posteingang", "Prozess"),
+    ]
+    relation = ArchiMateRelation("id-3", "Serving", "id-unknown", "id-1")
+    client = RecordingNeo4jClient(read_results={})
+    result = _import_to_neo4j(client, elements, [relation], _DEFAULT_MAPPING, "test.xml")
+    assert result.relations_skipped == 1
+    assert len(result.skipped_relations) == 1
+    entry = result.skipped_relations[0]
+    assert entry["reason"] == "unresolvable_endpoint"
+    assert entry["rel_type"] == "Serving"
+    assert entry["target"] == "Posteingang"
+    assert entry["source"] == "?"
+
+
+def test_skipped_relation_type_not_accepted_recorded() -> None:
+    from services.archimate_import_service import ArchiMateElement, ArchiMateRelation
+
+    elements = [
+        ArchiMateElement("id-1", "BusinessProcess", "Posteingang", "Prozess"),
+        ArchiMateElement("id-2", "ApplicationComponent", "SAP SD", "Anwendung"),
+    ]
+    relation = ArchiMateRelation("id-3", "Aggregation", "id-2", "id-1")
+    client = RecordingNeo4jClient(read_results={})
+    result = _import_to_neo4j(client, elements, [relation], _DEFAULT_MAPPING, "test.xml")
+    assert result.relations_skipped == 1
+    assert len(result.skipped_relations) == 1
+    entry = result.skipped_relations[0]
+    assert entry["reason"] == "type_not_accepted"
+    assert entry["rel_type"] == "Aggregation"
+    assert entry["source"] == "SAP SD"
+    assert entry["target"] == "Posteingang"
+
+
+def test_skipped_relation_no_bridgr_mapping_recorded() -> None:
+    from services.archimate_import_service import ArchiMateElement, ArchiMateRelation
+
+    mapping_no_bridgr = {
+        **_DEFAULT_MAPPING,
+        "relationships": {
+            **_DEFAULT_MAPPING["relationships"],
+            "bridgr_relation": {},
+        },
+    }
+    elements = [
+        ArchiMateElement("id-org", "BusinessActor", "Sales", "OrgEinheit"),
+        ArchiMateElement("id-proc", "BusinessProcess", "Auftragsabwicklung", "Prozess"),
+    ]
+    relation = ArchiMateRelation("id-rel", "Assignment", "id-org", "id-proc")
+    client = RecordingNeo4jClient(read_results={})
+    result = _import_to_neo4j(client, elements, [relation], mapping_no_bridgr, "test.xml")
+    assert result.relations_skipped == 1
+    assert len(result.skipped_relations) == 1
+    entry = result.skipped_relations[0]
+    assert entry["reason"] == "no_bridgr_relation"
+    assert entry["source"] == "Sales"
+    assert entry["target"] == "Auftragsabwicklung"
+
+
+def test_skipped_relations_empty_when_all_imported() -> None:
+    from services.archimate_import_service import ArchiMateElement, ArchiMateRelation
+
+    elements = [
+        ArchiMateElement("id-1", "BusinessProcess", "Posteingang", "Prozess"),
+        ArchiMateElement("id-2", "ApplicationComponent", "SAP SD", "Anwendung"),
+    ]
+    relation = ArchiMateRelation("id-3", "Serving", "id-2", "id-1")
+    client = RecordingNeo4jClient(read_results={})
+    result = _import_to_neo4j(client, elements, [relation], _DEFAULT_MAPPING, "test.xml")
+    assert result.relations_imported == 1
+    assert result.skipped_relations == []
 
 
 # --- load_archimate_mapping ---

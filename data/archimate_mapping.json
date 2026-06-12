@@ -27,41 +27,17 @@
   },
   "relationships": {
     "import": {
-      "Anwendung->Prozess": [
-        "Serving",
-        "Realization"
-      ],
-      "Rolle->Prozess": [
-        "Assignment"
-      ],
-      "OrgEinheit->Rolle": [
-        "Assignment"
-      ],
-      "Prozess->Prozess": [
-        "Triggering",
-        "Flow"
-      ],
-      "Anwendung->Schnittstelle": [
-        "Composition",
-        "Aggregation"
-      ],
-      "Anwendung->Server": [
-        "Realization",
-        "Assignment"
-      ],
-      "Schnittstelle->Server": [
-        "Realization"
-      ],
-      "OrgEinheit->Anwendung": [
-        "Association",
-        "Assignment"
-      ],
-      "OrgEinheit->Schnittstelle": [
-        "Association"
-      ],
-      "OrgEinheit->Server": [
-        "Association"
-      ]
+      "Anwendung->Prozess": ["Serving", "Realization"],
+      "Rolle->Prozess": ["Assignment"],
+      "OrgEinheit->Rolle": ["Assignment"],
+      "Prozess->Prozess": ["Triggering", "Flow"],
+      "Anwendung->Schnittstelle": ["Composition", "Aggregation"],
+      "Anwendung->Server": ["Realization", "Assignment"],
+      "Schnittstelle->Server": ["Realization"],
+      "OrgEinheit->Anwendung": ["Association", "Assignment"],
+      "OrgEinheit->Schnittstelle": ["Association", "Assignment"],
+      "OrgEinheit->Server": ["Association", "Assignment"],
+      "OrgEinheit->Prozess": ["Assignment"]
     },
     "export": {
       "Anwendung->Prozess": "Serving",
@@ -73,7 +49,21 @@
       "Schnittstelle->Server": "Realization",
       "OrgEinheit->Anwendung": "Assignment",
       "OrgEinheit->Schnittstelle": "Assignment",
-      "OrgEinheit->Server": "Assignment"
+      "OrgEinheit->Server": "Assignment",
+      "OrgEinheit->Prozess": "Assignment"
+    },
+    "bridgr_relation": {
+      "Anwendung->Prozess": "DIENT",
+      "Rolle->Prozess": "BETEILIGT_AN",
+      "OrgEinheit->Rolle": "KANN_EINNEHMEN",
+      "Prozess->Prozess": "FOLGT_AUF",
+      "Anwendung->Schnittstelle": "USES_INTERFACE",
+      "Anwendung->Server": "RUNS_ON",
+      "Schnittstelle->Server": "RUNS_ON",
+      "OrgEinheit->Anwendung": "VERANTWORTET",
+      "OrgEinheit->Schnittstelle": "VERANTWORTET",
+      "OrgEinheit->Server": "VERANTWORTET",
+      "OrgEinheit->Prozess": "VERANTWORTET"
     }
   },
   "pending_candidates": [

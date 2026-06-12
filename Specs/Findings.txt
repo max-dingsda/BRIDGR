@@ -42,7 +42,7 @@ kb.json darf still existieren, soll aber nicht mehr aktiv befüllt oder gelesen 
 Ziel: in einer späteren Session vollständig entfernen, sobald sichergestellt ist, dass kein
 Code mehr darauf zugreift.
 
-16. Bestätigte KÖNNTE_DIENEN-Kandidaten verschwinden aus dem Graphen — Diskussionsbedarf (offen)
+16. Bestätigte KÖNNTE_DIENEN-Kandidaten verschwinden aus dem Graphen — teilweise erledigt
 Nach Bestätigung eines schwachen Kandidaten (KÖNNTE_DIENEN → DIENT) ist der raw_name nur noch als
 Property auf der DIENT-Kante sichtbar, nicht mehr als eigenständiges Graphobjekt.
 
@@ -63,7 +63,21 @@ auch ohne explizite DIENT-Kante auflösen können.
 
 Keine sofortige Aktion nötig, aber vor dem nächsten Release explizit entscheiden.
 
-17. graph_schema.py: Ablehnung-Node und raw_name/source aus Query-Schema entfernen (offen)
+Umgesetzt (b): Bei Bestätigung (promote_candidate_link) wird ein (:Alias {source_kind: 'confirmed_match'})-[:KANN_MEINEN]->(:Anwendung) angelegt, sofern raw_name ≠ matched_name (normalisiert). Der Chat kann den bestätigten Bezeichner damit direkt auflösen.
+Offen (a): Re-Import-Schutz für manuell_bestaetigt-Kanten. Alias-Lifecycle bei Ablehnung: siehe Finding #22.
+
+22. Alias-Lifecycle bei Ablehnung bestätigter KÖNNTE_DIENEN-Links (offen)
+Wenn ein Benutzer eine bestätigte DIENT-Kante (source: manuell_bestaetigt) nachträglich ablehnt oder
+die Bestätigung zurückzieht, bleibt der zugehörige (:Alias {source_kind: 'confirmed_match'})-Knoten
+im Graphen. Der Chat würde weiterhin "SAP CRM → SAP SRM" auflösen, obwohl der Link nicht mehr
+bestätigt ist.
+
+Frage: Soll beim Zurückziehen einer manuell_bestaetigt-Bestätigung der Alias mitgelöscht werden?
+Oder bleibt der Alias dauerhaft, weil der Bezeichner real ist (er wurde im Dokument gefunden)?
+
+Aktuell: kein Löschpfad — Alias bleibt bis zur nächsten Diskussion unangetastet.
+
+17. graph_schema.py: Ablehnung-Node und raw_name/source aus Query-Schema entfernen - erledigt
 Zwei kleine Bereinigungen am Query-Schema, das der LLM zur Laufzeit bekommt:
 
 a) (:Ablehnung) ist ein interner Entscheidungsknoten, kein fachliches EA-Objekt. Der LLM hat
@@ -75,7 +89,7 @@ Aus den Properties von RelationshipPattern("DIENT") entfernen.
 source dagegen ist potenziell nützlich (manuell_bestaetigt vs strong) und kann bleiben.
 
 
-18. OrgEinheit-Duplikate in Neo4j durch case-sensitive MERGE (offen)
+18. OrgEinheit-Duplikate in Neo4j durch case-sensitive MERGE - erledigt
 Neo4j's MERGE ist case-sensitiv. Wird derselbe Organisationseinheitsname mit unterschiedlicher Schreibweise
 geschrieben (z.B. "Sales" und "SALES"), entstehen zwei separate (:OrgEinheit)-Knoten. Das war bisher
 unsichtbar, weil der BRIDGR-Tab aus kb.json liest und dort normalize_org_unit_name() (casefold) als
@@ -117,8 +131,8 @@ Zusatzbefund: OrgEinheit->Schnittstelle und OrgEinheit->Server haben bereits jet
 Import/Export-Diskrepanz (Import akzeptiert nur "Association", Export schreibt "Assignment").
 Ein BRIDGR-Export lässt sich damit nicht verlustfrei reimportieren. Beim Fix von OrgEinheit->Prozess
 sollten diese beiden Einträge mit korrigiert werden (import ebenfalls auf "Assignment" erweitern).
-
-20. ArchiMate-Import: Detailinformation zu übersprungenen Beziehungen fehlt (offen)
+- erledigt (auch _label_pair_to_relation aus hardcoded Dict in JSON-getriebenes Lookup überführt; neuer bridgr_relation-Abschnitt in archimate_mapping.json)
+20. ArchiMate-Import: Detailinformation zu übersprungenen Beziehungen fehlt - erledigt
 Werden bei einem ArchiMate-Import Beziehungen übersprungen, erscheint nur eine Sammel-Meldung,
 z.B. "Übersprungene ArchiMate-Typen: Assignment (4), Serving (1)". Der Benutzer kann nicht
 erkennen, welche konkreten Verbindungen fehlen und wo nachgearbeitet werden muss.
@@ -136,3 +150,22 @@ Es gibt drei Skip-Pfade (unauflösbarer Name, Typ nicht im Mapping, kein BRIDGR-
 alle in denselben Zähler fließen. Zum Zeitpunkt des Überspringens sind source_name, target_name,
 source_label, target_label und rel.archimate_rel_type bereits verfügbar — der Fix erfordert kein
 Refactoring, nur erweitertes Sammeln der Detail-Infos in einer Liste statt eines Zählers.
+
+21. Validator-Regex in graph_schema.py nicht Unicode-fähig — KÖNNTE_DIENEN/KÖNNTE_VERANTWORTEN werden abgewiesen (Bug, erledigt)
+Die Regex-Muster in validate_query_schema() verwenden ausschließlich ASCII-Zeichenklassen
+([A-Za-z_][A-Za-z0-9_]*). Cypher-Queries mit KÖNNTE_DIENEN oder KÖNNTE_VERANTWORTEN werden
+dadurch falsch geparst: Der Regex extrahiert nur den Teil bis zum ersten Umlaut (z.B. "K" aus
+"KÖNNTE_DIENEN") und weist diesen als unbekannten Relationstyp ab.
+
+Root cause: Alle fünf Identifier-Muster in _validate_labels, _extract_variable_labels,
+_validate_relationship_types, _validate_relationship_patterns und _validate_properties
+müssen von [A-Za-z_][A-Za-z0-9_]* auf [^\W\d]\w* umgestellt werden. Python 3 matched \w
+standardmäßig Unicode-zeichentreu (re.UNICODE ist Default).
+
+Auswirkung: Im Tool-Use-Modus und Prompt-Only-Modus werden alle LLM-generierten Queries,
+die KÖNNTE_DIENEN oder KÖNNTE_VERANTWORTEN verwenden, vom Validator mit "unknown relationship
+type" abgewiesen — obwohl beide Typen im Schema erlaubt sind. Der Chat kann damit die
+Kernfrage "wie sicher wissen wir das?" faktisch nicht beantworten.
+
+Fix: Konstante _IDENT = r"[^\W\d]\w*" definieren und in allen fünf Regex-Mustern einsetzen.
+

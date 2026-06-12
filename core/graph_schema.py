@@ -5,6 +5,11 @@ import json
 import re
 
 
+# Unicode-aware identifier: starts with letter/underscore, followed by word chars.
+# Necessary because BRIDGR relationship types contain umlauts (KÖNNTE_DIENEN, KÖNNTE_VERANTWORTEN).
+_IDENT = r"[^\W\d]\w*"
+
+
 @dataclass(frozen=True, slots=True)
 class RelationshipPattern:
     relationship_type: str
@@ -20,11 +25,10 @@ QUERY_NODE_SCHEMA: dict[str, tuple[str, ...]] = {
     "Server": ("id", "name", "server_type", "archimate_type", "archimate_id"),
     "OrgEinheit": ("name",),
     "Rolle": ("name", "archimate_type", "archimate_id"),
-    "Ablehnung": ("prozess_name", "anwendung_name"),
 }
 
 QUERY_RELATIONSHIP_PATTERNS: tuple[RelationshipPattern, ...] = (
-    RelationshipPattern("DIENT", "Anwendung", "Prozess", ("konfidenz", "raw_name", "source")),
+    RelationshipPattern("DIENT", "Anwendung", "Prozess", ("konfidenz", "source")),
     RelationshipPattern("BETEILIGT_AN", "Rolle", "Prozess"),
     RelationshipPattern("KANN_EINNEHMEN", "OrgEinheit", "Rolle"),
     RelationshipPattern("VERANTWORTET", "OrgEinheit", "Prozess"),
@@ -81,7 +85,7 @@ def validate_query_schema(cleaned_query: str) -> None:
 
 
 def _validate_labels(cleaned_query: str) -> None:
-    labels = re.findall(r"\(\s*[A-Za-z_][A-Za-z0-9_]*\s*:\s*([A-Za-z_][A-Za-z0-9_]*)", cleaned_query)
+    labels = re.findall(rf"\(\s*{_IDENT}\s*:\s*({_IDENT})", cleaned_query)
     for label in labels:
         if label not in QUERY_NODE_SCHEMA:
             raise ValueError(f"Cypher query uses unknown node label: {label}")
@@ -90,7 +94,7 @@ def _validate_labels(cleaned_query: str) -> None:
 def _extract_variable_labels(cleaned_query: str) -> dict[str, set[str]]:
     variable_labels: dict[str, set[str]] = {}
     for variable, label in re.findall(
-        r"\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*:\s*([A-Za-z_][A-Za-z0-9_]*)",
+        rf"\(\s*({_IDENT})\s*:\s*({_IDENT})",
         cleaned_query,
     ):
         variable_labels.setdefault(variable, set()).add(label)
@@ -99,7 +103,7 @@ def _extract_variable_labels(cleaned_query: str) -> dict[str, set[str]]:
 
 def _validate_relationship_types(cleaned_query: str) -> None:
     relationship_types = re.findall(
-        r"\[\s*(?:[A-Za-z_][A-Za-z0-9_]*\s*)?:\s*([A-Za-z_][A-Za-z0-9_]*)",
+        rf"\[\s*(?:{_IDENT}\s*)?:\s*({_IDENT})",
         cleaned_query,
     )
     allowed_relationships = set(QUERY_RELATIONSHIP_SCHEMA)
@@ -113,11 +117,11 @@ def _validate_relationship_patterns(
     variable_labels: dict[str, set[str]],
 ) -> None:
     pattern_matches = re.finditer(
-        r"\(\s*(?P<left_var>[A-Za-z_][A-Za-z0-9_]*)(?:\s*:\s*(?P<left_label>[A-Za-z_][A-Za-z0-9_]*))?[^)]*\)"
-        r"\s*(?P<left_arrow><-|-)\s*"
-        r"\[\s*(?:[A-Za-z_][A-Za-z0-9_]*\s*)?:\s*(?P<relationship>[A-Za-z_][A-Za-z0-9_]*)[^\]]*\]"
-        r"\s*(?P<right_arrow>->|-)\s*"
-        r"\(\s*(?P<right_var>[A-Za-z_][A-Za-z0-9_]*)(?:\s*:\s*(?P<right_label>[A-Za-z_][A-Za-z0-9_]*))?[^)]*\)",
+        rf"\(\s*(?P<left_var>{_IDENT})(?:\s*:\s*(?P<left_label>{_IDENT}))?[^)]*\)"
+        rf"\s*(?P<left_arrow><-|-)\s*"
+        rf"\[\s*(?:{_IDENT}\s*)?:\s*(?P<relationship>{_IDENT})[^\]]*\]"
+        rf"\s*(?P<right_arrow>->|-)\s*"
+        rf"\(\s*(?P<right_var>{_IDENT})(?:\s*:\s*(?P<right_label>{_IDENT}))?[^)]*\)",
         cleaned_query,
     )
     for match in pattern_matches:
@@ -165,7 +169,7 @@ def _resolve_labels(variable: str, inline_label: str | None, variable_labels: di
 
 
 def _validate_properties(cleaned_query: str, variable_labels: dict[str, set[str]]) -> None:
-    for variable, property_name in re.findall(r"\b([A-Za-z_][A-Za-z0-9_]*)\.([A-Za-z_][A-Za-z0-9_]*)\b", cleaned_query):
+    for variable, property_name in re.findall(rf"\b({_IDENT})\.({_IDENT})\b", cleaned_query):
         labels = variable_labels.get(variable)
         if not labels or len(labels) != 1:
             continue

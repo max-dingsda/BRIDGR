@@ -63,6 +63,7 @@ class ArchiMateImportResult:
     relations_imported: int = 0
     relations_skipped: int = 0
     skipped_types: dict[str, int] = field(default_factory=dict)
+    skipped_relations: list[dict] = field(default_factory=list)
 
 
 def load_archimate_mapping(path: Path | None = None) -> dict:
@@ -187,6 +188,7 @@ def _import_to_neo4j(
     writer = GraphWriter()
     threshold: float = mapping.get("fuzzy_match_threshold", 0.85)
     rel_import_map: dict[str, list[str]] = mapping.get("relationships", {}).get("import", {})
+    bridgr_map: dict[str, str] = mapping.get("relationships", {}).get("bridgr_relation", {})
 
     # archimate_id → resolved name (for nodes successfully imported/merged)
     id_to_name: dict[str, str] = {}
@@ -221,6 +223,12 @@ def _import_to_neo4j(
 
         if not source_name or not target_name or not source_label or not target_label:
             result.relations_skipped += 1
+            result.skipped_relations.append({
+                "source": source_name or "?",
+                "target": target_name or "?",
+                "rel_type": rel.archimate_rel_type,
+                "reason": "unresolvable_endpoint",
+            })
             continue
 
         pair_key = f"{source_label}->{target_label}"
@@ -228,11 +236,23 @@ def _import_to_neo4j(
         if rel.archimate_rel_type not in accepted_types:
             result.relations_skipped += 1
             skipped_types[rel.archimate_rel_type] = skipped_types.get(rel.archimate_rel_type, 0) + 1
+            result.skipped_relations.append({
+                "source": source_name,
+                "target": target_name,
+                "rel_type": rel.archimate_rel_type,
+                "reason": "type_not_accepted",
+            })
             continue
 
-        bridgr_relation = _label_pair_to_relation(source_label, target_label)
+        bridgr_relation = _label_pair_to_relation(source_label, target_label, bridgr_map)
         if bridgr_relation is None:
             result.relations_skipped += 1
+            result.skipped_relations.append({
+                "source": source_name,
+                "target": target_name,
+                "rel_type": rel.archimate_rel_type,
+                "reason": "no_bridgr_relation",
+            })
             continue
 
         writer.merge_archimate_relation(
@@ -323,20 +343,8 @@ def _add_pending_candidate(element: ArchiMateElement, matched_name: str, score: 
         save_archimate_mapping(mapping)
 
 
-def _label_pair_to_relation(source_label: str, target_label: str) -> str | None:
-    _RELATION_MAP: dict[tuple[str, str], str] = {
-        ("Anwendung", "Prozess"):       "DIENT",
-        ("Rolle", "Prozess"):           "BETEILIGT_AN",
-        ("OrgEinheit", "Rolle"):        "KANN_EINNEHMEN",
-        ("Prozess", "Prozess"):         "FOLGT_AUF",
-        ("Anwendung", "Schnittstelle"): "USES_INTERFACE",
-        ("Anwendung", "Server"):        "RUNS_ON",
-        ("Schnittstelle", "Server"):    "RUNS_ON",
-        ("OrgEinheit", "Anwendung"):    "VERANTWORTET",
-        ("OrgEinheit", "Schnittstelle"):"VERANTWORTET",
-        ("OrgEinheit", "Server"):       "VERANTWORTET",
-    }
-    return _RELATION_MAP.get((source_label, target_label))
+def _label_pair_to_relation(source_label: str, target_label: str, bridgr_map: dict) -> str | None:
+    return bridgr_map.get(f"{source_label}->{target_label}")
 
 
 def _default_mapping() -> dict:
@@ -371,8 +379,9 @@ def _default_mapping() -> dict:
                 "Anwendung->Server":         ["Realization", "Assignment"],
                 "Schnittstelle->Server":     ["Realization"],
                 "OrgEinheit->Anwendung":     ["Association", "Assignment"],
-                "OrgEinheit->Schnittstelle": ["Association"],
-                "OrgEinheit->Server":        ["Association"],
+                "OrgEinheit->Schnittstelle": ["Association", "Assignment"],
+                "OrgEinheit->Server":        ["Association", "Assignment"],
+                "OrgEinheit->Prozess":       ["Assignment"],
             },
             "export": {
                 "Anwendung->Prozess":        "Serving",
@@ -382,9 +391,23 @@ def _default_mapping() -> dict:
                 "Anwendung->Schnittstelle":  "Composition",
                 "Anwendung->Server":         "Realization",
                 "Schnittstelle->Server":     "Realization",
-                "OrgEinheit->Anwendung":     "Association",
-                "OrgEinheit->Schnittstelle": "Association",
-                "OrgEinheit->Server":        "Association",
+                "OrgEinheit->Anwendung":     "Assignment",
+                "OrgEinheit->Schnittstelle": "Assignment",
+                "OrgEinheit->Server":        "Assignment",
+                "OrgEinheit->Prozess":       "Assignment",
+            },
+            "bridgr_relation": {
+                "Anwendung->Prozess":        "DIENT",
+                "Rolle->Prozess":            "BETEILIGT_AN",
+                "OrgEinheit->Rolle":         "KANN_EINNEHMEN",
+                "Prozess->Prozess":          "FOLGT_AUF",
+                "Anwendung->Schnittstelle":  "USES_INTERFACE",
+                "Anwendung->Server":         "RUNS_ON",
+                "Schnittstelle->Server":     "RUNS_ON",
+                "OrgEinheit->Anwendung":     "VERANTWORTET",
+                "OrgEinheit->Schnittstelle": "VERANTWORTET",
+                "OrgEinheit->Server":        "VERANTWORTET",
+                "OrgEinheit->Prozess":       "VERANTWORTET",
             },
         },
         "pending_candidates": [],

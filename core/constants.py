@@ -14,6 +14,8 @@ DIENT_SOURCE_STRONG = "strong"
 DIENT_SOURCE_CONFIRMED = "manuell_bestaetigt"
 DIENT_SOURCE_MANUAL = "manueller_link"
 
+ALIAS_SOURCE_KIND_CONFIRMED_MATCH = "confirmed_match"
+
 DOCUMENT_STATUS_PROCESSED = "processed"
 DOCUMENT_STATUS_SKIPPED_UNCHANGED = "skipped_unchanged"
 DOCUMENT_STATUS_NO_MATCHES = "no_matches"

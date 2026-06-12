@@ -12,6 +12,7 @@ from processing.cmdb import (
     NormalizedCmdb,
 )
 from core.constants import (
+    ALIAS_SOURCE_KIND_CONFIRMED_MATCH,
     CONFIDENCE_STRONG,
     DIENT_SOURCE_CONFIRMED,
     DIENT_SOURCE_MANUAL,
@@ -25,6 +26,10 @@ from skills.match import MatchResult
 
 PROCESS_WRITE_ACTION_INSERTED = "inserted"
 PROCESS_WRITE_ACTION_UPDATED = "updated"
+
+
+def _normalize_for_alias(name: str) -> str:
+    return " ".join(name.strip().casefold().split())
 
 
 @dataclass(slots=True)
@@ -186,6 +191,7 @@ class GraphWriter:
             self._merge_cmdb_relation(client, relation)
 
         for entity_id, org_unit_name in owner_assignments.items():
+            canonical = self._resolve_org_unit_canonical_name(client, org_unit_name)
             client.execute_write(
                 """
                 MERGE (o:OrgEinheit {name: $org_unit_name})
@@ -194,12 +200,13 @@ class GraphWriter:
                 MERGE (o)-[:VERANTWORTET]->(target)
                 """,
                 {
-                    "org_unit_name": org_unit_name,
+                    "org_unit_name": canonical,
                     "entity_id": entity_id,
                 },
             )
 
     def write_process_owner(self, client: Neo4jClient, org_unit_name: str, process_id: str) -> None:
+        canonical = self._resolve_org_unit_canonical_name(client, org_unit_name)
         client.execute_write(
             """
             MATCH (:OrgEinheit)-[r:VERANTWORTET]->(p:Prozess {prozess_id: $process_id})
@@ -213,7 +220,7 @@ class GraphWriter:
             MATCH (p:Prozess {prozess_id: $process_id})
             MERGE (o)-[:VERANTWORTET]->(p)
             """,
-            {"org_unit_name": org_unit_name, "process_id": process_id},
+            {"org_unit_name": canonical, "process_id": process_id},
         )
 
     def remove_process_owner(self, client: Neo4jClient, process_id: str) -> None:
@@ -226,6 +233,7 @@ class GraphWriter:
         )
 
     def write_role_assignment(self, client: Neo4jClient, org_unit_name: str, role_name: str) -> None:
+        canonical = self._resolve_org_unit_canonical_name(client, org_unit_name)
         client.execute_write(
             """
             MERGE (o:OrgEinheit {name: $org_unit_name})
@@ -233,7 +241,7 @@ class GraphWriter:
             MERGE (o)-[:KANN_EINNEHMEN]->(r)
             """,
             {
-                "org_unit_name": org_unit_name,
+                "org_unit_name": canonical,
                 "role_name": role_name,
             },
         )
@@ -401,6 +409,7 @@ class GraphWriter:
         archimate_source: str,
         archimate_type: str,
     ) -> None:
+        canonical_name = self._resolve_org_unit_canonical_name(client, name) if label == "OrgEinheit" else name
         client.execute_write(
             f"""
             MERGE (n:{label} {{name: $name}})
@@ -409,7 +418,7 @@ class GraphWriter:
                 n.archimate_type = $archimate_type
             """,
             {
-                "name": name,
+                "name": canonical_name,
                 "archimate_id": archimate_id,
                 "archimate_source": archimate_source,
                 "archimate_type": archimate_type,
@@ -473,6 +482,27 @@ class GraphWriter:
                 "source": DIENT_SOURCE_CONFIRMED,
             },
         )
+        normalized_raw = _normalize_for_alias(raw_name)
+        normalized_matched = _normalize_for_alias(matched_name)
+        if normalized_raw and normalized_raw != normalized_matched:
+            client.execute_write(
+                """
+                MERGE (alias:Alias {normalized_name: $normalized_name})
+                ON CREATE SET alias.name = $alias_name,
+                              alias.source_kind = $source_kind
+                SET alias.name = coalesce(alias.name, $alias_name)
+                WITH alias
+                MATCH (a:Anwendung {cmdb_id: $cmdb_id})
+                MERGE (alias)-[r:KANN_MEINEN]->(a)
+                SET r.source_kind = $source_kind
+                """,
+                {
+                    "normalized_name": normalized_raw,
+                    "alias_name": raw_name.strip(),
+                    "cmdb_id": cmdb_id,
+                    "source_kind": ALIAS_SOURCE_KIND_CONFIRMED_MATCH,
+                },
+            )
 
     def reject_candidate_link(
         self,
@@ -503,13 +533,14 @@ class GraphWriter:
         org_unit_name: str,
         entity_id: str,
     ) -> None:
+        canonical = self._resolve_org_unit_canonical_name(client, org_unit_name)
         client.execute_write(
             """
             MATCH (o:OrgEinheit {name: $org_unit_name})-[r:KÖNNTE_VERANTWORTEN]->(target)
             WHERE target.id = $entity_id OR target.cmdb_id = $entity_id
             DELETE r
             """,
-            {"org_unit_name": org_unit_name, "entity_id": entity_id},
+            {"org_unit_name": canonical, "entity_id": entity_id},
         )
         client.execute_write(
             """
@@ -518,7 +549,7 @@ class GraphWriter:
             WHERE target.id = $entity_id OR target.cmdb_id = $entity_id
             MERGE (o)-[:VERANTWORTET]->(target)
             """,
-            {"org_unit_name": org_unit_name, "entity_id": entity_id},
+            {"org_unit_name": canonical, "entity_id": entity_id},
         )
 
     def reject_candidate_ownership(
@@ -543,6 +574,7 @@ class GraphWriter:
         entity_id: str,
         score: float,
     ) -> None:
+        canonical = self._resolve_org_unit_canonical_name(client, org_unit_name)
         client.execute_write(
             """
             MERGE (o:OrgEinheit {name: $org_unit_name})
@@ -551,7 +583,7 @@ class GraphWriter:
             MERGE (o)-[r:KÖNNTE_VERANTWORTEN]->(target)
             SET r.score = $score
             """,
-            {"org_unit_name": org_unit_name, "entity_id": entity_id, "score": score},
+            {"org_unit_name": canonical, "entity_id": entity_id, "score": score},
         )
 
     def get_confirmed_links_from_neo4j(self, client: Neo4jClient) -> list[dict]:
@@ -578,6 +610,19 @@ class GraphWriter:
             """
         )
         return [{"prozess": row["prozess"], "anwendung_name": row["anwendung_name"], "cmdb_id": None} for row in rows]
+
+    def _resolve_org_unit_canonical_name(self, client: Neo4jClient, name: str) -> str:
+        """Return canonical OrgEinheit name via case-insensitive lookup; fall back to stripped input.
+
+        First-seen wins: if an OrgEinheit with the same name (different case) already exists,
+        its stored name is used for the MERGE to avoid creating a duplicate node.
+        """
+        stripped = name.strip()
+        rows = client.execute_read(
+            "MATCH (o:OrgEinheit) WHERE toLower(o.name) = toLower($name) RETURN o.name AS name LIMIT 1",
+            {"name": stripped},
+        )
+        return rows[0]["name"] if rows else stripped
 
     def _resolve_duplicate_placeholders(self, client: Neo4jClient, process_id: str, process_name: str) -> None:
         client.execute_write(
