@@ -222,6 +222,13 @@ RETURN a.name AS application, r.score AS score
 ORDER BY score DESC
 ```
 
+User: Welche Rollen sind als reine Prozessteilnehmer markiert (keine Organisationseinheit)?
+```cypher
+MATCH (r:Rolle {role_only: true})
+RETURN r.name AS role
+ORDER BY role
+```
+
 User: Welche Anwendungen und Schnittstellen laufen auf Server host-prod-01?
 ```cypher
 MATCH (a:Anwendung)-[:RUNS_ON]->(s:Server {name: 'host-prod-01'})

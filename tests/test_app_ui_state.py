@@ -515,7 +515,11 @@ def test_rerun_single_document_from_artifact_applies_org_unit_candidate_mapping(
         "status": "no_matches",
     }
 
-    refreshed = rerun_single_document_from_artifact(document, AppConfig(), [], knowledge_base)
+    refreshed = rerun_single_document_from_artifact(
+        document, AppConfig(), [], knowledge_base,
+        org_units={"qm": "QM"},
+        org_unit_aliases={"qualitaetsmanagement": "QM"},
+    )
 
     assert refreshed["extracted_process"]["org_units"] == ["QM"]
     assert refreshed["extracted_process"]["org_unit"] == "QM"

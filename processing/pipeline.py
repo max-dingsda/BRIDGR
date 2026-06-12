@@ -37,7 +37,6 @@ from skills.graph_writer import GraphWritePayload, GraphWriter
 from skills.match import MatchResult, match_application_candidates
 from skills.review import ReviewItem, collect_review_items
 from services.cmdb_service import sync_cmdb_to_neo4j
-from services.alias_service import sync_knowledge_base_aliases
 
 
 @dataclass(slots=True)
@@ -89,6 +88,8 @@ def run_pipeline(
     _, knowledge_base = sync_cmdb_to_neo4j(config, neo4j_client, knowledge_base)
     confirmed_links = graph_writer.get_confirmed_links_from_neo4j(neo4j_client)
     rejected_links = graph_writer.get_rejected_decisions_from_neo4j(neo4j_client)
+    org_units = graph_writer.load_org_units_from_neo4j(neo4j_client)
+    org_unit_aliases = graph_writer.load_org_unit_aliases_from_neo4j(neo4j_client)
 
     if input_paths is not None:
         candidate_paths = list(input_paths)
@@ -139,7 +140,7 @@ def run_pipeline(
             continue
 
         extractor = build_extractor_for_path(path, llm_client)
-        document_result = run_document(path, file_hash, extractor, config, knowledge_base, cmdb_rows, graph_writer, confirmed_links, rejected_links)
+        document_result = run_document(path, file_hash, extractor, config, knowledge_base, cmdb_rows, graph_writer, confirmed_links, rejected_links, org_units, org_unit_aliases)
         if document_result.extracted_process is not None:
             knowledge_base = update_organization_knowledge(knowledge_base, document_result.extracted_process)
         document_results.append(document_result)
@@ -169,7 +170,6 @@ def run_pipeline(
         used_output_fallback=used_output_fallback,
         documents=document_results,
     )
-    save_knowledge_base(knowledge_base)
     save_import_state(ImportState(documents=next_state_documents), output_path)
     write_latest_run(
         {
@@ -180,7 +180,6 @@ def run_pipeline(
         },
         output_path,
     )
-    sync_knowledge_base_aliases(neo4j_client, knowledge_base)
     if progress_callback is not None:
         progress_callback(
             {
@@ -235,12 +234,16 @@ def run_document(
     graph_writer: GraphWriter,
     confirmed_links: list[dict] | None = None,
     rejected_links: list[dict] | None = None,
+    org_units: dict[str, str] | None = None,
+    org_unit_aliases: dict[str, str] | None = None,
 ) -> DocumentRunResult:
     confirmed_links = confirmed_links if confirmed_links is not None else []
     rejected_links = rejected_links if rejected_links is not None else []
+    org_units = org_units if org_units is not None else {}
+    org_unit_aliases = org_unit_aliases if org_unit_aliases is not None else {}
     try:
         extracted_process = extractor.extract(source_path)
-        extracted_process = apply_org_unit_mapping(extracted_process, knowledge_base)
+        extracted_process = apply_org_unit_mapping(extracted_process, org_units, org_unit_aliases)
     except (BpmnExtractorError, TextExtractorError, DocxExtractorError, PdfExtractorError) as exc:
         return DocumentRunResult(
             source_path=str(source_path),
@@ -295,17 +298,26 @@ def should_skip_file(
     return False
 
 
+_PERSISTENT_LINK_SOURCES = {"manueller_link", "manuell_bestaetigt"}
+
+
 def build_manual_matches(
     process_name: str,
     extracted_applications: list,
     confirmed_links: list[ConfirmedLink],
 ) -> list[MatchResult]:
+    """Reconstruct confirmed links that survive re-import regardless of document content.
+
+    Both manueller_link (manual links) and manuell_bestaetigt (user-confirmed weak candidates)
+    are treated as persistent: they are recreated even when the raw application name is no
+    longer mentioned in the current version of the document.
+    """
     extracted_names = {application.name for application in extracted_applications}
     manual_matches: list[MatchResult] = []
     for link in confirmed_links:
         if link.get("prozess") != process_name:
             continue
-        if link.get("quelle") != "manueller_link":
+        if link.get("quelle") not in _PERSISTENT_LINK_SOURCES:
             continue
         application_name = link.get("anwendung_name", "")
         if application_name in extracted_names:
@@ -324,9 +336,10 @@ def build_manual_matches(
 
 def apply_org_unit_mapping(
     extracted_process: ExtractedProcess,
-    knowledge_base: KnowledgeBase,
+    org_units: dict[str, str],
+    org_unit_aliases: dict[str, str],
 ) -> ExtractedProcess:
-    matched_org_units = resolve_org_units(extracted_process, knowledge_base)
+    matched_org_units = resolve_org_units(extracted_process, org_units, org_unit_aliases)
     return ExtractedProcess(
         process_name=extracted_process.process_name,
         process_id=extracted_process.process_id,
@@ -344,28 +357,25 @@ def apply_org_unit_mapping(
 
 def resolve_org_units(
     extracted_process: ExtractedProcess,
-    knowledge_base: KnowledgeBase,
+    org_units: dict[str, str],
+    org_unit_aliases: dict[str, str],
 ) -> list[str]:
-    org_units_by_name = {
-        normalize_org_unit_name(entry.get("name", "")): entry.get("name", "")
-        for entry in knowledge_base.org_units
-        if entry.get("name")
-    }
+    """Resolve role and candidate names to canonical OrgEinheit names.
+
+    org_units: {normalized_name: canonical_name} loaded from Neo4j OrgEinheit nodes.
+    org_unit_aliases: {normalized_alias: canonical_org_unit_name} loaded from Neo4j Alias nodes.
+    """
     resolved_org_units: list[str] = []
     for role_name in extracted_process.roles:
         normalized_role = normalize_org_unit_name(role_name)
-        matched_name = org_units_by_name.get(normalized_role)
+        matched_name = org_units.get(normalized_role)
         if not matched_name or matched_name in resolved_org_units:
             continue
         resolved_org_units.append(matched_name)
 
-    mapped_candidates = {
-        entry.get("normalized_name", ""): entry.get("mapped_org_unit", "")
-        for entry in knowledge_base.org_unit_candidates
-        if entry.get("status") == "mapped" and entry.get("mapped_org_unit")
-    }
     for candidate_name in extracted_process.org_unit_candidates:
-        mapped_name = mapped_candidates.get(normalize_org_unit_name(candidate_name), "")
+        normalized_candidate = normalize_org_unit_name(candidate_name)
+        mapped_name = org_unit_aliases.get(normalized_candidate) or org_units.get(normalized_candidate)
         if not mapped_name or mapped_name in resolved_org_units:
             continue
         resolved_org_units.append(mapped_name)

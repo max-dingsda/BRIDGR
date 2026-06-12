@@ -55,6 +55,8 @@ def sync_cmdb_to_neo4j(
     neo4j_client,
     knowledge_base: KnowledgeBase,
 ) -> tuple[CmdbSyncResult, KnowledgeBase]:
+    from skills.graph_writer import GraphWriter
+
     normalized_cmdb = load_normalized_cmdb(
         resolve_input_cmdb_path(config),
         id_column=config.cmdb_uuid_column,
@@ -77,20 +79,19 @@ def sync_cmdb_to_neo4j(
             target_id_column=config.cmdb_relation_target_column,
         )
 
-    updated_knowledge_base = update_organization_knowledge_from_cmdb(
-        knowledge_base,
-        normalized_cmdb,
-        source_path=str(resolve_input_cmdb_path(config)),
-    )
-    owner_assignments = resolve_cmdb_owner_assignments(updated_knowledge_base, normalized_cmdb)
-    owner_candidates = resolve_cmdb_owner_candidates(updated_knowledge_base, normalized_cmdb)
-
     graph_writer = GraphWriter()
-    graph_writer.sync_cmdb(
-        neo4j_client,
-        normalized_cmdb,
-        owner_assignments=owner_assignments,
+    org_units = graph_writer.load_org_units_from_neo4j(neo4j_client)
+    org_unit_aliases = graph_writer.load_org_unit_aliases_from_neo4j(neo4j_client)
+
+    updated_knowledge_base = update_organization_knowledge_from_cmdb(
+        knowledge_base, normalized_cmdb,
+        source_path=str(resolve_input_cmdb_path(config)),
+        org_units=org_units, org_unit_aliases=org_unit_aliases,
     )
+    owner_assignments = resolve_cmdb_owner_assignments(normalized_cmdb, org_units, org_unit_aliases)
+    owner_candidates = resolve_cmdb_owner_candidates(normalized_cmdb, org_units, org_unit_aliases)
+
+    graph_writer.sync_cmdb(neo4j_client, normalized_cmdb, owner_assignments=owner_assignments)
     for entity_id, org_unit_name in owner_candidates.items():
         graph_writer.write_candidate_ownership(neo4j_client, org_unit_name, entity_id, score=0.0)
 
@@ -108,24 +109,30 @@ def update_organization_knowledge_from_cmdb(
     knowledge_base: KnowledgeBase,
     normalized_cmdb,
     source_path: str,
+    org_units: dict[str, str] | None = None,
+    org_unit_aliases: dict[str, str] | None = None,
 ) -> KnowledgeBase:
-    updated = knowledge_base
-    known_org_units = {
+    """Update kb with new CMDB owner candidates not yet known to BRIDGR.
+
+    org_units and org_unit_aliases, when provided, replace the kb.json-based lookup.
+    """
+    effective_org_units = org_units if org_units is not None else {
         normalize_org_unit_name(entry.get("name", "")): entry.get("name", "")
         for entry in knowledge_base.org_units
         if entry.get("name")
     }
-    mapped_candidates = {
+    effective_aliases = org_unit_aliases if org_unit_aliases is not None else {
         entry.get("normalized_name", ""): entry.get("mapped_org_unit", "")
         for entry in knowledge_base.org_unit_candidates
         if entry.get("status") == "mapped" and entry.get("mapped_org_unit")
     }
+    updated = knowledge_base
     for entity in normalized_cmdb.entities:
         owner_name = " ".join((entity.owner_name or "").split())
         if not owner_name:
             continue
         normalized_owner = normalize_org_unit_name(owner_name)
-        if normalized_owner in known_org_units or normalized_owner in mapped_candidates:
+        if normalized_owner in effective_org_units or normalized_owner in effective_aliases:
             continue
         updated = upsert_org_unit_candidate(
             updated,
@@ -138,52 +145,36 @@ def update_organization_knowledge_from_cmdb(
 
 
 def resolve_cmdb_owner_candidates(
-    knowledge_base: KnowledgeBase,
     normalized_cmdb,
+    org_units: dict[str, str],
+    org_unit_aliases: dict[str, str],
 ) -> dict[str, str]:
-    known_org_units = {
-        normalize_org_unit_name(entry.get("name", "")): entry.get("name", "")
-        for entry in knowledge_base.org_units
-        if entry.get("name")
-    }
-    mapped_candidates = {
-        entry.get("normalized_name", ""): entry.get("mapped_org_unit", "")
-        for entry in knowledge_base.org_unit_candidates
-        if entry.get("status") == "mapped" and entry.get("mapped_org_unit")
-    }
+    """Return {entity_id: raw_owner_name} for CMDB entities whose owner is not yet known."""
     candidates: dict[str, str] = {}
     for entity in normalized_cmdb.entities:
         owner_name = " ".join((entity.owner_name or "").split())
         if not owner_name:
             continue
         normalized_owner = normalize_org_unit_name(owner_name)
-        if normalized_owner in known_org_units or normalized_owner in mapped_candidates:
+        if normalized_owner in org_units or normalized_owner in org_unit_aliases:
             continue
         candidates[entity.entity_id] = owner_name
     return candidates
 
 
 def resolve_cmdb_owner_assignments(
-    knowledge_base: KnowledgeBase,
     normalized_cmdb,
+    org_units: dict[str, str],
+    org_unit_aliases: dict[str, str],
 ) -> dict[str, str]:
-    known_org_units = {
-        normalize_org_unit_name(entry.get("name", "")): entry.get("name", "")
-        for entry in knowledge_base.org_units
-        if entry.get("name")
-    }
-    mapped_candidates = {
-        entry.get("normalized_name", ""): entry.get("mapped_org_unit", "")
-        for entry in knowledge_base.org_unit_candidates
-        if entry.get("status") == "mapped" and entry.get("mapped_org_unit")
-    }
+    """Return {entity_id: canonical_org_unit_name} for CMDB entities with a known owner."""
     assignments: dict[str, str] = {}
     for entity in normalized_cmdb.entities:
         owner_name = " ".join((entity.owner_name or "").split())
         if not owner_name:
             continue
         normalized_owner = normalize_org_unit_name(owner_name)
-        resolved_owner = known_org_units.get(normalized_owner) or mapped_candidates.get(normalized_owner)
+        resolved_owner = org_units.get(normalized_owner) or org_unit_aliases.get(normalized_owner)
         if resolved_owner:
             assignments[entity.entity_id] = resolved_owner
     return assignments

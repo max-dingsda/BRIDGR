@@ -59,11 +59,15 @@ def rerun_single_document_from_artifact(
     knowledge_base,
     confirmed_links: list[dict] | None = None,
     rejected_links: list[dict] | None = None,
+    org_units: dict[str, str] | None = None,
+    org_unit_aliases: dict[str, str] | None = None,
 ) -> dict:
     confirmed_links = confirmed_links if confirmed_links is not None else []
     rejected_links = rejected_links if rejected_links is not None else []
+    org_units = org_units if org_units is not None else {}
+    org_unit_aliases = org_unit_aliases if org_unit_aliases is not None else {}
     extracted_process = reconstruct_extracted_process(document.get("extracted_process") or {})
-    extracted_process = apply_org_unit_mapping(extracted_process, knowledge_base)
+    extracted_process = apply_org_unit_mapping(extracted_process, org_units, org_unit_aliases)
     matches: list[MatchResult] = []
     for application in extracted_process.applications:
         matches.extend(
@@ -124,6 +128,8 @@ def persist_single_document_refresh(config: AppConfig, source_path: str, cmdb_ro
     neo4j_client = get_session_neo4j_client(config)
     confirmed_links = graph_writer.get_confirmed_links_from_neo4j(neo4j_client)
     rejected_links = graph_writer.get_rejected_decisions_from_neo4j(neo4j_client)
+    org_units = graph_writer.load_org_units_from_neo4j(neo4j_client)
+    org_unit_aliases = graph_writer.load_org_unit_aliases_from_neo4j(neo4j_client)
     updated_documents: list[dict] = []
     updated_document_for_graph: dict | None = None
     for document in latest_run.get("documents", []):
@@ -131,7 +137,8 @@ def persist_single_document_refresh(config: AppConfig, source_path: str, cmdb_ro
             updated_documents.append(document)
             continue
         refreshed_document = rerun_single_document_from_artifact(
-            document, config, cmdb_rows, knowledge_base, confirmed_links, rejected_links
+            document, config, cmdb_rows, knowledge_base, confirmed_links, rejected_links,
+            org_units, org_unit_aliases,
         )
         updated_documents.append(refreshed_document)
         updated_document_for_graph = refreshed_document
@@ -148,7 +155,6 @@ def persist_single_document_refresh(config: AppConfig, source_path: str, cmdb_ro
     process = reconstruct_extracted_process(process_payload)
     matches = [reconstruct_match_result(match_payload) for match_payload in matches_payload]
     graph_writer.write_payload(neo4j_client, graph_writer.build_payload(process, matches))
-    sync_knowledge_base_aliases(neo4j_client, knowledge_base)
 
 
 def persist_latest_run_refresh(config: AppConfig, cmdb_rows: list[dict[str, str]]) -> int:
@@ -163,11 +169,14 @@ def persist_latest_run_refresh(config: AppConfig, cmdb_rows: list[dict[str, str]
     neo4j_client = get_session_neo4j_client(config)
     confirmed_links = graph_writer.get_confirmed_links_from_neo4j(neo4j_client)
     rejected_links = graph_writer.get_rejected_decisions_from_neo4j(neo4j_client)
+    org_units = graph_writer.load_org_units_from_neo4j(neo4j_client)
+    org_unit_aliases = graph_writer.load_org_unit_aliases_from_neo4j(neo4j_client)
     refreshed_count = 0
 
     for document in latest_run.get("documents", []):
         refreshed_document = rerun_single_document_from_artifact(
-            document, config, cmdb_rows, knowledge_base, confirmed_links, rejected_links
+            document, config, cmdb_rows, knowledge_base, confirmed_links, rejected_links,
+            org_units, org_unit_aliases,
         )
         updated_documents.append(refreshed_document)
 
@@ -181,7 +190,6 @@ def persist_latest_run_refresh(config: AppConfig, cmdb_rows: list[dict[str, str]
 
     latest_run["documents"] = updated_documents
     write_latest_run(latest_run, runtime_output_path)
-    sync_knowledge_base_aliases(neo4j_client, knowledge_base)
     return refreshed_count
 
 

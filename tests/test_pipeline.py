@@ -129,7 +129,9 @@ def test_run_document_builds_matches_and_review_items(tmp_path: Path) -> None:
     assert result.graph_payload.process.process_id == "proc_001"
 
 
-def test_run_document_does_not_revive_absent_confirmed_non_manual_matches(tmp_path: Path) -> None:
+def test_run_document_revives_absent_manuell_bestaetigt_matches(tmp_path: Path) -> None:
+    # manuell_bestaetigt links are persistent: they survive re-import even when the raw
+    # application name is no longer present in the current document version (#16a).
     bpmn_path = tmp_path / "process.bpmn"
     prompt_path = tmp_path / "prompt.md"
     bpmn_path.write_text("<definitions><process id='proc_001' /></definitions>", encoding="utf-8")
@@ -167,7 +169,7 @@ def test_run_document_does_not_revive_absent_confirmed_non_manual_matches(tmp_pa
         rejected_links=[],
     )
 
-    assert all(match.application_name != "Historisches CRM" for match in result.matches)
+    assert any(match.application_name == "Historisches CRM" for match in result.matches)
 
 
 def test_should_skip_file_only_for_unchanged_delta_runs(tmp_path: Path) -> None:
@@ -419,6 +421,9 @@ def test_run_pipeline_propagates_neo4j_write_failures(tmp_path: Path, monkeypatc
         def execute_write(self, query: str, parameters=None):
             raise Neo4jServiceUnavailableError("Neo4j is currently unavailable: boom")
 
+        def execute_read(self, query: str, parameters=None):
+            return []
+
         def ensure_constraints(self) -> None:
             return None
 
@@ -452,16 +457,9 @@ def test_apply_org_unit_mapping_uses_exact_role_matches_from_curated_org_units()
         applications=[ApplicationReference(name="Mail", confidence="stark")],
         source_path="Input/process.txt",
     )
-    knowledge_base = KnowledgeBase(
-        confirmed=[],
-        rejected=[],
-        disambiguation=[],
-        process_identity=[],
-        org_units=[{"name": "People & Culture", "created_at": "2026-05-27", "source": "manual"}],
-        org_unit_candidates=[],
-    )
+    org_units = {"people & culture": "People & Culture"}
 
-    result = apply_org_unit_mapping(extracted_process, knowledge_base)
+    result = apply_org_unit_mapping(extracted_process, org_units, {})
 
     assert result.org_unit == "People & Culture"
     assert result.org_units == ["People & Culture"]
@@ -480,28 +478,10 @@ def test_apply_org_unit_mapping_uses_confirmed_candidates_for_unstructured_docum
         applications=[ApplicationReference(name="Mail", confidence="stark")],
         source_path="Input/process.txt",
     )
-    knowledge_base = KnowledgeBase(
-        confirmed=[],
-        rejected=[],
-        disambiguation=[],
-        process_identity=[],
-        org_units=[{"name": "People & Culture", "created_at": "2026-05-27", "source": "manual"}],
-        org_unit_candidates=[
-            {
-                "candidate_name": "People Ops",
-                "normalized_name": "people ops",
-                "source_paths": ["Input/process.txt"],
-                "process_names": ["Incident Handling"],
-                "role_names": ["HR Manager"],
-                "status": "mapped",
-                "mapped_org_unit": "People & Culture",
-                "first_seen": "2026-05-27",
-                "last_seen": "2026-05-27",
-            }
-        ],
-    )
+    org_units = {"people & culture": "People & Culture"}
+    org_unit_aliases = {"people ops": "People & Culture"}
 
-    result = apply_org_unit_mapping(extracted_process, knowledge_base)
+    result = apply_org_unit_mapping(extracted_process, org_units, org_unit_aliases)
 
     assert result.org_unit == "People & Culture"
     assert result.org_units == ["People & Culture"]

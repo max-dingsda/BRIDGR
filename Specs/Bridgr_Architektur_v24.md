@@ -43,8 +43,8 @@ Der LLM ist Orchestrator im Abfrage-Layer; imperativische Code-seitige
 Gesprächszustandsverwaltung entfaellt zugunsten von nativem LLM-Konversationsmanagement.
 
 **Neo4j ist die einzige kanonische Quelle fuer alle Entscheidungen** (bestaetigt, abgelehnt,
-offen). Die Datei `kb.json` ist zur Loesung vorgemerkt (siehe Finding #15). Sie darf
-vorlaeufig noch existieren, soll aber weder aktiv befuellt noch gelesen werden.
+offen). Die Datei `kb.json` existiert als historisches Sicherheitsnetz, wird aber weder
+aktiv gelesen noch befuellt. Pipeline und Review-Layer lesen ausschliesslich aus Neo4j.
 
 ---
 
@@ -172,6 +172,13 @@ Ownership-Nachweis.
 `KANN_EINNEHMEN` verbindet eine `OrgEinheit` mit einer `Rolle`. Die Beziehung drueckt aus:
 "Diese Organisationseinheit besetzt diese Prozessrolle." Sie entsteht ausschliesslich durch
 Benutzerbestaetigung in Tab 4 und wird nie automatisch geschrieben.
+
+### role_only-Markierung
+
+Eine Rolle kann als `role_only: true` markiert werden, wenn sie bewusst kein Kandidat
+fuer eine OrgEinheit-Zuordnung ist. Diese Entscheidung wird direkt als Property auf dem
+`:Rolle`-Knoten in Neo4j gespeichert. Rollen mit `role_only = true` erscheinen nicht in
+der Liste der offenen Rollenzuordnungen (Tab 4) und sind im Chat abfragbar.
 
 ### Ablehnung
 
@@ -1011,6 +1018,15 @@ kanonischen Typ ohne individuelle Kuration.
 53. Alle `GraphWriter`-Schreibpfade fuer `(:OrgEinheit)` normalisieren den Namen per
     case-insensitivem Neo4j-Lookup vor dem MERGE; First-seen-wins verhindert Duplikate
     durch unterschiedliche Schreibweise desselben Namens
+56. Die Pipeline liest OrgEinheit-Namen und Alias-Mappings direkt aus Neo4j;
+    `kb.json` wird weder gelesen noch befuellt; `sync_knowledge_base_aliases()` entfaellt
+    aus Pipeline und Review-Layer
+57. Bei Bestaetigung eines OrgEinheit-Kandidaten-Mappings wird ein
+    `(:Alias {source_kind: 'confirmed_candidate'})-[:KANN_MEINEN]->(:OrgEinheit)` angelegt
+58. `manuell_bestaetigt`-Kanten ueberleben Re-Importe auch dann, wenn der urspruengliche
+    Bezeichner nicht mehr im Dokument vorkommt (gleiche Persistenz wie `manueller_link`)
+59. `:Rolle`-Knoten koennen mit `role_only: true` markiert werden; diese Rollen erscheinen
+    nicht in der Liste offener Rollenzuordnungen und sind im Chat direkt abfragbar
 55. Bei Bestaetigung eines `KÖNNTE_DIENEN`-Kandidaten wird `raw_name` als
     `(:Alias {source_kind: 'confirmed_match'})-[:KANN_MEINEN]->(:Anwendung)` projiziert,
     sofern `raw_name ≠ matched_name`; der Chat kann den bestaetigten Bezeichner damit direkt auflösen

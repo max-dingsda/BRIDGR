@@ -15,6 +15,7 @@ DIENT_SOURCE_CONFIRMED = "manuell_bestaetigt"
 DIENT_SOURCE_MANUAL = "manueller_link"
 
 ALIAS_SOURCE_KIND_CONFIRMED_MATCH = "confirmed_match"
+ALIAS_SOURCE_KIND_CONFIRMED_CANDIDATE = "confirmed_candidate"
 
 DOCUMENT_STATUS_PROCESSED = "processed"
 DOCUMENT_STATUS_SKIPPED_UNCHANGED = "skipped_unchanged"

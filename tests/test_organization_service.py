@@ -64,23 +64,12 @@ def test_load_unassigned_roles_returns_empty_list_when_none_pending(mock_load_kb
 
 
 @patch("services.organization_service.get_session_neo4j_client")
-@patch("services.organization_service.load_knowledge_base")
-def test_load_unassigned_roles_skips_roles_marked_as_role_only(mock_load_kb, mock_get_client) -> None:
+def test_load_unassigned_roles_skips_roles_marked_as_role_only(mock_get_client) -> None:
+    # Filtering by role_only happens in Cypher — fake client returns pre-filtered rows
     fake_client = FakeNeo4jClient(rows=[
         {"rolle": "Einkäufer", "prozesse": ["Bestellabwicklung"]},
-        {"rolle": "Freigeber", "prozesse": ["Freigabe"]},
     ])
     mock_get_client.return_value = fake_client
-    mock_load_kb.return_value = MagicMock(
-        role_decisions=[
-            {
-                "role_name": "Freigeber",
-                "normalized_name": "freigeber",
-                "status": "role_only",
-                "decided_at": "2026-06-03",
-            }
-        ]
-    )
 
     result = load_unassigned_roles(_make_config())
 
@@ -88,17 +77,12 @@ def test_load_unassigned_roles_skips_roles_marked_as_role_only(mock_load_kb, moc
 
 
 @patch("services.organization_service.get_session_neo4j_client")
-@patch("services.organization_service.load_knowledge_base")
-def test_load_unassigned_roles_skips_roles_matching_existing_org_units(mock_load_kb, mock_get_client) -> None:
+def test_load_unassigned_roles_skips_roles_matching_existing_org_units(mock_get_client) -> None:
+    # Filtering by OrgEinheit name match happens in Cypher — fake client returns pre-filtered rows
     fake_client = FakeNeo4jClient(rows=[
-        {"rolle": "Buchhaltung", "prozesse": ["Rechnungsstellung"]},
         {"rolle": "Einkäufer", "prozesse": ["Bestellabwicklung"]},
     ])
     mock_get_client.return_value = fake_client
-    mock_load_kb.return_value = MagicMock(
-        role_decisions=[],
-        org_units=[{"name": "Buchhaltung"}],
-    )
 
     result = load_unassigned_roles(_make_config())
 
@@ -299,9 +283,10 @@ def test_assign_role_to_org_unit_trims_org_unit_name(_mock_register, mock_get_cl
     assert params_list[0]["org_unit_name"] == "Einkauf"
 
 
+@patch("services.organization_service.get_session_neo4j_client")
 @patch("services.organization_service.save_knowledge_base")
 @patch("services.organization_service.load_knowledge_base")
-def test_mark_role_as_role_only_persists_decision(mock_load_kb, mock_save_kb) -> None:
+def test_mark_role_as_role_only_persists_decision(mock_load_kb, mock_save_kb, mock_get_client) -> None:
     mock_load_kb.return_value = MagicMock(
         confirmed=[],
         rejected=[],
@@ -311,8 +296,9 @@ def test_mark_role_as_role_only_persists_decision(mock_load_kb, mock_save_kb) ->
         org_unit_candidates=[],
         role_decisions=[],
     )
+    mock_get_client.return_value = FakeNeo4jClient()
 
-    level, message = mark_role_as_role_only("Freigeber")
+    level, message = mark_role_as_role_only(_make_config(), "Freigeber")
 
     assert level == "success"
     assert "Freigeber" in message

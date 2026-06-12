@@ -24,7 +24,7 @@ QUERY_NODE_SCHEMA: dict[str, tuple[str, ...]] = {
     "Schnittstelle": ("id", "name", "archimate_type", "archimate_id"),
     "Server": ("id", "name", "server_type", "archimate_type", "archimate_id"),
     "OrgEinheit": ("name",),
-    "Rolle": ("name", "archimate_type", "archimate_id"),
+    "Rolle": ("name", "archimate_type", "archimate_id", "role_only"),
 }
 
 QUERY_RELATIONSHIP_PATTERNS: tuple[RelationshipPattern, ...] = (

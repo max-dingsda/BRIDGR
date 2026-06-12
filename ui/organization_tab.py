@@ -389,7 +389,7 @@ def _render_unassigned_roles_section(config, org_units) -> None:
                         getattr(st, level)(message)
                         _rerun_keep(_SECTION_ROLES)
                 if assign_columns[4].button("Rolle", key=f"role-only::{role_key}", width="stretch"):
-                    level, message = mark_role_as_role_only(role_name)
+                    level, message = mark_role_as_role_only(config, role_name)
                     getattr(st, level)(message)
                     _rerun_keep(_SECTION_ROLES)
 

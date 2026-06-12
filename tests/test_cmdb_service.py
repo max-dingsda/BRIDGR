@@ -153,11 +153,17 @@ def test_persist_latest_run_refresh_resolves_previously_unmatched_application(tm
         def get_rejected_decisions_from_neo4j(self, _client) -> list:
             return []
 
+        def load_org_units_from_neo4j(self, _client) -> dict:
+            return {}
+
+        def load_org_unit_aliases_from_neo4j(self, _client) -> dict:
+            return {}
+
     monkeypatch.setattr(review_service, "resolve_runtime_output_path", lambda _path: (output_dir, False))
     monkeypatch.setattr(review_service, "load_knowledge_base", lambda: knowledge_base)
     monkeypatch.setattr(review_service, "get_session_neo4j_client", lambda _config: object())
-    monkeypatch.setattr(review_service, "sync_knowledge_base_aliases", lambda _client, _kb: alias_sync_calls.append(True))
     monkeypatch.setattr(review_service, "GraphWriter", FakeGraphWriter)
+    alias_sync_calls.clear()  # sync_knowledge_base_aliases no longer called from persist_latest_run_refresh
 
     refreshed_count = review_service.persist_latest_run_refresh(
         AppConfig(
@@ -178,4 +184,4 @@ def test_persist_latest_run_refresh_resolves_previously_unmatched_application(tm
     assert refreshed_document["matches"][0]["confidence"] == "stark"
     assert refreshed_document["review_items"] == []
     assert writes == [{"process_name": "Auftragsbearbeitung", "match_names": ["SAP ERP"]}]
-    assert alias_sync_calls == [True]
+    assert alias_sync_calls == []  # sync_knowledge_base_aliases no longer called from persist_latest_run_refresh

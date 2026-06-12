@@ -1,6 +1,6 @@
 1. weiterführende fragen werden teilweise falsch interpretiert. - erledigt
 
-2. Dual Source of Truth: kb.json vs. Neo4j (offen)
+2. Dual Source of Truth: kb.json vs. Neo4j - erledigt
 Die Import-Pipeline liest confirmed/rejected Einträge direkt aus kb.json, während der Chat-Query-Layer
 Alias-Auflösungen aus Neo4j (:Alias)-[:KANN_MEINEN]->() liest. Beide werden nach jeder Aktion via
 sync_knowledge_base_aliases synchron gehalten — es gibt aber zwei kanonische Quellen für dieselbe Information.
@@ -35,7 +35,7 @@ Ein Ausbau erfordert einen expliziten Designentscheid: Kandidaten als Pending-No
 
 14. UI: einklappbare Abschnitte mit To-dos zeigen Item-Anzahl im Titel. - erledigt
 
-15. kb.json zur Löschung vorgemerkt (offen)
+15. kb.json zur Löschung vorgemerkt - erledigt (Datei darf weiter existieren; kein aktives Lesen/Schreiben mehr aus Pipeline und Review-Layer)
 kb.json ist aktuell noch vorhanden als Sicherheitsnetz, aber nicht mehr kanonische Quelle für
 Entscheidungen (confirmed/rejected/candidates). Alle Entscheidungen werden in Neo4j persistiert.
 kb.json darf still existieren, soll aber nicht mehr aktiv befüllt oder gelesen werden.
@@ -66,16 +66,7 @@ Keine sofortige Aktion nötig, aber vor dem nächsten Release explizit entscheid
 Umgesetzt (b): Bei Bestätigung (promote_candidate_link) wird ein (:Alias {source_kind: 'confirmed_match'})-[:KANN_MEINEN]->(:Anwendung) angelegt, sofern raw_name ≠ matched_name (normalisiert). Der Chat kann den bestätigten Bezeichner damit direkt auflösen.
 Offen (a): Re-Import-Schutz für manuell_bestaetigt-Kanten. Alias-Lifecycle bei Ablehnung: siehe Finding #22.
 
-22. Alias-Lifecycle bei Ablehnung bestätigter KÖNNTE_DIENEN-Links (offen)
-Wenn ein Benutzer eine bestätigte DIENT-Kante (source: manuell_bestaetigt) nachträglich ablehnt oder
-die Bestätigung zurückzieht, bleibt der zugehörige (:Alias {source_kind: 'confirmed_match'})-Knoten
-im Graphen. Der Chat würde weiterhin "SAP CRM → SAP SRM" auflösen, obwohl der Link nicht mehr
-bestätigt ist.
 
-Frage: Soll beim Zurückziehen einer manuell_bestaetigt-Bestätigung der Alias mitgelöscht werden?
-Oder bleibt der Alias dauerhaft, weil der Bezeichner real ist (er wurde im Dokument gefunden)?
-
-Aktuell: kein Löschpfad — Alias bleibt bis zur nächsten Diskussion unangetastet.
 
 17. graph_schema.py: Ablehnung-Node und raw_name/source aus Query-Schema entfernen - erledigt
 Zwei kleine Bereinigungen am Query-Schema, das der LLM zur Laufzeit bekommt:
@@ -169,3 +160,13 @@ Kernfrage "wie sicher wissen wir das?" faktisch nicht beantworten.
 
 Fix: Konstante _IDENT = r"[^\W\d]\w*" definieren und in allen fünf Regex-Mustern einsetzen.
 
+22. Alias-Lifecycle bei Ablehnung bestätigter KÖNNTE_DIENEN-Links (offen)
+Wenn ein Benutzer eine bestätigte DIENT-Kante (source: manuell_bestaetigt) nachträglich ablehnt oder
+die Bestätigung zurückzieht, bleibt der zugehörige (:Alias {source_kind: 'confirmed_match'})-Knoten
+im Graphen. Der Chat würde weiterhin "SAP CRM → SAP SRM" auflösen, obwohl der Link nicht mehr
+bestätigt ist.
+
+Frage: Soll beim Zurückziehen einer manuell_bestaetigt-Bestätigung der Alias mitgelöscht werden?
+Oder bleibt der Alias dauerhaft, weil der Bezeichner real ist (er wurde im Dokument gefunden)?
+
+Aktuell: kein Löschpfad — Alias bleibt bis zur nächsten Diskussion unangetastet.

@@ -107,9 +107,11 @@ def persist_org_candidate_mapping_refresh(config: AppConfig, candidate_name: str
         return 0
 
     mapped_org_unit = candidate_entry.get("mapped_org_unit", "").strip()
+    neo4j_client = get_session_neo4j_client(config)
     if mapped_org_unit:
         persist_org_unit_node(config, mapped_org_unit)
-    sync_knowledge_base_aliases(get_session_neo4j_client(config), knowledge_base)
+        GraphWriter().write_org_unit_alias(neo4j_client, candidate_name, mapped_org_unit)
+    sync_knowledge_base_aliases(neo4j_client, knowledge_base)
 
     runtime_output_path, _ = resolve_runtime_output_path(config.output_path)
     latest_run = load_latest_run(runtime_output_path)
@@ -131,6 +133,8 @@ def persist_org_candidate_mapping_refresh(config: AppConfig, candidate_name: str
     updated_documents: list[dict] = []
     graph_writer = GraphWriter()
     neo4j_client = get_session_neo4j_client(config)
+    org_units = graph_writer.load_org_units_from_neo4j(neo4j_client)
+    org_unit_aliases = graph_writer.load_org_unit_aliases_from_neo4j(neo4j_client)
 
     for document in latest_run.get("documents", []):
         extracted_process_payload = document.get("extracted_process") or {}
@@ -140,7 +144,9 @@ def persist_org_candidate_mapping_refresh(config: AppConfig, candidate_name: str
             updated_documents.append(document)
             continue
 
-        refreshed_document = rerun_single_document_from_artifact(document, config, cmdb_rows, knowledge_base)
+        refreshed_document = rerun_single_document_from_artifact(
+            document, config, cmdb_rows, knowledge_base, org_units=org_units, org_unit_aliases=org_unit_aliases
+        )
         updated_documents.append(refreshed_document)
         graph_payload = refreshed_document.get("graph_payload") or {}
         process_payload = graph_payload.get("process") or {}
@@ -302,17 +308,13 @@ def reject_process_owner_candidate(config: AppConfig, process_id: str) -> tuple[
 
 
 def load_unassigned_roles(config: AppConfig) -> list[dict]:
-    knowledge_base = load_knowledge_base()
-    known_org_unit_names = {
-        normalize_org_unit_name(entry.get("name", ""))
-        for entry in knowledge_base.org_units
-        if entry.get("name")
-    }
     neo4j_client = get_session_neo4j_client(config)
     rows = neo4j_client.execute_write(
         """
         MATCH (r:Rolle)-[:BETEILIGT_AN]->(p:Prozess)
         WHERE NOT (:OrgEinheit)-[:KANN_EINNEHMEN]->(r)
+          AND NOT EXISTS { MATCH (o:OrgEinheit) WHERE toLower(o.name) = toLower(r.name) }
+          AND (r.role_only IS NULL OR r.role_only = false)
         RETURN r.name AS rolle, collect(p.name) AS prozesse
         ORDER BY r.name
         """
@@ -320,11 +322,7 @@ def load_unassigned_roles(config: AppConfig) -> list[dict]:
     return [
         {"rolle": row["rolle"], "prozesse": row["prozesse"]}
         for row in rows
-        if (
-            row.get("rolle")
-            and normalize_org_unit_name(row["rolle"]) not in known_org_unit_names
-            and not is_explicit_role(knowledge_base, row["rolle"])
-        )
+        if row.get("rolle")
     ]
 
 
@@ -338,8 +336,10 @@ def assign_role_to_org_unit(config: AppConfig, role_name: str, org_unit_name: st
     return "success", f"Rolle \"{role_name}\" wurde \"{cleaned_org_unit}\" zugeordnet."
 
 
-def mark_role_as_role_only(role_name: str) -> tuple[str, str]:
+def mark_role_as_role_only(config: AppConfig, role_name: str) -> tuple[str, str]:
     knowledge_base = load_knowledge_base()
     updated_kb = mark_role_as_explicit(knowledge_base, role_name)
     save_knowledge_base(updated_kb)
+    neo4j_client = get_session_neo4j_client(config)
+    GraphWriter().write_role_only_decision(neo4j_client, role_name)
     return "success", f"Rolle \"{role_name}\" wurde als reine Rolle markiert."

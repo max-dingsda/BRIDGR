@@ -12,6 +12,7 @@ from processing.cmdb import (
     NormalizedCmdb,
 )
 from core.constants import (
+    ALIAS_SOURCE_KIND_CONFIRMED_CANDIDATE,
     ALIAS_SOURCE_KIND_CONFIRMED_MATCH,
     CONFIDENCE_STRONG,
     DIENT_SOURCE_CONFIRMED,
@@ -610,6 +611,74 @@ class GraphWriter:
             """
         )
         return [{"prozess": row["prozess"], "anwendung_name": row["anwendung_name"], "cmdb_id": None} for row in rows]
+
+    def load_org_units_from_neo4j(self, client: Neo4jClient) -> dict[str, str]:
+        """Return {normalized_name: canonical_name} for all OrgEinheit nodes."""
+        rows = client.execute_read(
+            "MATCH (o:OrgEinheit) WHERE o.name IS NOT NULL RETURN o.name AS name",
+            {},
+        )
+        result: dict[str, str] = {}
+        for row in rows:
+            name = (row.get("name") or "").strip()
+            if name:
+                result[_normalize_for_alias(name)] = name
+        return result
+
+    def load_org_unit_aliases_from_neo4j(self, client: Neo4jClient) -> dict[str, str]:
+        """Return {normalized_alias: canonical_org_unit_name} from Alias→OrgEinheit edges."""
+        rows = client.execute_read(
+            """
+            MATCH (alias:Alias)-[:KANN_MEINEN]->(o:OrgEinheit)
+            WHERE alias.normalized_name IS NOT NULL AND o.name IS NOT NULL
+            RETURN alias.normalized_name AS alias_normalized, o.name AS org_unit_name
+            """,
+            {},
+        )
+        result: dict[str, str] = {}
+        for row in rows:
+            key = (row.get("alias_normalized") or "").strip()
+            val = (row.get("org_unit_name") or "").strip()
+            if key and val:
+                result[key] = val
+        return result
+
+    def write_role_only_decision(self, client: Neo4jClient, role_name: str) -> None:
+        """Mark a Rolle node as role-only (not an OrgEinheit) directly in Neo4j."""
+        client.execute_write(
+            "MATCH (r:Rolle {name: $role_name}) SET r.role_only = true",
+            {"role_name": role_name},
+        )
+
+    def write_org_unit_alias(self, client: Neo4jClient, candidate_name: str, org_unit_name: str) -> None:
+        """Project a confirmed org-unit candidate mapping as an Alias node in Neo4j.
+
+        Creates (:Alias)-[:KANN_MEINEN]->(:OrgEinheit) so the pipeline can resolve
+        the raw candidate string to the canonical OrgEinheit without reading kb.json.
+        No-op when candidate_name and org_unit_name normalise to the same value.
+        """
+        normalized_candidate = _normalize_for_alias(candidate_name)
+        normalized_target = _normalize_for_alias(org_unit_name)
+        if not normalized_candidate or normalized_candidate == normalized_target:
+            return
+        client.execute_write(
+            """
+            MERGE (alias:Alias {normalized_name: $normalized_name})
+            ON CREATE SET alias.name = $alias_name,
+                          alias.source_kind = $source_kind
+            SET alias.name = coalesce(alias.name, $alias_name)
+            WITH alias
+            MERGE (o:OrgEinheit {name: $org_unit_name})
+            MERGE (alias)-[r:KANN_MEINEN]->(o)
+            SET r.source_kind = $source_kind
+            """,
+            {
+                "normalized_name": normalized_candidate,
+                "alias_name": candidate_name.strip(),
+                "org_unit_name": org_unit_name.strip(),
+                "source_kind": ALIAS_SOURCE_KIND_CONFIRMED_CANDIDATE,
+            },
+        )
 
     def _resolve_org_unit_canonical_name(self, client: Neo4jClient, name: str) -> str:
         """Return canonical OrgEinheit name via case-insensitive lookup; fall back to stripped input.
