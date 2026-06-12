@@ -34,3 +34,105 @@ Schwache Nicht-KB-Matches werden vom graph_writer gefiltert und nicht nach Neo4j
 Ein Ausbau erfordert einen expliziten Designentscheid: Kandidaten als Pending-Nodes/-Kanten in Neo4j schreiben mit eigenem Status-Attribut. #10 ist von dieser Entscheidung abhängig.
 
 14. UI: einklappbare Abschnitte mit To-dos zeigen Item-Anzahl im Titel. - erledigt
+
+15. kb.json zur Löschung vorgemerkt (offen)
+kb.json ist aktuell noch vorhanden als Sicherheitsnetz, aber nicht mehr kanonische Quelle für
+Entscheidungen (confirmed/rejected/candidates). Alle Entscheidungen werden in Neo4j persistiert.
+kb.json darf still existieren, soll aber nicht mehr aktiv befüllt oder gelesen werden.
+Ziel: in einer späteren Session vollständig entfernen, sobald sichergestellt ist, dass kein
+Code mehr darauf zugreift.
+
+16. Bestätigte KÖNNTE_DIENEN-Kandidaten verschwinden aus dem Graphen — Diskussionsbedarf (offen)
+Nach Bestätigung eines schwachen Kandidaten (KÖNNTE_DIENEN → DIENT) ist der raw_name nur noch als
+Property auf der DIENT-Kante sichtbar, nicht mehr als eigenständiges Graphobjekt.
+
+Zwei konkrete Fragestellungen:
+
+a) Re-Import ohne den ursprünglichen Bezeichner:
+manuell_bestaetigt-Entscheidungen greifen nur, wenn der exakt gleiche raw_name beim nächsten Import
+wieder extrahiert wird. Ändert sich das Dokument und "SAP CRM" taucht nicht mehr auf, wird die
+DIENT-Kante beim Re-Import gelöscht — der bestätigte Link geht verloren. Manuell angelegte Links
+(source: manueller_link) sind dagegen persistent via build_manual_matches. Frage: Sollten
+manuell_bestaetigt-Entscheidungen genauso behandelt werden wie manueller_link?
+
+b) Alias-Semantik des raw_name:
+"SAP CRM" wurde als Bezeichner für "SAP SRM" bestätigt. Diese Information (raw_name ist ein
+Synonym für die CMDB-Entität) könnte sinnvoll als Alias in Neo4j projiziert werden, ähnlich wie
+OrgEinheit-Aliases über (:Alias)-[:KANN_MEINEN]->(:Anwendung). Dann würde der Chat "SAP CRM"
+auch ohne explizite DIENT-Kante auflösen können.
+
+Keine sofortige Aktion nötig, aber vor dem nächsten Release explizit entscheiden.
+
+17. graph_schema.py: Ablehnung-Node und raw_name/source aus Query-Schema entfernen (offen)
+Zwei kleine Bereinigungen am Query-Schema, das der LLM zur Laufzeit bekommt:
+
+a) (:Ablehnung) ist ein interner Entscheidungsknoten, kein fachliches EA-Objekt. Der LLM hat
+keinen sinnvollen Grund danach zu fragen. Aus QUERY_NODE_SCHEMA entfernen.
+
+b) raw_name auf [:DIENT] ist ein Implementation Detail (roher Bezeichner aus dem Dokument).
+Der LLM könnte theoretisch nach r.raw_name filtern, was fachlich keinen Sinn ergibt.
+Aus den Properties von RelationshipPattern("DIENT") entfernen.
+source dagegen ist potenziell nützlich (manuell_bestaetigt vs strong) und kann bleiben.
+
+
+18. OrgEinheit-Duplikate in Neo4j durch case-sensitive MERGE (offen)
+Neo4j's MERGE ist case-sensitiv. Wird derselbe Organisationseinheitsname mit unterschiedlicher Schreibweise
+geschrieben (z.B. "Sales" und "SALES"), entstehen zwei separate (:OrgEinheit)-Knoten. Das war bisher
+unsichtbar, weil der BRIDGR-Tab aus kb.json liest und dort normalize_org_unit_name() (casefold) als
+Deduplizierungsschicht wirkt. Mit der geplanten Ablösung von kb.json (#15) entfällt diese Schutzschicht —
+dann würden Duplikate direkt im UI und im Chat-Layer sichtbar werden.
+
+Root cause: graph_writer.py schreibt OrgEinheit-Nodes immer als
+    MERGE (o:OrgEinheit {name: $org_unit_name})
+ohne vorheriges case-insensitives Lookup oder Normalisierung des Namens.
+
+Fix-Optionen:
+a) Alle Schreibpfade in graph_writer.py normalisieren den Namen vor dem MERGE (str.casefold o.ä.)
+b) Neo4j-Constraint auf toLower(name) setzen (erfordert Neo4j 5+ mit property transform)
+c) Vor jedem MERGE zuerst einen case-insensitiven MATCH machen und den gefundenen kanonischen Namen verwenden
+
+Sofortmaßnahme für bestehende Duplikate (Cypher) (für den aktuellen Testlauf / 12.06. durchgeführt, kann jedoch bei erneutem Aufsetzen der Test-DB wieder auftreten)
+    MATCH (dup:OrgEinheit {name: 'SALES'}), (canonical:OrgEinheit {name: 'Sales'})
+    OPTIONAL MATCH (dup)-[:VERANTWORTET]->(target)
+    WITH dup, canonical, collect(target) AS targets
+    FOREACH (t IN targets | MERGE (canonical)-[:VERANTWORTET]->(t))
+    WITH dup DETACH DELETE dup
+
+Priorität: Muss vor Entfernung von kb.json (#15) behoben sein.
+
+19. ArchiMate-Export: OrgEinheit→Prozess-Beziehung fehlt im Mapping (Fehlkonfiguration, offen)
+VERANTWORTET-Kanten von OrgEinheit nach Prozess landen nicht im ArchiMate-Export, weil der Key
+"OrgEinheit->Prozess" weder im export- noch im import-Abschnitt von data/archimate_mapping.json
+eingetragen ist. Der Code in archimate_export_service.py ist korrekt — er schlägt den Key nach und
+verwirft die Beziehung still, wenn kein Mapping gefunden wird.
+
+Fix: In data/archimate_mapping.json ergänzen:
+  export:  "OrgEinheit->Prozess": "Assignment"
+  import:  "OrgEinheit->Prozess": ["Assignment"]
+
+ArchiMate-Semantik: BusinessActor assigned to BusinessProcess = Verantwortung/Ownership (korrekt).
+Ohne den import-Eintrag würde beim Reimport aus Archi die Zuordnung ebenfalls nicht zurückgespielt.
+
+Zusatzbefund: OrgEinheit->Schnittstelle und OrgEinheit->Server haben bereits jetzt eine
+Import/Export-Diskrepanz (Import akzeptiert nur "Association", Export schreibt "Assignment").
+Ein BRIDGR-Export lässt sich damit nicht verlustfrei reimportieren. Beim Fix von OrgEinheit->Prozess
+sollten diese beiden Einträge mit korrigiert werden (import ebenfalls auf "Assignment" erweitern).
+
+20. ArchiMate-Import: Detailinformation zu übersprungenen Beziehungen fehlt (offen)
+Werden bei einem ArchiMate-Import Beziehungen übersprungen, erscheint nur eine Sammel-Meldung,
+z.B. "Übersprungene ArchiMate-Typen: Assignment (4), Serving (1)". Der Benutzer kann nicht
+erkennen, welche konkreten Verbindungen fehlen und wo nachgearbeitet werden muss.
+
+Gewünschtes Verhalten (Beispiel):
+  Übersprungene Beziehungen (5):
+  - [unbekannter Typ] A –[Serving]→ B
+  - [kein Mapping]   C –[Assignment]→ D
+  - [kein Mapping]   A –[Assignment]→ D
+  - [kein Mapping]   D –[Assignment]→ E
+  - [kein Mapping]   E –[Assignment]→ A
+
+Technische Verortung: archimate_import_service.py, Funktion _import_relations(), ab ca. Zeile 222.
+Es gibt drei Skip-Pfade (unauflösbarer Name, Typ nicht im Mapping, kein BRIDGR-Zieltyp), die aktuell
+alle in denselben Zähler fließen. Zum Zeitpunkt des Überspringens sind source_name, target_name,
+source_label, target_label und rel.archimate_rel_type bereits verfügbar — der Fix erfordert kein
+Refactoring, nur erweitertes Sammeln der Detail-Infos in einer Liste statt eines Zählers.

@@ -87,6 +87,8 @@ def run_pipeline(
     graph_writer = GraphWriter()
     neo4j_client = build_neo4j_client(config)
     _, knowledge_base = sync_cmdb_to_neo4j(config, neo4j_client, knowledge_base)
+    confirmed_links = graph_writer.get_confirmed_links_from_neo4j(neo4j_client)
+    rejected_links = graph_writer.get_rejected_decisions_from_neo4j(neo4j_client)
 
     if input_paths is not None:
         candidate_paths = list(input_paths)
@@ -137,7 +139,7 @@ def run_pipeline(
             continue
 
         extractor = build_extractor_for_path(path, llm_client)
-        document_result = run_document(path, file_hash, extractor, config, knowledge_base, cmdb_rows, graph_writer)
+        document_result = run_document(path, file_hash, extractor, config, knowledge_base, cmdb_rows, graph_writer, confirmed_links, rejected_links)
         if document_result.extracted_process is not None:
             knowledge_base = update_organization_knowledge(knowledge_base, document_result.extracted_process)
         document_results.append(document_result)
@@ -231,7 +233,11 @@ def run_document(
     knowledge_base: KnowledgeBase,
     cmdb_rows: list[dict[str, str]],
     graph_writer: GraphWriter,
+    confirmed_links: list[dict] | None = None,
+    rejected_links: list[dict] | None = None,
 ) -> DocumentRunResult:
+    confirmed_links = confirmed_links if confirmed_links is not None else []
+    rejected_links = rejected_links if rejected_links is not None else []
     try:
         extracted_process = extractor.extract(source_path)
         extracted_process = apply_org_unit_mapping(extracted_process, knowledge_base)
@@ -254,15 +260,15 @@ def run_document(
                 application_name=application.name,
                 process_name=extracted_process.process_name,
                 cmdb_rows=cmdb_rows,
-                confirmed_links=knowledge_base.confirmed,
-                rejected_links=knowledge_base.rejected,
+                confirmed_links=confirmed_links,
+                rejected_links=rejected_links,
                 threshold=config.fuzzy_threshold,
                 uuid_column=config.cmdb_uuid_column,
                 name_column=config.cmdb_name_column,
                 entity_type_column=config.cmdb_entity_type_column,
             )
         )
-    matches.extend(build_manual_matches(extracted_process.process_name, extracted_process.applications, knowledge_base.confirmed))
+    matches.extend(build_manual_matches(extracted_process.process_name, extracted_process.applications, confirmed_links))
     review_items = collect_review_items(extracted_process, matches)
     graph_payload = graph_writer.build_payload(extracted_process, matches)
     status = DOCUMENT_STATUS_NO_MATCHES if not extracted_process.applications else DOCUMENT_STATUS_PROCESSED

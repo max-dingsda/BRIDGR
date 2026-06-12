@@ -83,12 +83,16 @@ def sync_cmdb_to_neo4j(
         source_path=str(resolve_input_cmdb_path(config)),
     )
     owner_assignments = resolve_cmdb_owner_assignments(updated_knowledge_base, normalized_cmdb)
+    owner_candidates = resolve_cmdb_owner_candidates(updated_knowledge_base, normalized_cmdb)
 
-    GraphWriter().sync_cmdb(
+    graph_writer = GraphWriter()
+    graph_writer.sync_cmdb(
         neo4j_client,
         normalized_cmdb,
         owner_assignments=owner_assignments,
     )
+    for entity_id, org_unit_name in owner_candidates.items():
+        graph_writer.write_candidate_ownership(neo4j_client, org_unit_name, entity_id, score=0.0)
 
     result = CmdbSyncResult(
         entity_count=len(normalized_cmdb.entities),
@@ -131,6 +135,32 @@ def update_organization_knowledge_from_cmdb(
             role_name="",
         )
     return updated
+
+
+def resolve_cmdb_owner_candidates(
+    knowledge_base: KnowledgeBase,
+    normalized_cmdb,
+) -> dict[str, str]:
+    known_org_units = {
+        normalize_org_unit_name(entry.get("name", "")): entry.get("name", "")
+        for entry in knowledge_base.org_units
+        if entry.get("name")
+    }
+    mapped_candidates = {
+        entry.get("normalized_name", ""): entry.get("mapped_org_unit", "")
+        for entry in knowledge_base.org_unit_candidates
+        if entry.get("status") == "mapped" and entry.get("mapped_org_unit")
+    }
+    candidates: dict[str, str] = {}
+    for entity in normalized_cmdb.entities:
+        owner_name = " ".join((entity.owner_name or "").split())
+        if not owner_name:
+            continue
+        normalized_owner = normalize_org_unit_name(owner_name)
+        if normalized_owner in known_org_units or normalized_owner in mapped_candidates:
+            continue
+        candidates[entity.entity_id] = owner_name
+    return candidates
 
 
 def resolve_cmdb_owner_assignments(

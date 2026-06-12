@@ -10,6 +10,10 @@ MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL = "knowledge_base_manual"
 MATCH_SOURCE_REJECTED = "rejected"
 MATCH_SOURCE_UNMATCHED = "unmatched"
 
+DIENT_SOURCE_STRONG = "strong"
+DIENT_SOURCE_CONFIRMED = "manuell_bestaetigt"
+DIENT_SOURCE_MANUAL = "manueller_link"
+
 DOCUMENT_STATUS_PROCESSED = "processed"
 DOCUMENT_STATUS_SKIPPED_UNCHANGED = "skipped_unchanged"
 DOCUMENT_STATUS_NO_MATCHES = "no_matches"

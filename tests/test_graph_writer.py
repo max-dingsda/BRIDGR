@@ -18,6 +18,10 @@ class RecordingNeo4jClient:
             return self.responses.pop(0)
         return []
 
+    def execute_read(self, query: str, parameters=None):
+        self.queries.append((query, parameters))
+        return []
+
 
 def test_graph_writer_removes_existing_process_application_links_before_rewrite() -> None:
     writer = GraphWriter()
@@ -329,6 +333,167 @@ def test_graph_writer_syncs_cmdb_process_entity_as_prozess_node() -> None:
 
     queries = [query for query, _ in client.queries]
     assert any("MERGE (p:Prozess {prozess_id: $entity_id})" in query for query in queries)
+
+
+def test_graph_writer_writes_weak_match_as_koennte_dienen() -> None:
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+    payload = GraphWritePayload(
+        process=ExtractedProcess(
+            process_name="Incident Management",
+            process_id="proc-1",
+            org_unit="",
+            roles=[],
+            org_units=[],
+            org_unit_candidates=[],
+            follows_after=[],
+            raw_applications=[ApplicationReference(name="Mail", confidence="schwach")],
+            applications=[ApplicationReference(name="Mail", confidence="schwach")],
+            source_path="Input/process.xml",
+        ),
+        matches=[
+            MatchResult(
+                application_name="Mail",
+                cmdb_id="cmdb-2",
+                matched_name="Mail System",
+                confidence="schwach",
+                source="fuzzy",
+                score=0.72,
+            ),
+        ],
+    )
+
+    writer.write_payload(client, payload)
+
+    koennte_dienen_writes = [
+        params for query, params in client.queries if "KÖNNTE_DIENEN" in query and "SET r.score" in query
+    ]
+    dient_writes = [
+        params for query, params in client.queries if "MERGE (a)-[r:DIENT]->(p)" in query
+    ]
+    assert len(koennte_dienen_writes) == 1
+    assert koennte_dienen_writes[0]["cmdb_id"] == "cmdb-2"
+    assert koennte_dienen_writes[0]["score"] == 0.72
+    assert len(dient_writes) == 0
+
+
+def test_graph_writer_deletes_koennte_dienen_on_reimport() -> None:
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+    payload = GraphWritePayload(
+        process=ExtractedProcess(
+            process_name="Incident Management",
+            process_id="proc-1",
+            org_unit="",
+            roles=[],
+            org_units=[],
+            org_unit_candidates=[],
+            follows_after=[],
+            raw_applications=[],
+            applications=[],
+            source_path="Input/process.xml",
+        ),
+        matches=[],
+    )
+
+    writer.write_payload(client, payload)
+
+    cleanup_queries = [
+        query for query, _ in client.queries if "KÖNNTE_DIENEN" in query and "DELETE r" in query
+    ]
+    assert len(cleanup_queries) == 1
+
+
+def test_graph_writer_dient_carries_raw_name_and_source() -> None:
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+    payload = GraphWritePayload(
+        process=ExtractedProcess(
+            process_name="Incident Management",
+            process_id="proc-1",
+            org_unit="",
+            roles=[],
+            org_units=[],
+            org_unit_candidates=[],
+            follows_after=[],
+            raw_applications=[ApplicationReference(name="Ticket", confidence="stark")],
+            applications=[ApplicationReference(name="Ticket", confidence="stark")],
+            source_path="Input/process.xml",
+        ),
+        matches=[
+            MatchResult(
+                application_name="Ticket",
+                cmdb_id="cmdb-1",
+                matched_name="Trouble Ticket System",
+                confidence="stark",
+                source="fuzzy",
+                score=0.95,
+            ),
+        ],
+    )
+
+    writer.write_payload(client, payload)
+
+    dient_params = [
+        params for query, params in client.queries if "MERGE (a)-[r:DIENT]->(p)" in query
+    ]
+    assert len(dient_params) == 1
+    assert dient_params[0]["raw_name"] == "Ticket"
+    assert dient_params[0]["source"] == "strong"
+
+
+def test_graph_writer_promote_candidate_link_deletes_koennte_dienen_and_writes_dient() -> None:
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+
+    writer.promote_candidate_link(client, cmdb_id="cmdb-2", process_id="proc-1", raw_name="Mail", matched_name="Mail System")
+
+    delete_queries = [query for query, _ in client.queries if "KÖNNTE_DIENEN" in query and "DELETE r" in query]
+    dient_queries = [query for query, _ in client.queries if "MERGE (a)-[r:DIENT]->(p)" in query]
+    assert len(delete_queries) == 1
+    assert len(dient_queries) == 1
+    dient_params = [params for query, params in client.queries if "MERGE (a)-[r:DIENT]->(p)" in query]
+    assert dient_params[0]["raw_name"] == "Mail"
+    assert dient_params[0]["source"] == "manuell_bestaetigt"
+
+
+def test_graph_writer_reject_candidate_link_creates_ablehnung_node() -> None:
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+
+    writer.reject_candidate_link(
+        client,
+        cmdb_id="cmdb-2",
+        process_id="proc-1",
+        prozess_name="Incident Management",
+        anwendung_name="Mail",
+    )
+
+    ablehnung_queries = [query for query, _ in client.queries if "MERGE (ab:Ablehnung" in query]
+    delete_queries = [query for query, _ in client.queries if "KÖNNTE_DIENEN" in query and "DELETE r" in query]
+    assert len(ablehnung_queries) == 1
+    assert len(delete_queries) == 1
+    params = [params for query, params in client.queries if "MERGE (ab:Ablehnung" in query][0]
+    assert params["prozess_name"] == "Incident Management"
+    assert params["anwendung_name"] == "Mail"
+
+
+def test_graph_writer_reject_candidate_link_without_cmdb_id_still_creates_ablehnung() -> None:
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+
+    writer.reject_candidate_link(
+        client,
+        cmdb_id=None,
+        process_id="proc-1",
+        prozess_name="Incident Management",
+        anwendung_name="Unbekanntes System",
+    )
+
+    ablehnung_queries = [query for query, _ in client.queries if "MERGE (ab:Ablehnung" in query]
+    delete_queries = [query for query, _ in client.queries if "KÖNNTE_DIENEN" in query and "DELETE r" in query]
+    assert len(ablehnung_queries) == 1
+    assert len(delete_queries) == 0
 
 
 def test_graph_writer_syncs_cmdb_entities_relations_and_owners() -> None:

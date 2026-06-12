@@ -76,5 +76,30 @@
       "OrgEinheit->Server": "Assignment"
     }
   },
-  "pending_candidates": []
+  "pending_candidates": [
+    {
+      "archimate_id": "id-be705d4990bb",
+      "archimate_type": "BusinessActor",
+      "archimate_name": "Team Platform",
+      "bridgr_label": "Rolle",
+      "suggested_match": "Team Plattform",
+      "score": 0.963
+    },
+    {
+      "archimate_id": "id-98cf790aa395",
+      "archimate_type": "BusinessActor",
+      "archimate_name": "Team Infrastruktur",
+      "bridgr_label": "Rolle",
+      "suggested_match": "Team Infrastructure",
+      "score": 0.919
+    },
+    {
+      "archimate_id": "id-e624cf7a4324",
+      "archimate_type": "BusinessActor",
+      "archimate_name": "SALES",
+      "bridgr_label": "Rolle",
+      "suggested_match": "Sales",
+      "score": 1.0
+    }
+  ]
 }

@@ -3,7 +3,7 @@
 BRIDGR verbindet Prozessdokumentation mit CMDB-Daten, um einen EA-Wissensgraphen aufzubauen und spaeter ueber eine natuerlichsprachliche Oberflaeche abfragbar zu machen.
 
 Der aktuelle Architektur-Referenzstand fuer die Umsetzung ist:
-- `Specs/Bridgr_Architektur_v22.md`
+- `Specs/Bridgr_Architektur_v23.md`
 
 ## Zielbild
 
@@ -60,7 +60,10 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - BPMN-Transformer fuer sehr grosse BPMN/XML-Dateien als vorbereitender, LLM-freier Reduktionsschritt
 - Rohsicht und deduplizierte Arbeitssicht fuer extrahierte Anwendungen
 - CMDB-Matching mit KB-First-Logik, mehreren Kandidaten und Fuzzy Matching
-- Neo4j-Write-Pfad fuer Prozesse, Organisationseinheiten und bestaetigte bzw. starke Anwendungslinks
+- Neo4j-Write-Pfad fuer Prozesse, Organisationseinheiten und bestaetigte bzw. starke Anwendungslinks als `DIENT`-Kanten mit `raw_name`- und `source`-Property
+- schwache Fuzzy-Matches mit CMDB-Treffer werden als `KÖNNTE_DIENEN`-Kanten in Neo4j geschrieben und im Chat abfragbar
+- Ablehnungen werden als `(:Ablehnung)`-Knoten in Neo4j persistiert; Pipeline liest bestaetigt/abgelehnt aus Neo4j statt aus `kb.json`
+- Promote/Reject direkt in Neo4j: Bestaetigung loescht `KÖNNTE_DIENEN` und schreibt `DIENT`; Ablehnung erzeugt `(:Ablehnung)`-Knoten
 - normalisierte CMDB-Sicht fuer `Anwendung`, `Schnittstelle` und `Server`
 - technischer CMDB-Write-Pfad fuer `USES_INTERFACE` und `RUNS_ON`
 - erste CMDB-Ownership-Logik mit direktem 1:1-Match oder Kandidatenbildung fuer Organisationseinheiten
@@ -89,7 +92,7 @@ Noch nicht umgesetzt:
 - vollstaendige UI-/Review-Unterstuetzung fuer alle neuen CMDB-Objekttypen
 - Unterstuetzung weiterer CMDB-Dateiformate jenseits von CSV
 - separate Read-only-DB-Identitaet fuer den Query-Layer
-- vollstaendige Abloesung der `knowledge_base/kb.json` als einzige Kurationsquelle; aktuell werden Alias-Informationen zusaetzlich nach Neo4j projiziert, die restliche Kuratierung bleibt dateibasiert
+- vollstaendige Loesung von `knowledge_base/kb.json` (Finding #15); kb.json ist zur Loesung vorgemerkt, existiert aber noch als Sicherheitsnetz
 - ArchiMate Views/Viewpoints im Export; selektiver Export (setzt Views voraus)
 
 ## Projektstruktur
@@ -124,10 +127,11 @@ Aktuell relevante Output-Dateien:
 - `Output/latest_run.json`: letzter gespeicherter Import-/Reviewlauf fuer die UI; wird nach Prozessimporten und nach einer CMDB-Synchronisation fuer die Neubewertung bestehender Zuordnungen aktualisiert
 - `Output/debug.log`: optionale JSONL-Diagnoseausgabe bei aktiviertem Debug-Modus
 
-Relevante Knowledge-Base-Bereiche:
-- `knowledge_base/kb.json` enthaelt weiterhin die kuratierten Zuordnungen und Kandidaten.
-- `org_unit_candidates` speichert offene, uebernommene, gemappte oder abgewiesene Organisationskandidaten.
-- `role_decisions` speichert explizit als reine Rolle markierte Begriffe, damit sie im Organisations-Tab nicht dauerhaft als offene Zuordnung auftauchen.
+Entscheidungspersistenz:
+- Bestaetigte Anwendungslinks leben als `DIENT`-Kanten in Neo4j (mit `raw_name`- und `source`-Property).
+- Schwache Kandidaten leben als `KÖNNTE_DIENEN`-Kanten in Neo4j.
+- Ablehnungen leben als `(:Ablehnung)`-Knoten in Neo4j.
+- `knowledge_base/kb.json` ist zur Loesung vorgemerkt (Finding #15) und wird nicht mehr aktiv beschrieben oder gelesen.
 
 ## Konfiguration
 
@@ -302,7 +306,9 @@ Aktuell verfuegbar:
 - mehrere schwache CMDB-Kandidaten pro Prozessanwendung anzeigen
 - Dokumentdetails mit Prozesskontext und technischen Rohdaten (reine Ansicht, keine Aktionen)
 - Hinweise auf moegliche Mehrfachnotation derselben Anwendung innerhalb eines Prozesses
-- nur starke oder KB-bestaetigte Links in Neo4j schreiben; schwache fuzzy-Kandidaten erscheinen im Review, sofern kein starker Match fuer dieselbe Anwendung existiert
+- starke und KB-bestaetigte Links werden als `DIENT`-Kanten in Neo4j geschrieben; schwache fuzzy-Kandidaten als `KÖNNTE_DIENEN`-Kanten (im Review-Tab und im Chat abfragbar)
+- Bestaetigung im Review loescht `KÖNNTE_DIENEN` und schreibt `DIENT` direkt in Neo4j (kein Dokument-Re-Run als Traeger)
+- Ablehnungen im Review erzeugen `(:Ablehnung)`-Knoten in Neo4j; der naechste Import ueberspringt abgelehnte Bezeichnungen
 - nach einer CMDB-Synchronisation koennen bisher offene oder schwache Faelle des letzten Laufs automatisch verschwinden, wenn die aktualisierte CMDB jetzt einen starken Match liefert
 
 ### Tab 3 - Konfiguration
@@ -427,7 +433,7 @@ Der aktuelle Teststand deckt unter anderem ab:
 - CMDB-Normalisierung fuer Entities und Relations
 - Aufbereitung der UI-Statusdaten und Warnhinweise
 - KB-Aktionen fuer kandidatenspezifisches Bestaetigen und Ablehnen
-- Graph-Write-Pfad inkl. Aufraeumen alter Prozesskanten und neuem `DIENT`-Modell
+- Graph-Write-Pfad inkl. `DIENT` (stark), `KÖNNTE_DIENEN` (schwach), Promote/Reject und `(:Ablehnung)`-Knoten
 - ArchiMate-Import (Parser, Namenswahl, Identity Resolution, Beziehungen) und Export (Roundtrip, Typ-Mapping, XML-Validierung)
 - Export-Precheck: Nodes ohne archimate_type abfragen, Typ-Schreiben mit Attribut-Eigentuemer-Semantik
 

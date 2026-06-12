@@ -88,6 +88,15 @@ def test_run_document_builds_matches_and_review_items(tmp_path: Path) -> None:
     prompt_path.write_text("prompt", encoding="utf-8")
     extractor = BpmnExtractor(prompt_path=prompt_path, llm_client=FakeLlmClient())
 
+    confirmed_links = [
+        {
+            "prozess": "Auftragsabwicklung",
+            "anwendung_name": "Manuelles CRM",
+            "cmdb_id": "cmdb-2",
+            "resolved_to": "Manual CRM",
+            "quelle": "manueller_link",
+        }
+    ]
     result = run_document(
         source_path=bpmn_path,
         file_hash="hash-1",
@@ -98,15 +107,7 @@ def test_run_document_builds_matches_and_review_items(tmp_path: Path) -> None:
             fuzzy_threshold=0.85,
         ),
         knowledge_base=KnowledgeBase(
-            confirmed=[
-                {
-                    "prozess": "Auftragsabwicklung",
-                    "anwendung_name": "Manuelles CRM",
-                    "cmdb_id": "cmdb-2",
-                    "resolved_to": "Manual CRM",
-                    "quelle": "manueller_link",
-                }
-            ],
+            confirmed=[],
             rejected=[],
             disambiguation=[],
             process_identity=[],
@@ -115,6 +116,8 @@ def test_run_document_builds_matches_and_review_items(tmp_path: Path) -> None:
         ),
         cmdb_rows=[{"app_id": "cmdb-1", "application_name": "SAP Sales"}],
         graph_writer=GraphWriter(),
+        confirmed_links=confirmed_links,
+        rejected_links=[],
     )
 
     assert result.status == "processed"
@@ -143,15 +146,7 @@ def test_run_document_does_not_revive_absent_confirmed_non_manual_matches(tmp_pa
             fuzzy_threshold=0.85,
         ),
         knowledge_base=KnowledgeBase(
-            confirmed=[
-                {
-                    "prozess": "Auftragsabwicklung",
-                    "anwendung_name": "Historisches CRM",
-                    "cmdb_id": "cmdb-9",
-                    "resolved_to": "Historic CRM",
-                    "quelle": "manuell_bestaetigt",
-                }
-            ],
+            confirmed=[],
             rejected=[],
             disambiguation=[],
             process_identity=[],
@@ -160,6 +155,16 @@ def test_run_document_does_not_revive_absent_confirmed_non_manual_matches(tmp_pa
         ),
         cmdb_rows=[{"app_id": "cmdb-1", "application_name": "SAP Sales"}],
         graph_writer=GraphWriter(),
+        confirmed_links=[
+            {
+                "prozess": "Auftragsabwicklung",
+                "anwendung_name": "Historisches CRM",
+                "cmdb_id": "cmdb-9",
+                "resolved_to": "Historic CRM",
+                "quelle": "manuell_bestaetigt",
+            }
+        ],
+        rejected_links=[],
     )
 
     assert all(match.application_name != "Historisches CRM" for match in result.matches)
@@ -218,6 +223,9 @@ def test_run_pipeline_writes_artifacts_for_full_runs(tmp_path: Path, monkeypatch
                 self.cleanup_called = True
             return []
 
+        def execute_read(self, query: str, parameters=None):
+            return []
+
         def ensure_constraints(self) -> None:
             return None
 
@@ -266,6 +274,9 @@ def test_run_pipeline_partial_without_explicit_files_returns_empty_run(tmp_path:
             return None
 
         def execute_write(self, query: str, parameters=None):
+            return []
+
+        def execute_read(self, query: str, parameters=None):
             return []
 
         def ensure_constraints(self) -> None:
@@ -324,6 +335,9 @@ def test_run_pipeline_reports_progress_updates(tmp_path: Path, monkeypatch) -> N
             return None
 
         def execute_write(self, query: str, parameters=None):
+            return []
+
+        def execute_read(self, query: str, parameters=None):
             return []
 
         def ensure_constraints(self) -> None:

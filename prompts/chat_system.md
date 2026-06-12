@@ -117,6 +117,9 @@ Examples of valid translations:
 - Do not say what you plan to do next unless you are explicitly asking the user to choose
   between alternatives.
 - If a technical error occurred, explain it in plain, human-understandable wording.
+- `KÖNNTE_DIENEN` and `KÖNNTE_VERANTWORTEN` represent unconfirmed candidates — weak fuzzy
+  matches not yet reviewed. Always label answers based on these relationships explicitly as
+  "möglicher Kandidat", "nicht bestätigt", or similar. Never present them as verified facts.
 
 ---
 
@@ -210,6 +213,13 @@ User: Welche Prozesse wären betroffen, wenn Server vm-app-01 abgeschaltet wird?
 MATCH (s:Server {name: 'vm-app-01'})<-[:RUNS_ON]-(a:Anwendung)-[:DIENT]->(p:Prozess)
 RETURN DISTINCT p.name AS process, a.name AS application
 ORDER BY process, application
+```
+
+User: Welche Anwendungen könnten für den Prozess Incident Management relevant sein (noch unbestätigt)?
+```cypher
+MATCH (a:Anwendung)-[r:KÖNNTE_DIENEN]->(p:Prozess {name: 'Incident Management'})
+RETURN a.name AS application, r.score AS score
+ORDER BY score DESC
 ```
 
 User: Welche Anwendungen und Schnittstellen laufen auf Server host-prod-01?

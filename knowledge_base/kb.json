@@ -1,196 +1,67 @@
 {
-  "confirmed": [
-    {
-      "prozess": "Angebotserstellung",
-      "anwendung_name": "SAP CRM",
-      "cmdb_id": "app-006",
-      "resolved_to": "SAP SRM",
-      "bestaetigt_am": "2026-06-09",
-      "quelle": "manuell_bestaetigt"
-    },
-    {
-      "prozess": "Auftragserfassung",
-      "anwendung_name": "SAP CRM",
-      "cmdb_id": "app-006",
-      "resolved_to": "SAP SRM",
-      "bestaetigt_am": "2026-06-09",
-      "quelle": "manuell_bestaetigt"
-    },
-    {
-      "prozess": "Reklamationsbearbeitung",
-      "anwendung_name": "SAP CRM",
-      "cmdb_id": "app-006",
-      "resolved_to": "SAP SRM",
-      "bestaetigt_am": "2026-06-09",
-      "quelle": "manuell_bestaetigt"
-    },
-    {
-      "prozess": "Kundenanlage und -pflege",
-      "anwendung_name": "SAP CRM",
-      "cmdb_id": "app-006",
-      "resolved_to": "SAP SRM",
-      "bestaetigt_am": "2026-06-09",
-      "quelle": "manuell_bestaetigt"
-    },
-    {
-      "prozess": "Berichtswesen",
-      "anwendung_name": "SAP BW",
-      "cmdb_id": "7104519e-2f7d-4a6e-a54f-6fb6b76ed5c2",
-      "resolved_to": "SAP WM",
-      "bestaetigt_am": "2026-06-09",
-      "quelle": "manuell_bestaetigt"
-    },
-    {
-      "prozess": "IT-Support",
-      "anwendung_name": "JIRA",
-      "cmdb_id": "app-004",
-      "resolved_to": "Jira Service Management",
-      "bestaetigt_am": "2026-06-09",
-      "quelle": "manuell_bestaetigt"
-    },
-    {
-      "prozess": "Softwarefreigabe",
-      "anwendung_name": "JIRA",
-      "cmdb_id": "app-004",
-      "resolved_to": "Jira Service Management",
-      "bestaetigt_am": "2026-06-09",
-      "quelle": "manuell_bestaetigt"
-    },
-    {
-      "prozess": "Jahresabschluss",
-      "anwendung_name": "SAP BW",
-      "cmdb_id": "7104519e-2f7d-4a6e-a54f-6fb6b76ed5c2",
-      "resolved_to": "SAP WM",
-      "bestaetigt_am": "2026-06-09",
-      "quelle": "manuell_bestaetigt"
-    },
-    {
-      "prozess": "Budgetplanung",
-      "anwendung_name": "SAP BW",
-      "cmdb_id": "7104519e-2f7d-4a6e-a54f-6fb6b76ed5c2",
-      "resolved_to": "SAP WM",
-      "bestaetigt_am": "2026-06-09",
-      "quelle": "manuell_bestaetigt"
-    },
-    {
-      "prozess": "Änderungsmanagement",
-      "anwendung_name": "JIRA",
-      "cmdb_id": "app-004",
-      "resolved_to": "Jira Service Management",
-      "bestaetigt_am": "2026-06-09",
-      "quelle": "manuell_bestaetigt"
-    },
-    {
-      "prozess": "Auftragserfassung (Detail)",
-      "anwendung_name": "SAP CRM",
-      "cmdb_id": "app-006",
-      "resolved_to": "SAP SRM",
-      "bestaetigt_am": "2026-06-09",
-      "quelle": "manuell_bestaetigt"
-    }
-  ],
+  "confirmed": [],
   "rejected": [],
   "disambiguation": [],
   "process_identity": [],
   "org_units": [
     {
       "name": "Accounting",
-      "created_at": "2026-06-09",
+      "created_at": "2026-06-11",
       "source": "candidate"
     },
     {
       "name": "Auftragsbearbeitung",
-      "created_at": "2026-06-09",
-      "source": "candidate"
-    },
-    {
-      "name": "Buchhaltung",
-      "created_at": "2026-06-09",
+      "created_at": "2026-06-11",
       "source": "candidate"
     },
     {
       "name": "Controlling",
-      "created_at": "2026-06-09",
-      "source": "candidate"
-    },
-    {
-      "name": "Controller",
-      "created_at": "2026-06-09",
+      "created_at": "2026-06-11",
       "source": "candidate"
     },
     {
       "name": "Customer Service Team",
-      "created_at": "2026-06-09",
+      "created_at": "2026-06-11",
       "source": "candidate"
     },
     {
       "name": "Einkauf",
-      "created_at": "2026-06-09",
+      "created_at": "2026-06-11",
       "source": "candidate"
     },
     {
       "name": "IT-Abteilung",
-      "created_at": "2026-06-09",
-      "source": "candidate"
-    },
-    {
-      "name": "Kundenservice",
-      "created_at": "2026-06-09",
-      "source": "candidate"
-    },
-    {
-      "name": "Lager",
-      "created_at": "2026-06-09",
+      "created_at": "2026-06-11",
       "source": "candidate"
     },
     {
       "name": "Logistik",
-      "created_at": "2026-06-09",
+      "created_at": "2026-06-11",
       "source": "candidate"
     },
     {
       "name": "OPS",
-      "created_at": "2026-06-09",
+      "created_at": "2026-06-11",
       "source": "candidate"
     },
     {
       "name": "Personalwesen",
-      "created_at": "2026-06-09",
+      "created_at": "2026-06-11",
       "source": "candidate"
     },
     {
       "name": "Qualitätssicherung",
-      "created_at": "2026-06-09",
-      "source": "candidate"
-    },
-    {
-      "name": "Produktion",
-      "created_at": "2026-06-09",
+      "created_at": "2026-06-11",
       "source": "candidate"
     },
     {
       "name": "Rechtsabteilung",
-      "created_at": "2026-06-09",
+      "created_at": "2026-06-11",
       "source": "candidate"
     },
     {
       "name": "Sales",
-      "created_at": "2026-06-09",
-      "source": "candidate"
-    },
-    {
-      "name": "Versand",
-      "created_at": "2026-06-09",
-      "source": "candidate"
-    },
-    {
-      "name": "Vertrieb",
-      "created_at": "2026-06-10",
-      "source": "candidate"
-    },
-    {
-      "name": "Finanzen",
-      "created_at": "2026-06-10",
+      "created_at": "2026-06-11",
       "source": "candidate"
     }
   ],
@@ -205,8 +76,8 @@
       "role_names": [],
       "status": "mapped",
       "mapped_org_unit": "Sales",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Accounting",
@@ -218,8 +89,8 @@
       "role_names": [],
       "status": "mapped",
       "mapped_org_unit": "Accounting",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Team Commerce IT",
@@ -231,8 +102,8 @@
       "role_names": [],
       "status": "mapped",
       "mapped_org_unit": "IT-Abteilung",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Customer Service Team",
@@ -244,8 +115,8 @@
       "role_names": [],
       "status": "mapped",
       "mapped_org_unit": "Customer Service Team",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Team Infrastructure",
@@ -257,8 +128,8 @@
       "role_names": [],
       "status": "mapped",
       "mapped_org_unit": "IT-Abteilung",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Team Legal",
@@ -270,8 +141,8 @@
       "role_names": [],
       "status": "mapped",
       "mapped_org_unit": "Rechtsabteilung",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Team Accounting",
@@ -283,8 +154,8 @@
       "role_names": [],
       "status": "mapped",
       "mapped_org_unit": "Accounting",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Team Plattform",
@@ -296,8 +167,8 @@
       "role_names": [],
       "status": "mapped",
       "mapped_org_unit": "IT-Abteilung",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Team Platform",
@@ -309,8 +180,8 @@
       "role_names": [],
       "status": "mapped",
       "mapped_org_unit": "IT-Abteilung",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Team Infrastruktur",
@@ -322,8 +193,8 @@
       "role_names": [],
       "status": "mapped",
       "mapped_org_unit": "IT-Abteilung",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "OPS",
@@ -335,8 +206,8 @@
       "role_names": [],
       "status": "mapped",
       "mapped_org_unit": "OPS",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Plattforms",
@@ -348,8 +219,8 @@
       "role_names": [],
       "status": "mapped",
       "mapped_org_unit": "IT-Abteilung",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Salesteam",
@@ -361,8 +232,28 @@
       "role_names": [],
       "status": "mapped",
       "mapped_org_unit": "Sales",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
+    },
+    {
+      "candidate_name": "Logistik",
+      "normalized_name": "logistik",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\cmdb_entities.csv",
+        "F:\\workspace\\BRIDGR\\Input\\03_Auftragsbearbeitung.txt",
+        "F:\\workspace\\BRIDGR\\Input\\08_Wareneingang.txt"
+      ],
+      "process_names": [
+        "Auftragsbearbeitung",
+        "Wareneingang"
+      ],
+      "role_names": [
+        "Mitarbeiterin der Auftragsbearbeitung"
+      ],
+      "status": "mapped",
+      "mapped_org_unit": "Logistik",
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Vertrieb",
@@ -376,15 +267,12 @@
         "Vertragsmanagement"
       ],
       "role_names": [
-        "Vertriebsmitarbeiter, Vertriebsleiter",
-        "Rechtsabteilung, Vertriebsmitarbeiter",
-        "Vertriebsmitarbeiter",
-        "Rechtsabteilung"
+        "Vertriebsmitarbeiter"
       ],
       "status": "mapped",
       "mapped_org_unit": "Sales",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Vertriebsinnendienst",
@@ -402,8 +290,8 @@
       ],
       "status": "mapped",
       "mapped_org_unit": "Sales",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Auftragsbearbeitung",
@@ -421,79 +309,50 @@
       "role_names": [
         "Vertriebsinnendienst",
         "Mitarbeiterin der Auftragsbearbeitung",
-        "Buchhaltung, Auftragsbearbeitung"
+        "Buchhaltung"
       ],
       "status": "mapped",
       "mapped_org_unit": "Auftragsbearbeitung",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
-    },
-    {
-      "candidate_name": "Logistik",
-      "normalized_name": "logistik",
-      "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\03_Auftragsbearbeitung.txt",
-        "F:\\workspace\\BRIDGR\\Input\\08_Wareneingang.txt",
-        "F:\\workspace\\BRIDGR\\Input\\10_Kommissionierung.txt",
-        "F:\\workspace\\BRIDGR\\Input\\cmdb_entities.csv"
-      ],
-      "process_names": [
-        "Auftragsbearbeitung",
-        "Wareneingang",
-        "Kommissionierung"
-      ],
-      "role_names": [
-        "Mitarbeiterin der Auftragsbearbeitung",
-        "Logistik",
-        "Kommissionierer, Versandmitarbeiter"
-      ],
-      "status": "mapped",
-      "mapped_org_unit": "Logistik",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Buchhaltung",
       "normalized_name": "buchhaltung",
       "source_paths": [
         "F:\\workspace\\BRIDGR\\Input\\04_Rechnungsstellung.txt",
-        "F:\\workspace\\BRIDGR\\Input\\05_Zahlungsabwicklung.txt",
-        "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx"
+        "F:\\workspace\\BRIDGR\\Input\\05_Zahlungsabwicklung.txt"
       ],
       "process_names": [
         "Rechnungsstellung",
-        "Zahlungsabwicklung",
-        "Jahresabschluss"
+        "Zahlungsabwicklung"
       ],
       "role_names": [
-        "Buchhaltung, Auftragsbearbeitung",
-        "Buchhaltung, Controlling",
-        "Finanzen"
+        "Buchhaltung"
       ],
       "status": "mapped",
-      "mapped_org_unit": "Buchhaltung",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "mapped_org_unit": "Accounting",
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Controlling",
       "normalized_name": "controlling",
       "source_paths": [
         "F:\\workspace\\BRIDGR\\Input\\05_Zahlungsabwicklung.txt",
-        "F:\\workspace\\BRIDGR\\Input\\26_Budgetplanung.docx"
+        "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt"
       ],
       "process_names": [
         "Zahlungsabwicklung",
-        "Budgetplanung"
+        "Berichtswesen"
       ],
       "role_names": [
-        "Buchhaltung, Controlling",
-        "Controller, Abteilungsleiter"
+        "Controller"
       ],
       "status": "mapped",
       "mapped_org_unit": "Controlling",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Einkauf",
@@ -511,318 +370,13 @@
         "Lieferantenanlage und -pflege"
       ],
       "role_names": [
-        "Einkäufer, Einkaufsleiter",
-        "Logistik",
-        "Qualitätsprüfer, Einkauf",
-        "Einkäufer, Qualitätsprüfer, Einkaufsleiter"
+        "Einkäufer",
+        "Qualitätsprüfer"
       ],
       "status": "mapped",
       "mapped_org_unit": "Einkauf",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
-    },
-    {
-      "candidate_name": "Muster GmbH",
-      "normalized_name": "muster gmbh",
-      "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\07_Lieferantenauswahl.txt",
-        "F:\\workspace\\BRIDGR\\Input\\09_Lagerhaltung.txt",
-        "F:\\workspace\\BRIDGR\\Input\\01_Angebotserstellung.txt",
-        "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt",
-        "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx",
-        "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx",
-        "F:\\workspace\\BRIDGR\\Input\\29_Zeiterfassung.txt"
-      ],
-      "process_names": [
-        "Lieferantenauswahl",
-        "Lagerhaltung",
-        "Angebotserstellung",
-        "Berichtswesen",
-        "IT-Support",
-        "Jahresabschluss",
-        "Zeiterfassung und Abrechnung"
-      ],
-      "role_names": [
-        "Einkäufer, Qualitätsprüfer",
-        "Einkäufer",
-        "Lagerarbeiter",
-        "Vertriebsmitarbeiter",
-        "Controller",
-        "IT-Mitarbeiter",
-        "HR-Mitarbeiter"
-      ],
-      "status": "rejected",
-      "mapped_org_unit": "",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
-    },
-    {
-      "candidate_name": "Qualitätssicherung",
-      "normalized_name": "qualitätssicherung",
-      "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\08_Wareneingang.txt",
-        "F:\\workspace\\BRIDGR\\Input\\14_Qualitaetspruefung_Eingang.txt",
-        "F:\\workspace\\BRIDGR\\Input\\15_Qualitaetspruefung_Ausgang.txt"
-      ],
-      "process_names": [
-        "Wareneingang",
-        "Qualitätsprüfung Eingang",
-        "Qualitätsprüfung Ausgang"
-      ],
-      "role_names": [
-        "Logistik",
-        "Qualitätsprüfer, Einkauf",
-        "Qualitätsprüfer, Versandmitarbeiter"
-      ],
-      "status": "mapped",
-      "mapped_org_unit": "Qualitätssicherung",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
-    },
-    {
-      "candidate_name": "Versand",
-      "normalized_name": "versand",
-      "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\11_Versand.txt"
-      ],
-      "process_names": [
-        "Versand"
-      ],
-      "role_names": [
-        "Versandmitarbeiter"
-      ],
-      "status": "mapped",
-      "mapped_org_unit": "Versand",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
-    },
-    {
-      "candidate_name": "Lager",
-      "normalized_name": "lager",
-      "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\11_Versand.txt"
-      ],
-      "process_names": [
-        "Versand"
-      ],
-      "role_names": [
-        "Versandmitarbeiter"
-      ],
-      "status": "mapped",
-      "mapped_org_unit": "Lager",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
-    },
-    {
-      "candidate_name": "Produktion",
-      "normalized_name": "produktion",
-      "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\12_Produktionsplanung.txt"
-      ],
-      "process_names": [
-        "Produktionsplanung"
-      ],
-      "role_names": [
-        "Produktionsplaner, Fertigungsleiter"
-      ],
-      "status": "mapped",
-      "mapped_org_unit": "Produktion",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
-    },
-    {
-      "candidate_name": "Kundenservice",
-      "normalized_name": "kundenservice",
-      "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\16_Reklamationsbearbeitung.txt"
-      ],
-      "process_names": [
-        "Reklamationsbearbeitung"
-      ],
-      "role_names": [
-        "Kundenbetreuer, Qualitätsprüfer"
-      ],
-      "status": "mapped",
-      "mapped_org_unit": "Kundenservice",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
-    },
-    {
-      "candidate_name": "Controller",
-      "normalized_name": "controller",
-      "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt",
-        "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx"
-      ],
-      "process_names": [
-        "Berichtswesen",
-        "Jahresabschluss"
-      ],
-      "role_names": [
-        "Controlling",
-        "Finanzen"
-      ],
-      "status": "mapped",
-      "mapped_org_unit": "Controller",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
-    },
-    {
-      "candidate_name": "Abteilungsleiter",
-      "normalized_name": "abteilungsleiter",
-      "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\19_Berichtswesen.txt",
-        "F:\\workspace\\BRIDGR\\Input\\26_Budgetplanung.docx"
-      ],
-      "process_names": [
-        "Berichtswesen",
-        "Budgetplanung"
-      ],
-      "role_names": [
-        "Controlling",
-        "Controller"
-      ],
-      "status": "rejected",
-      "mapped_org_unit": "",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
-    },
-    {
-      "candidate_name": "Rechtsabteilung",
-      "normalized_name": "rechtsabteilung",
-      "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\20_Vertragsmanagement.txt"
-      ],
-      "process_names": [
-        "Vertragsmanagement"
-      ],
-      "role_names": [
-        "Rechtsabteilung, Vertriebsmitarbeiter"
-      ],
-      "status": "mapped",
-      "mapped_org_unit": "Rechtsabteilung",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
-    },
-    {
-      "candidate_name": "Personalwesen",
-      "normalized_name": "personalwesen",
-      "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\21_Schulungsmanagement.txt",
-        "F:\\workspace\\BRIDGR\\Input\\27_Personaleinstellung.txt",
-        "F:\\workspace\\BRIDGR\\Input\\28_Mitarbeiter-Onboarding.txt",
-        "F:\\workspace\\BRIDGR\\Input\\29_Zeiterfassung.txt"
-      ],
-      "process_names": [
-        "Schulungsmanagement",
-        "Personaleinstellung",
-        "Mitarbeiter-Onboarding",
-        "Zeiterfassung und Abrechnung"
-      ],
-      "role_names": [
-        "HR-Mitarbeiter, Abteilungsleiter",
-        "HR-Mitarbeiter, Abteilungsleiter, Bewerber (extern)",
-        "HR-Mitarbeiter, IT-Mitarbeiter",
-        "Mitarbeiter, HR-Mitarbeiter"
-      ],
-      "status": "mapped",
-      "mapped_org_unit": "Personalwesen",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
-    },
-    {
-      "candidate_name": "IT-Abteilung",
-      "normalized_name": "it-abteilung",
-      "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx",
-        "F:\\workspace\\BRIDGR\\Input\\24_Datensicherung.docx",
-        "F:\\workspace\\BRIDGR\\Input\\28_Mitarbeiter-Onboarding.txt"
-      ],
-      "process_names": [
-        "IT-Support",
-        "Datensicherung",
-        "Mitarbeiter-Onboarding"
-      ],
-      "role_names": [
-        "IT-Mitarbeiter, Endnutzer",
-        "IT-Mitarbeiter",
-        "HR-Mitarbeiter, IT-Mitarbeiter"
-      ],
-      "status": "mapped",
-      "mapped_org_unit": "IT-Abteilung",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
-    },
-    {
-      "candidate_name": "IT-Teamleiter",
-      "normalized_name": "it-teamleiter",
-      "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx"
-      ],
-      "process_names": [
-        "Softwarefreigabe"
-      ],
-      "role_names": [
-        "IT-Mitarbeiter, Fachabteilung",
-        "IT-Mitarbeiter"
-      ],
-      "status": "rejected",
-      "mapped_org_unit": "",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
-    },
-    {
-      "candidate_name": "IT-Leiter",
-      "normalized_name": "it-leiter",
-      "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\23_Softwarefreigabe.docx"
-      ],
-      "process_names": [
-        "Softwarefreigabe"
-      ],
-      "role_names": [
-        "IT-Mitarbeiter, Fachabteilung",
-        "IT-Mitarbeiter"
-      ],
-      "status": "rejected",
-      "mapped_org_unit": "",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
-    },
-    {
-      "candidate_name": "Wirtschaftsprüfer",
-      "normalized_name": "wirtschaftsprüfer",
-      "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx"
-      ],
-      "process_names": [
-        "Jahresabschluss"
-      ],
-      "role_names": [
-        "Finanzen"
-      ],
-      "status": "rejected",
-      "mapped_org_unit": "",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
-    },
-    {
-      "candidate_name": "Fachbereich",
-      "normalized_name": "fachbereich",
-      "source_paths": [
-        "F:\\workspace\\BRIDGR\\Input\\27_Personaleinstellung.txt"
-      ],
-      "process_names": [
-        "Personaleinstellung"
-      ],
-      "role_names": [
-        "HR-Mitarbeiter, Abteilungsleiter, Bewerber (extern)",
-        "HR-Mitarbeiter"
-      ],
-      "status": "rejected",
-      "mapped_org_unit": "",
-      "first_seen": "2026-06-09",
-      "last_seen": "2026-06-09"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Einkaufsteam",
@@ -838,8 +392,109 @@
       ],
       "status": "mapped",
       "mapped_org_unit": "Einkauf",
-      "first_seen": "2026-06-10",
-      "last_seen": "2026-06-10"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
+    },
+    {
+      "candidate_name": "Qualitätssicherung",
+      "normalized_name": "qualitätssicherung",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\08_Wareneingang.txt",
+        "F:\\workspace\\BRIDGR\\Input\\14_Qualitaetspruefung_Eingang.txt"
+      ],
+      "process_names": [
+        "Wareneingang",
+        "Qualitätsprüfung Eingang"
+      ],
+      "role_names": [
+        "Qualitätsprüfer"
+      ],
+      "status": "mapped",
+      "mapped_org_unit": "Qualitätssicherung",
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
+    },
+    {
+      "candidate_name": "Muster GmbH",
+      "normalized_name": "muster gmbh",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\09_Lagerhaltung.txt",
+        "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx",
+        "F:\\workspace\\BRIDGR\\Input\\25_Jahresabschluss.docx",
+        "F:\\workspace\\BRIDGR\\Input\\29_Zeiterfassung.txt"
+      ],
+      "process_names": [
+        "Lagerhaltung",
+        "IT-Support",
+        "Jahresabschluss",
+        "Zeiterfassung und Abrechnung"
+      ],
+      "role_names": [
+        "Lagerarbeiter",
+        "IT-Mitarbeiter",
+        "HR-Mitarbeiter"
+      ],
+      "status": "rejected",
+      "mapped_org_unit": "",
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
+    },
+    {
+      "candidate_name": "Rechtsabteilung",
+      "normalized_name": "rechtsabteilung",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\20_Vertragsmanagement.txt"
+      ],
+      "process_names": [
+        "Vertragsmanagement"
+      ],
+      "role_names": [],
+      "status": "mapped",
+      "mapped_org_unit": "Rechtsabteilung",
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
+    },
+    {
+      "candidate_name": "Personalwesen",
+      "normalized_name": "personalwesen",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\21_Schulungsmanagement.txt",
+        "F:\\workspace\\BRIDGR\\Input\\27_Personaleinstellung.txt",
+        "F:\\workspace\\BRIDGR\\Input\\28_Mitarbeiter-Onboarding.txt"
+      ],
+      "process_names": [
+        "Schulungsmanagement",
+        "Personaleinstellung",
+        "Mitarbeiter-Onboarding"
+      ],
+      "role_names": [
+        "HR-Mitarbeiter"
+      ],
+      "status": "mapped",
+      "mapped_org_unit": "Personalwesen",
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
+    },
+    {
+      "candidate_name": "IT-Abteilung",
+      "normalized_name": "it-abteilung",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\22_IT-Support.docx",
+        "F:\\workspace\\BRIDGR\\Input\\24_Datensicherung.docx",
+        "F:\\workspace\\BRIDGR\\Input\\28_Mitarbeiter-Onboarding.txt"
+      ],
+      "process_names": [
+        "IT-Support",
+        "Datensicherung",
+        "Mitarbeiter-Onboarding"
+      ],
+      "role_names": [
+        "IT-Mitarbeiter"
+      ],
+      "status": "mapped",
+      "mapped_org_unit": "IT-Abteilung",
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "IT-Mitarbeiter",
@@ -853,8 +508,8 @@
       "role_names": [],
       "status": "rejected",
       "mapped_org_unit": "",
-      "first_seen": "2026-06-10",
-      "last_seen": "2026-06-10"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     },
     {
       "candidate_name": "Fachabteilung",
@@ -868,100 +523,104 @@
       "role_names": [],
       "status": "rejected",
       "mapped_org_unit": "",
-      "first_seen": "2026-06-10",
-      "last_seen": "2026-06-10"
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
+    },
+    {
+      "candidate_name": "Abteilungsleiter",
+      "normalized_name": "abteilungsleiter",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\26_Budgetplanung.docx"
+      ],
+      "process_names": [
+        "Budgetplanung"
+      ],
+      "role_names": [
+        "Controller"
+      ],
+      "status": "rejected",
+      "mapped_org_unit": "",
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
+    },
+    {
+      "candidate_name": "Fachbereich",
+      "normalized_name": "fachbereich",
+      "source_paths": [
+        "F:\\workspace\\BRIDGR\\Input\\27_Personaleinstellung.txt"
+      ],
+      "process_names": [
+        "Personaleinstellung"
+      ],
+      "role_names": [
+        "HR-Mitarbeiter"
+      ],
+      "status": "rejected",
+      "mapped_org_unit": "",
+      "first_seen": "2026-06-11",
+      "last_seen": "2026-06-11"
     }
   ],
   "role_decisions": [
     {
-      "role_name": "Change Manager",
-      "normalized_name": "change manager",
+      "role_name": "Einkäufer",
+      "normalized_name": "einkäufer",
       "status": "role_only",
-      "decided_at": "2026-06-09"
-    },
-    {
-      "role_name": "Abteilungsleiter",
-      "normalized_name": "abteilungsleiter",
-      "status": "role_only",
-      "decided_at": "2026-06-09"
-    },
-    {
-      "role_name": "Bewerber (extern)",
-      "normalized_name": "bewerber (extern)",
-      "status": "role_only",
-      "decided_at": "2026-06-09"
-    },
-    {
-      "role_name": "Endnutzer",
-      "normalized_name": "endnutzer",
-      "status": "role_only",
-      "decided_at": "2026-06-09"
-    },
-    {
-      "role_name": "Fachabteilung",
-      "normalized_name": "fachabteilung",
-      "status": "role_only",
-      "decided_at": "2026-06-09"
+      "decided_at": "2026-06-11"
     },
     {
       "role_name": "Fachbereich",
       "normalized_name": "fachbereich",
       "status": "role_only",
-      "decided_at": "2026-06-09"
-    },
-    {
-      "role_name": "Einkäufer",
-      "normalized_name": "einkäufer",
-      "status": "role_only",
-      "decided_at": "2026-06-10"
+      "decided_at": "2026-06-11"
     },
     {
       "role_name": "Fertigungsleiter",
       "normalized_name": "fertigungsleiter",
       "status": "role_only",
-      "decided_at": "2026-06-10"
+      "decided_at": "2026-06-11"
     },
     {
       "role_name": "HR-Mitarbeiter",
       "normalized_name": "hr-mitarbeiter",
       "status": "role_only",
-      "decided_at": "2026-06-10"
+      "decided_at": "2026-06-11"
     },
     {
       "role_name": "IT-Mitarbeiter",
       "normalized_name": "it-mitarbeiter",
       "status": "role_only",
-      "decided_at": "2026-06-10"
+      "decided_at": "2026-06-11"
     },
     {
       "role_name": "Kommissionierer",
       "normalized_name": "kommissionierer",
       "status": "role_only",
-      "decided_at": "2026-06-10"
+      "decided_at": "2026-06-11"
     },
     {
       "role_name": "Kundenbetreuer",
       "normalized_name": "kundenbetreuer",
       "status": "role_only",
-      "decided_at": "2026-06-10"
+      "decided_at": "2026-06-11"
     },
     {
       "role_name": "Lagerarbeiter",
       "normalized_name": "lagerarbeiter",
       "status": "role_only",
-      "decided_at": "2026-06-10"
+      "decided_at": "2026-06-11"
+    },
+    {
+      "role_name": "Mitarbeiterin der Auftragsbearbeitung",
+      "normalized_name": "mitarbeiterin der auftragsbearbeitung",
+      "status": "role_only",
+      "decided_at": "2026-06-11"
     },
     {
       "role_name": "Produktionsplaner",
       "normalized_name": "produktionsplaner",
       "status": "role_only",
-      "decided_at": "2026-06-10"
-    },
-    {
-      "role_name": "Qualitätsprüfer",
-      "normalized_name": "qualitätsprüfer",
-      "status": "role_only",
-      "decided_at": "2026-06-10"
+      "decided_at": "2026-06-11"
     }
   ]
 }

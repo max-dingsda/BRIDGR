@@ -151,6 +151,12 @@ Beispiele:
 - Welche Anwendungen unterstützen Prozess X?
 - Welche Server hängen an Anwendung Y?
 - Welche Organisationseinheit verantwortet Anwendung Z?
+- Welche Anwendungen könnten für Prozess X relevant sein (noch nicht bestätigt)?
+
+Hinweis zu Kandidaten: BRIDGR unterscheidet zwischen bestätigten Anwendungslinks und schwachen
+Kandidaten (noch nicht im Review-Tab entschieden). Wenn Sie nach möglichen oder unbestätigten
+Zuordnungen fragen, kennzeichnet BRIDGR die Antwort ausdrücklich als „möglicher Kandidat" oder
+„nicht bestätigt". Bestätigte Informationen werden ohne diesen Hinweis ausgegeben.
 
 ### 6.2 Bereich und Elemente
 

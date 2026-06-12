@@ -11,7 +11,14 @@ from processing.cmdb import (
     CmdbRelation,
     NormalizedCmdb,
 )
-from core.constants import CONFIDENCE_STRONG, MATCH_SOURCE_KNOWLEDGE_BASE, MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL
+from core.constants import (
+    CONFIDENCE_STRONG,
+    DIENT_SOURCE_CONFIRMED,
+    DIENT_SOURCE_MANUAL,
+    DIENT_SOURCE_STRONG,
+    MATCH_SOURCE_KNOWLEDGE_BASE,
+    MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL,
+)
 from core.neo4j_utils import Neo4jClient
 from skills.extract.extract_base import ExtractedProcess
 from skills.match import MatchResult
@@ -46,6 +53,15 @@ class GraphWriter:
         client.execute_write(
             """
             MATCH (:Anwendung)-[r:DIENT]->(p:Prozess {prozess_id: $process_id})
+            DELETE r
+            """,
+            {
+                "process_id": process.process_id,
+            },
+        )
+        client.execute_write(
+            """
+            MATCH (:Anwendung)-[r:KÖNNTE_DIENEN]->(p:Prozess {prozess_id: $process_id})
             DELETE r
             """,
             {
@@ -93,27 +109,47 @@ class GraphWriter:
         for match in payload.matches:
             if not match.cmdb_id:
                 continue
-            if match.confidence != CONFIDENCE_STRONG and match.source not in {
-                MATCH_SOURCE_KNOWLEDGE_BASE,
-                MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL,
-            }:
-                continue
-            client.execute_write(
-                """
-                MERGE (p:Prozess {prozess_id: $process_id})
-                MERGE (a:Anwendung {cmdb_id: $cmdb_id})
-                SET a.id = $cmdb_id,
-                    a.name = $application_name
-                MERGE (a)-[r:DIENT]->(p)
-                SET r.konfidenz = $confidence
-                """,
-                {
-                    "process_id": process.process_id,
-                    "cmdb_id": match.cmdb_id,
-                    "application_name": match.matched_name or match.application_name,
-                    "confidence": match.confidence,
-                },
-            )
+            is_kb_source = match.source in {MATCH_SOURCE_KNOWLEDGE_BASE, MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL}
+            if match.confidence == CONFIDENCE_STRONG or is_kb_source:
+                dient_source = (
+                    DIENT_SOURCE_MANUAL if match.source == MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL
+                    else DIENT_SOURCE_CONFIRMED if is_kb_source
+                    else DIENT_SOURCE_STRONG
+                )
+                client.execute_write(
+                    """
+                    MERGE (p:Prozess {prozess_id: $process_id})
+                    MERGE (a:Anwendung {cmdb_id: $cmdb_id})
+                    SET a.id = $cmdb_id,
+                        a.name = $application_name
+                    MERGE (a)-[r:DIENT]->(p)
+                    SET r.konfidenz = $confidence,
+                        r.raw_name = $raw_name,
+                        r.source = $source
+                    """,
+                    {
+                        "process_id": process.process_id,
+                        "cmdb_id": match.cmdb_id,
+                        "application_name": match.matched_name or match.application_name,
+                        "confidence": match.confidence,
+                        "raw_name": match.application_name,
+                        "source": dient_source,
+                    },
+                )
+            else:
+                client.execute_write(
+                    """
+                    MERGE (p:Prozess {prozess_id: $process_id})
+                    MATCH (a:Anwendung {cmdb_id: $cmdb_id})
+                    MERGE (a)-[r:KÖNNTE_DIENEN]->(p)
+                    SET r.score = $score
+                    """,
+                    {
+                        "process_id": process.process_id,
+                        "cmdb_id": match.cmdb_id,
+                        "score": match.score,
+                    },
+                )
         return process_write_action
 
     def sync_cmdb(
@@ -403,6 +439,145 @@ class GraphWriter:
                 "archimate_rel_type": archimate_rel_type,
             },
         )
+
+    def promote_candidate_link(
+        self,
+        client: Neo4jClient,
+        cmdb_id: str,
+        process_id: str,
+        raw_name: str,
+        matched_name: str,
+    ) -> None:
+        client.execute_write(
+            """
+            MATCH (a:Anwendung {cmdb_id: $cmdb_id})-[r:KÖNNTE_DIENEN]->(p:Prozess {prozess_id: $process_id})
+            DELETE r
+            """,
+            {"cmdb_id": cmdb_id, "process_id": process_id},
+        )
+        client.execute_write(
+            """
+            MERGE (p:Prozess {prozess_id: $process_id})
+            MERGE (a:Anwendung {cmdb_id: $cmdb_id})
+            SET a.name = $matched_name
+            MERGE (a)-[r:DIENT]->(p)
+            SET r.konfidenz = 'stark',
+                r.raw_name = $raw_name,
+                r.source = $source
+            """,
+            {
+                "process_id": process_id,
+                "cmdb_id": cmdb_id,
+                "matched_name": matched_name,
+                "raw_name": raw_name,
+                "source": DIENT_SOURCE_CONFIRMED,
+            },
+        )
+
+    def reject_candidate_link(
+        self,
+        client: Neo4jClient,
+        cmdb_id: str | None,
+        process_id: str,
+        prozess_name: str,
+        anwendung_name: str,
+    ) -> None:
+        if cmdb_id:
+            client.execute_write(
+                """
+                MATCH (a:Anwendung {cmdb_id: $cmdb_id})-[r:KÖNNTE_DIENEN]->(p:Prozess {prozess_id: $process_id})
+                DELETE r
+                """,
+                {"cmdb_id": cmdb_id, "process_id": process_id},
+            )
+        client.execute_write(
+            """
+            MERGE (ab:Ablehnung {prozess_name: $prozess_name, anwendung_name: $anwendung_name})
+            """,
+            {"prozess_name": prozess_name, "anwendung_name": anwendung_name},
+        )
+
+    def promote_candidate_ownership(
+        self,
+        client: Neo4jClient,
+        org_unit_name: str,
+        entity_id: str,
+    ) -> None:
+        client.execute_write(
+            """
+            MATCH (o:OrgEinheit {name: $org_unit_name})-[r:KÖNNTE_VERANTWORTEN]->(target)
+            WHERE target.id = $entity_id OR target.cmdb_id = $entity_id
+            DELETE r
+            """,
+            {"org_unit_name": org_unit_name, "entity_id": entity_id},
+        )
+        client.execute_write(
+            """
+            MERGE (o:OrgEinheit {name: $org_unit_name})
+            MATCH (target)
+            WHERE target.id = $entity_id OR target.cmdb_id = $entity_id
+            MERGE (o)-[:VERANTWORTET]->(target)
+            """,
+            {"org_unit_name": org_unit_name, "entity_id": entity_id},
+        )
+
+    def reject_candidate_ownership(
+        self,
+        client: Neo4jClient,
+        org_unit_name: str,
+        entity_id: str,
+    ) -> None:
+        client.execute_write(
+            """
+            MATCH (o:OrgEinheit {name: $org_unit_name})-[r:KÖNNTE_VERANTWORTEN]->(target)
+            WHERE target.id = $entity_id OR target.cmdb_id = $entity_id
+            DELETE r
+            """,
+            {"org_unit_name": org_unit_name, "entity_id": entity_id},
+        )
+
+    def write_candidate_ownership(
+        self,
+        client: Neo4jClient,
+        org_unit_name: str,
+        entity_id: str,
+        score: float,
+    ) -> None:
+        client.execute_write(
+            """
+            MERGE (o:OrgEinheit {name: $org_unit_name})
+            MATCH (target)
+            WHERE target.id = $entity_id OR target.cmdb_id = $entity_id
+            MERGE (o)-[r:KÖNNTE_VERANTWORTEN]->(target)
+            SET r.score = $score
+            """,
+            {"org_unit_name": org_unit_name, "entity_id": entity_id, "score": score},
+        )
+
+    def get_confirmed_links_from_neo4j(self, client: Neo4jClient) -> list[dict]:
+        rows = client.execute_read(
+            """
+            MATCH (a:Anwendung)-[r:DIENT]->(p:Prozess)
+            WHERE r.raw_name IS NOT NULL
+              AND r.source IN ['manuell_bestaetigt', 'manueller_link']
+            RETURN p.name AS prozess,
+                   r.raw_name AS anwendung_name,
+                   a.cmdb_id AS cmdb_id,
+                   a.name AS resolved_to,
+                   r.source AS quelle
+            """
+        )
+        return [dict(row) for row in rows]
+
+    def get_rejected_decisions_from_neo4j(self, client: Neo4jClient) -> list[dict]:
+        rows = client.execute_read(
+            """
+            MATCH (ab:Ablehnung)
+            RETURN ab.prozess_name AS prozess,
+                   ab.anwendung_name AS anwendung_name
+            """
+        )
+        return [{"prozess": row["prozess"], "anwendung_name": row["anwendung_name"], "cmdb_id": None} for row in rows]
 
     def _resolve_duplicate_placeholders(self, client: Neo4jClient, process_id: str, process_name: str) -> None:
         client.execute_write(

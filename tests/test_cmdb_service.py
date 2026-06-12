@@ -147,6 +147,12 @@ def test_persist_latest_run_refresh_resolves_previously_unmatched_application(tm
                 }
             )
 
+        def get_confirmed_links_from_neo4j(self, _client) -> list:
+            return []
+
+        def get_rejected_decisions_from_neo4j(self, _client) -> list:
+            return []
+
     monkeypatch.setattr(review_service, "resolve_runtime_output_path", lambda _path: (output_dir, False))
     monkeypatch.setattr(review_service, "load_knowledge_base", lambda: knowledge_base)
     monkeypatch.setattr(review_service, "get_session_neo4j_client", lambda _config: object())

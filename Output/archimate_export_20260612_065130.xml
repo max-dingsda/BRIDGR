@@ -1,0 +1,394 @@
+<?xml version='1.0' encoding='utf-8'?>
+<model xmlns="http://www.opengroup.org/xsd/archimate/3.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengroup.org/xsd/archimate/3.0/ http://www.opengroup.org/xsd/archimate/3.0/archimate3_Diagram.xsd" identifier="id-ca1468456a9a" version="3.0">
+  <name xml:lang="de">BRIDGR Export</name>
+  <elements>
+    <element xsi:type="ApplicationComponent" identifier="id-e02803a0b7d5">
+      <name xml:lang="de">SAP SD</name>
+    </element>
+    <element xsi:type="ApplicationComponent" identifier="id-bea489e1d674">
+      <name xml:lang="de">SAP FI</name>
+    </element>
+    <element xsi:type="ApplicationComponent" identifier="id-4aeeb828f940">
+      <name xml:lang="de">Seller Service</name>
+    </element>
+    <element xsi:type="ApplicationComponent" identifier="id-6b5adf2504b1">
+      <name xml:lang="de">Jira Service Management</name>
+    </element>
+    <element xsi:type="ApplicationComponent" identifier="id-0e988fa4b557">
+      <name xml:lang="de">Microsoft Outlook</name>
+    </element>
+    <element xsi:type="ApplicationComponent" identifier="id-23a5148584fa">
+      <name xml:lang="de">SAP SRM</name>
+    </element>
+    <element xsi:type="ApplicationComponent" identifier="id-0e528c467365">
+      <name xml:lang="de">DocuSign</name>
+    </element>
+    <element xsi:type="ApplicationComponent" identifier="id-117edda08099">
+      <name xml:lang="de">Microsoft Teams</name>
+    </element>
+    <element xsi:type="ApplicationInterface" identifier="id-00bea92265cb">
+      <name xml:lang="de">Seller Service API</name>
+    </element>
+    <element xsi:type="ApplicationInterface" identifier="id-42bd6aecbbfa">
+      <name xml:lang="de">SAP FI Buchungsschnittstelle</name>
+    </element>
+    <element xsi:type="ApplicationInterface" identifier="id-96136183e6f7">
+      <name xml:lang="de">Mail Gateway</name>
+    </element>
+    <element xsi:type="ApplicationInterface" identifier="id-0690dea2ea0f">
+      <name xml:lang="de">DocuSign Signing API</name>
+    </element>
+    <element xsi:type="Node" identifier="id-d91309f410b9">
+      <name xml:lang="de">vm-app-01</name>
+    </element>
+    <element xsi:type="Node" identifier="id-8d881a791ae3">
+      <name xml:lang="de">vm-app-02</name>
+    </element>
+    <element xsi:type="Node" identifier="id-6b6607129b03">
+      <name xml:lang="de">host-prod-01</name>
+    </element>
+    <element xsi:type="Node" identifier="id-13d52515cc31">
+      <name xml:lang="de">host-db-01</name>
+    </element>
+    <element xsi:type="ApplicationComponent" identifier="id-7cd8e2d8674f">
+      <name xml:lang="de">Trouble Ticket System</name>
+    </element>
+    <element xsi:type="ApplicationComponent" identifier="id-13fd3f968fb5">
+      <name xml:lang="de">Product Backlog System</name>
+    </element>
+    <element xsi:type="ApplicationComponent" identifier="id-aa25bab7b74b">
+      <name xml:lang="de">Mail System</name>
+    </element>
+    <element xsi:type="ApplicationComponent" identifier="id-32d74d73f278">
+      <name xml:lang="de">Shipper Service</name>
+    </element>
+    <element xsi:type="ApplicationComponent" identifier="id-1081a213ec93">
+      <name xml:lang="de">Buyer Portal</name>
+    </element>
+    <element xsi:type="ApplicationInterface" identifier="id-575cd96327d4">
+      <name xml:lang="de">Product Backlog Interface</name>
+    </element>
+    <element xsi:type="ApplicationInterface" identifier="id-9b476521ef99">
+      <name xml:lang="de">Mail Interface</name>
+    </element>
+    <element xsi:type="ApplicationInterface" identifier="id-0b3946950c69">
+      <name xml:lang="de">Seller Service Interface</name>
+    </element>
+    <element xsi:type="ApplicationInterface" identifier="id-88ce7b5ff81e">
+      <name xml:lang="de">Shipper Service Interface</name>
+    </element>
+    <element xsi:type="ApplicationComponent" identifier="id-3c8d1cd815d0">
+      <name xml:lang="de">SAP WM</name>
+    </element>
+    <element xsi:type="ApplicationComponent" identifier="id-6ac77cc5ef43">
+      <name xml:lang="de">Microsoft Excel</name>
+    </element>
+    <element xsi:type="ApplicationComponent" identifier="id-19ff68e6642e">
+      <name xml:lang="de">SAP ERP</name>
+    </element>
+    <element xsi:type="ApplicationComponent" identifier="id-1012b75f1b86">
+      <name xml:lang="de">Ariba</name>
+    </element>
+    <element xsi:type="ApplicationComponent" identifier="id-d093ab1b28dc">
+      <name xml:lang="de">Warehouse Management Sytem</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-aa7a166ba409">
+      <name xml:lang="de">Sales</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-bafeb21716cd">
+      <name xml:lang="de">Accounting</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-05583a0ac14d">
+      <name xml:lang="de">Team Commerce IT</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-337081650d49">
+      <name xml:lang="de">Customer Service Team</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-1a4c6e46a294">
+      <name xml:lang="de">Team Infrastructure</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-f6b6b4774525">
+      <name xml:lang="de">Team Legal</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-40d2b10b9a55">
+      <name xml:lang="de">Team Accounting</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-745151fb8afe">
+      <name xml:lang="de">Team Plattform</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-be705d4990bb">
+      <name xml:lang="de">Team Platform</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-98cf790aa395">
+      <name xml:lang="de">Team Infrastruktur</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-b4e0e36f4438">
+      <name xml:lang="de">OPS</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-6920c6e8de80">
+      <name xml:lang="de">Plattforms</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-e624cf7a4324">
+      <name xml:lang="de">SALES</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-4ca48d2efa9d">
+      <name xml:lang="de">Salesteam</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-9e318720bab9">
+      <name xml:lang="de">Logistik</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-7bf80ce53d4c">
+      <name xml:lang="de">Angebotserstellung</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-11e809925dd9">
+      <name xml:lang="de">Vertriebsmitarbeiter</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-5eba725d51d1">
+      <name xml:lang="de">Auftragserfassung</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-23d849d9a53f">
+      <name xml:lang="de">Vertriebsinnendienst</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-f53281014c4a">
+      <name xml:lang="de">Auftragsbearbeitung</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-1ba75f1cdb8c">
+      <name xml:lang="de">Mitarbeiterin der Auftragsbearbeitung</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-45bb3dfe8b58">
+      <name xml:lang="de">Rechnungsstellung</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-6a9ff954d138">
+      <name xml:lang="de">Buchhaltung</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-800d0c5739db">
+      <name xml:lang="de">Zahlungsabwicklung</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-1ba82c094443">
+      <name xml:lang="de">Bestellabwicklung</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-aba182529fef">
+      <name xml:lang="de">Einkäufer</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-a74d0b0f5ae0">
+      <name xml:lang="de">Lieferantenauswahl</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-0147e09e1085">
+      <name xml:lang="de">Wareneingang</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-980d26b3b2c4">
+      <name xml:lang="de">Lagerhaltung</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-42ee43c201b9">
+      <name xml:lang="de">Lagerarbeiter</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-b95a95bdaed7">
+      <name xml:lang="de">Kommissionierung</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-c9543a89d27b">
+      <name xml:lang="de">Kommissionierer</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-4e14b7ca7cee">
+      <name xml:lang="de">Versand</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-2d1b8ead43ed">
+      <name xml:lang="de">Versandmitarbeiter</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-9c1ab3d99ce3">
+      <name xml:lang="de">Produktionsplanung</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-7d92ccdfebae">
+      <name xml:lang="de">Produktionsplaner</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-50bf4140c0e0">
+      <name xml:lang="de">Fertigungssteuerung</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-bbed3b9e2252">
+      <name xml:lang="de">Fertigungsleiter</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-48821670aeb3">
+      <name xml:lang="de">Qualitätsprüfung Eingang</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-0f722ac5d8c3">
+      <name xml:lang="de">Qualitätsprüfer</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-dd296cd54c46">
+      <name xml:lang="de">Qualitätsprüfung Ausgang</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-195f032a0308">
+      <name xml:lang="de">Reklamationsbearbeitung</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-987b9ae12ae5">
+      <name xml:lang="de">Kundenbetreuer</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-1f45a121762c">
+      <name xml:lang="de">Kundenanlage und -pflege</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-638512d5c59e">
+      <name xml:lang="de">Lieferantenanlage und -pflege</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-28cd6a206aec">
+      <name xml:lang="de">Berichtswesen</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-f284372f9e18">
+      <name xml:lang="de">Controller</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-078e62d93bd8">
+      <name xml:lang="de">Vertragsmanagement</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-8cb6006b0ebb">
+      <name xml:lang="de">Schulungsmanagement</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-55f5c040681d">
+      <name xml:lang="de">HR-Mitarbeiter</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-4cad19ea4a60">
+      <name xml:lang="de">IT-Support</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-1b3b5dc073e8">
+      <name xml:lang="de">IT-Mitarbeiter</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-a63808008d71">
+      <name xml:lang="de">Softwarefreigabe</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-4e3984124bb7">
+      <name xml:lang="de">Datensicherung</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-4f2c89044c51">
+      <name xml:lang="de">Jahresabschluss</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-49b4c1d1fd60">
+      <name xml:lang="de">Budgetplanung</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-0a539b2a6862">
+      <name xml:lang="de">Personaleinstellung</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-943a9bfcff2e">
+      <name xml:lang="de">Mitarbeiter-Onboarding</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-bf1c2e5cbff4">
+      <name xml:lang="de">Zeiterfassung und Abrechnung</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-7b88c36388c4">
+      <name xml:lang="de">Änderungsmanagement</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-48b96930e4f4">
+      <name xml:lang="de">Change Manager</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-9dccd4ab1977">
+      <name xml:lang="de">Fachbereich</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-20ee26066c0a">
+      <name xml:lang="de">Auftragserfassung (Detail)</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-f5ea20033177">
+      <name xml:lang="de">Auftragsbearbeitung</name>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="id-e2de36df5c55">
+      <name xml:lang="de">Wareneingang (Detail)</name>
+    </element>
+    <element xsi:type="BusinessRole" identifier="id-d52315679deb">
+      <name xml:lang="de">Einkauf</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-c8b6b91c99cd">
+      <name xml:lang="de">Auftragsbearbeitung</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-12f9b722be6d">
+      <name xml:lang="de">Controlling</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-268baaa46120">
+      <name xml:lang="de">Einkauf</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-f5805cc27c86">
+      <name xml:lang="de">IT-Abteilung</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-5eeaa0f707b6">
+      <name xml:lang="de">Personalwesen</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-963f388c415f">
+      <name xml:lang="de">Qualitätssicherung</name>
+    </element>
+    <element xsi:type="BusinessActor" identifier="id-ceafe5713a43">
+      <name xml:lang="de">Rechtsabteilung</name>
+    </element>
+  </elements>
+  <relationships>
+    <relationship xsi:type="Serving" identifier="id-0a02c9da809c" source="id-23a5148584fa" target="id-7bf80ce53d4c" />
+    <relationship xsi:type="Serving" identifier="id-bdc56b615f3e" source="id-23a5148584fa" target="id-5eba725d51d1" />
+    <relationship xsi:type="Serving" identifier="id-52ebb44cbbc6" source="id-0e528c467365" target="id-7bf80ce53d4c" />
+    <relationship xsi:type="Serving" identifier="id-1449974f3695" source="id-0e528c467365" target="id-45bb3dfe8b58" />
+    <relationship xsi:type="Serving" identifier="id-cd33ae89d02a" source="id-0e528c467365" target="id-078e62d93bd8" />
+    <relationship xsi:type="Serving" identifier="id-11fac623a8c1" source="id-19ff68e6642e" target="id-5eba725d51d1" />
+    <relationship xsi:type="Serving" identifier="id-2b789e8bef55" source="id-19ff68e6642e" target="id-f53281014c4a" />
+    <relationship xsi:type="Serving" identifier="id-41d3ab62b69c" source="id-19ff68e6642e" target="id-45bb3dfe8b58" />
+    <relationship xsi:type="Serving" identifier="id-47ba7f7ed6fa" source="id-19ff68e6642e" target="id-800d0c5739db" />
+    <relationship xsi:type="Serving" identifier="id-146781359d85" source="id-19ff68e6642e" target="id-1ba82c094443" />
+    <relationship xsi:type="Serving" identifier="id-6fcceb448ed6" source="id-19ff68e6642e" target="id-0147e09e1085" />
+    <relationship xsi:type="Serving" identifier="id-1580699e9f3c" source="id-19ff68e6642e" target="id-4e14b7ca7cee" />
+    <relationship xsi:type="Serving" identifier="id-3dee1e219e93" source="id-19ff68e6642e" target="id-9c1ab3d99ce3" />
+    <relationship xsi:type="Serving" identifier="id-fa9c19d83dac" source="id-19ff68e6642e" target="id-48821670aeb3" />
+    <relationship xsi:type="Serving" identifier="id-c9bc357d7e46" source="id-19ff68e6642e" target="id-1f45a121762c" />
+    <relationship xsi:type="Serving" identifier="id-e90a00de56d8" source="id-19ff68e6642e" target="id-638512d5c59e" />
+    <relationship xsi:type="Serving" identifier="id-7c73f69743b5" source="id-19ff68e6642e" target="id-4f2c89044c51" />
+    <relationship xsi:type="Serving" identifier="id-1551d9b5d66b" source="id-19ff68e6642e" target="id-20ee26066c0a" />
+    <relationship xsi:type="Serving" identifier="id-55c07974d6af" source="id-19ff68e6642e" target="id-e2de36df5c55" />
+    <relationship xsi:type="Serving" identifier="id-ad79675be5cf" source="id-1012b75f1b86" target="id-1ba82c094443" />
+    <relationship xsi:type="Serving" identifier="id-655389fcdfb4" source="id-1012b75f1b86" target="id-a74d0b0f5ae0" />
+    <relationship xsi:type="Serving" identifier="id-f9ec96639dc5" source="id-1012b75f1b86" target="id-638512d5c59e" />
+    <relationship xsi:type="Serving" identifier="id-442be41f674b" source="id-d093ab1b28dc" target="id-0147e09e1085" />
+    <relationship xsi:type="Serving" identifier="id-ec32feab2a0f" source="id-d093ab1b28dc" target="id-980d26b3b2c4" />
+    <relationship xsi:type="Serving" identifier="id-10c21495bbd1" source="id-d093ab1b28dc" target="id-b95a95bdaed7" />
+    <relationship xsi:type="Serving" identifier="id-6b4289c0a231" source="id-d093ab1b28dc" target="id-e2de36df5c55" />
+    <relationship xsi:type="Assignment" identifier="id-a66e574ef318" source="id-bafeb21716cd" target="id-6a9ff954d138" />
+    <relationship xsi:type="Assignment" identifier="id-0bc9c3aa2cc7" source="id-11e809925dd9" target="id-7bf80ce53d4c" />
+    <relationship xsi:type="Triggering" identifier="id-4887094ef23a" source="id-5eba725d51d1" target="id-7bf80ce53d4c" />
+    <relationship xsi:type="Assignment" identifier="id-df23abbea0a4" source="id-23d849d9a53f" target="id-5eba725d51d1" />
+    <relationship xsi:type="Assignment" identifier="id-a1ef02462c21" source="id-23d849d9a53f" target="id-1f45a121762c" />
+    <relationship xsi:type="Assignment" identifier="id-9bbccc61afd4" source="id-23d849d9a53f" target="id-20ee26066c0a" />
+    <relationship xsi:type="Triggering" identifier="id-d9d7cac1a47d" source="id-f53281014c4a" target="id-5eba725d51d1" />
+    <relationship xsi:type="Assignment" identifier="id-68b5b5ac4c51" source="id-1ba75f1cdb8c" target="id-f53281014c4a" />
+    <relationship xsi:type="Triggering" identifier="id-a8ec1d1408cd" source="id-45bb3dfe8b58" target="id-f53281014c4a" />
+    <relationship xsi:type="Assignment" identifier="id-438c1197ff91" source="id-6a9ff954d138" target="id-45bb3dfe8b58" />
+    <relationship xsi:type="Triggering" identifier="id-1c71d9158e89" source="id-800d0c5739db" target="id-45bb3dfe8b58" />
+    <relationship xsi:type="Triggering" identifier="id-e2105a49cbd2" source="id-1ba82c094443" target="id-a74d0b0f5ae0" />
+    <relationship xsi:type="Assignment" identifier="id-6d06ae28f7a4" source="id-aba182529fef" target="id-1ba82c094443" />
+    <relationship xsi:type="Assignment" identifier="id-21726c33000f" source="id-aba182529fef" target="id-a74d0b0f5ae0" />
+    <relationship xsi:type="Assignment" identifier="id-2f22ac1fe12c" source="id-aba182529fef" target="id-638512d5c59e" />
+    <relationship xsi:type="Triggering" identifier="id-6e27601de68c" source="id-0147e09e1085" target="id-1ba82c094443" />
+    <relationship xsi:type="Triggering" identifier="id-7931f37833a6" source="id-980d26b3b2c4" target="id-0147e09e1085" />
+    <relationship xsi:type="Assignment" identifier="id-ad0a7e110a60" source="id-42ee43c201b9" target="id-980d26b3b2c4" />
+    <relationship xsi:type="Assignment" identifier="id-1004193135ee" source="id-42ee43c201b9" target="id-e2de36df5c55" />
+    <relationship xsi:type="Triggering" identifier="id-5cd2329f6d75" source="id-b95a95bdaed7" target="id-980d26b3b2c4" />
+    <relationship xsi:type="Assignment" identifier="id-2330771fcd81" source="id-c9543a89d27b" target="id-b95a95bdaed7" />
+    <relationship xsi:type="Triggering" identifier="id-39b1c19395d7" source="id-4e14b7ca7cee" target="id-b95a95bdaed7" />
+    <relationship xsi:type="Assignment" identifier="id-33b46029ad2a" source="id-2d1b8ead43ed" target="id-4e14b7ca7cee" />
+    <relationship xsi:type="Triggering" identifier="id-31bc9efd8f38" source="id-9c1ab3d99ce3" target="id-f53281014c4a" />
+    <relationship xsi:type="Assignment" identifier="id-2f8db318a831" source="id-7d92ccdfebae" target="id-9c1ab3d99ce3" />
+    <relationship xsi:type="Triggering" identifier="id-567d2501d5e6" source="id-50bf4140c0e0" target="id-9c1ab3d99ce3" />
+    <relationship xsi:type="Assignment" identifier="id-2469b19f4896" source="id-bbed3b9e2252" target="id-50bf4140c0e0" />
+    <relationship xsi:type="Triggering" identifier="id-18fe9ec33f31" source="id-48821670aeb3" target="id-0147e09e1085" />
+    <relationship xsi:type="Assignment" identifier="id-9aab80ab5199" source="id-0f722ac5d8c3" target="id-48821670aeb3" />
+    <relationship xsi:type="Assignment" identifier="id-27315dd0f85f" source="id-0f722ac5d8c3" target="id-dd296cd54c46" />
+    <relationship xsi:type="Assignment" identifier="id-40e0b37f3eae" source="id-0f722ac5d8c3" target="id-e2de36df5c55" />
+    <relationship xsi:type="Triggering" identifier="id-40e65a46b818" source="id-dd296cd54c46" target="id-50bf4140c0e0" />
+    <relationship xsi:type="Triggering" identifier="id-bb0640728bce" source="id-195f032a0308" target="id-4e14b7ca7cee" />
+    <relationship xsi:type="Triggering" identifier="id-6e6338f60261" source="id-195f032a0308" target="id-dd296cd54c46" />
+    <relationship xsi:type="Assignment" identifier="id-2e2f7c2350e9" source="id-987b9ae12ae5" target="id-195f032a0308" />
+    <relationship xsi:type="Triggering" identifier="id-730acde5af94" source="id-638512d5c59e" target="id-a74d0b0f5ae0" />
+    <relationship xsi:type="Assignment" identifier="id-a66bd171da50" source="id-f284372f9e18" target="id-28cd6a206aec" />
+    <relationship xsi:type="Assignment" identifier="id-55d558ecec14" source="id-f284372f9e18" target="id-49b4c1d1fd60" />
+    <relationship xsi:type="Assignment" identifier="id-7f8c174b044f" source="id-55f5c040681d" target="id-8cb6006b0ebb" />
+    <relationship xsi:type="Assignment" identifier="id-3724c2d6b4d3" source="id-55f5c040681d" target="id-0a539b2a6862" />
+    <relationship xsi:type="Assignment" identifier="id-f7809803bd56" source="id-55f5c040681d" target="id-bf1c2e5cbff4" />
+    <relationship xsi:type="Assignment" identifier="id-bdebfee6b5e9" source="id-1b3b5dc073e8" target="id-4cad19ea4a60" />
+    <relationship xsi:type="Assignment" identifier="id-3e557cbe610c" source="id-1b3b5dc073e8" target="id-4e3984124bb7" />
+    <relationship xsi:type="Assignment" identifier="id-0d25284f69e1" source="id-1b3b5dc073e8" target="id-7b88c36388c4" />
+    <relationship xsi:type="Triggering" identifier="id-164ecc12aba9" source="id-943a9bfcff2e" target="id-0a539b2a6862" />
+    <relationship xsi:type="Assignment" identifier="id-026fdc6077a2" source="id-48b96930e4f4" target="id-7b88c36388c4" />
+    <relationship xsi:type="Assignment" identifier="id-030a1db69375" source="id-9dccd4ab1977" target="id-7b88c36388c4" />
+    <relationship xsi:type="Assignment" identifier="id-bfdd5a144123" source="id-f5ea20033177" target="id-20ee26066c0a" />
+    <relationship xsi:type="Assignment" identifier="id-c87dd67877c1" source="id-d52315679deb" target="id-e2de36df5c55" />
+    <relationship xsi:type="Assignment" identifier="id-5a3ad9f80bf2" source="id-12f9b722be6d" target="id-f284372f9e18" />
+    <relationship xsi:type="Assignment" identifier="id-41b915f00ee5" source="id-963f388c415f" target="id-48b96930e4f4" />
+  </relationships>
+</model>

@@ -20,10 +20,11 @@ QUERY_NODE_SCHEMA: dict[str, tuple[str, ...]] = {
     "Server": ("id", "name", "server_type", "archimate_type", "archimate_id"),
     "OrgEinheit": ("name",),
     "Rolle": ("name", "archimate_type", "archimate_id"),
+    "Ablehnung": ("prozess_name", "anwendung_name"),
 }
 
 QUERY_RELATIONSHIP_PATTERNS: tuple[RelationshipPattern, ...] = (
-    RelationshipPattern("DIENT", "Anwendung", "Prozess", ("konfidenz",)),
+    RelationshipPattern("DIENT", "Anwendung", "Prozess", ("konfidenz", "raw_name", "source")),
     RelationshipPattern("BETEILIGT_AN", "Rolle", "Prozess"),
     RelationshipPattern("KANN_EINNEHMEN", "OrgEinheit", "Rolle"),
     RelationshipPattern("VERANTWORTET", "OrgEinheit", "Prozess"),
@@ -34,6 +35,11 @@ QUERY_RELATIONSHIP_PATTERNS: tuple[RelationshipPattern, ...] = (
     RelationshipPattern("USES_INTERFACE", "Anwendung", "Schnittstelle"),
     RelationshipPattern("RUNS_ON", "Anwendung", "Server"),
     RelationshipPattern("RUNS_ON", "Schnittstelle", "Server"),
+    RelationshipPattern("KÖNNTE_DIENEN", "Anwendung", "Prozess", ("score",)),
+    RelationshipPattern("KÖNNTE_VERANTWORTEN", "OrgEinheit", "Anwendung", ("score",)),
+    RelationshipPattern("KÖNNTE_VERANTWORTEN", "OrgEinheit", "Schnittstelle", ("score",)),
+    RelationshipPattern("KÖNNTE_VERANTWORTEN", "OrgEinheit", "Server", ("score",)),
+    RelationshipPattern("KÖNNTE_VERANTWORTEN", "OrgEinheit", "Prozess", ("score",)),
 )
 
 QUERY_RELATIONSHIP_SCHEMA: dict[str, tuple[str, ...]] = {}

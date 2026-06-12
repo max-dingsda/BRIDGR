@@ -232,6 +232,8 @@ graphify-out/*
 data/input_archive/*
 .tmp_*/
 prompttesting.txt
+*tmp*.*
+*.archimate
 
 # Local maintenance scripts (not for distribution)
 reset_to_delivery_state.py

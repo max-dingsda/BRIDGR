@@ -114,6 +114,7 @@ def build_review_rows(documents: list[dict]) -> list[dict]:
                     ),
                     "source_path": document.get("source_path", ""),
                     "prozess": extracted_process.get("process_name", ""),
+                    "process_id": extracted_process.get("process_id", ""),
                     "anwendung_im_prozess": match.get("application_name", ""),
                     "anwendung_in_cmdb": match.get("matched_name", "") or "-",
                     "confidence": match.get("confidence", ""),

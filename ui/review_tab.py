@@ -95,6 +95,7 @@ def _filter_application_cmdb_rows(config: AppConfig, cmdb_rows: list[dict[str, s
 
 def render_review_item_actions(review_row: dict, config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
     process_name = review_row.get("prozess", "")
+    process_id = review_row.get("process_id", "")
     source_path = review_row.get("source_path", "")
     application_name = review_row.get("anwendung_im_prozess", "")
     matched_name = review_row.get("anwendung_in_cmdb", "")
@@ -108,11 +109,11 @@ def render_review_item_actions(review_row: dict, config: AppConfig, cmdb_rows: l
     row_columns[3].write(review_row.get("confidence", ""))
 
     if cmdb_id and row_columns[4].button("Bestätigen", key=f"review-confirm::{row_id}", width="stretch"):
-        st.success(confirm_review_link(config, process_name, application_name, cmdb_id, matched_name, source_path, cmdb_rows))
+        st.success(confirm_review_link(config, process_name, application_name, cmdb_id, matched_name, process_id, source_path, cmdb_rows))
         st.rerun()
 
     if row_columns[5].button("Ablehnen", key=f"review-reject::{row_id}", width="stretch"):
-        st.success(reject_review_link(config, process_name, application_name, cmdb_id, source_path, cmdb_rows))
+        st.success(reject_review_link(config, process_name, application_name, cmdb_id, process_id, source_path, cmdb_rows))
         st.rerun()
 
     application_rows = _filter_application_cmdb_rows(config, cmdb_rows)
@@ -145,6 +146,7 @@ def render_review_item_actions(review_row: dict, config: AppConfig, cmdb_rows: l
                     application_name,
                     selected_row.get(config.cmdb_uuid_column, ""),
                     selected_row.get(config.cmdb_name_column, application_name),
+                    process_id,
                     source_path,
                     cmdb_rows,
                 )

@@ -58,8 +58,21 @@ def _build_role_assignment_options(org_units: list[dict], role_name: str) -> tup
     return existing_org_unit_names, suggested_new_org_name
 
 
+_SECTION_ORG_UNITS = "org_section_org_units_open"
+_SECTION_CANDIDATES = "org_section_candidates_open"
+_SECTION_PROCESS_OWNER_CANDIDATES = "org_section_process_owner_candidates_open"
+_SECTION_PROCESS_OWNER = "org_section_process_owner_open"
+_SECTION_ROLES = "org_section_roles_open"
+_SECTION_DECIDED = "org_section_decided_open"
+
+
+def _rerun_keep(section_key: str) -> None:
+    st.session_state[section_key] = True
+    st.rerun()
+
+
 def _render_org_units_section(config, knowledge_base, org_units, all_processes) -> None:
-    with st.expander("Organisationseinheiten", expanded=False):
+    with st.expander("Organisationseinheiten", expanded=st.session_state.get(_SECTION_ORG_UNITS, False)):
         if not org_units:
             st.info("Noch keine Organisationseinheiten gepflegt.")
         else:
@@ -76,7 +89,7 @@ def _render_org_units_section(config, knowledge_base, org_units, all_processes) 
                         )
                     else:
                         st.success(f"{synced_org_units} Organisationseinheit(en) nach Neo4j synchronisiert.")
-                st.rerun()
+                _rerun_keep(_SECTION_ORG_UNITS)
 
             for org_unit in org_units:
                 org_unit_name = org_unit.get("name", "")
@@ -92,7 +105,7 @@ def _render_org_units_section(config, knowledge_base, org_units, all_processes) 
                         if st.button("Prozesse verwalten", key=manage_key, width="stretch"):
                             toggle_key = f"org-manage-open::{org_key}"
                             st.session_state[toggle_key] = not st.session_state.get(toggle_key, False)
-                            st.rerun()
+                            _rerun_keep(_SECTION_ORG_UNITS)
 
                     toggle_key = f"org-manage-open::{org_key}"
                     if st.session_state.get(toggle_key, False):
@@ -104,7 +117,7 @@ def _render_org_units_section(config, knowledge_base, org_units, all_processes) 
         if add_submitted:
             level, message = add_org_unit_entry(config, knowledge_base, new_org_unit_name)
             getattr(st, level)(message)
-            st.rerun()
+            _rerun_keep(_SECTION_ORG_UNITS)
 
 
 def _render_process_manager_for_org_unit(config, org_unit_name: str, org_key: str, all_processes: list[dict]) -> None:
@@ -148,12 +161,12 @@ def _render_process_manager_for_org_unit(config, org_unit_name: str, org_key: st
             st.error(" | ".join(errors))
         else:
             st.success(f"{len(newly_added)} zugewiesen, {len(newly_removed)} entfernt.")
-        st.rerun()
+        _rerun_keep(_SECTION_ORG_UNITS)
 
 
 def _render_process_owner_section(config, org_units, all_processes: list[dict]) -> None:
     ownerless = [p for p in all_processes if not p["eigentuemer"]]
-    with st.expander(f"Prozesse ohne Eigentümer ({len(ownerless)})", expanded=False):
+    with st.expander(f"Prozesse ohne Eigentümer ({len(ownerless)})", expanded=st.session_state.get(_SECTION_PROCESS_OWNER, False)):
         if not all_processes:
             st.info("Keine Prozesse im Graphen gefunden.")
             return
@@ -201,7 +214,7 @@ def _render_process_owner_section(config, org_units, all_processes: list[dict]) 
                     st.error(" | ".join(errors))
                 else:
                     st.success(f"{len(selected_process_ids)} Prozess(e) wurden \"{batch_owner}\" zugeordnet.")
-                st.rerun()
+                _rerun_keep(_SECTION_PROCESS_OWNER)
 
         for process in ownerless:
             process_id = process["prozess_id"]
@@ -221,7 +234,7 @@ def _render_process_owner_section(config, org_units, all_processes: list[dict]) 
                     else:
                         level, message = set_process_owner(config, process_id, selected_owner)
                         getattr(st, level)(message)
-                        st.rerun()
+                        _rerun_keep(_SECTION_PROCESS_OWNER)
 
 
 def _render_process_owner_candidates_section(config, org_units) -> None:
@@ -232,7 +245,7 @@ def _render_process_owner_candidates_section(config, org_units) -> None:
         candidates = []
         _load_error = exc
 
-    with st.expander(f"Vorgeschlagene Prozess-Eigentümer ({len(candidates)})", expanded=False):
+    with st.expander(f"Vorgeschlagene Prozess-Eigentümer ({len(candidates)})", expanded=st.session_state.get(_SECTION_PROCESS_OWNER_CANDIDATES, False)):
         if _load_error:
             st.warning(f"Vorgeschlagene Prozess-Eigentümer konnten nicht geladen werden: {_load_error}")
             return
@@ -263,11 +276,11 @@ def _render_process_owner_candidates_section(config, org_units) -> None:
                     target = selected_org or suggested
                     level, message = accept_process_owner_candidate(config, process_id, target)
                     getattr(st, level)(message)
-                    st.rerun()
+                    _rerun_keep(_SECTION_PROCESS_OWNER_CANDIDATES)
                 if cols[2].button("Abweisen", key=f"poc-reject::{cand_key}", width="stretch"):
                     level, message = reject_process_owner_candidate(config, process_id)
                     getattr(st, level)(message)
-                    st.rerun()
+                    _rerun_keep(_SECTION_PROCESS_OWNER_CANDIDATES)
 
 
 def _render_candidates_section(config, knowledge_base, org_units) -> None:
@@ -276,7 +289,7 @@ def _render_candidates_section(config, knowledge_base, org_units) -> None:
         for entry in knowledge_base.org_unit_candidates
         if entry.get("status", "open") == "open"
     ]
-    with st.expander(f"Kandidaten ({len(open_candidates)})", expanded=False):
+    with st.expander(f"Kandidaten ({len(open_candidates)})", expanded=st.session_state.get(_SECTION_CANDIDATES, False)):
         if not open_candidates:
             st.info("Aktuell liegen keine offenen Kandidaten vor.")
             return
@@ -306,7 +319,7 @@ def _render_candidates_section(config, knowledge_base, org_units) -> None:
                     else:
                         level, message = map_org_candidate(config, knowledge_base, candidate_name, selected_target)
                         getattr(st, level)(message)
-                        st.rerun()
+                        _rerun_keep(_SECTION_CANDIDATES)
 
                 proposed_name = action_columns[2].text_input(
                     "Als neue Organisationseinheit übernehmen",
@@ -316,12 +329,12 @@ def _render_candidates_section(config, knowledge_base, org_units) -> None:
                 if action_columns[3].button("Übernehmen", key=f"org-candidate-accept::{candidate_key}", width="stretch"):
                     level, message = accept_org_candidate(config, knowledge_base, candidate_name, proposed_name)
                     getattr(st, level)(message)
-                    st.rerun()
+                    _rerun_keep(_SECTION_CANDIDATES)
 
                 if action_columns[4].button("Abweisen", key=f"org-candidate-reject::{candidate_key}", width="stretch"):
                     level, message = reject_org_candidate(knowledge_base, candidate_name)
                     getattr(st, level)(message)
-                    st.rerun()
+                    _rerun_keep(_SECTION_CANDIDATES)
 
 
 def _render_unassigned_roles_section(config, org_units) -> None:
@@ -332,7 +345,7 @@ def _render_unassigned_roles_section(config, org_units) -> None:
         unassigned_roles = []
         _load_error = exc
 
-    with st.expander(f"Nicht zugeordnete Rollen ({len(unassigned_roles)})", expanded=False):
+    with st.expander(f"Nicht zugeordnete Rollen ({len(unassigned_roles)})", expanded=st.session_state.get(_SECTION_ROLES, False)):
         if _load_error:
             st.warning(f"Rollen konnten nicht aus Neo4j geladen werden: {_load_error}")
             return
@@ -362,7 +375,7 @@ def _render_unassigned_roles_section(config, org_units) -> None:
                     else:
                         level, message = assign_role_to_org_unit(config, role_name, selected_org)
                         getattr(st, level)(message)
-                        st.rerun()
+                        _rerun_keep(_SECTION_ROLES)
                 new_org_name = assign_columns[2].text_input(
                     "Als neue Organisationseinheit anlegen",
                     value=suggested_new_org_name,
@@ -374,11 +387,11 @@ def _render_unassigned_roles_section(config, org_units) -> None:
                     else:
                         level, message = assign_role_to_org_unit(config, role_name, new_org_name)
                         getattr(st, level)(message)
-                        st.rerun()
+                        _rerun_keep(_SECTION_ROLES)
                 if assign_columns[4].button("Rolle", key=f"role-only::{role_key}", width="stretch"):
                     level, message = mark_role_as_role_only(role_name)
                     getattr(st, level)(message)
-                    st.rerun()
+                    _rerun_keep(_SECTION_ROLES)
 
 
 def _render_decided_candidates_section(knowledge_base) -> None:
