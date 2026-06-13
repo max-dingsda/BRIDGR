@@ -1,0 +1,13 @@
+Prozess-ID: PROC-026
+Prozessname: Security Incident triagieren
+Abteilung: Informationssicherheit
+Rolle: Security Analyst
+Owner: Informationssicherheit
+
+Beschreibung:
+Der Security Analyst bewertet neue Sicherheitsmeldungen, prüft betroffene Systeme und entscheidet über Eskalation oder Schließung. Relevante Ereignisse werden an IT-Betrieb und Fachbereich kommuniziert.
+
+Genutzte Anwendungen:
+- Splunk
+- Defender
+- ServiceNow
