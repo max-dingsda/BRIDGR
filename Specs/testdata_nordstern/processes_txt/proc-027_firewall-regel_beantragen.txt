@@ -1,0 +1,12 @@
+Prozess-ID: PROC-027
+Prozessname: Firewall-Regel beantragen
+Abteilung: Informationssicherheit
+Rolle: Netzwerkadministrator
+Owner: Informationssicherheit
+
+Beschreibung:
+Ein Fachbereich beantragt eine neue Netzwerkfreigabe. Der Netzwerkadministrator prüft Zweck, Zielsysteme und Laufzeit und setzt die Regel nach Freigabe um.
+
+Genutzte Anwendungen:
+- FortiGate
+- Palo Alto
