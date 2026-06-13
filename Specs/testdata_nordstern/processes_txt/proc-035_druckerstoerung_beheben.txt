@@ -1,0 +1,11 @@
+Prozess-ID: PROC-035
+Prozessname: Druckerstörung beheben
+Abteilung: IT-Betrieb
+Rolle: Field Service
+Owner: IT-Betrieb
+
+Beschreibung:
+Der Field Service nimmt eine Meldung zu einem Druckerproblem auf, prüft Standort und Gerätedaten und koordiniert die Behebung mit dem zuständigen Dienstleister.
+
+Genutzte Anwendungen:
+- PrintFleet
