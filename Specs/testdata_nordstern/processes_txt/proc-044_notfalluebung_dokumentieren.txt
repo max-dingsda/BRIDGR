@@ -1,0 +1,11 @@
+Prozess-ID: PROC-044
+Prozessname: Notfallübung dokumentieren
+Abteilung: Informationssicherheit
+Rolle: BCM Manager
+Owner: Informationssicherheit
+
+Beschreibung:
+Der BCM Manager dokumentiert Ablauf, Teilnehmende und Erkenntnisse einer organisatorischen Notfallübung. Verbesserungsmaßnahmen werden an die zuständigen Bereiche übergeben.
+
+Genutzte Anwendungen:
+- Keine explizite Anwendungsunterstützung genannt
