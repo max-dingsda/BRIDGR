@@ -1,0 +1,11 @@
+Prozess-ID: PROC-006
+Prozessname: Lieferanten anlegen
+Abteilung: Einkauf
+Rolle: Sachbearbeiter Einkauf
+Owner: Einkauf
+
+Beschreibung:
+Neue Lieferanten werden anhand der Stammdatenanforderung geprüft, ergänzt und im System angelegt. Pflichtangaben wie Steuerdaten, Zahlungsbedingungen und Ansprechpartner werden validiert.
+
+Genutzte Anwendungen:
+- SAP MM
