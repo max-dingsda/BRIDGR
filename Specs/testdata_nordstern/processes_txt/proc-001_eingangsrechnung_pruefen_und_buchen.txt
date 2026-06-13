@@ -1,0 +1,23 @@
+Prozess-ID: PROC-001
+Prozessname: Eingangsrechnung prüfen und buchen
+Abteilung: Buchhaltung
+Rolle: Kreditorenbuchhalter
+Owner: Buchhaltung
+
+Ziel:
+Eingehende Lieferantenrechnungen werden geprüft, kontiert und zur Zahlung vorbereitet.
+
+Ablauf:
+1. Der Kreditorenbuchhalter öffnet die eingegangene Rechnung aus dem zentralen Rechnungseingang.
+2. Die Rechnung wird mit Invoice OCR ausgelesen und gegen Bestellung und Wareneingang geprüft.
+3. Bei Abweichungen klärt die Buchhaltung den Sachverhalt mit Einkauf oder Fachbereich.
+4. Nach Freigabe wird die Rechnung in SAP FI gebucht.
+5. Für steuerliche Nachweise wird der Beleg zusätzlich in DATEV Unternehmen Online abgelegt.
+
+Genutzte Anwendungen:
+- SAP FI
+- Invoice OCR
+- DATEV
+
+Hinweis für BRIDGR:
+SAP FI ist absichtlich nicht der offizielle CMDB-Name. In der CMDB heißt die Anwendung SAP S/4HANA FI.
