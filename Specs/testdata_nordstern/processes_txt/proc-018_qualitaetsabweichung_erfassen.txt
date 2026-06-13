@@ -1,0 +1,11 @@
+Prozess-ID: PROC-018
+Prozessname: Qualitätsabweichung erfassen
+Abteilung: Qualitaetsmanagement
+Rolle: Qualitätsmanager
+Owner: Qualitaetsmanagement
+
+Beschreibung:
+Abweichungen aus Produktion oder Kundenservice werden erfasst, bewertet und einer Ursachenanalyse zugeordnet. Maßnahmen werden dokumentiert und nachverfolgt.
+
+Genutzte Anwendungen:
+- QMSuite
