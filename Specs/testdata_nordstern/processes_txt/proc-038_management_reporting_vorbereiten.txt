@@ -1,0 +1,12 @@
+Prozess-ID: PROC-038
+Prozessname: Management Reporting vorbereiten
+Abteilung: Geschaeftsfuehrung
+Rolle: Assistenz Geschäftsführung
+Owner: Geschaeftsfuehrung
+
+Beschreibung:
+Die Assistenz sammelt Kennzahlen aus den Bereichen, erstellt eine Managementübersicht und stimmt offene Erläuterungen mit Controlling und Bereichsleitungen ab.
+
+Genutzte Anwendungen:
+- Power BI
+- SharePoint
