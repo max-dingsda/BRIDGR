@@ -1,0 +1,13 @@
+Prozess-ID: PROC-010
+Prozessname: Auftrag erfassen
+Abteilung: Vertrieb
+Rolle: Vertriebsinnendienst
+Owner: Vertrieb
+
+Beschreibung:
+Der Vertriebsinnendienst übernimmt bestätigte Angebote oder Webshop-Bestellungen und legt daraus Kundenaufträge an. Bei Rückfragen werden Kundenstammdaten geprüft und ergänzt.
+
+Genutzte Anwendungen:
+- Dynamics CRM
+- SAP SD
+- Webshop
