@@ -1,0 +1,12 @@
+Prozess-ID: PROC-042
+Prozessname: Retourenprozess steuern
+Abteilung: Logistik
+Rolle: Retourenkoordinator
+Owner: Logistik
+
+Beschreibung:
+Der Retourenkoordinator prüft angekündigte Rücksendungen, ordnet Ware dem Kundenauftrag zu und entscheidet über Wiedereinlagerung, Nacharbeit oder Verschrottung.
+
+Genutzte Anwendungen:
+- WMS
+- SAP SD
