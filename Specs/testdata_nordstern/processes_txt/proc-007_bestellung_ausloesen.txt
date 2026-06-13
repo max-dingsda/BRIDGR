@@ -1,0 +1,12 @@
+Prozess-ID: PROC-007
+Prozessname: Bestellung auslösen
+Abteilung: Einkauf
+Rolle: Einkäufer
+Owner: Einkauf
+
+Beschreibung:
+Der Einkäufer prüft Bedarfsanforderungen, wählt geeignete Lieferanten aus und löst die Bestellung aus. Bei elektronisch angebundenen Lieferanten wird die Bestellung per EDI übertragen.
+
+Genutzte Anwendungen:
+- SAP MM
+- EDI Gateway
