@@ -1,0 +1,12 @@
+Prozess-ID: PROC-020
+Prozessname: Bewerbung prüfen
+Abteilung: Personal
+Rolle: Recruiter
+Owner: Personal
+
+Beschreibung:
+Der Recruiter prüft eingegangene Bewerbungen, stimmt geeignete Profile mit dem Fachbereich ab und lädt Kandidaten zum Gespräch ein. Rückmeldungen werden dokumentiert.
+
+Genutzte Anwendungen:
+- Workday
+- Teams
