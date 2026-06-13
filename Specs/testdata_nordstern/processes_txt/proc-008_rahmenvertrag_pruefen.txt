@@ -1,0 +1,12 @@
+Prozess-ID: PROC-008
+Prozessname: Rahmenvertrag prüfen
+Abteilung: Rechtsabteilung
+Rolle: Legal Counsel
+Owner: Rechtsabteilung
+
+Beschreibung:
+Die Rechtsabteilung prüft Vertragsentwürfe auf Risiken, Laufzeiten und Freigabepflichten. Änderungen werden dokumentiert und die finale Version wird zur elektronischen Signatur vorbereitet.
+
+Genutzte Anwendungen:
+- DocuSign
+- ContractSafe
