@@ -1,0 +1,11 @@
+Prozess-ID: PROC-049
+Prozessname: Risikobewertung aktualisieren
+Abteilung: Informationssicherheit
+Rolle: Risk Manager
+Owner: 
+
+Beschreibung:
+Der Risk Manager aktualisiert bestehende Risikoeinträge, ergänzt Bewertungen und stimmt offene Punkte mit den verantwortlichen Bereichen ab. Dieser Prozess hat bewusst keinen Owner-Eintrag.
+
+Genutzte Anwendungen:
+- RiskRadar
