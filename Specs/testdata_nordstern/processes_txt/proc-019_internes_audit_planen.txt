@@ -1,0 +1,14 @@
+Prozess-ID: PROC-019
+Prozessname: Interne Prüfung planen
+Abteilung: Qualitaetsmanagement
+Rolle: Audit Lead
+Owner: Qualitaetsmanagement
+
+Beschreibung:
+Der Audit Lead legt Thema, Termin und beteiligte Bereiche für eine interne Qualitätsprüfung fest. Die Abteilungen erhalten eine kurze Vorbereitungsliste und bestätigen ihre Teilnahme.
+
+Genutzte Anwendungen:
+- QMS
+
+Hinweis:
+QMS ist ein Alias für QMSuite.
