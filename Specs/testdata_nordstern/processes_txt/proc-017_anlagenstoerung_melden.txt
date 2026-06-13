@@ -1,0 +1,15 @@
+Prozess-ID: PROC-017
+Prozessname: Anlagenstörung melden
+Abteilung: Produktion
+Rolle: Anlagenführer
+Owner: Produktion
+
+Beschreibung:
+Der Anlagenführer erkennt eine Störung, dokumentiert Symptome und informiert Instandhaltung und Schichtleitung. Kritische Stillstände werden als Incident nachverfolgt.
+
+Genutzte Anwendungen:
+- PlantView
+- ServiceNow
+
+Hinweis:
+PlantView ist ein Alias für SCADA PlantView.
