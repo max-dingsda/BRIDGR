@@ -1,0 +1,12 @@
+Prozess-ID: PROC-051
+Prozessname: Kündigungsbestätigung erstellen
+Abteilung: Personal
+Rolle: HR Sachbearbeiter
+Owner: Personal
+
+Beschreibung:
+Der HR Sachbearbeiter erstellt eine formale Bestätigung zu einer Personaländerung und stimmt den Text mit der zuständigen Führungskraft ab. Die Ablage erfolgt nachvollziehbar im Personalprozess.
+
+Genutzte Anwendungen:
+- SuccessFactors
+- Exchange
