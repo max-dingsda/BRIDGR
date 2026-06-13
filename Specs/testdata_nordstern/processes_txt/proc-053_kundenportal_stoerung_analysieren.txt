@@ -1,0 +1,12 @@
+Prozess-ID: PROC-053
+Prozessname: Kundenportal-Störung analysieren
+Abteilung: Kundenservice
+Rolle: Incident Coordinator
+Owner: Kundenservice
+
+Beschreibung:
+Der Incident Coordinator sammelt Hinweise aus Kundenmeldungen, prüft den betroffenen Portalbereich und koordiniert die weitere Klärung mit IT-Betrieb und Fachbereich.
+
+Genutzte Anwendungen:
+- Customer Portal
+- Splunk
