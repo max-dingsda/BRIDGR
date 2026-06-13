@@ -1,0 +1,16 @@
+Prozess-ID: PROC-021
+Prozessname: Onboarding durchführen
+Abteilung: Personal
+Rolle: HR Business Partner
+Owner: Personal
+
+Beschreibung:
+Neue Mitarbeitende werden organisatorisch angelegt, erhalten Zugangsdaten und werden den ersten Schulungen zugeordnet. HR koordiniert Fachbereich, IT und Führungskraft.
+
+Genutzte Anwendungen:
+- SuccessFactors
+- AD
+- Teams
+
+Hinweis:
+AD ist ein Alias für Active Directory Domain Services.
