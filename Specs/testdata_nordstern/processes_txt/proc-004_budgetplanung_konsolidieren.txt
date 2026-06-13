@@ -1,0 +1,15 @@
+Prozess-ID: PROC-004
+Prozessname: Budgetplanung konsolidieren
+Abteilung: Controlling
+Rolle: Controller
+Owner: Controlling
+
+Beschreibung:
+Die Fachbereiche liefern Planwerte an das Controlling. Der Controller plausibilisiert die Daten, konsolidiert sie und bereitet Abweichungen für die Freigabe durch die Geschäftsführung auf.
+
+Genutzte Anwendungen:
+- SAP CO
+- PowerBI
+
+Hinweis:
+SAP CO und PowerBI weichen bewusst von den offiziellen CMDB-Namen ab.
