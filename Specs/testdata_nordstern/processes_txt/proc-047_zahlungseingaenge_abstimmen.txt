@@ -1,0 +1,12 @@
+Prozess-ID: PROC-047
+Prozessname: Zahlungseingänge abstimmen
+Abteilung: Buchhaltung
+Rolle: Finanzkoordination
+Owner: 
+
+Beschreibung:
+Die Finanzkoordination gleicht eingegangene Zahlungsinformationen mit vorhandenen Vorgängen ab und markiert Klärfälle für die Buchhaltung. Dieser Prozess hat bewusst keinen Owner-Eintrag.
+
+Genutzte Anwendungen:
+- Banking Gateway
+- SAP FI
