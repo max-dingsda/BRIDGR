@@ -1,0 +1,11 @@
+Prozess-ID: PROC-046
+Prozessname: Reisekosten prüfen
+Abteilung: Buchhaltung
+Rolle: Sachbearbeiter Reisekosten
+Owner: Buchhaltung
+
+Beschreibung:
+Die Buchhaltung prüft eingereichte Reisekosten auf Vollständigkeit und formale Richtigkeit. Rückfragen werden mit der reisenden Person geklärt und der Vorgang wird abgeschlossen.
+
+Genutzte Anwendungen:
+- TravelExpense
