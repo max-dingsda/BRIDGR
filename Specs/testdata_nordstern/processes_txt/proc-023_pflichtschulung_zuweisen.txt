@@ -1,0 +1,11 @@
+Prozess-ID: PROC-023
+Prozessname: Pflichtschulung zuweisen
+Abteilung: Personal
+Rolle: Learning Manager
+Owner: Personal
+
+Beschreibung:
+Der Learning Manager ordnet Mitarbeitenden die erforderlichen Schulungen zu und überwacht die fristgerechte Bearbeitung. Führungskräfte erhalten eine Übersicht offener Aufgaben.
+
+Genutzte Anwendungen:
+- LearningHub
