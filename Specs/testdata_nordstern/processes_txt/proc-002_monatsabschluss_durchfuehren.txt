@@ -1,0 +1,12 @@
+Prozess-ID: PROC-002
+Prozessname: Monatsabschluss durchführen
+Abteilung: Buchhaltung
+Rolle: Leiter Buchhaltung
+Owner: Buchhaltung
+
+Beschreibung:
+Die Buchhaltung sammelt offene Posten, prüft Abgrenzungen und erstellt die Abschlussbuchungen für den Monatsabschluss. Der Leiter Buchhaltung kontrolliert die Ergebnisse und gibt das Reporting frei.
+
+Genutzte Anwendungen:
+- SAP FI
+- Power BI
