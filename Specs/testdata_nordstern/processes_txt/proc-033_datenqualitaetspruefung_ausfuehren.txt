@@ -1,0 +1,12 @@
+Prozess-ID: PROC-033
+Prozessname: Datenqualitätsprüfung ausführen
+Abteilung: IT-Betrieb
+Rolle: Data Engineer
+Owner: IT-Betrieb
+
+Beschreibung:
+Der Data Engineer prüft geladene Datenbestände auf Vollständigkeit, Dubletten und auffällige Abweichungen. Fehler werden an die zuständigen Fachbereiche zurückgemeldet.
+
+Genutzte Anwendungen:
+- Talend
+- BI DWH
