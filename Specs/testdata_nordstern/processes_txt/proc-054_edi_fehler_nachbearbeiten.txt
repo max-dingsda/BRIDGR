@@ -1,0 +1,12 @@
+Prozess-ID: PROC-054
+Prozessname: EDI-Fehler nachbearbeiten
+Abteilung: Einkauf
+Rolle: Integration Specialist
+Owner: Einkauf
+
+Beschreibung:
+Der Integration Specialist prüft fehlerhafte elektronische Bestellnachrichten, ergänzt notwendige Klärinformationen und stimmt die weitere Bearbeitung mit Einkauf und IT-Betrieb ab.
+
+Genutzte Anwendungen:
+- EDI
+- SAP MM
