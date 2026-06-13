@@ -1,0 +1,11 @@
+Prozess-ID: PROC-037
+Prozessname: Wartungsauftrag planen
+Abteilung: Facility Management
+Rolle: Facility Manager
+Owner: Facility Management
+
+Beschreibung:
+Der Facility Manager plant regelmäßige Wartungen für Gebäude, Anlagen und technische Ausstattung. Termine, Dienstleister und Rückmeldungen werden zentral dokumentiert.
+
+Genutzte Anwendungen:
+- AssetTrack

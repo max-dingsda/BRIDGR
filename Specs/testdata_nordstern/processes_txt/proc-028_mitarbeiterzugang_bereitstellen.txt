@@ -1,0 +1,12 @@
+Prozess-ID: PROC-028
+Prozessname: Mitarbeiterzugang bereitstellen
+Abteilung: IT-Betrieb
+Rolle: IT Service Koordinator
+Owner: IT-Betrieb
+
+Beschreibung:
+Für neue Mitarbeitende wird ein Standardzugang gemäß HR-Meldung vorbereitet. Das passende Berechtigungsprofil wird übernommen und die Fertigmeldung geht an HR und Führungskraft.
+
+Genutzte Anwendungen:
+- Entra ID
+- Active Directory

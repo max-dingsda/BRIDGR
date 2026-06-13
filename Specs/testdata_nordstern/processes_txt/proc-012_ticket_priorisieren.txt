@@ -1,0 +1,11 @@
+Prozess-ID: PROC-012
+Prozessname: Ticket priorisieren
+Abteilung: Kundenservice
+Rolle: Teamleiter Support
+Owner: Kundenservice
+
+Beschreibung:
+Neue Supportfälle werden bewertet, priorisiert und einem Bearbeitungsteam zugewiesen. Kritische Kundenfälle werden durch den Teamleiter eskaliert.
+
+Genutzte Anwendungen:
+- Zendesk Support

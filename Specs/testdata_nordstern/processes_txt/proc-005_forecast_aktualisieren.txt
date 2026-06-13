@@ -1,0 +1,12 @@
+Prozess-ID: PROC-005
+Prozessname: Forecast aktualisieren
+Abteilung: Controlling
+Rolle: Abteilungsleiter Controlling
+Owner: Controlling
+
+Beschreibung:
+Der Forecast wird monatlich auf Basis aktueller Ist-Werte, Vertriebsannahmen und Produktionsprognosen aktualisiert. Der Abteilungsleiter Controlling prüft wesentliche Abweichungen und kommentiert Risiken.
+
+Genutzte Anwendungen:
+- SAP CO
+- BI Warehouse

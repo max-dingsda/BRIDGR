@@ -1,0 +1,11 @@
+Prozess-ID: PROC-045
+Prozessname: Strategieworkshop vorbereiten
+Abteilung: Geschaeftsfuehrung
+Rolle: Geschäftsführer
+Owner: Geschaeftsfuehrung
+
+Beschreibung:
+Die Geschäftsführung bereitet Ziele, Agenda und Teilnehmerkreis für einen Strategieworkshop vor. Ergebnisse werden später in Maßnahmen überführt.
+
+Genutzte Anwendungen:
+- Keine explizite Anwendungsunterstützung genannt

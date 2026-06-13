@@ -1,0 +1,11 @@
+Prozess-ID: PROC-015
+Prozessname: Tour disponieren
+Abteilung: Logistik
+Rolle: Disponent
+Owner: Logistik
+
+Beschreibung:
+Der Disponent plant Auslieferungstouren auf Basis verfügbarer Fahrzeuge, Liefertermine und Kundenprioritäten. Änderungen werden an Fahrer und Kundenservice kommuniziert.
+
+Genutzte Anwendungen:
+- FleetTrack

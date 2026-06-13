@@ -1,0 +1,12 @@
+Prozess-ID: PROC-055
+Prozessname: Zertifikatsablauf prüfen
+Abteilung: Informationssicherheit
+Rolle: PKI Administrator
+Owner: Informationssicherheit
+
+Beschreibung:
+Der PKI Administrator prüft anstehende Zertifikatslaufzeiten, informiert betroffene technische Teams und dokumentiert den Status der Erneuerung.
+
+Genutzte Anwendungen:
+- PKI
+- Monitoring

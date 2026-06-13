@@ -1,0 +1,11 @@
+Prozess-ID: PROC-022
+Prozessname: Arbeitszeit korrigieren
+Abteilung: Personal
+Rolle: Payroll Specialist
+Owner: Personal
+
+Beschreibung:
+Fehlerhafte oder fehlende Arbeitszeiten werden geprüft, mit Führungskräften abgestimmt und korrigiert. Die Änderung fließt in die Entgeltabrechnung ein.
+
+Genutzte Anwendungen:
+- Clockwise

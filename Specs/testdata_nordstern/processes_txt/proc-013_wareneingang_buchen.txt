@@ -1,0 +1,12 @@
+Prozess-ID: PROC-013
+Prozessname: Wareneingang buchen
+Abteilung: Logistik
+Rolle: Lagermitarbeiter
+Owner: Logistik
+
+Beschreibung:
+Der Lagermitarbeiter prüft gelieferte Ware gegen Bestellung und Lieferschein. Nach Mengen- und Sichtprüfung wird der Wareneingang gebucht und der Bestand aktualisiert.
+
+Genutzte Anwendungen:
+- WarehousePro
+- SAP MM

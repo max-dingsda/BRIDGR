@@ -1,0 +1,14 @@
+Prozess-ID: PROC-014
+Prozessname: Kommissionierung planen
+Abteilung: Logistik
+Rolle: Schichtleiter Logistik
+Owner: Logistik
+
+Beschreibung:
+Der Schichtleiter plant die Kommissionierwellen anhand offener Aufträge, Lagerzonen und Personalverfügbarkeit. Engpässe werden priorisiert und bei Bedarf an den Vertrieb zurückgemeldet.
+
+Genutzte Anwendungen:
+- WMS
+
+Hinweis:
+WMS ist ein Alias für WarehousePro WMS.

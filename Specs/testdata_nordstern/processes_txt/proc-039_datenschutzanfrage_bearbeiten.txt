@@ -1,0 +1,12 @@
+Prozess-ID: PROC-039
+Prozessname: Datenschutzanfrage bearbeiten
+Abteilung: Rechtsabteilung
+Rolle: Datenschutzkoordinator
+Owner: Rechtsabteilung
+
+Beschreibung:
+Der Datenschutzkoordinator nimmt Anfragen entgegen, klärt Zuständigkeiten und koordiniert die Antwort mit den betroffenen Fachbereichen. Die Bearbeitung wird nachvollziehbar dokumentiert.
+
+Genutzte Anwendungen:
+- SharePoint
+- Exchange

@@ -1,0 +1,12 @@
+Prozess-ID: PROC-040
+Prozessname: Lieferantenbewertung durchführen
+Abteilung: Einkauf
+Rolle: Supplier Manager
+Owner: Einkauf
+
+Beschreibung:
+Der Supplier Manager bewertet Lieferanten anhand von Qualität, Termintreue und Reklamationen. Ergebnisse werden mit Einkauf und Qualitätsmanagement abgestimmt.
+
+Genutzte Anwendungen:
+- SAP MM
+- QMSuite

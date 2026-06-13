@@ -1,0 +1,14 @@
+Prozess-ID: PROC-041
+Prozessname: Kundenstammdaten bereinigen
+Abteilung: Vertrieb
+Rolle: CRM Data Steward
+Owner: Vertrieb
+
+Beschreibung:
+Der CRM Data Steward prüft doppelte, veraltete oder unvollständige Kundendatensätze und stimmt notwendige Korrekturen mit Vertrieb und Kundenservice ab.
+
+Genutzte Anwendungen:
+- CRM
+
+Hinweis:
+CRM ist ein Alias für Microsoft Dynamics CRM.

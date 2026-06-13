@@ -1,0 +1,12 @@
+Prozess-ID: PROC-003
+Prozessname: Zahlungslauf freigeben
+Abteilung: Buchhaltung
+Rolle: Zahlungsverkehr Spezialist
+Owner: Buchhaltung
+
+Beschreibung:
+Fällige Zahlungen werden selektiert, geprüft und nach Vier-Augen-Prinzip freigegeben. Nach Freigabe wird die Zahlungsdatei an die Bank übertragen.
+
+Genutzte Anwendungen:
+- SAP FI
+- Banking Gateway

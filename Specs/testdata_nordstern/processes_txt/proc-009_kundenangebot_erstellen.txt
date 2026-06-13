@@ -1,0 +1,15 @@
+Prozess-ID: PROC-009
+Prozessname: Kundenangebot erstellen
+Abteilung: Vertrieb
+Rolle: Account Manager
+Owner: Vertrieb
+
+Beschreibung:
+Der Account Manager erfasst die Kundenanforderung, kalkuliert Konditionen und erstellt ein Angebot. Kunden- und Opportunity-Daten werden im CRM gepflegt, Preise und Konditionen kommen aus SAP SD.
+
+Genutzte Anwendungen:
+- CRM
+- SAP SD
+
+Hinweis:
+CRM ist ein Alias für Microsoft Dynamics CRM.

@@ -1,0 +1,56 @@
+process_id,process_name,department,role,owner,mentioned_applications,txt_file
+PROC-001,Eingangsrechnung prüfen und buchen,Buchhaltung,Kreditorenbuchhalter,Buchhaltung,"SAP FI, Invoice OCR, DATEV",proc-001_eingangsrechnung_pruefen_und_buchen.txt
+PROC-002,Monatsabschluss durchführen,Buchhaltung,Leiter Buchhaltung,Buchhaltung,"SAP FI, Power BI",proc-002_monatsabschluss_durchfuehren.txt
+PROC-003,Zahlungslauf freigeben,Buchhaltung,Zahlungsverkehr Spezialist,Buchhaltung,"SAP FI, Banking Gateway",proc-003_zahlungslauf_freigeben.txt
+PROC-004,Budgetplanung konsolidieren,Controlling,Controller,Controlling,"SAP CO, PowerBI",proc-004_budgetplanung_konsolidieren.txt
+PROC-005,Forecast aktualisieren,Controlling,Abteilungsleiter Controlling,Controlling,"SAP CO, BI Warehouse",proc-005_forecast_aktualisieren.txt
+PROC-006,Lieferanten anlegen,Einkauf,Sachbearbeiter Einkauf,Einkauf,SAP MM,proc-006_lieferanten_anlegen.txt
+PROC-007,Bestellung auslösen,Einkauf,Einkäufer,Einkauf,"SAP MM, EDI Gateway",proc-007_bestellung_ausloesen.txt
+PROC-008,Rahmenvertrag prüfen,Rechtsabteilung,Legal Counsel,Rechtsabteilung,"DocuSign, ContractSafe",proc-008_rahmenvertrag_pruefen.txt
+PROC-009,Kundenangebot erstellen,Vertrieb,Account Manager,Vertrieb,"CRM, SAP SD",proc-009_kundenangebot_erstellen.txt
+PROC-010,Auftrag erfassen,Vertrieb,Vertriebsinnendienst,Vertrieb,"Dynamics CRM, SAP SD, Webshop",proc-010_auftrag_erfassen.txt
+PROC-011,Kundenreklamation bearbeiten,Kundenservice,Service Agent,Kundenservice,"Zendesk, QMSuite",proc-011_kundenreklamation_bearbeiten.txt
+PROC-012,Ticket priorisieren,Kundenservice,Teamleiter Support,Kundenservice,Zendesk Support,proc-012_ticket_priorisieren.txt
+PROC-013,Wareneingang buchen,Logistik,Lagermitarbeiter,Logistik,"WarehousePro, SAP MM",proc-013_wareneingang_buchen.txt
+PROC-014,Kommissionierung planen,Logistik,Schichtleiter Logistik,Logistik,WMS,proc-014_kommissionierung_planen.txt
+PROC-015,Tour disponieren,Logistik,Disponent,Logistik,FleetTrack,proc-015_tour_disponieren.txt
+PROC-016,Produktionsauftrag starten,Produktion,Meister Produktion,Produktion,"MES, SAP PP",proc-016_produktionsauftrag_starten.txt
+PROC-017,Anlagenstörung melden,Produktion,Anlagenführer,Produktion,"PlantView, ServiceNow",proc-017_anlagenstoerung_melden.txt
+PROC-018,Qualitätsabweichung erfassen,Qualitaetsmanagement,Qualitätsmanager,Qualitaetsmanagement,QMSuite,proc-018_qualitaetsabweichung_erfassen.txt
+PROC-019,Internes Audit planen,Qualitaetsmanagement,Audit Lead,Qualitaetsmanagement,QMS,proc-019_internes_audit_planen.txt
+PROC-020,Bewerbung prüfen,Personal,Recruiter,Personal,"Workday, Teams",proc-020_bewerbung_pruefen.txt
+PROC-021,Onboarding durchführen,Personal,HR Business Partner,Personal,"SuccessFactors, AD, Teams",proc-021_onboarding_durchfuehren.txt
+PROC-022,Arbeitszeit korrigieren,Personal,Payroll Specialist,Personal,Clockwise,proc-022_arbeitszeit_korrigieren.txt
+PROC-023,Pflichtschulung zuweisen,Personal,Learning Manager,Personal,LearningHub,proc-023_pflichtschulung_zuweisen.txt
+PROC-024,Marketingkampagne planen,Marketing,Marketing Manager,Marketing,"PIM, SharePoint",proc-024_marketingkampagne_planen.txt
+PROC-025,Produktdaten veröffentlichen,Marketing,Content Manager,Marketing,"ContentHub, Webshop Portal",proc-025_produktdaten_veroeffentlichen.txt
+PROC-026,Security Incident triagieren,Informationssicherheit,Security Analyst,Informationssicherheit,"Splunk, Defender, ServiceNow",proc-026_security_incident_triagieren.txt
+PROC-027,Firewall-Regel beantragen,Informationssicherheit,Netzwerkadministrator,Informationssicherheit,"FortiGate, Palo Alto",proc-027_firewall-regel_beantragen.txt
+PROC-028,Benutzerkonto anlegen,IT-Betrieb,IAM Administrator,IT-Betrieb,"Entra ID, Active Directory",proc-028_benutzerkonto_anlegen.txt
+PROC-029,Passwort zurücksetzen,IT-Betrieb,Service Desk Agent,IT-Betrieb,"AD, ServiceNow",proc-029_passwort_zuruecksetzen.txt
+PROC-030,Backup Restore testen,IT-Betrieb,Backup Administrator,IT-Betrieb,Veeam,proc-030_backup_restore_testen.txt
+PROC-031,Server Monitoring prüfen,IT-Betrieb,System Engineer,IT-Betrieb,"PRTG, Zabbix",proc-031_server_monitoring_pruefen.txt
+PROC-032,Release Deployment freigeben,IT-Betrieb,Release Manager,IT-Betrieb,"Azure DevOps, GitHub",proc-032_release_deployment_freigeben.txt
+PROC-033,Datenqualitätsprüfung ausführen,IT-Betrieb,Data Engineer,IT-Betrieb,"Talend, BI DWH",proc-033_datenqualitaetspruefung_ausfuehren.txt
+PROC-034,Archivierungsregel ändern,IT-Betrieb,Application Owner,IT-Betrieb,OpenText Archive,proc-034_archivierungsregel_aendern.txt
+PROC-035,Druckerstörung beheben,IT-Betrieb,Field Service,IT-Betrieb,PrintFleet,proc-035_druckerstoerung_beheben.txt
+PROC-036,Besucher anmelden,Facility Management,Empfangsmitarbeiter,Facility Management,VisitorPro,proc-036_besucher_anmelden.txt
+PROC-037,Wartungsauftrag planen,Facility Management,Facility Manager,Facility Management,AssetTrack,proc-037_wartungsauftrag_planen.txt
+PROC-038,Management Reporting vorbereiten,Geschaeftsfuehrung,Assistenz Geschäftsführung,Geschaeftsfuehrung,"Power BI, SharePoint",proc-038_management_reporting_vorbereiten.txt
+PROC-039,Datenschutzanfrage bearbeiten,Rechtsabteilung,Datenschutzkoordinator,Rechtsabteilung,"SharePoint, Exchange",proc-039_datenschutzanfrage_bearbeiten.txt
+PROC-040,Lieferantenbewertung durchführen,Einkauf,Supplier Manager,Einkauf,"SAP MM, QMSuite",proc-040_lieferantenbewertung_durchfuehren.txt
+PROC-041,Kundenstammdaten bereinigen,Vertrieb,CRM Data Steward,Vertrieb,CRM,proc-041_kundenstammdaten_bereinigen.txt
+PROC-042,Retourenprozess steuern,Logistik,Retourenkoordinator,Logistik,"WMS, SAP SD",proc-042_retourenprozess_steuern.txt
+PROC-043,Produktionskennzahlen analysieren,Produktion,Produktionsleiter,Produktion,"MES, PowerBI",proc-043_produktionskennzahlen_analysieren.txt
+PROC-044,Notfallübung dokumentieren,Informationssicherheit,BCM Manager,Informationssicherheit,,proc-044_notfalluebung_dokumentieren.txt
+PROC-045,Strategieworkshop vorbereiten,Geschaeftsfuehrung,Geschäftsführer,Geschaeftsfuehrung,,proc-045_strategieworkshop_vorbereiten.txt
+PROC-046,Spesenabrechnung prüfen,Buchhaltung,Sachbearbeiter Reisekosten,Buchhaltung,TravelExpense,proc-046_spesenabrechnung_pruefen.txt
+PROC-047,Bankkonto abstimmen,Buchhaltung,Treasury Analyst,,"Banking Gateway, SAP FI",proc-047_bankkonto_abstimmen.txt
+PROC-048,Lizenznutzung bewerten,IT-Betrieb,IT Asset Manager,IT-Betrieb,,proc-048_lizenznutzung_bewerten.txt
+PROC-049,Risikobewertung aktualisieren,Informationssicherheit,Risk Manager,,RiskRadar,proc-049_risikobewertung_aktualisieren.txt
+PROC-050,Kampagnenfreigabe einholen,Marketing,Abteilungsleiter Marketing,Marketing,"Teams, SharePoint",proc-050_kampagnenfreigabe_einholen.txt
+PROC-051,Kündigungsbestätigung erstellen,Personal,HR Sachbearbeiter,Personal,"SuccessFactors, Exchange",proc-051_kuendigungsbestaetigung_erstellen.txt
+PROC-052,Maschinenparameter prüfen,Produktion,Prozessingenieur,,SCADA,proc-052_maschinenparameter_pruefen.txt
+PROC-053,Kundenportal-Störung analysieren,Kundenservice,Incident Coordinator,Kundenservice,"Customer Portal, Splunk",proc-053_kundenportal-stoerung_analysieren.txt
+PROC-054,EDI-Fehler nachbearbeiten,Einkauf,Integration Specialist,Einkauf,"EDI, SAP MM",proc-054_edi-fehler_nachbearbeiten.txt
+PROC-055,Zertifikatsablauf prüfen,Informationssicherheit,PKI Administrator,Informationssicherheit,"PKI, Monitoring",proc-055_zertifikatsablauf_pruefen.txt

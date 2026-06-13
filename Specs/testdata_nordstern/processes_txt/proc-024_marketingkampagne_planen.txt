@@ -1,0 +1,12 @@
+Prozess-ID: PROC-024
+Prozessname: Marketingkampagne planen
+Abteilung: Marketing
+Rolle: Marketing Manager
+Owner: Marketing
+
+Beschreibung:
+Der Marketing Manager plant Zielgruppe, Botschaft, Kanäle und Timing einer Kampagne. Inhalte und Freigaben werden mit Vertrieb und Produktmanagement abgestimmt.
+
+Genutzte Anwendungen:
+- PIM
+- SharePoint

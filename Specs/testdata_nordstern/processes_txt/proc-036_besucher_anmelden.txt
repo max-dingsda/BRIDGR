@@ -1,0 +1,11 @@
+Prozess-ID: PROC-036
+Prozessname: Besucher anmelden
+Abteilung: Facility Management
+Rolle: Empfangsmitarbeiter
+Owner: Facility Management
+
+Beschreibung:
+Der Empfang erfasst angekündigte Besucher, informiert den Gastgeber und stellt einen Besucherausweis bereit. Nach Besuchsende wird der Besuch abgeschlossen.
+
+Genutzte Anwendungen:
+- VisitorPro

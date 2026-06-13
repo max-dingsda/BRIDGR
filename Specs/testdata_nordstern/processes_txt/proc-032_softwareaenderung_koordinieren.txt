@@ -1,0 +1,12 @@
+Prozess-ID: PROC-032
+Prozessname: Softwareänderung koordinieren
+Abteilung: IT-Betrieb
+Rolle: Change Koordinator
+Owner: IT-Betrieb
+
+Beschreibung:
+Der Change Koordinator prüft geplante Softwareänderungen, sammelt Rückmeldungen der beteiligten Teams und bestätigt den abgestimmten Umsetzungstermin. Ergebnisse und offene Punkte werden dokumentiert.
+
+Genutzte Anwendungen:
+- Azure DevOps
+- GitHub

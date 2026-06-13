@@ -1,0 +1,12 @@
+Prozess-ID: PROC-025
+Prozessname: Produktdaten veröffentlichen
+Abteilung: Marketing
+Rolle: Content Manager
+Owner: Marketing
+
+Beschreibung:
+Der Content Manager pflegt Produkttexte, Bilder und technische Merkmale. Nach Freigabe werden die Daten für den Webshop bereitgestellt.
+
+Genutzte Anwendungen:
+- ContentHub
+- Webshop Portal

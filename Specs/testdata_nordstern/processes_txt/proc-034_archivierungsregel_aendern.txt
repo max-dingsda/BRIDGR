@@ -1,0 +1,11 @@
+Prozess-ID: PROC-034
+Prozessname: Archivierungsregel ändern
+Abteilung: IT-Betrieb
+Rolle: Application Owner
+Owner: IT-Betrieb
+
+Beschreibung:
+Der Application Owner bewertet eine gewünschte Anpassung an Aufbewahrungsregeln und stimmt sie mit Fachbereich und Recht ab. Nach Freigabe wird die Regel dokumentiert.
+
+Genutzte Anwendungen:
+- OpenText Archive

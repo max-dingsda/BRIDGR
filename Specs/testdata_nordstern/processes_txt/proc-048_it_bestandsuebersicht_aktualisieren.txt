@@ -1,0 +1,11 @@
+Prozess-ID: PROC-048
+Prozessname: IT-Bestandsübersicht aktualisieren
+Abteilung: IT-Betrieb
+Rolle: IT Asset Manager
+Owner: IT-Betrieb
+
+Beschreibung:
+Der IT Asset Manager aktualisiert eine Übersicht vorhandener IT-Komponenten und stimmt offene Zuordnungen mit den Fachbereichen ab. Dieser Prozess nennt bewusst keine konkrete unterstützende Anwendung.
+
+Genutzte Anwendungen:
+- Keine explizite Anwendungsunterstützung genannt

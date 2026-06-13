@@ -1,0 +1,15 @@
+Prozess-ID: PROC-029
+Prozessname: Passwort zurücksetzen
+Abteilung: IT-Betrieb
+Rolle: Service Desk Agent
+Owner: IT-Betrieb
+
+Beschreibung:
+Der Service Desk nimmt eine Anfrage zur Wiederherstellung des Benutzerzugangs entgegen, prüft die Berechtigung des Anfragenden und dokumentiert die Bearbeitung im Ticketsystem.
+
+Genutzte Anwendungen:
+- AD
+- ServiceNow
+
+Hinweis:
+AD ist ein Alias für Active Directory Domain Services.

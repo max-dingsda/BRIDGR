@@ -1,0 +1,15 @@
+Prozess-ID: PROC-016
+Prozessname: Produktionsauftrag starten
+Abteilung: Produktion
+Rolle: Meister Produktion
+Owner: Produktion
+
+Beschreibung:
+Der Meister prüft Materialverfügbarkeit, Maschinenstatus und Schichtplanung. Danach wird der Produktionsauftrag freigegeben und an die Fertigung übergeben.
+
+Genutzte Anwendungen:
+- MES
+- SAP PP
+
+Hinweis:
+MES ist ein Alias für MES FactoryLine. SAP PP ist bewusst nicht in der CMDB enthalten und soll als offener Kandidat erscheinen.

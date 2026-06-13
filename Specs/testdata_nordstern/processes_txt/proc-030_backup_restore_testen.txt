@@ -1,0 +1,11 @@
+Prozess-ID: PROC-030
+Prozessname: Backup Restore testen
+Abteilung: IT-Betrieb
+Rolle: Backup Administrator
+Owner: IT-Betrieb
+
+Beschreibung:
+Der Backup Administrator wählt ein Testobjekt aus, stellt es in einer Testumgebung wieder her und dokumentiert Ergebnis und Dauer. Auffälligkeiten werden als Aufgabe für den IT-Betrieb erfasst.
+
+Genutzte Anwendungen:
+- Veeam

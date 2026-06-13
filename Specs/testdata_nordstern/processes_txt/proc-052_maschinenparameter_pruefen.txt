@@ -1,0 +1,11 @@
+Prozess-ID: PROC-052
+Prozessname: Maschinenparameter prüfen
+Abteilung: Produktion
+Rolle: Prozessingenieur
+Owner: 
+
+Beschreibung:
+Der Prozessingenieur prüft aktuelle Maschinenparameter und vergleicht sie mit den freigegebenen Sollwerten. Auffälligkeiten werden mit Produktion und Qualität besprochen. Dieser Prozess hat bewusst keinen Owner-Eintrag.
+
+Genutzte Anwendungen:
+- SCADA

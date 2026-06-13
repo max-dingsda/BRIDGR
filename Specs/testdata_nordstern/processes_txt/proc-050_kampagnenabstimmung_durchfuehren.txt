@@ -1,0 +1,12 @@
+Prozess-ID: PROC-050
+Prozessname: Kampagnenabstimmung durchführen
+Abteilung: Marketing
+Rolle: Abteilungsleiter Marketing
+Owner: Marketing
+
+Beschreibung:
+Der Abteilungsleiter Marketing stimmt eine vorbereitete Kampagne mit Vertrieb und Produktmanagement ab. Kommentare werden gesammelt und die finale Version wird dokumentiert.
+
+Genutzte Anwendungen:
+- Teams
+- SharePoint

@@ -1,0 +1,12 @@
+Prozess-ID: PROC-011
+Prozessname: Kundenreklamation bearbeiten
+Abteilung: Kundenservice
+Rolle: Service Agent
+Owner: Kundenservice
+
+Beschreibung:
+Der Service Agent nimmt Reklamationen entgegen, dokumentiert Ursache und Auswirkung und bindet bei Qualitätsmängeln das Qualitätsmanagement ein. Der Fall bleibt bis zur Rückmeldung an den Kunden offen.
+
+Genutzte Anwendungen:
+- Zendesk
+- QMSuite
