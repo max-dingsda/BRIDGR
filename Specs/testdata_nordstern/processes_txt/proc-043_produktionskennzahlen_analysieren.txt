@@ -1,0 +1,12 @@
+Prozess-ID: PROC-043
+Prozessname: Produktionskennzahlen analysieren
+Abteilung: Produktion
+Rolle: Produktionsleiter
+Owner: Produktion
+
+Beschreibung:
+Der Produktionsleiter analysiert Mengen, Ausschuss und Anlagenverfügbarkeit. Auffällige Entwicklungen werden mit Schichtleitung und Controlling besprochen.
+
+Genutzte Anwendungen:
+- MES
+- PowerBI
