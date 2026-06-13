@@ -1,0 +1,12 @@
+Prozess-ID: PROC-031
+Prozessname: Server Monitoring prüfen
+Abteilung: IT-Betrieb
+Rolle: System Engineer
+Owner: IT-Betrieb
+
+Beschreibung:
+Der System Engineer prüft aktive Meldungen, bewertet betroffene Systeme und dokumentiert Maßnahmen. Wiederkehrende Auffälligkeiten werden zur Ursachenanalyse weitergegeben.
+
+Genutzte Anwendungen:
+- PRTG
+- Zabbix
