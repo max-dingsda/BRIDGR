@@ -26,6 +26,12 @@ QUERY_NODE_SCHEMA: dict[str, tuple[str, ...]] = {
     "OrgEinheit": ("name",),
     "Rolle": ("name", "archimate_type", "archimate_id", "role_only"),
     "Alias": ("normalized_name", "name", "source_kind"),
+    "Faehigkeit":    ("name", "archimate_type", "archimate_id"),
+    "Ressource":     ("name", "archimate_type", "archimate_id"),
+    "Ziel":          ("name", "archimate_type", "archimate_id"),
+    "Risiko":        ("name", "archimate_type", "archimate_id"),
+    "Datenobjekt":   ("name", "archimate_type", "archimate_id"),
+    "Infrastruktur": ("name", "archimate_type", "archimate_id"),
 }
 
 QUERY_RELATIONSHIP_PATTERNS: tuple[RelationshipPattern, ...] = (
@@ -47,6 +53,21 @@ QUERY_RELATIONSHIP_PATTERNS: tuple[RelationshipPattern, ...] = (
     RelationshipPattern("KÖNNTE_VERANTWORTEN", "OrgEinheit", "Prozess", ("score",)),
     RelationshipPattern("KANN_MEINEN", "Alias", "Anwendung", ("source_kind",)),
     RelationshipPattern("KANN_MEINEN", "Alias", "OrgEinheit", ("source_kind",)),
+    RelationshipPattern("BETRIFFT", "Risiko", "Anwendung"),
+    RelationshipPattern("BETRIFFT", "Risiko", "Prozess"),
+    RelationshipPattern("BETRIFFT", "Risiko", "Server"),
+    RelationshipPattern("BETRIFFT", "Risiko", "Schnittstelle"),
+    RelationshipPattern("MITIGIERT", "Faehigkeit", "Risiko"),
+    RelationshipPattern("MITIGIERT", "Anwendung", "Risiko"),
+    RelationshipPattern("REALISIERT", "Faehigkeit", "Prozess"),
+    RelationshipPattern("REALISIERT", "Faehigkeit", "Anwendung"),
+    RelationshipPattern("BENOETIGT", "Prozess", "Ressource"),
+    RelationshipPattern("BENOETIGT", "Anwendung", "Ressource"),
+    RelationshipPattern("UNTERSTUETZT", "Anwendung", "Ziel"),
+    RelationshipPattern("UNTERSTUETZT", "Prozess", "Ziel"),
+    RelationshipPattern("VERARBEITET", "Anwendung", "Datenobjekt"),
+    RelationshipPattern("VERARBEITET", "Prozess", "Datenobjekt"),
+    RelationshipPattern("LAEUFT_AUF", "Anwendung", "Infrastruktur"),
 )
 
 QUERY_RELATIONSHIP_SCHEMA: dict[str, tuple[str, ...]] = {}
@@ -189,6 +210,7 @@ def build_archimate_mapping_reference() -> str:
     try:
         raw = json.loads(mapping_path.read_text(encoding="utf-8"))
         import_map: dict[str, str] = raw.get("elements", {}).get("import", {})
+        ignore_list: list[str] = raw.get("elements", {}).get("ignore", [])
     except Exception:
         return ""
 
@@ -199,6 +221,13 @@ def build_archimate_mapping_reference() -> str:
         f"| {archimate_type:<22} | {bridgr_label} |"
         for archimate_type, bridgr_label in sorted(import_map.items())
     )
+    ignore_note = ""
+    if ignore_list:
+        ignore_note = (
+            "\n\nThe following ArchiMate types are intentionally ignored during import "
+            "(silently skipped, not modeled in BRIDGR):\n"
+            + ", ".join(sorted(ignore_list))
+        )
     return (
         "## ArchiMate-Mapping\n\n"
         "Nodes imported from ArchiMate carry the property `archimate_type`.\n"
@@ -210,4 +239,5 @@ def build_archimate_mapping_reference() -> str:
         "corresponding BRIDGR label (`:Anwendung`). Filter on `archimate_type` only when the\n"
         "user explicitly asks about the ArchiMate origin. Not all nodes carry `archimate_type`\n"
         "— only elements imported from ArchiMate files."
+        f"{ignore_note}"
     )
