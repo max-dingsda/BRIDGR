@@ -7,6 +7,7 @@ from pathlib import Path
 import streamlit as st
 
 from core.app_config import load_config
+from core.graph_schema import QUERY_NODE_SCHEMA, QUERY_RELATIONSHIP_PATTERNS
 from services.archimate_import_service import (
     ARCHIMATE_ELEMENT_TYPES,
     ARCHIMATE_RELATION_TYPES,
@@ -20,20 +21,15 @@ from services.archimate_export_service import (
     write_archimate_types,
 )
 
-_BRIDGR_LABELS: list[str] = ["Prozess", "Anwendung", "Schnittstelle", "Server", "OrgEinheit", "Rolle"]
-_LABEL_PAIRS: list[str] = [
-    "Anwendung->Prozess",
-    "Rolle->Prozess",
-    "OrgEinheit->Rolle",
-    "OrgEinheit->Prozess",
-    "Prozess->Prozess",
-    "Anwendung->Schnittstelle",
-    "Anwendung->Server",
-    "Schnittstelle->Server",
-    "OrgEinheit->Anwendung",
-    "OrgEinheit->Schnittstelle",
-    "OrgEinheit->Server",
-]
+_INTERNAL_LABELS = {"Alias"}
+_WEAK_RELATIONSHIP_TYPES = {"KÖNNTE_DIENEN", "KÖNNTE_VERANTWORTEN", "KANN_MEINEN"}
+
+_BRIDGR_LABELS: list[str] = [l for l in QUERY_NODE_SCHEMA if l not in _INTERNAL_LABELS]
+_LABEL_PAIRS: list[str] = list(dict.fromkeys(
+    f"{p.source_label}->{p.target_label}"
+    for p in QUERY_RELATIONSHIP_PATTERNS
+    if p.relationship_type not in _WEAK_RELATIONSHIP_TYPES
+))
 _NO_MAPPING = "(nicht mappen)"
 _RELATION_TYPE_OPTIONS = sorted(ARCHIMATE_RELATION_TYPES)
 
