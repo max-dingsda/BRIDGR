@@ -1,11 +1,16 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import pytest
 
 from core.graph_schema import (
     QUERY_NODE_SCHEMA,
+    QUERY_RELATIONSHIP_PATTERNS,
     QUERY_RELATIONSHIP_SCHEMA,
     build_query_schema_reference,
+    build_archimate_mapping_reference,
     validate_query_schema,
 )
 
@@ -98,3 +103,115 @@ def test_validator_rejects_unknown_node_property() -> None:
         validate_query_schema(
             "MATCH (p:Prozess) RETURN p.raw_name"
         )
+
+
+# --- New labels in QUERY_NODE_SCHEMA ---
+
+def test_new_labels_in_node_schema() -> None:
+    for label in ("Faehigkeit", "Ressource", "Ziel", "Risiko", "Datenobjekt", "Infrastruktur"):
+        assert label in QUERY_NODE_SCHEMA, f"{label} missing from QUERY_NODE_SCHEMA"
+
+
+def test_new_labels_have_required_properties() -> None:
+    for label in ("Faehigkeit", "Ressource", "Ziel", "Risiko", "Datenobjekt", "Infrastruktur"):
+        props = QUERY_NODE_SCHEMA[label]
+        assert "name" in props
+        assert "archimate_type" in props
+        assert "archimate_id" in props
+
+
+# --- New relationship patterns in QUERY_RELATIONSHIP_PATTERNS ---
+
+def test_new_relationship_patterns_present() -> None:
+    patterns = {(p.relationship_type, p.source_label, p.target_label) for p in QUERY_RELATIONSHIP_PATTERNS}
+    expected = [
+        ("BETRIFFT", "Risiko", "Anwendung"),
+        ("BETRIFFT", "Risiko", "Prozess"),
+        ("BETRIFFT", "Risiko", "Server"),
+        ("BETRIFFT", "Risiko", "Schnittstelle"),
+        ("MITIGIERT", "Faehigkeit", "Risiko"),
+        ("MITIGIERT", "Anwendung", "Risiko"),
+        ("REALISIERT", "Faehigkeit", "Prozess"),
+        ("REALISIERT", "Faehigkeit", "Anwendung"),
+        ("BENOETIGT", "Prozess", "Ressource"),
+        ("BENOETIGT", "Anwendung", "Ressource"),
+        ("UNTERSTUETZT", "Anwendung", "Ziel"),
+        ("UNTERSTUETZT", "Prozess", "Ziel"),
+        ("VERARBEITET", "Anwendung", "Datenobjekt"),
+        ("VERARBEITET", "Prozess", "Datenobjekt"),
+        ("LAEUFT_AUF", "Anwendung", "Infrastruktur"),
+    ]
+    for pattern in expected:
+        assert pattern in patterns, f"Pattern {pattern} missing from QUERY_RELATIONSHIP_PATTERNS"
+
+
+# --- build_query_schema_reference includes new labels ---
+
+def test_schema_reference_includes_new_labels() -> None:
+    ref = build_query_schema_reference()
+    for label in ("Faehigkeit", "Ressource", "Ziel", "Risiko", "Datenobjekt", "Infrastruktur"):
+        assert label in ref, f"{label} missing from schema reference"
+
+
+# --- validator accepts new labels ---
+
+def test_validator_accepts_risiko_label() -> None:
+    validate_query_schema("MATCH (r:Risiko)-[:BETRIFFT]->(a:Anwendung) RETURN r.name, a.name")
+
+
+def test_validator_accepts_faehigkeit_label() -> None:
+    validate_query_schema("MATCH (f:Faehigkeit)-[:REALISIERT]->(p:Prozess) RETURN f.name, p.name")
+
+
+def test_validator_accepts_laeuft_auf() -> None:
+    validate_query_schema("MATCH (a:Anwendung)-[:LAEUFT_AUF]->(i:Infrastruktur) RETURN a.name, i.name")
+
+
+# --- build_archimate_mapping_reference handles ignore list ---
+
+def _make_archimate_ref_from_mapping(raw: dict) -> str:
+    """Helper: build an archimate mapping reference string directly from a dict."""
+    import_map: dict[str, str] = raw.get("elements", {}).get("import", {})
+    ignore_list: list[str] = raw.get("elements", {}).get("ignore", [])
+    if not import_map:
+        return ""
+    rows = "\n".join(
+        f"| {k:<22} | {v} |"
+        for k, v in sorted(import_map.items())
+    )
+    ignore_note = ""
+    if ignore_list:
+        ignore_note = (
+            "\n\nThe following ArchiMate types are intentionally ignored during import "
+            "(silently skipped, not modeled in BRIDGR):\n"
+            + ", ".join(sorted(ignore_list))
+        )
+    return (
+        "## ArchiMate-Mapping\n\n"
+        "| archimate_type         | BRIDGR-Label  |\n"
+        "|------------------------|---------------|\n"
+        f"{rows}"
+        f"{ignore_note}"
+    )
+
+
+def test_archimate_mapping_reference_includes_ignore_note() -> None:
+    mapping_data = {
+        "elements": {
+            "import": {"BusinessProcess": "Prozess"},
+            "ignore": ["Grouping", "Location"],
+        }
+    }
+    ref = _make_archimate_ref_from_mapping(mapping_data)
+    assert "Grouping" in ref
+    assert "intentionally ignored" in ref
+
+
+def test_archimate_mapping_reference_no_ignore_note_when_empty() -> None:
+    mapping_data = {
+        "elements": {
+            "import": {"BusinessProcess": "Prozess"},
+        }
+    }
+    ref = _make_archimate_ref_from_mapping(mapping_data)
+    assert "intentionally ignored" not in ref
