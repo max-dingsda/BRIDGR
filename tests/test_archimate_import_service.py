@@ -152,7 +152,7 @@ def test_select_name_empty_returns_empty() -> None:
 def test_parse_minimal_xml(tmp_path: Path) -> None:
     xml_file = tmp_path / "model.xml"
     xml_file.write_text(_MINIMAL_XML, encoding="utf-8")
-    elements, relations = _parse_archimate_xml(xml_file, _DEFAULT_MAPPING)
+    elements, relations, _ = _parse_archimate_xml(xml_file, _DEFAULT_MAPPING)
     assert len(elements) == 2
     assert elements[0].archimate_id == "id-1"
     assert elements[0].archimate_type == "BusinessProcess"
@@ -167,7 +167,7 @@ def test_parse_minimal_xml(tmp_path: Path) -> None:
 def test_parse_multilang_prefers_german(tmp_path: Path) -> None:
     xml_file = tmp_path / "multi.xml"
     xml_file.write_text(_MULTILANG_XML, encoding="utf-8")
-    elements, _ = _parse_archimate_xml(xml_file, _DEFAULT_MAPPING)
+    elements, _, __ = _parse_archimate_xml(xml_file, _DEFAULT_MAPPING)
     assert elements[0].name == "Posteingang"
     assert elements[1].name == "Bestellabwicklung"
 
@@ -175,7 +175,7 @@ def test_parse_multilang_prefers_german(tmp_path: Path) -> None:
 def test_parse_unknown_type_skipped(tmp_path: Path) -> None:
     xml_file = tmp_path / "unknown.xml"
     xml_file.write_text(_UNKNOWN_TYPE_XML, encoding="utf-8")
-    elements, _ = _parse_archimate_xml(xml_file, _DEFAULT_MAPPING)
+    elements, _, __ = _parse_archimate_xml(xml_file, _DEFAULT_MAPPING)
     # Capability not in import mapping → skipped; BusinessProcess included
     assert len(elements) == 1
     assert elements[0].name == "Prozess A"
@@ -466,3 +466,142 @@ def test_load_archimate_mapping_reads_existing_file(tmp_path: Path, monkeypatch)
     mapping_path.write_text(json.dumps({"custom": True}), encoding="utf-8")
     mapping = load_archimate_mapping(mapping_path)
     assert mapping.get("custom") is True
+
+
+# --- Three-state ignore logic ---
+
+_IGNORE_XML = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.opengroup.org/xsd/archimate/3.0/"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       identifier="id-model-ignore" version="3.0">
+  <elements>
+    <element identifier="id-30" xsi:type="Grouping">
+      <name xml:lang="de">Cluster A</name>
+    </element>
+    <element identifier="id-31" xsi:type="BusinessProcess">
+      <name xml:lang="de">Prozess B</name>
+    </element>
+  </elements>
+  <relationships/>
+</model>
+"""
+
+_MAPPING_WITH_IGNORE = {
+    **_DEFAULT_MAPPING,
+    "elements": {
+        **_DEFAULT_MAPPING["elements"],
+        "import": {
+            "BusinessProcess": "Prozess",
+            "ApplicationComponent": "Anwendung",
+            "BusinessActor": "OrgEinheit",
+        },
+        "ignore": ["Grouping", "Location"],
+    },
+}
+
+
+def test_ignore_list_skips_silently(tmp_path: Path) -> None:
+    """Elements whose type is in elements.ignore are skipped silently — no skipped_types entry."""
+    xml_file = tmp_path / "ignore.xml"
+    xml_file.write_text(_IGNORE_XML, encoding="utf-8")
+    elements, _, skipped = _parse_archimate_xml(xml_file, _MAPPING_WITH_IGNORE)
+    # Only BusinessProcess should be imported
+    assert len(elements) == 1
+    assert elements[0].name == "Prozess B"
+    # Grouping is in ignore list → no skipped_types entry
+    assert "Grouping" not in skipped
+
+
+def test_uncategorized_type_in_skipped_types(tmp_path: Path) -> None:
+    """An element type that is neither in import nor in ignore goes to skipped_types."""
+    xml = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.opengroup.org/xsd/archimate/3.0/"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       identifier="id-model-unk" version="3.0">
+  <elements>
+    <element identifier="id-40" xsi:type="UnknownFutureType">
+      <name xml:lang="de">Etwas Unbekanntes</name>
+    </element>
+    <element identifier="id-41" xsi:type="BusinessProcess">
+      <name xml:lang="de">Prozess C</name>
+    </element>
+  </elements>
+  <relationships/>
+</model>
+"""
+    xml_file = tmp_path / "unknown.xml"
+    xml_file.write_text(xml, encoding="utf-8")
+    elements, _, skipped = _parse_archimate_xml(xml_file, _DEFAULT_MAPPING)
+    assert len(elements) == 1
+    assert "UnknownFutureType" in skipped
+    assert skipped["UnknownFutureType"] == 1
+
+
+def test_new_label_faehigkeit_imported(tmp_path: Path) -> None:
+    """Capability type maps to Faehigkeit label."""
+    xml = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.opengroup.org/xsd/archimate/3.0/"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       identifier="id-model-cap" version="3.0">
+  <elements>
+    <element identifier="id-50" xsi:type="Capability">
+      <name xml:lang="de">Lieferfaehigkeit</name>
+    </element>
+  </elements>
+  <relationships/>
+</model>
+"""
+    mapping_with_capability = {
+        **_DEFAULT_MAPPING,
+        "elements": {
+            **_DEFAULT_MAPPING["elements"],
+            "import": {
+                **_DEFAULT_MAPPING["elements"]["import"],
+                "Capability": "Faehigkeit",
+            },
+        },
+    }
+    xml_file = tmp_path / "capability.xml"
+    xml_file.write_text(xml, encoding="utf-8")
+    elements, _, skipped = _parse_archimate_xml(xml_file, mapping_with_capability)
+    assert len(elements) == 1
+    assert elements[0].bridgr_label == "Faehigkeit"
+    assert elements[0].archimate_type == "Capability"
+    assert "Capability" not in skipped
+
+
+def test_new_label_risiko_imported(tmp_path: Path) -> None:
+    """Risk type maps to Risiko label."""
+    xml = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.opengroup.org/xsd/archimate/3.0/"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       identifier="id-model-risk" version="3.0">
+  <elements>
+    <element identifier="id-60" xsi:type="Risk">
+      <name xml:lang="de">Datenverlust</name>
+    </element>
+  </elements>
+  <relationships/>
+</model>
+"""
+    mapping_with_risk = {
+        **_DEFAULT_MAPPING,
+        "elements": {
+            **_DEFAULT_MAPPING["elements"],
+            "import": {
+                **_DEFAULT_MAPPING["elements"]["import"],
+                "Risk": "Risiko",
+            },
+        },
+    }
+    xml_file = tmp_path / "risk.xml"
+    xml_file.write_text(xml, encoding="utf-8")
+    elements, _, skipped = _parse_archimate_xml(xml_file, mapping_with_risk)
+    assert len(elements) == 1
+    assert elements[0].bridgr_label == "Risiko"
+    assert elements[0].archimate_type == "Risk"
+    assert "Risk" not in skipped
