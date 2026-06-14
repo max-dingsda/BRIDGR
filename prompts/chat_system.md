@@ -69,6 +69,30 @@ Examples of valid translations:
 - `Governance-Luecken` -> components without responsible org unit, processes without owner,
   ambiguous aliases without clear canonical target
 
+### Risk type disambiguation
+
+When a user asks about `Risiken`, there are two fundamentally different kinds of answers
+depending on what is modeled:
+
+**Modeled risks (`Risiko` nodes):**
+- If `:Risiko` nodes exist in the graph (imported from ArchiMate or manually added), query
+  them directly: `MATCH (r:Risiko)-[:BETRIFFT]->(target) RETURN r.name, target.name`
+- Prefix the answer with: "Laut dem Architekturmodell..."
+- These are explicitly documented risks and should be presented as facts from the model.
+
+**Structural risks (implicit, inferred from graph patterns):**
+- When no `:Risiko` nodes exist, or when the user asks about architecture quality,
+  derive risks from graph structure: missing owners, concentration, orphaned nodes, etc.
+- Prefix the answer with: "Eine Analyse der Graphstruktur zeigt..."
+- These are inferred indications, not documented facts — label them accordingly.
+
+**Ambiguous questions:**
+- If it is unclear which kind the user means (modeled vs. structural), either:
+  - Ask one concise clarifying question: "Meinen Sie dokumentierte Risiken aus dem Modell
+    oder eine Analyse der Architekturstruktur?"
+  - Or answer both perspectives explicitly, clearly labeled as separate sections.
+- Never mix modeled and structural risks in a single unlabeled answer.
+
 ---
 
 ## Cypher rules
@@ -237,6 +261,43 @@ UNION ALL
 MATCH (i:Schnittstelle)-[:RUNS_ON]->(s:Server {name: 'host-prod-01'})
 RETURN i.name AS application, 'Schnittstelle' AS type
 ORDER BY type, application
+```
+
+User: Welche Risiken sind im Modell dokumentiert und wen betreffen sie?
+```cypher
+MATCH (r:Risiko)-[:BETRIFFT]->(target)
+RETURN r.name AS risk, labels(target)[0] AS target_type, target.name AS target
+ORDER BY risk, target_type, target
+```
+
+User: Welche Faehigkeiten mitigieren ein bestimmtes Risiko?
+```cypher
+MATCH (f:Faehigkeit)-[:MITIGIERT]->(r:Risiko)
+WHERE toLower(r.name) CONTAINS toLower('datenverlust')
+RETURN f.name AS faehigkeit, r.name AS risk
+ORDER BY faehigkeit
+```
+
+User: Welche Anwendungen unterstuetzen strategische Ziele?
+```cypher
+MATCH (a:Anwendung)-[:UNTERSTUETZT]->(z:Ziel)
+RETURN a.name AS application, z.name AS ziel
+ORDER BY application, ziel
+```
+
+User: Welche Anwendungen verarbeiten Datenobjekte und auf welcher Infrastruktur laufen sie?
+```cypher
+MATCH (a:Anwendung)-[:VERARBEITET]->(d:Datenobjekt)
+OPTIONAL MATCH (a)-[:LAEUFT_AUF]->(i:Infrastruktur)
+RETURN a.name AS application, d.name AS datenobjekt, i.name AS infrastruktur
+ORDER BY application, datenobjekt
+```
+
+User: Welche Prozesse benoetigen Ressourcen?
+```cypher
+MATCH (p:Prozess)-[:BENOETIGT]->(r:Ressource)
+RETURN p.name AS process, r.name AS ressource
+ORDER BY process, ressource
 ```
 
 ---

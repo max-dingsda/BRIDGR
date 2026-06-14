@@ -228,6 +228,9 @@ def test_run_pipeline_writes_artifacts_for_full_runs(tmp_path: Path, monkeypatch
         def execute_read(self, query: str, parameters=None):
             return []
 
+        def execute_read_unvalidated(self, query: str, parameters=None):
+            return []
+
         def ensure_constraints(self) -> None:
             return None
 
@@ -279,6 +282,9 @@ def test_run_pipeline_partial_without_explicit_files_returns_empty_run(tmp_path:
             return []
 
         def execute_read(self, query: str, parameters=None):
+            return []
+
+        def execute_read_unvalidated(self, query: str, parameters=None):
             return []
 
         def ensure_constraints(self) -> None:
@@ -340,6 +346,9 @@ def test_run_pipeline_reports_progress_updates(tmp_path: Path, monkeypatch) -> N
             return []
 
         def execute_read(self, query: str, parameters=None):
+            return []
+
+        def execute_read_unvalidated(self, query: str, parameters=None):
             return []
 
         def ensure_constraints(self) -> None:

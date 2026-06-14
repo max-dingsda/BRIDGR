@@ -168,3 +168,45 @@ Frage: Soll beim Zurückziehen einer manuell_bestaetigt-Bestätigung der Alias m
 Oder bleibt der Alias dauerhaft, weil der Bezeichner real ist (er wurde im Dokument gefunden)?
 
 Aktuell: kein Löschpfad — Alias bleibt bis zur nächsten Diskussion unangetastet.
+
+23. Im Review der Zuordnung Prozess-Anwendung sollte eine Bestätigung eines schwachen Match dazu führen dass alle gleichartigen Matches ebenfalls bestätigt werden. - offen
+Beispiel:
+Nach dem Import der Testdaten aus \Specs\testdata_nordstern existieren unter anderem folgende Vorschläge:
+
+Prozess Budgetplanung konsolidieren - Anwendung SAP CO - Match SAP S/4 HANA Co
+Prozess Forecast aktualisieren - Anwendung SAP CO - Match SAP S/4 Hana Co
+
+Präzisierung "gleichartig":
+Gemeint ist: gleicher raw_name → gleiche CMDB-App (cmdb_id), prozessübergreifend.
+Nicht gemeint: gleicher raw_name → unterschiedliche CMDB-Apps (das wäre ein anderes Review-Problem).
+
+Verhältnis zum Alias-Mechanismus:
+Nach einer Bestätigung wird bereits ein (:Alias)-[:KANN_MEINEN]->(:Anwendung) angelegt.
+Damit sind zukünftige Importe abgedeckt — "SAP CO" wird beim nächsten Import direkt aufgelöst.
+Was fehlt: die rückwirkende Bestätigung bereits existierender KÖNNTE_DIENEN-Kanten mit demselben
+raw_name → cmdb_id-Paar. Das ist der eigentliche Kern des Vorschlags.
+
+Gegenargument (vor Implementierung zu prüfen):
+Im Prozessmanagement kann derselbe Bezeichner in unterschiedlichen Prozesskontexten bewusst
+unterschiedliche Dinge meinen. "SAP CO" könnte in Prozess A das Controlling-Modul und in Prozess B
+einen anderen Einsatzbereich desselben Systems bezeichnen — und damit in Prozess B zu einer anderen
+CMDB-App gehören. Eine automatische prozessübergreifende Bestätigung würde diese Unterscheidung
+unmöglich machen.
+
+Zu klären: Ist im Nordstern-Testdatensatz (und generell im Anwendungsfall) davon auszugehen, dass
+gleiche Bezeichner immer dieselbe Entität meinen? Oder gibt es Gegenbeispiele aus der Praxis?
+
+24. Chat: fehlende Verarbeitungsrückmeldung nach Fragebsendung - offen
+Nach dem Absenden einer Frage wird das Eingabefeld geleert. Als einziges Feedback ist das
+Streamlit-Spinner-Icon oben rechts im Browser-Tab sichtbar — ein subtiles, browsernahes Signal
+das Nutzern ohne Gewöhnung kaum auffällt.
+
+Problem: Für Anfragen mit mehreren Graphabfragen und LLM-Synthese (z.B. offene Analysefragen)
+kann die Verarbeitungszeit deutlich spürbar sein, besonders bei lokalen Modellen mit hoher Latenz.
+Ohne sichtbare Rückmeldung entsteht der Eindruck, die Anwendung hänge oder die Eingabe sei
+verloren gegangen. "Daran gewöhnt haben" ist kein akzeptabler UX-Zustand.
+
+Gewünschtes Verhalten (Richtung, nicht Lösung):
+Der Nutzer soll unmittelbar nach dem Absenden erkennen können, dass BRIDGR die Anfrage
+verarbeitet. Lösungsraum: Spinner im Chat-Bereich selbst, Wiederanzeige der Frage als
+"ausstehende Nachricht", Statuszeile, o.ä. — Entscheidung offen.

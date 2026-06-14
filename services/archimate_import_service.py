@@ -34,7 +34,10 @@ ARCHIMATE_RELATION_TYPES: list[str] = [
     "Triggering", "Flow", "Specialization",
 ]
 
-_BRIDGR_LABELS = {"Prozess", "Anwendung", "Schnittstelle", "Server", "OrgEinheit", "Rolle"}
+_BRIDGR_LABELS = {
+    "Prozess", "Anwendung", "Schnittstelle", "Server", "OrgEinheit", "Rolle",
+    "Faehigkeit", "Ressource", "Ziel", "Risiko", "Datenobjekt", "Infrastruktur",
+}
 
 _DEFAULT_MAPPING_PATH = "data/archimate_mapping.json"
 
@@ -85,9 +88,11 @@ def persist_archimate_import(config: AppConfig, source_path: Path) -> ArchiMateI
     from services.runtime_service import get_session_neo4j_client, write_debug_log
 
     mapping = load_archimate_mapping()
-    elements, relations = _parse_archimate_xml(source_path, mapping)
+    elements, relations, parse_skipped_types = _parse_archimate_xml(source_path, mapping)
     neo4j_client = get_session_neo4j_client(config)
     result = _import_to_neo4j(neo4j_client, elements, relations, mapping, source_path.name)
+    for archimate_type, count in parse_skipped_types.items():
+        result.skipped_types[archimate_type] = result.skipped_types.get(archimate_type, 0) + count
     write_debug_log(
         config,
         "archimate_import",
@@ -107,7 +112,7 @@ def persist_archimate_import(config: AppConfig, source_path: Path) -> ArchiMateI
 def _parse_archimate_xml(
     source_path: Path,
     mapping: dict,
-) -> tuple[list[ArchiMateElement], list[ArchiMateRelation]]:
+) -> tuple[list[ArchiMateElement], list[ArchiMateRelation], dict[str, int]]:
     try:
         tree = ET.parse(source_path)
     except ET.ParseError as exc:
@@ -115,9 +120,11 @@ def _parse_archimate_xml(
 
     root = tree.getroot()
     import_map: dict[str, str] = mapping.get("elements", {}).get("import", {})
+    ignore_set: set[str] = set(mapping.get("elements", {}).get("ignore", []))
     language_preference: list[str] = mapping.get("language_preference", ["de", "german", "en", "english"])
 
     elements: list[ArchiMateElement] = []
+    skipped_types: dict[str, int] = {}
     for elem in root.iter(f"{{{_ARCHIMATE_NS}}}element"):
         archimate_id = elem.get("identifier", "")
         raw_type = elem.get(f"{{{_XSI_NS}}}type", "")
@@ -133,6 +140,8 @@ def _parse_archimate_xml(
 
         bridgr_label = import_map.get(archimate_type)
         if bridgr_label is None:
+            if archimate_type not in ignore_set:
+                skipped_types[archimate_type] = skipped_types.get(archimate_type, 0) + 1
             continue
 
         elements.append(ArchiMateElement(
@@ -158,7 +167,7 @@ def _parse_archimate_xml(
             target_archimate_id=target_id,
         ))
 
-    return elements, relations
+    return elements, relations, skipped_types
 
 
 def _select_name(names: list[tuple[str, str]], language_preference: list[str]) -> str:

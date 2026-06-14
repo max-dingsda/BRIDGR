@@ -600,9 +600,9 @@ def test_sync_cmdb_uses_canonical_org_unit_name() -> None:
         NormalizedCmdb(entities=[], relations=[]),
         owner_assignments={"app-1": "VERTRIEB"},
     )
-    verantwortet_params = [
+    org_unit_params = [
         params for query, params in client.queries
         if params and "org_unit_name" in params
     ]
-    assert len(verantwortet_params) == 1
-    assert verantwortet_params[0]["org_unit_name"] == "Vertrieb"
+    assert len(org_unit_params) == 2  # DELETE KÖNNTE_VERANTWORTEN + MERGE VERANTWORTET
+    assert all(p["org_unit_name"] == "Vertrieb" for p in org_unit_params)
