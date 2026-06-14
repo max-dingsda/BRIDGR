@@ -25,6 +25,7 @@ QUERY_NODE_SCHEMA: dict[str, tuple[str, ...]] = {
     "Server": ("id", "name", "server_type", "archimate_type", "archimate_id"),
     "OrgEinheit": ("name",),
     "Rolle": ("name", "archimate_type", "archimate_id", "role_only"),
+    "Alias": ("normalized_name", "name", "source_kind"),
 }
 
 QUERY_RELATIONSHIP_PATTERNS: tuple[RelationshipPattern, ...] = (
@@ -44,6 +45,8 @@ QUERY_RELATIONSHIP_PATTERNS: tuple[RelationshipPattern, ...] = (
     RelationshipPattern("KÖNNTE_VERANTWORTEN", "OrgEinheit", "Schnittstelle", ("score",)),
     RelationshipPattern("KÖNNTE_VERANTWORTEN", "OrgEinheit", "Server", ("score",)),
     RelationshipPattern("KÖNNTE_VERANTWORTEN", "OrgEinheit", "Prozess", ("score",)),
+    RelationshipPattern("KANN_MEINEN", "Alias", "Anwendung", ("source_kind",)),
+    RelationshipPattern("KANN_MEINEN", "Alias", "OrgEinheit", ("source_kind",)),
 )
 
 QUERY_RELATIONSHIP_SCHEMA: dict[str, tuple[str, ...]] = {}

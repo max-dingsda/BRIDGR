@@ -195,6 +195,14 @@ class GraphWriter:
             canonical = self._resolve_org_unit_canonical_name(client, org_unit_name)
             client.execute_write(
                 """
+                MATCH (o:OrgEinheit {name: $org_unit_name})-[r:KÖNNTE_VERANTWORTEN]->(target)
+                WHERE target.id = $entity_id
+                DELETE r
+                """,
+                {"org_unit_name": canonical, "entity_id": entity_id},
+            )
+            client.execute_write(
+                """
                 MERGE (o:OrgEinheit {name: $org_unit_name})
                 MATCH (target)
                 WHERE target.id = $entity_id
@@ -603,7 +611,7 @@ class GraphWriter:
         return [dict(row) for row in rows]
 
     def get_rejected_decisions_from_neo4j(self, client: Neo4jClient) -> list[dict]:
-        rows = client.execute_read(
+        rows = client.execute_read_unvalidated(
             """
             MATCH (ab:Ablehnung)
             RETURN ab.prozess_name AS prozess,
