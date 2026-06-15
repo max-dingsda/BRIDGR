@@ -40,8 +40,7 @@
       "TechnologyProcess": "Prozess",
       "TechnologyInteraction": "Prozess",
       "TechnologyEvent": "Prozess",
-      "TechnologyInterface": "Schnittstelle",
-      "TechnologyCollaboration": "Prozess"
+      "TechnologyInterface": "Schnittstelle"
     },
     "export": {
       "Prozess": "BusinessProcess",
@@ -49,7 +48,10 @@
       "Schnittstelle": "ApplicationInterface",
       "Server": "Node",
       "OrgEinheit": "BusinessActor",
-      "Rolle": "BusinessRole"
+      "Rolle": "BusinessRole",
+      "Faehigkeit": "Capability",
+      "Ressource": "Resource",
+      "Datenobjekt": "DataObject"
     }
   },
   "relationships": {

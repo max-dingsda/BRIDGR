@@ -1,25 +1,25 @@
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
-from scripts.generate_nordstern_archimate import ARCHIMATE_NS, build_model
+from scripts.generate_nordstern_archimate import ARCHIMATE_NS_30, ARCHIMATE_NS_31, build_model
 
 
 def test_build_model_creates_archimate_31_model() -> None:
     tree, assumptions = build_model()
     root = tree.getroot()
 
-    assert root.tag == f"{{{ARCHIMATE_NS}}}model"
+    assert root.tag == f"{{{ARCHIMATE_NS_31}}}model"
     assert "archimate3_Model.xsd" in root.attrib["{http://www.w3.org/2001/XMLSchema-instance}schemaLocation"]
     assert assumptions
 
-    elements = root.find(f"{{{ARCHIMATE_NS}}}elements")
-    relationships = root.find(f"{{{ARCHIMATE_NS}}}relationships")
+    elements = root.find(f"{{{ARCHIMATE_NS_31}}}elements")
+    relationships = root.find(f"{{{ARCHIMATE_NS_31}}}relationships")
     assert elements is not None
     assert relationships is not None
 
     element_types = {
         element.attrib["{http://www.w3.org/2001/XMLSchema-instance}type"]
-        for element in elements.findall(f"{{{ARCHIMATE_NS}}}element")
+        for element in elements.findall(f"{{{ARCHIMATE_NS_31}}}element")
     }
     assert "BusinessProcess" in element_types
     assert "BusinessActor" in element_types
@@ -38,7 +38,7 @@ def test_build_model_creates_archimate_31_model() -> None:
 
     relationship_types = {
         relationship.attrib["{http://www.w3.org/2001/XMLSchema-instance}type"]
-        for relationship in relationships.findall(f"{{{ARCHIMATE_NS}}}relationship")
+        for relationship in relationships.findall(f"{{{ARCHIMATE_NS_31}}}relationship")
     }
     assert "Assignment" in relationship_types
     assert "Serving" in relationship_types
@@ -49,21 +49,29 @@ def test_build_model_creates_archimate_31_model() -> None:
 def test_generated_model_contains_required_risk_to_requirement_influence() -> None:
     tree, _ = build_model()
     root = tree.getroot()
-    elements = root.find(f"{{{ARCHIMATE_NS}}}elements")
-    relationships = root.find(f"{{{ARCHIMATE_NS}}}relationships")
+    elements = root.find(f"{{{ARCHIMATE_NS_31}}}elements")
+    relationships = root.find(f"{{{ARCHIMATE_NS_31}}}relationships")
 
     identifiers_by_name = {
-        element.findtext(f"{{{ARCHIMATE_NS}}}name"): element.attrib["identifier"]
-        for element in elements.findall(f"{{{ARCHIMATE_NS}}}element")
+        element.findtext(f"{{{ARCHIMATE_NS_31}}}name"): element.attrib["identifier"]
+        for element in elements.findall(f"{{{ARCHIMATE_NS_31}}}element")
     }
     risk_id = identifiers_by_name["Risiko inkonsistenter Verantwortlichkeits- und Systemsicht"]
     requirement_id = identifiers_by_name["Kritische Prozesse und Systeme muessen dokumentierte Verantwortliche haben"]
 
     matches = [
         rel
-        for rel in relationships.findall(f"{{{ARCHIMATE_NS}}}relationship")
+        for rel in relationships.findall(f"{{{ARCHIMATE_NS_31}}}relationship")
         if rel.attrib["source"] == risk_id
         and rel.attrib["target"] == requirement_id
         and rel.attrib["{http://www.w3.org/2001/XMLSchema-instance}type"] == "Influence"
     ]
     assert matches
+
+
+def test_build_model_can_emit_archi_compatible_30_namespace() -> None:
+    tree, _ = build_model(archimate_ns=ARCHIMATE_NS_30)
+    root = tree.getroot()
+
+    assert root.tag == f"{{{ARCHIMATE_NS_30}}}model"
+    assert ARCHIMATE_NS_30 in root.attrib["{http://www.w3.org/2001/XMLSchema-instance}schemaLocation"]

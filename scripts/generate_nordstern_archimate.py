@@ -9,16 +9,17 @@ from typing import Iterable
 import xml.etree.ElementTree as ET
 
 
-ARCHIMATE_NS = "http://www.opengroup.org/xsd/archimate/3.1/"
+ARCHIMATE_NS_31 = "http://www.opengroup.org/xsd/archimate/3.1/"
+ARCHIMATE_NS_30 = "http://www.opengroup.org/xsd/archimate/3.0/"
 DC_NS = "http://purl.org/dc/elements/1.1/"
 XSI_NS = "http://www.w3.org/2001/XMLSchema-instance"
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATASET_DIR = PROJECT_ROOT / "Specs" / "testdata_nordstern"
 OUTPUT_XML = DATASET_DIR / "nordstern_archimate_3_1.xml"
+OUTPUT_XML_ARCHI = DATASET_DIR / "nordstern_archimate_archi_compatible_3_0.xml"
 OUTPUT_ASSUMPTIONS = DATASET_DIR / "nordstern_archimate_assumptions.md"
 
-ET.register_namespace("", ARCHIMATE_NS)
 ET.register_namespace("dc", DC_NS)
 ET.register_namespace("xsi", XSI_NS)
 
@@ -274,7 +275,10 @@ class ModelBuilder:
         return identifier
 
 
-def build_model(dataset_dir: Path = DATASET_DIR) -> tuple[ET.ElementTree, list[str]]:
+def build_model(
+    dataset_dir: Path = DATASET_DIR,
+    archimate_ns: str = ARCHIMATE_NS_31,
+) -> tuple[ET.ElementTree, list[str]]:
     processes = load_processes(dataset_dir)
     entities = load_entities(dataset_dir)
     relations = load_relations(dataset_dir)
@@ -405,50 +409,50 @@ def build_model(dataset_dir: Path = DATASET_DIR) -> tuple[ET.ElementTree, list[s
     )
 
     model = ET.Element(
-        f"{{{ARCHIMATE_NS}}}model",
+        f"{{{archimate_ns}}}model",
         {
             "identifier": _identifier("model", "nordstern-archimate-3.1"),
             f"{{{XSI_NS}}}schemaLocation": (
-                f"{ARCHIMATE_NS} {ARCHIMATE_NS}archimate3_Model.xsd "
-                f"{DC_NS} {ARCHIMATE_NS}dc.xsd"
+                f"{archimate_ns} {archimate_ns}archimate3_Model.xsd "
+                f"{DC_NS} {archimate_ns}dc.xsd"
             ),
         },
     )
-    ET.SubElement(model, f"{{{ARCHIMATE_NS}}}name", {"{http://www.w3.org/XML/1998/namespace}lang": "de"}).text = (
+    ET.SubElement(model, f"{{{archimate_ns}}}name", {"{http://www.w3.org/XML/1998/namespace}lang": "de"}).text = (
         "Nordstern Werke GmbH - ArchiMate 3.1 Testmodell"
     )
-    metadata = ET.SubElement(model, f"{{{ARCHIMATE_NS}}}metadata")
-    ET.SubElement(metadata, f"{{{ARCHIMATE_NS}}}schema").text = DC_NS
-    ET.SubElement(metadata, f"{{{ARCHIMATE_NS}}}schemaversion").text = "1.1"
+    metadata = ET.SubElement(model, f"{{{archimate_ns}}}metadata")
+    ET.SubElement(metadata, f"{{{archimate_ns}}}schema").text = DC_NS
+    ET.SubElement(metadata, f"{{{archimate_ns}}}schemaversion").text = "1.1"
     ET.SubElement(metadata, f"{{{DC_NS}}}title").text = "BRIDGR Nordstern Testmodell"
     ET.SubElement(metadata, f"{{{DC_NS}}}creator").text = "Codex"
 
-    elements_node = ET.SubElement(model, f"{{{ARCHIMATE_NS}}}elements")
+    elements_node = ET.SubElement(model, f"{{{archimate_ns}}}elements")
     for element in sorted(builder.elements.values(), key=lambda item: (item["type"], item["name"])):
         element_node = ET.SubElement(
             elements_node,
-            f"{{{ARCHIMATE_NS}}}element",
+            f"{{{archimate_ns}}}element",
             {
                 "identifier": element["identifier"],
                 f"{{{XSI_NS}}}type": element["type"],
             },
         )
-        ET.SubElement(element_node, f"{{{ARCHIMATE_NS}}}name", {"{http://www.w3.org/XML/1998/namespace}lang": "de"}).text = element["name"]
+        ET.SubElement(element_node, f"{{{archimate_ns}}}name", {"{http://www.w3.org/XML/1998/namespace}lang": "de"}).text = element["name"]
         if element["documentation"]:
             ET.SubElement(
                 element_node,
-                f"{{{ARCHIMATE_NS}}}documentation",
+                f"{{{archimate_ns}}}documentation",
                 {"{http://www.w3.org/XML/1998/namespace}lang": "de"},
             ).text = element["documentation"]
 
-    relationships_node = ET.SubElement(model, f"{{{ARCHIMATE_NS}}}relationships")
+    relationships_node = ET.SubElement(model, f"{{{archimate_ns}}}relationships")
     for relationship in sorted(
         builder.relationships.values(),
         key=lambda item: (item["type"], item["source"], item["target"]),
     ):
         rel_node = ET.SubElement(
             relationships_node,
-            f"{{{ARCHIMATE_NS}}}relationship",
+            f"{{{archimate_ns}}}relationship",
             {
                 "identifier": relationship["identifier"],
                 "source": relationship["source"],
@@ -459,7 +463,7 @@ def build_model(dataset_dir: Path = DATASET_DIR) -> tuple[ET.ElementTree, list[s
         if relationship["documentation"]:
             ET.SubElement(
                 rel_node,
-                f"{{{ARCHIMATE_NS}}}documentation",
+                f"{{{archimate_ns}}}documentation",
                 {"{http://www.w3.org/XML/1998/namespace}lang": "de"},
             ).text = relationship["documentation"]
 
@@ -470,12 +474,17 @@ def build_model(dataset_dir: Path = DATASET_DIR) -> tuple[ET.ElementTree, list[s
 
 def write_outputs(
     xml_output: Path = OUTPUT_XML,
+    xml_output_archi: Path = OUTPUT_XML_ARCHI,
     assumptions_output: Path = OUTPUT_ASSUMPTIONS,
     dataset_dir: Path = DATASET_DIR,
-) -> tuple[Path, Path]:
-    tree, assumptions = build_model(dataset_dir)
+) -> tuple[Path, Path, Path]:
+    tree, assumptions = build_model(dataset_dir, archimate_ns=ARCHIMATE_NS_31)
+    archi_tree, _ = build_model(dataset_dir, archimate_ns=ARCHIMATE_NS_30)
     xml_output.parent.mkdir(parents=True, exist_ok=True)
+    ET.register_namespace("", ARCHIMATE_NS_31)
     tree.write(xml_output, encoding="utf-8", xml_declaration=True)
+    ET.register_namespace("", ARCHIMATE_NS_30)
+    archi_tree.write(xml_output_archi, encoding="utf-8", xml_declaration=True)
 
     lines = [
         "# Annahmen fuer das Nordstern-Archimate-Modell",
@@ -485,12 +494,13 @@ def write_outputs(
     ]
     lines.extend(f"- {entry}" for entry in assumptions)
     assumptions_output.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    return xml_output, assumptions_output
+    return xml_output, xml_output_archi, assumptions_output
 
 
 def main() -> None:
-    xml_path, assumptions_path = write_outputs()
+    xml_path, archi_xml_path, assumptions_path = write_outputs()
     print(f"Wrote {xml_path}")
+    print(f"Wrote {archi_xml_path}")
     print(f"Wrote {assumptions_path}")
 
 
