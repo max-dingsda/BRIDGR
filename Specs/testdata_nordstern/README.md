@@ -9,6 +9,9 @@ Fiktiver Datensatz fuer Last- und Matching-Tests.
 - `process_inventory.csv`: Uebersicht ueber 55 fachliche Prozesse.
 - `processes_txt/`: 55 Prozessbeschreibungen als TXT.
 - `processes_bpmn/`: 6 BPMN-Beispiele mit Lanes fuer Organisationseinheit und Rolle.
+- `nordstern_archimate_3_1.xml`: generiertes ArchiMate Exchange Format im 3.1-Namespace.
+- `nordstern_archimate_archi_compatible_3_0.xml`: inhaltlich gleiches Modell im 3.0-Namespace fuer Tools wie Archi, die den 3.1-Namespace nicht sauber importieren.
+- `nordstern_archimate_assumptions.md`: dokumentierte Modellierungsannahmen fuer die generierten ArchiMate-Dateien.
 
 ## Bewusste Testfaelle
 
@@ -30,3 +33,14 @@ Weitere Testfaelle:
 - Technische, fachlich nicht direkt sichtbare Bausteine in der CMDB: AD, Entra ID, Firewall Management, VPN, DNS, SMTP, PKI, Backup, Monitoring, SIEM.
 
 Empfohlene Nutzung: Dateien nach `Input/` kopieren und `cmdb_filename` auf `cmdb_entities.csv` setzen.
+
+## ArchiMate-Hinweis
+
+Die beiden generierten ArchiMate-Dateien enthalten dasselbe Modell. Der einzige beabsichtigte Unterschied
+ist der Namespace:
+
+- `nordstern_archimate_3_1.xml` nutzt `http://www.opengroup.org/xsd/archimate/3.1/`
+- `nordstern_archimate_archi_compatible_3_0.xml` nutzt `http://www.opengroup.org/xsd/archimate/3.0/`
+
+Die 3.0-Variante existiert als Kompatibilitaetsdatei fuer Archi-Importe, nachdem der Import der 3.1-Datei
+mit einer Root-Element/Schema-Fehlermeldung scheiterte.
