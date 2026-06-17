@@ -315,6 +315,36 @@ class GraphWriter:
             )
             return PROCESS_WRITE_ACTION_UPDATED
 
+        # Check for a node created by another source (e.g. ArchiMate) with the same
+        # name but no prozess_id yet. Enrich it instead of creating a duplicate.
+        name_rows = client.execute_write(
+            """
+            MATCH (p:Prozess)
+            WHERE toLower(p.name) = toLower($process_name)
+              AND p.prozess_id IS NULL
+              AND coalesce(p.placeholder, false) = false
+            RETURN elementId(p) AS element_id
+            LIMIT 1
+            """,
+            {"process_name": process_name},
+        )
+        if name_rows:
+            client.execute_write(
+                """
+                MATCH (p)
+                WHERE elementId(p) = $element_id
+                SET p.prozess_id = $process_id,
+                    p.name = $process_name,
+                    p.placeholder = false
+                """,
+                {
+                    "element_id": name_rows[0]["element_id"],
+                    "process_id": process_id,
+                    "process_name": process_name,
+                },
+            )
+            return PROCESS_WRITE_ACTION_UPDATED
+
         client.execute_write(
             """
             MERGE (p:Prozess {prozess_id: $process_id})
@@ -330,17 +360,37 @@ class GraphWriter:
 
     def _upsert_cmdb_entity(self, client: Neo4jClient, entity: CmdbEntity) -> None:
         if entity.entity_type == CMDB_ENTITY_TYPE_APPLICATION:
-            client.execute_write(
+            # Check for a node created by another source (e.g. ArchiMate) with the
+            # same name but no cmdb_id yet. Enrich it instead of creating a duplicate.
+            existing = client.execute_write(
                 """
-                MERGE (a:Anwendung {cmdb_id: $entity_id})
-                SET a.id = $entity_id,
-                    a.name = $name
+                MATCH (a:Anwendung)
+                WHERE toLower(a.name) = toLower($name) AND a.cmdb_id IS NULL
+                RETURN elementId(a) AS element_id
+                LIMIT 1
                 """,
-                {
-                    "entity_id": entity.entity_id,
-                    "name": entity.name,
-                },
+                {"name": entity.name},
             )
+            if existing:
+                client.execute_write(
+                    """
+                    MATCH (a) WHERE elementId(a) = $element_id
+                    SET a.cmdb_id = $entity_id, a.id = $entity_id, a.name = $name
+                    """,
+                    {"element_id": existing[0]["element_id"], "entity_id": entity.entity_id, "name": entity.name},
+                )
+            else:
+                client.execute_write(
+                    """
+                    MERGE (a:Anwendung {cmdb_id: $entity_id})
+                    SET a.id = $entity_id,
+                        a.name = $name
+                    """,
+                    {
+                        "entity_id": entity.entity_id,
+                        "name": entity.name,
+                    },
+                )
             return
         if entity.entity_type == CMDB_ENTITY_TYPE_INTERFACE:
             client.execute_write(

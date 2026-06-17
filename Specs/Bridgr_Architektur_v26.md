@@ -500,6 +500,10 @@ Der `confirmed_match`-Alias macht den bestaetigten Bezeichner im Chat-Layer aufl
 -- Strategie-Layer (ArchiMate-Import)
 (:Faehigkeit)-[:REALISIERT]->(:Prozess)
 (:Faehigkeit)-[:REALISIERT]->(:Anwendung)
+(:Faehigkeit)-[:REALISIERT]->(:Ziel)
+(:Faehigkeit)-[:REALISIERT]->(:Anforderung)
+(:Prozess)-[:UNTERSTUETZT]->(:Faehigkeit)
+(:Anwendung)-[:UNTERSTUETZT]->(:Faehigkeit)
 (:Prozess)-[:BENOETIGT]->(:Ressource)
 (:Anwendung)-[:BENOETIGT]->(:Ressource)
 
@@ -517,16 +521,20 @@ Der `confirmed_match`-Alias macht den bestaetigten Bezeichner im Chat-Layer aufl
 
 -- Motivation-Layer (ArchiMate-Import)
 (:Anforderung)-[:REALISIERT]->(:Ziel)
+(:Anforderung)-[:BEEINFLUSST]->(:Anforderung)
 (:Kontext)-[:BEEINFLUSST]->(:Ziel)
 (:Kontext)-[:BEEINFLUSST]->(:Anforderung)
 (:Anforderung)-[:BEEINFLUSST]->(:Prozess)
 (:Anforderung)-[:BEEINFLUSST]->(:Anwendung)
 (:Anforderung)-[:BEEINFLUSST]->(:Schnittstelle)
 (:Anforderung)-[:BEEINFLUSST]->(:Server)
+(:OrgEinheit)-[:IST_VERBUNDEN_MIT]->(:Anforderung)
+(:OrgEinheit)-[:VERANTWORTET]->(:Infrastruktur)
 (:Stakeholder)-[:IST_VERBUNDEN_MIT]->(:Ziel)
 (:Stakeholder)-[:IST_VERBUNDEN_MIT]->(:Anforderung)
 (:Stakeholder)-[:IST_VERBUNDEN_MIT]->(:Prozess)
 (:Stakeholder)-[:IST_VERBUNDEN_MIT]->(:Anwendung)
+(:Stakeholder)-[:IST_VERBUNDEN_MIT]->(:Kontext)
 
 -- Datenobjekt-Layer (ArchiMate-Import)
 (:Anwendung)-[:VERARBEITET]->(:Datenobjekt)
@@ -597,7 +605,26 @@ sinnvolle Filter laufen ueber `konfidenz` oder `source`.
 | Tab 5 (ArchiMate-Kandidaten-Bestaetigung) | MERGE + `archimate_id`-Zuweisung auf bestehendem Knoten |
 | Tab 5 (Export-Precheck-Bestaetigung) | `SET n.archimate_type` — ausschliesslich dieses eine Attribut |
 
-### 9.3.1 OrgEinheit-Deduplizierung
+### 9.3.1 Cross-Source-Identitaetsaufloesung
+
+Werden Knoten aus verschiedenen Quellen importiert (z.B. erst ArchiMate, dann Prozessdokumente
+oder CMDB), wird der `name`-basierte Abgleich als gemeinsamer Schluessel verwendet, um
+Duplikate zu vermeiden:
+
+- **Prozess-Upsert**: Bevor ein neuer `(:Prozess {prozess_id})`-Knoten angelegt wird, prueft
+  `_upsert_process_node()` per `toLower(name)`-Abgleich ob ein gleichnamiger Node ohne
+  `prozess_id` existiert (z.B. aus ArchiMate-Import). Falls ja, wird dieser Node mit der
+  `prozess_id` angereichert statt ein Duplikat zu erzeugen.
+
+- **Anwendungs-Upsert**: Analog prueft `_upsert_cmdb_entity()` fuer den Typ `application`
+  per `toLower(name)` ob ein gleichnamiger Node ohne `cmdb_id` existiert. Falls ja, wird
+  `cmdb_id` nachgetragen.
+
+Die Importreihenfolge (ArchiMate vor CMDB/Prozess oder umgekehrt) ist damit irrelevant fuer
+die Graphstruktur. Das Ergebnis ist in beiden Faellen ein einziger deduplizierter Node mit
+allen verfuegbaren Identifikatoren.
+
+### 9.3.2 OrgEinheit-Deduplizierung
 
 Alle Schreibpfade, die einen `(:OrgEinheit)`-Knoten erzeugen oder suchen, normalisieren
 den Namen vor dem MERGE via case-insensitivem Lookup (`toLower`). Strategie: First-seen-wins.
@@ -766,9 +793,16 @@ Umschaltbar per `chat_mode` in `config.json`.
 
 ### 11.1 Bestehender Flow: OrgEinheiten und CMDB-Kandidaten
 
-Tab 4 zeigt alle bekannten OrgEinheiten. Fuer jede OrgEinheit koennen CMDB-Owner-Kandidaten
-bestaetigt oder abgelehnt werden. Kandidaten sind als `KÖNNTE_VERANTWORTEN`-Kanten im
-Graphen sichtbar. Bestaetigung erzeugt `VERANTWORTET`-Kanten via `promote_candidate_ownership()`.
+Tab 4 laedt alle OrgEinheiten direkt aus Neo4j als primaere Quelle. Damit sind auch
+ArchiMate-importierte OrgEinheiten (`BusinessActor`-Elemente) sofort nach dem Import
+sichtbar und verwaltbar, ohne einen zusaetzlichen Synchronisationsschritt.
+
+Ergaenzend werden kb.json-Eintraege angezeigt, die noch nicht nach Neo4j synchronisiert wurden
+(z.B. manuell angelegte OrgEinheiten vor dem Klick auf "Organisation nach Neo4j synchronisieren").
+
+Fuer jede OrgEinheit koennen CMDB-Owner-Kandidaten bestaetigt oder abgelehnt werden.
+Kandidaten sind als `KÖNNTE_VERANTWORTEN`-Kanten im Graphen sichtbar.
+Bestaetigung erzeugt `VERANTWORTET`-Kanten via `promote_candidate_ownership()`.
 
 ### 11.2 Flow: Prozess-Owner-Pflege
 
@@ -919,11 +953,20 @@ Element-Mapping (aus archimate_mapping.json, elements.import + elements.ignore)
   xsi:type in keiner Liste? → ueberspringen mit WARNUNG, in skipped_types festhalten
   |
   v
+Pre-Import-Snapshot
+  Vor dem ersten Element-Schreibvorgang: alle existierenden Namen pro Label aus Neo4j laden.
+  Dieser Snapshot ist der einzige Referenzpunkt fuer Fuzzy-Matching.
+  Dadurch koennen Elemente desselben Imports nicht gegenseitig als Kandidaten erkaennt werden.
+  |
+  v
 Identity Resolution (je aufgeloestem Element)
   1. archimate_id bekannt? (Re-Import) → direkter Property-Lookup
   2. Exakter Namensabgleich gegen Neo4j-Knoten (gleicher bridgr_label) → MERGE
-  3. Fuzzy Match >= fuzzy_match_threshold → Kandidat in Review-Queue (Tab 5)
+  3. Fuzzy Match gegen Pre-Import-Snapshot >= fuzzy_match_threshold
+     → Kandidat in Review-Queue (Tab 5) UND Node wird trotzdem angelegt
   4. Kein Match → neuer Knoten anlegen
+  Alle aufgeloesten Elemente (Match, Kandidat und neu) werden in Neo4j geschrieben
+  und sind als Beziehungs-Endpunkte verfuegbar.
   |
   v
 Beziehungs-Mapping (aus archimate_mapping.json)

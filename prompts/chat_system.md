@@ -104,6 +104,10 @@ depending on what is modeled:
 - Map natural-language verbs semantically to canonical schema relationships. Words like
   `hostet`, `nutzt`, `haengt an`, or `unterstuetzt` must resolve to the actual defined
   relationship type (e.g. `RUNS_ON`, `DIENT`) — never appear verbatim as a relationship.
+- Distinguish between two fundamentally different "who" questions about processes:
+  - **Responsibility** ("wer ist verantwortlich", "wer ist Owner"): query `(:OrgEinheit)-[:VERANTWORTET]->(:Prozess)`.
+  - **Participation** ("wer ist beteiligt", "wer führt aus", "welche Rollen"): query `(:Rolle)-[:BETEILIGT_AN]->(:Prozess)`, optionally extended via `(:OrgEinheit)-[:KANN_EINNEHMEN]->(:Rolle)` to return the org unit behind each role.
+  - **Ambiguous questions** ("wen benötige ich", "wer ist involviert"): return both perspectives in a single query, or ask one concise clarifying question if the context makes one interpretation clearly more likely.
 - Use only the exact relationship directions from the schema. Do not use undirected patterns.
 - Do not translate schema names into English or German equivalents.
 - Use RETURN only once unless you continue with WITH or combine complete branches via

@@ -242,3 +242,55 @@ Gewünschtes Verhalten (Richtung, nicht Lösung):
 Der Nutzer soll unmittelbar nach dem Absenden erkennen können, dass BRIDGR die Anfrage
 verarbeitet. Lösungsraum: Spinner im Chat-Bereich selbst, Wiederanzeige der Frage als
 "ausstehende Nachricht", Statuszeile, o.ä. — Entscheidung offen.
+
+26. aktuell besteht der CMDB Import aus 2 Dateien, eine für Entities, eine für Beziehungen zwischen Entities. Dies war für die Entwicklung hilfreich, ist jedoch unrealistisch. Realistischer ist ein CMDB Export je "Objektart" (Server, Anwendungen, Interfaces...) mit Einträgen für die jeweils verbundenen Objekte. Da dieser Wechsel komplexer ist, sollten wir zunächst ein Konzept erarbeiten
+
+27. auf dem tab "Zuordnungen" sollte der Button "mauell zuweisen" für die zuordnung einer vermuteten Anwendung zu einem CMDB Eintrag ein alphabetisch sortiertes dropdown öffnen. Aktuell ist die Liste unsortiert und damit schwer zu druchsuchen
+
+28. Bei manuellen Zuordnungen können Fehler durch unbedachte Klicks entstehen. Dies führt dann an verschiedenen Stellen zu Fehlerhaften Nodes im Graphen. Hier müssen Möglichkeiten (oder eine Möglichkeit?) geschaffen werden, manuelle Zuordnungen wieder Rückabzuwickeln, sei es durch löschen der fehlerhaften Node und restaurierung des vorherigen Zustandes oder durch mergen zweiter Nodes (Beispiel: es wurd versehentlich eine OrgEinheit "Plattform IT" und eine OrgEinheit "Team IT Plattforms" angelegt. Hier ist ein merge sinnvoller als ein einfaches wiederherstellen des ursprünglichen Zustandes)
+
+29. bei komplexen fragen, die nicht direkt auf die graph-struktur eingehen kann das LLM manchmal nicht die korrekte Cypher-query erzeugen.
+Beispiel mit GPT-4o:
+FRAGE:welche anwendungen unterstützen die prozesse, die auf meine ziele einzahlen?
+ANTWORT: Es wurden keine Anwendungen gefunden, die Prozesse unterstützen, die auf Ihre Ziele einzahlen.
+technische details: 
+MATCH (p:Prozess)-[:UNTERSTUETZT]->(z:Ziel)
+WITH p, z
+MATCH (a:Anwendung)-[:DIENT]->(p)
+RETURN DISTINCT a.name AS application, p.name AS process, z.name AS ziel
+ORDER BY application, process, ziel
+
+Kommentar dazu von Claude.Sonnet 4.6:
+
+Meine Frage: wenn ich das bridgr llm frage "welche anwendungen unterstützen die prozesse, die auf meine ziele einzahlen?" bekomme ich als antwort "Es wurden keine Anwendungen gefunden, die Prozesse unterstützen, die auf Ihre Ziele einzahlen." selbst wenn ich gpt-4o verwende. 4o baut zur verfikation dieses Cypher: MATCH (p:Prozess)-[:UNTERSTUETZT]->(z:Ziel)
+WITH p, z
+MATCH (a:Anwendung)-[:DIENT]->(p)
+RETURN DISTINCT a.name AS application, p.name AS process, z.name AS ziel
+ORDER BY application, process, ziel was ich aber eigentlich will ist etwas ähnliches wie dieses cypher, was ich manuell gebaut habe und was das gewünschte ergebnis (und noch etwas mehr ) liefert:
+match(f:Ziel)-[r]-(a)-[q]-(b:Prozess)-[s]-(t:Anwendung) return f.name, r, a.name, a.archimate_type, q, b.name, b.archimate_type, s, t.name, t.archimate_typewas glaubst du, wie ich meine frage an das llm formulieren müsste um als antwort zu erhalten "das ziel X wird durh die Capability Y realisiert, die wiederum durch die Prozesse A, B und C unterstützt werden, wo die Anwendung m, n, und o zum Einsatz kommen"?
+
+Claude hat geantwortet: Das ist ein klassisches Das ist ein klassisches Prompt Engineering vs. Schema-Mismatch-Problem. Lass mich das auseinandernehmen:
+Was schiefläuft
+GPT-4o baut (Anwendung)-[:DIENT]->(Prozess)-[:UNTERSTUETZT]->(Ziel) — also eine direkte 3-Knoten-Kette mit fixen Beziehungstypen. Dein echter Graph hat aber Capabilities als Zwischenschicht: Ziel → Capability → Prozess → Anwendung, und die Beziehungstypen heißen möglicherweise anders als das LLM annimmt.
+Dein manueller Query benutzt [r], [q], [s] — also wildcard-Beziehungen, weil du selbst nicht sicher bist, wie die Kette exakt heißt. Das ist der Knackpunkt.
+Was du dem LLM sagen musst
+Das LLM braucht zwei Dinge:
+
+Den echten Pfad im Graph (inkl. Capability-Layer)
+Erlaubnis, flexible Beziehungen zu nutzen
+
+Formuliere die Frage so:
+
+"Welche Anwendungen unterstützen indirekt meine Ziele? Berücksichtige dabei alle Zwischenschritte — also auch Capabilities und Prozesse. Der Pfad geht von Ziel über mögliche Zwischenknoten (wie Capabilities oder ähnliches) bis hin zu Prozessen und Anwendungen."
+
+Aber ehrlich gesagt: Das eigentliche Problem liegt im Prompting des Bridgr-Systems selbst, nicht in deiner Nutzerfrage.
+Der eigentliche Fix
+In deinem Bridgr-System-Prompt / Query-Generator musst du dem LLM beibringen:
+Wenn der User nach Anwendungen fragt, die Ziele unterstützen, 
+nutze IMMER variable-length paths oder Wildcard-Relationships, 
+da der Graph Zwischenknoten (z.B. Capability) enthalten kann.
+
+Bevorzugtes Muster:
+MATCH (z:Ziel)-[*1..4]-(a:Anwendung)
+RETURN z.name, a.name
+Oder noch besser: Du gibst dem LLM ein Few-Shot-Beispiel mit deinem manuellen Query als "goldenes Muster" direkt im System-Prompt.

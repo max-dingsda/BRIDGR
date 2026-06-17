@@ -29,6 +29,16 @@ from services.runtime_service import get_session_neo4j_client, write_debug_log
 from skills.graph_writer import GraphWriter
 
 
+def load_org_units_from_neo4j(config: AppConfig) -> list[dict]:
+    """Return all OrgEinheit nodes from Neo4j as list of {name} dicts, sorted by name."""
+    neo4j_client = get_session_neo4j_client(config)
+    rows = neo4j_client.execute_read(
+        "MATCH (o:OrgEinheit) WHERE o.name IS NOT NULL RETURN o.name AS name ORDER BY toLower(o.name)",
+        {},
+    )
+    return [{"name": row["name"]} for row in rows]
+
+
 def persist_org_unit_node(config: AppConfig, org_unit_name: str) -> None:
     cleaned_name = " ".join(org_unit_name.strip().split())
     if not cleaned_name:

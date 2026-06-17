@@ -242,11 +242,25 @@
       "Stakeholder->Ziel": [
         "Association"
       ],
-      "OrgEinheit->Infrastruktur": ["Association", "Assignment"],
-      "Stakeholder->Kontext":      ["Association"],
-      "Anforderung->Anforderung":  ["Influence", "Association"],
-      "Prozess->Faehigkeit":       ["Serving", "Realization"],
-      "Anwendung->Faehigkeit":     ["Serving", "Realization"]
+      "OrgEinheit->Infrastruktur": [
+        "Association",
+        "Assignment"
+      ],
+      "Stakeholder->Kontext": [
+        "Association"
+      ],
+      "Anforderung->Anforderung": [
+        "Influence",
+        "Association"
+      ],
+      "Prozess->Faehigkeit": [
+        "Serving",
+        "Realization"
+      ],
+      "Anwendung->Faehigkeit": [
+        "Serving",
+        "Realization"
+      ]
     },
     "export": {
       "Anforderung->Anwendung": "Influence",
@@ -290,10 +304,10 @@
       "Stakeholder->Prozess": "Association",
       "Stakeholder->Ziel": "Association",
       "OrgEinheit->Infrastruktur": "Assignment",
-      "Stakeholder->Kontext":      "Association",
-      "Anforderung->Anforderung":  "Influence",
-      "Prozess->Faehigkeit":       "Serving",
-      "Anwendung->Faehigkeit":     "Serving"
+      "Stakeholder->Kontext": "Association",
+      "Anforderung->Anforderung": "Influence",
+      "Prozess->Faehigkeit": "Serving",
+      "Anwendung->Faehigkeit": "Serving"
     },
     "bridgr_relation": {
       "Anforderung->Anwendung": "BEEINFLUSST",
@@ -337,10 +351,10 @@
       "Stakeholder->Prozess": "IST_VERBUNDEN_MIT",
       "Stakeholder->Ziel": "IST_VERBUNDEN_MIT",
       "OrgEinheit->Infrastruktur": "VERANTWORTET",
-      "Stakeholder->Kontext":      "IST_VERBUNDEN_MIT",
-      "Anforderung->Anforderung":  "BEEINFLUSST",
-      "Prozess->Faehigkeit":       "UNTERSTUETZT",
-      "Anwendung->Faehigkeit":     "UNTERSTUETZT"
+      "Stakeholder->Kontext": "IST_VERBUNDEN_MIT",
+      "Anforderung->Anforderung": "BEEINFLUSST",
+      "Prozess->Faehigkeit": "UNTERSTUETZT",
+      "Anwendung->Faehigkeit": "UNTERSTUETZT"
     }
   },
   "pending_candidates": []

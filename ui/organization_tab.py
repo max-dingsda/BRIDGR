@@ -14,6 +14,7 @@ from services.organization_service import (
     assign_role_to_org_unit,
     clear_process_owner,
     load_all_processes_with_owner,
+    load_org_units_from_neo4j,
     load_process_owner_candidates,
     load_unassigned_roles,
     mark_role_as_role_only,
@@ -29,7 +30,16 @@ def render_organization_tab() -> None:
     st.subheader("Organisation")
     config = load_config(Path("config.json"))
     knowledge_base = load_knowledge_base()
-    org_units = sorted(knowledge_base.org_units, key=lambda entry: entry.get("name", "").casefold())
+
+    # Load org units from Neo4j as primary source (includes ArchiMate-imported units).
+    # Supplement with kb.json entries not yet synced to Neo4j.
+    try:
+        neo4j_org_units = load_org_units_from_neo4j(config)
+    except Exception:
+        neo4j_org_units = []
+    neo4j_names = {e["name"].casefold() for e in neo4j_org_units}
+    kb_only = [e for e in knowledge_base.org_units if e.get("name", "").casefold() not in neo4j_names]
+    org_units = sorted(neo4j_org_units + kb_only, key=lambda e: e.get("name", "").casefold())
 
     try:
         all_processes = load_all_processes_with_owner(config)

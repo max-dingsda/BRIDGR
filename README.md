@@ -78,11 +78,17 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - persistente Knowledge Base inklusive expliziter Rollen-Markierungen in `knowledge_base/kb.json`
 - Alias-Projektion nach Neo4j fuer kuratierte Kurzformen oder Fehlbezeichnungen aus manuellen App-Mappings und Org-Mappings
 - deterministische Alias-Aufloesung im Query-Lookup, wenn direkte Namenssuche keinen Treffer liefert
-- Streamlit-UI mit 4 Tabs
+- Streamlit-UI mit 5 Tabs
 - persistente Laufartefakte in `Output/`
 - optionales `debug.log` fuer Query-/LLM-Diagnose im Output-Ordner
 - aktionsfaehige Review-Liste fuer `Bestaetigen`, `Ablehnen` und `manuellen Link anlegen`
 - Hinweise auf uneinheitliche Prozessnotation bei mehrfach extrahierten Rohvarianten
+- ArchiMate Exchange Format 3.0 und 3.1 als vollstaendige Import- und Export-Quelle
+- vollstaendiger ArchiMate-Motivation-Layer: `Stakeholder`, `Kontext`, `Anforderung` als eigene BRIDGR-Labels; Relationen `BEEINFLUSST`, `IST_VERBUNDEN_MIT`
+- quelluebergreifende Identitaetsaufloesung: Prozess- und Anwendungs-Nodes werden beim Nachimport (z.B. ArchiMate nach CMDB oder umgekehrt) per Namensabgleich zusammengefuehrt statt dupliziert
+- ArchiMate-Kandidaten werden direkt als Nodes angelegt; Beziehungen koennen importiert werden ohne auf Kandidatenbestaetigung zu warten
+- Fuzzy-Matching im ArchiMate-Import arbeitet nur gegen einen Pre-Import-Snapshot; Elemente desselben Imports erkennen einander nicht als Kandidaten
+- Tab 4 (Organisation) zeigt OrgEinheiten direkt aus Neo4j inkl. ArchiMate-importierter `BusinessActor`-Elemente
 
 Wichtige Einordnung:
 - Die aktuelle Implementierung unterstuetzt BPMN, TXT, DOCX und PDF ueber einen gemeinsamen semantischen Extraktionspfad.
@@ -94,6 +100,7 @@ Noch nicht umgesetzt:
 - separate Read-only-DB-Identitaet fuer den Query-Layer
 - vollstaendige Loesung von `knowledge_base/kb.json` (Finding #15); kb.json ist zur Loesung vorgemerkt, existiert aber noch als Sicherheitsnetz
 - ArchiMate Views/Viewpoints im Export; selektiver Export (setzt Views voraus)
+- Node-Merge beim Bestaetigen eines ArchiMate-Fuzzy-Match-Kandidaten (Finding #25)
 
 ## Projektstruktur
 

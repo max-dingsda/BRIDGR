@@ -471,11 +471,13 @@ Hier verwalten Sie Organisationseinheiten, offene Organisationskandidaten, Proze
 
 ### 9.2 Abschnitt `Organisationseinheiten`
 
-Zeigt die bereits bekannten Organisationseinheiten.
+Zeigt alle bekannten Organisationseinheiten. Die Liste wird aus Neo4j geladen und enthält daher auch Organisationseinheiten, die durch einen ArchiMate-Import entstanden sind (aus `BusinessActor`-Elementen), ohne dass ein zusätzlicher Schritt notwendig ist.
+
+Manuell in diesem Tab angelegte Organisationseinheiten erscheinen ebenfalls in der Liste, müssen aber über den Synchronisations-Button nach Neo4j übertragen werden, um im Graphen wirksam zu sein.
 
 #### Button `Organisation nach Neo4j synchronisieren`
 
-Schreibt die gepflegten Organisationseinheiten nach Neo4j.
+Schreibt manuell gepflegte Organisationseinheiten nach Neo4j.
 
 Wichtig:
 
@@ -620,7 +622,10 @@ Blendet die Bearbeitung der Beziehungs-Mappings ein.
 Pro Label-Paar stehen zur Verfügung:
 
 - `Import: akzeptierte AM-Typen`
-- `Export: kanonischer AM-Typ`
+- `Export: AM-Typ`
+- `BRIDGR-Relation` — legt fest, welcher Kantentyp in Neo4j geschrieben wird
+
+Wichtig: Alle drei Felder müssen konsistent gepflegt sein. Fehlt die BRIDGR-Relation für ein Label-Paar, werden Beziehungen dieses Typs beim Import still übersprungen, auch wenn der ArchiMate-Typ in der Import-Liste steht.
 
 #### Button `Mapping speichern`
 
