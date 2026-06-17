@@ -135,8 +135,9 @@ Auch wenn die Tabs in anderer Reihenfolge angezeigt werden, ist der typische Abl
 2. `Konfiguration > Import`: Prozessdateien importieren und CMDB synchronisieren
 3. `Zuordnungen`: offene Anwendungszuordnungen prüfen
 4. `Organisation`: Organisationskandidaten, Prozesseigentümer und Rollen klären
-5. `EA-Modell`: optional ArchiMate-Mapping pflegen sowie ArchiMate importieren/exportieren
-6. `Kommunikation`: Fragen an den aufgebauten Wissensgraphen stellen
+5. `Organisation`: letzte manuelle Änderungen bei Bedarf zurücknehmen und Dubletten von Organisationseinheiten konsolidieren
+6. `EA-Modell`: optional ArchiMate-Mapping pflegen sowie ArchiMate importieren/exportieren
+7. `Kommunikation`: Fragen an den aufgebauten Wissensgraphen stellen
 
 ---
 
@@ -587,6 +588,65 @@ Typische Spalten:
 - Gemappt auf
 - Zuletzt gesehen
 
+### 9.8 Abschnitt `Letzte manuelle Änderungen`
+
+Hier sehen Sie die zuletzt ausgeführten manuellen Entscheidungen mit fachlichem Kontext.
+
+Typische Inhalte:
+
+- Art der Änderung
+- Zeitpunkt
+- betroffener Prozess, betroffene Anwendung oder Organisationseinheit
+- bei Prozesseigentümern der Prozessname und der zugewiesene Eigentümer
+
+Wichtig:
+
+- Ältere Entscheidungen können noch technische Kennungen enthalten, wenn sie vor der UI-Erweiterung angelegt wurden.
+- Neuere Prozesseigentümer-Zuordnungen werden mit einem menschenlesbaren Prozessnamen angezeigt.
+
+#### Button `Zurücknehmen`
+
+Macht eine unterstützte manuelle Entscheidung rückgängig.
+
+Aktuell unterstützt:
+
+- manuell angelegte Anwendungszuordnung
+- bestätigter Anwendungskandidat
+- manuelle Prozesseigentümer-Zuordnung
+- manuelle Rollenzuordnung
+
+Der Rücknahmevorgang erzeugt selbst wieder einen internen Nachweis im System.
+
+### 9.9 Abschnitt `Organisationseinheiten konsolidieren`
+
+Dieser Bereich dient zum Zusammenführen fachlicher Dubletten bei Organisationseinheiten.
+
+Typischer Anwendungsfall:
+
+- dieselbe Einheit wurde aus verschiedenen Quellen mit unterschiedlichen Namen importiert
+- eine frühere Fehlzuordnung soll dauerhaft bereinigt werden
+
+Felder:
+
+- `Quelle`: die Organisationseinheit, die aufgelöst werden soll
+- `Ziel`: die Organisationseinheit, die bestehen bleiben soll
+
+#### Button `Organisationseinheiten zusammenführen`
+
+Führt die ausgewählte Quell-Organisationseinheit in die Ziel-Organisationseinheit über.
+
+Dabei geschieht:
+
+- bestehende fachliche Beziehungen werden auf das Ziel umgehängt
+- bereits vorhandene gleichartige Beziehungen werden nicht doppelt erzeugt
+- der Name der Quelle wird als Alias des Ziels weitergeführt
+- die Quell-Organisationseinheit verschwindet anschließend aus der fachlichen Sicht
+
+Wichtig:
+
+- Diese Funktion gilt aktuell nur für Organisationseinheiten.
+- Eine Rücknahme von Merge-Entscheidungen ist in der aktuellen Version noch nicht verfügbar.
+
 ---
 
 ## 10. Tab `EA-Modell`
@@ -691,6 +751,7 @@ Wenn Sie eine CMDB nachträglich erweitern oder korrigieren, kann Schritt 4 bere
 2. Umfang und Statusfilter setzen
 3. offene Fälle bestätigen, ablehnen oder manuell anlegen
 4. anschließend Tab `Organisation` öffnen und offene Organisationsfragen klären
+5. bei Bedarf letzte manuelle Änderungen prüfen oder Organisationseinheiten konsolidieren
 
 ### 11.3 Fragen an den Graph stellen
 

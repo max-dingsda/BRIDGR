@@ -12,6 +12,7 @@ from processing.knowledge_base import (
 from processing.pipeline import apply_org_unit_mapping, build_manual_matches
 from processing.run_artifacts import load_latest_run, write_latest_run
 from services.alias_service import sync_knowledge_base_aliases
+from services.decision_service import create_manual_decision
 from services.runtime_service import get_session_neo4j_client
 from skills.extract.extract_base import ApplicationReference, ExtractedProcess
 from skills.graph_writer import GraphWriter
@@ -211,6 +212,18 @@ def confirm_review_link(
         raw_name=application_name,
         matched_name=matched_name or application_name,
     )
+    create_manual_decision(
+        neo4j_client,
+        "confirmed_candidate_link",
+        {
+            "process_name": process_name,
+            "process_id": process_id,
+            "application_name": application_name,
+            "matched_name": matched_name or application_name,
+            "cmdb_id": cmdb_id,
+            "source_path": source_path,
+        },
+    )
     persist_single_document_refresh(config, source_path, cmdb_rows)
     return f"Link fuer '{application_name}' bestaetigt."
 
@@ -264,6 +277,18 @@ def save_manual_link(
             "matched_name": matched_name or application_name,
             "raw_name": application_name,
             "source": DIENT_SOURCE_MANUAL,
+        },
+    )
+    create_manual_decision(
+        neo4j_client,
+        "manual_link",
+        {
+            "process_name": process_name,
+            "process_id": process_id,
+            "application_name": application_name,
+            "matched_name": matched_name or application_name,
+            "cmdb_id": cmdb_id,
+            "source_path": source_path,
         },
     )
     persist_single_document_refresh(config, source_path, cmdb_rows)

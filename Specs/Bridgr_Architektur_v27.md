@@ -462,6 +462,17 @@ Optionale Attribute:
 
 Diese Beziehungen sind rein betriebliche Metadaten und keine fachlichen EA-Beziehungen.
 
+Aktueller Umsetzungsstand:
+
+- `ManualDecision` wird bereits als eigener interner Knoten persistiert.
+- Ruecknahmen werden aktuell ueber einen neuen `ManualDecision`-Knoten vom Typ
+  `decision_revert` plus `supersedes_decision_id` auf dem Ruecknahmeknoten dokumentiert.
+- Die oben beschriebenen expliziten Betriebsrelationen `AFFECTS`, `CREATED_ALIAS` und
+  `SUPERSEDES` sind architektonisch vorgesehen, aber in der aktuellen Ausbaustufe noch
+  nicht implementiert.
+- Die Zuordnung der betroffenen Fachobjekte erfolgt derzeit payload-basiert ueber
+  `payload_json`, nicht ueber eigene Kanten.
+
 ### 10.5 Entscheidungstypen
 
 Geplante `decision_type`-Werte:
@@ -497,6 +508,14 @@ Eine Ruecknahme:
 2. entfernt nur die konkret von dieser Entscheidung verursachten Graphaenderungen
 3. aktualisiert abhaengige UI-Artefakte gezielt
 4. hinterlaesst selbst wieder eine persistente Auditspur
+
+Aktueller Umsetzungsstand:
+
+- Ruecknahme ist fuer `manual_link`, `confirmed_candidate_link`,
+  `manual_process_owner_assignment` und `manual_role_assignment` implementiert.
+- Die Ruecknahme arbeitet aktuell payload-basiert und setzt den urspruenglichen
+  Entscheidungsknoten auf `status = reverted`.
+- Zusaetzlich wird eine neue `ManualDecision` vom Typ `decision_revert` geschrieben.
 
 ### 10.8 Ruecknahmesichere Faelle
 
@@ -582,6 +601,15 @@ Zu beruecksichtigende Fachbeziehungen:
 - eingehend ueber Alias: `(:Alias)-[:KANN_MEINEN]->(:OrgEinheit)`
 - betriebliche Metadaten aus `ManualDecision`
 
+Aktueller Umsetzungsstand:
+
+- Der Backend-Merge fuer `OrgEinheit` ist implementiert.
+- Kantenuebernahme erfolgt derzeit fuer `VERANTWORTET`, `KANN_EINNEHMEN`,
+  ausgehendes `IST_VERBUNDEN_MIT` sowie bestehende eingehende Alias-Kanten.
+- Die Deduplizierung erfolgt aktuell ueber `MERGE` auf den Zielkanten.
+- Eine weitergehende Property-Konsolidierung ist fuer diese erste Ausbaustufe noch
+  nicht erforderlich und daher noch nicht separat implementiert.
+
 ### 11.8 Merge von `Prozess`
 
 Zu beruecksichtigende Fachbeziehungen:
@@ -602,6 +630,13 @@ Vor jedem Merge zeigt die UI:
 - Alias, der entstehen wuerde
 
 Erst danach darf der Merge explizit bestaetigt werden.
+
+Aktueller Umsetzungsstand:
+
+- Im UI existiert bereits ein erster Merge-Bereich fuer `OrgEinheit`.
+- Der Precheck ist derzeit ein kompakter fachlicher Hinweistext zur Wirkung des Merges.
+- Eine detaillierte Vorschau mit Beziehungszaehlung und Konfliktauflistung ist
+  architektonisch vorgesehen, aber noch nicht implementiert.
 
 ---
 
@@ -663,7 +698,8 @@ Entscheidungsmetadaten selbst sind kein Chat-Gegenstand.
 
 - Review offener und schwacher Anwendungszuordnungen
 - Bestaetigen, Ablehnen, manuelle Zuordnung
-- spaeter Erweiterung um Ruecknahme zuletzt getroffener Entscheidungen
+- Ruecknahme zuletzt getroffener Entscheidungen ist in der aktuellen Ausbaustufe noch
+  nicht im Tab `Zuordnungen`, sondern zentral im Tab `Organisation` umgesetzt
 
 ### 13.3 Tab `Konfiguration`
 
@@ -678,7 +714,8 @@ Entscheidungsmetadaten selbst sind kein Chat-Gegenstand.
 - Kandidaten-Mapping
 - Prozess-Owner-Zuordnung
 - Rollenzuordnung
-- spaeter Merge-Verwaltung fuer `OrgEinheit` und Undo manueller Org-Entscheidungen
+- zentrale Ruecknahme manueller Entscheidungen
+- erste Merge-Verwaltung fuer `OrgEinheit`
 
 ### 13.5 Tab `EA-Modell`
 
@@ -695,6 +732,14 @@ Zusaetzliche Bedienbereiche:
 - `Entscheidung zurücknehmen`
 - `Objekte konsolidieren`
 - Merge-Precheck mit Konfliktanzeige
+
+Aktueller Umsetzungsstand:
+
+- `Letzte manuelle Änderungen` und `Entscheidung zurücknehmen` sind im
+  Organisation-Tab bereits vorhanden.
+- `Objekte konsolidieren` ist fuer `OrgEinheit` bereits als erste Ausbaustufe vorhanden.
+- Offen ist die reichhaltigere Merge-Vorschau mit Konfliktanzeige sowie die
+  Erweiterung auf weitere Objektarten, insbesondere `Prozess`.
 
 ---
 
@@ -823,9 +868,13 @@ Der Chat darf nur den Fachgraphen sehen. Betriebsmetadaten bleiben intern.
 
 - Die beschriebene Entscheidungs- und Korrekturschicht ist architektonisch festgelegt,
   aber noch nicht vollstaendig implementiert.
+- `ManualDecision` wird aktuell ohne explizite `AFFECTS`-, `CREATED_ALIAS`- oder
+  `SUPERSEDES`-Kanten gespeichert; die Zuordnung erfolgt derzeit payload-basiert.
 - `kb.json` ist noch im Projekt vorhanden und wird in Teilpfaden der UI weiterhin
   mitgefuehrt, obwohl neue Architekturentscheidungen auf Neo4j ausgerichtet sind.
 - Merge-Workflows fuer `Anwendung` sind bewusst noch nicht Teil der ersten Ausbaustufe.
+- Ein dedizierter Merge fuer `Prozess` ist architektonisch vorgesehen, aber noch nicht
+  implementiert.
 - UML-Diagramme im Repository koennen dem beschriebenen Stand voraus- oder hinterherlaufen
   und sind vor Aktualisierung nicht die kanonische Referenz.
 

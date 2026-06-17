@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import streamlit as st
@@ -7,6 +8,9 @@ import streamlit as st
 from core.app_config import load_config
 from processing.knowledge_base import load_knowledge_base, normalize_org_unit_name
 from core.neo4j_utils import Neo4jConnectionError, Neo4jQueryError
+from services.correction_service import revert_manual_decision
+from services.decision_service import list_recent_manual_decisions
+from services.merge_service import merge_org_units
 from services.organization_service import (
     accept_org_candidate,
     accept_process_owner_candidate,
@@ -24,6 +28,7 @@ from services.organization_service import (
     reject_process_owner_candidate,
     set_process_owner,
 )
+from services.runtime_service import get_session_neo4j_client
 
 
 def render_organization_tab() -> None:
@@ -51,6 +56,8 @@ def render_organization_tab() -> None:
     _render_process_owner_candidates_section(config, org_units)
     _render_process_owner_section(config, org_units, all_processes)
     _render_unassigned_roles_section(config, org_units)
+    _render_recent_decisions_section(config)
+    _render_org_unit_merge_section(config, org_units)
     _render_decided_candidates_section(knowledge_base)
 
 
@@ -74,6 +81,8 @@ _SECTION_PROCESS_OWNER_CANDIDATES = "org_section_process_owner_candidates_open"
 _SECTION_PROCESS_OWNER = "org_section_process_owner_open"
 _SECTION_ROLES = "org_section_roles_open"
 _SECTION_DECIDED = "org_section_decided_open"
+_SECTION_RECENT_DECISIONS = "org_section_recent_decisions_open"
+_SECTION_MERGE = "org_section_merge_open"
 
 
 def _rerun_keep(section_key: str) -> None:
@@ -162,7 +171,8 @@ def _render_process_manager_for_org_unit(config, org_unit_name: str, org_key: st
         newly_removed = owned_by_me - set(selected_ids)
         errors: list[str] = []
         for pid in newly_added:
-            level, message = set_process_owner(config, pid, org_unit_name)
+            process_name = process_labels.get(pid, pid)
+            level, message = set_process_owner(config, pid, org_unit_name, process_name=process_name)
             if level != "success":
                 errors.append(message)
         for pid in newly_removed:
@@ -217,7 +227,8 @@ def _render_process_owner_section(config, org_units, all_processes: list[dict]) 
             else:
                 errors: list[str] = []
                 for process_id in selected_process_ids:
-                    level, message = set_process_owner(config, process_id, batch_owner)
+                    process_name = process_labels.get(process_id, process_id)
+                    level, message = set_process_owner(config, process_id, batch_owner, process_name=process_name)
                     if level != "success":
                         errors.append(message)
                 if errors:
@@ -242,7 +253,7 @@ def _render_process_owner_section(config, org_units, all_processes: list[dict]) 
                     if not selected_owner:
                         st.warning("Bitte eine Organisationseinheit auswählen.")
                     else:
-                        level, message = set_process_owner(config, process_id, selected_owner)
+                        level, message = set_process_owner(config, process_id, selected_owner, process_name=process_name)
                         getattr(st, level)(message)
                         _rerun_keep(_SECTION_PROCESS_OWNER)
 
@@ -284,7 +295,7 @@ def _render_process_owner_candidates_section(config, org_units) -> None:
                 )
                 if cols[1].button("Bestätigen", key=f"poc-accept::{cand_key}", width="stretch"):
                     target = selected_org or suggested
-                    level, message = accept_process_owner_candidate(config, process_id, target)
+                    level, message = accept_process_owner_candidate(config, process_id, target, process_name=process_name)
                     getattr(st, level)(message)
                     _rerun_keep(_SECTION_PROCESS_OWNER_CANDIDATES)
                 if cols[2].button("Abweisen", key=f"poc-reject::{cand_key}", width="stretch"):
@@ -426,3 +437,135 @@ def _render_decided_candidates_section(knowledge_base) -> None:
                 ],
                 width="stretch",
             )
+
+
+def _describe_manual_decision(decision) -> str:
+    if decision.decision_type == "manual_link":
+        return "Manueller Anwendungslink"
+    if decision.decision_type == "confirmed_candidate_link":
+        return "Bestätigter Anwendungskandidat"
+    if decision.decision_type == "manual_process_owner_assignment":
+        return "Manuelle Prozess-Eigentümerzuordnung"
+    if decision.decision_type == "manual_role_assignment":
+        return "Manuelle Rollenzuordnung"
+    if decision.decision_type == "entity_merge":
+        return "Objekt-Merge"
+    if decision.decision_type == "decision_revert":
+        return "Rücknahme einer Entscheidung"
+    return decision.decision_type
+
+
+def _describe_manual_decision_context(decision) -> str:
+    try:
+        payload = json.loads(getattr(decision, "payload_json", "") or "{}")
+    except json.JSONDecodeError:
+        return ""
+
+    if decision.decision_type == "manual_process_owner_assignment":
+        process_id = str(payload.get("process_id", "")).strip()
+        process_name = str(payload.get("process_name", "")).strip()
+        org_unit_name = str(payload.get("org_unit_name", "")).strip()
+        process_label = process_name or process_id
+        if process_label or org_unit_name:
+            return f"Prozess: {process_label or '-'} | Eigentümer: {org_unit_name or '-'}"
+
+    if decision.decision_type == "manual_role_assignment":
+        role_name = str(payload.get("role_name", "")).strip()
+        org_unit_name = str(payload.get("org_unit_name", "")).strip()
+        if role_name or org_unit_name:
+            return f"Rolle: {role_name or '-'} | Organisationseinheit: {org_unit_name or '-'}"
+
+    if decision.decision_type in {"manual_link", "confirmed_candidate_link"}:
+        process_id = str(payload.get("process_id", "")).strip()
+        application_name = str(payload.get("application_name", "")).strip()
+        matched_name = str(payload.get("matched_name", "")).strip()
+        if process_id or application_name or matched_name:
+            return (
+                f"Prozess: {process_id or '-'} | Begriff: {application_name or '-'}"
+                f" | Ziel: {matched_name or '-'}"
+            )
+
+    if decision.decision_type == "entity_merge":
+        entity_type = str(payload.get("entity_type", "")).strip()
+        source_name = str(payload.get("source_name", "")).strip()
+        target_name = str(payload.get("target_name", "")).strip()
+        if entity_type or source_name or target_name:
+            return f"Typ: {entity_type or '-'} | Quelle: {source_name or '-'} | Ziel: {target_name or '-'}"
+
+    if decision.decision_type == "decision_revert":
+        reverted_type = str(payload.get("reverted_type", "")).strip()
+        reverted_decision_id = str(payload.get("reverted_decision_id", "")).strip()
+        if reverted_type or reverted_decision_id:
+            return f"Zurückgenommen: {reverted_type or '-'} | Ursprungs-ID: {reverted_decision_id or '-'}"
+
+    return ""
+
+
+def _render_recent_decisions_section(config) -> None:
+    load_error: Exception | None = None
+    try:
+        decisions = list_recent_manual_decisions(get_session_neo4j_client(config), limit=15)
+    except Exception as exc:
+        decisions = []
+        load_error = exc
+
+    with st.expander("Letzte manuelle Änderungen", expanded=st.session_state.get(_SECTION_RECENT_DECISIONS, False)):
+        if load_error:
+            st.warning(f"Manuelle Änderungen konnten nicht geladen werden: {load_error}")
+            return
+        if not decisions:
+            st.info("Noch keine manuellen Änderungen im Entscheidungslog vorhanden.")
+            return
+
+        st.caption("Hier können gezielt nachvollziehbare manuelle Eingriffe zurückgenommen werden.")
+        for decision in decisions:
+            with st.container(border=True):
+                cols = st.columns([4, 2, 1])
+                cols[0].markdown(f"**{_describe_manual_decision(decision)}**")
+                context = _describe_manual_decision_context(decision)
+                if context:
+                    cols[0].caption(context)
+                cols[1].caption(f"Status: {decision.status}")
+                cols[1].caption(f"Zeitpunkt: {decision.created_at}")
+                if cols[2].button("Zurücknehmen", key=f"decision-revert::{decision.decision_id}", width="stretch"):
+                    level, message = revert_manual_decision(config, decision.decision_id)
+                    getattr(st, level)(message)
+                    _rerun_keep(_SECTION_RECENT_DECISIONS)
+
+
+def _render_org_unit_merge_section(config, org_units) -> None:
+    existing_org_unit_names = [entry.get("name", "") for entry in org_units if entry.get("name")]
+    with st.expander("Organisationseinheiten konsolidieren", expanded=st.session_state.get(_SECTION_MERGE, False)):
+        if len(existing_org_unit_names) < 2:
+            st.info("Für einen Merge werden mindestens zwei Organisationseinheiten benötigt.")
+            return
+
+        st.caption(
+            "Verwenden Sie diesen Bereich, um Dubletten zusammenzuführen. "
+            "Der Quellname wird als Alias des Zielobjekts weitergeführt."
+        )
+        source_name = st.selectbox(
+            "Quelle",
+            options=[""] + existing_org_unit_names,
+            key="org-merge-source",
+        )
+        target_options = [""] + [name for name in existing_org_unit_names if name != source_name]
+        target_name = st.selectbox(
+            "Ziel",
+            options=target_options,
+            key="org-merge-target",
+        )
+
+        if source_name and target_name:
+            st.info(
+                "Precheck: Alle Verantwortlichkeiten, Rollen-Zuordnungen und vorhandenen Aliase "
+                "der Quelle werden auf das Ziel übertragen. Gleichartige Kanten werden nicht doppelt angelegt."
+            )
+
+        if st.button("Merge ausführen", key="org-merge-submit", width="stretch"):
+            if not source_name or not target_name:
+                st.warning("Bitte Quelle und Ziel auswählen.")
+            else:
+                level, message = merge_org_units(config, source_name, target_name)
+                getattr(st, level)(message)
+                _rerun_keep(_SECTION_MERGE)

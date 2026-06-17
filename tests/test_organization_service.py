@@ -91,7 +91,8 @@ def test_load_unassigned_roles_skips_roles_matching_existing_org_units(mock_get_
 
 @patch("services.organization_service.get_session_neo4j_client")
 @patch("services.organization_service.ensure_org_unit_registered")
-def test_assign_role_to_org_unit_writes_kann_einnehmen(_mock_register, mock_get_client) -> None:
+@patch("services.organization_service.create_manual_decision")
+def test_assign_role_to_org_unit_writes_kann_einnehmen(mock_create_manual_decision, _mock_register, mock_get_client) -> None:
     fake_client = FakeNeo4jClient()
     mock_get_client.return_value = fake_client
 
@@ -102,6 +103,8 @@ def test_assign_role_to_org_unit_writes_kann_einnehmen(_mock_register, mock_get_
     assert "Einkauf" in message
     kann_einnehmen_queries = [q for q, _ in fake_client.written if "KANN_EINNEHMEN" in q]
     assert len(kann_einnehmen_queries) == 1
+    mock_create_manual_decision.assert_called_once()
+    assert mock_create_manual_decision.call_args[0][1] == "manual_role_assignment"
 
 
 @patch("services.organization_service.get_session_neo4j_client")
@@ -134,17 +137,21 @@ def test_load_all_processes_with_owner_returns_list(mock_get_client) -> None:
 
 @patch("services.organization_service.get_session_neo4j_client")
 @patch("services.organization_service.ensure_org_unit_registered")
-def test_set_process_owner_writes_verantwortet(_mock_register, mock_get_client) -> None:
+@patch("services.organization_service.create_manual_decision")
+def test_set_process_owner_writes_verantwortet(mock_create_manual_decision, _mock_register, mock_get_client) -> None:
     fake_client = FakeNeo4jClient()
     mock_get_client.return_value = fake_client
 
-    level, _ = set_process_owner(_make_config(), "proc-1", "Einkauf")
+    level, _ = set_process_owner(_make_config(), "proc-1", "Einkauf", process_name="Reisekosten prüfen")
 
     assert level == "success"
     delete_queries = [q for q, _ in fake_client.written if "DELETE r" in q and "VERANTWORTET" in q]
     merge_queries = [q for q, _ in fake_client.written if "MERGE (o)-[:VERANTWORTET]->(p)" in q]
     assert len(delete_queries) == 1
     assert len(merge_queries) == 1
+    mock_create_manual_decision.assert_called_once()
+    assert mock_create_manual_decision.call_args[0][1] == "manual_process_owner_assignment"
+    assert mock_create_manual_decision.call_args[0][2]["process_name"] == "Reisekosten prüfen"
 
 
 @patch("services.organization_service.get_session_neo4j_client")
@@ -261,7 +268,7 @@ def test_accept_process_owner_candidate_writes_verantwortet_and_status(
     mock_load.return_value = run
     mock_neo4j.return_value = FakeNeo4jClient()
 
-    level, _ = accept_process_owner_candidate(_make_config(), "proc-1", "Einkauf")
+    level, _ = accept_process_owner_candidate(_make_config(), "proc-1", "Einkauf", process_name="Testprozess")
 
     assert level == "success"
     verantwortet_queries = [q for q, _ in mock_neo4j.return_value.written if "VERANTWORTET" in q and "MERGE" in q]

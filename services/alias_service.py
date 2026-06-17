@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import date
 
+from core.constants import ALIAS_SOURCE_KIND_MERGED_ENTITY
 from processing.knowledge_base import KnowledgeBase
 from core.neo4j_utils import Neo4jClient
 
@@ -160,6 +161,21 @@ def _merge_org_unit_alias(
     alias_name: str,
     target_name: str,
 ) -> None:
+    _merge_org_unit_alias_with_source_kind(
+        neo4j_client,
+        alias_name,
+        target_name,
+        source_kind=ALIAS_SOURCE_KIND_KNOWLEDGE_BASE,
+    )
+
+
+def _merge_org_unit_alias_with_source_kind(
+    neo4j_client: Neo4jClient,
+    alias_name: str,
+    target_name: str,
+    *,
+    source_kind: str,
+) -> None:
     _merge_alias_node(neo4j_client, alias_name)
     neo4j_client.execute_write(
         """
@@ -172,6 +188,53 @@ def _merge_org_unit_alias(
         {
             "target_name": target_name.strip(),
             "normalized_name": normalize_alias_name(alias_name),
-            "source_kind": ALIAS_SOURCE_KIND_KNOWLEDGE_BASE,
+            "source_kind": source_kind,
         },
+    )
+
+
+def write_merged_org_unit_alias(
+    neo4j_client: Neo4jClient,
+    source_name: str,
+    target_name: str,
+) -> None:
+    if _should_skip_alias(source_name, target_name):
+        return
+    _merge_org_unit_alias_with_source_kind(
+        neo4j_client,
+        source_name,
+        target_name,
+        source_kind=ALIAS_SOURCE_KIND_MERGED_ENTITY,
+    )
+
+
+def delete_application_alias(
+    neo4j_client: Neo4jClient,
+    alias_name: str,
+    cmdb_id: str,
+    *,
+    source_kind: str,
+) -> None:
+    normalized_name = normalize_alias_name(alias_name)
+    if not normalized_name or not cmdb_id:
+        return
+    neo4j_client.execute_write(
+        """
+        MATCH (alias:Alias {normalized_name: $normalized_name})-[r:KANN_MEINEN]->(application:Anwendung {cmdb_id: $cmdb_id})
+        WHERE r.source_kind = $source_kind
+        DELETE r
+        """,
+        {
+            "normalized_name": normalized_name,
+            "cmdb_id": cmdb_id,
+            "source_kind": source_kind,
+        },
+    )
+    neo4j_client.execute_write(
+        """
+        MATCH (alias:Alias {normalized_name: $normalized_name})
+        WHERE NOT (alias)-[:KANN_MEINEN]->()
+        DELETE alias
+        """,
+        {"normalized_name": normalized_name},
     )

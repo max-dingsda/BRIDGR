@@ -1,5 +1,5 @@
 from processing.knowledge_base import KnowledgeBase
-from services.alias_service import lookup_alias_matches, sync_knowledge_base_aliases
+from services.alias_service import delete_application_alias, lookup_alias_matches, sync_knowledge_base_aliases, write_merged_org_unit_alias
 
 
 class RecordingNeo4jClient:
@@ -157,3 +157,25 @@ def test_lookup_alias_matches_uses_unvalidated_read_path() -> None:
     rows = lookup_alias_matches(client, "Team Platform")
 
     assert rows[0]["entity_name"] == "IT Infrastructure"
+
+
+def test_delete_application_alias_removes_relation_and_orphan_alias_cleanup() -> None:
+    client = RecordingNeo4jClient()
+
+    delete_application_alias(client, "SAP CRM", "app-1", source_kind="confirmed_match")
+
+    queries = [query for query, _ in client.queries]
+    assert any("MATCH (alias:Alias {normalized_name: $normalized_name})-[r:KANN_MEINEN]->(application:Anwendung {cmdb_id: $cmdb_id})" in query for query in queries)
+    assert any("WHERE NOT (alias)-[:KANN_MEINEN]->()" in query for query in queries)
+
+
+def test_write_merged_org_unit_alias_writes_alias_for_source_name() -> None:
+    client = RecordingNeo4jClient()
+
+    write_merged_org_unit_alias(client, "Team IT Plattforms", "Plattform IT")
+
+    queries = [query for query, _ in client.queries]
+    assert any("MERGE (alias:Alias {normalized_name: $normalized_name})" in query for query in queries)
+    assert any("MERGE (alias)-[r:KANN_MEINEN]->(org_unit)" in query for query in queries)
+    params = [params for _, params in client.queries if params and params.get("target_name") == "Plattform IT"][0]
+    assert params["source_kind"] == "merged_entity"

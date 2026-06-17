@@ -3,7 +3,7 @@
 BRIDGR verbindet Prozessdokumentation mit CMDB-Daten, um einen EA-Wissensgraphen aufzubauen und spaeter ueber eine natuerlichsprachliche Oberflaeche abfragbar zu machen.
 
 Der aktuelle Architektur-Referenzstand fuer die Umsetzung ist:
-- `Specs/Bridgr_Architektur_v26.md`
+- `Specs/Bridgr_Architektur_v27.md`
 
 ## Zielbild
 
@@ -89,6 +89,9 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - ArchiMate-Kandidaten werden direkt als Nodes angelegt; Beziehungen koennen importiert werden ohne auf Kandidatenbestaetigung zu warten
 - Fuzzy-Matching im ArchiMate-Import arbeitet nur gegen einen Pre-Import-Snapshot; Elemente desselben Imports erkennen einander nicht als Kandidaten
 - Tab 4 (Organisation) zeigt OrgEinheiten direkt aus Neo4j inkl. ArchiMate-importierter `BusinessActor`-Elemente
+- manuelle fachliche Eingriffe werden als `ManualDecision` in Neo4j protokolliert
+- erste Ruecknahme-Logik fuer sichere manuelle Entscheidungen im Organisations- und Review-Kontext
+- Konsolidierung von Organisationseinheiten per Merge inklusive Alias-Fortfuehrung des Quellnamens auf den Zielknoten
 
 Wichtige Einordnung:
 - Die aktuelle Implementierung unterstuetzt BPMN, TXT, DOCX und PDF ueber einen gemeinsamen semantischen Extraktionspfad.
@@ -101,6 +104,8 @@ Noch nicht umgesetzt:
 - vollstaendige Loesung von `knowledge_base/kb.json` (Finding #15); kb.json ist zur Loesung vorgemerkt, existiert aber noch als Sicherheitsnetz
 - ArchiMate Views/Viewpoints im Export; selektiver Export (setzt Views voraus)
 - Node-Merge beim Bestaetigen eines ArchiMate-Fuzzy-Match-Kandidaten (Finding #25)
+- Ruecknahme fuer `entity_merge`-Entscheidungen
+- Konsolidierung von `Prozess`-Dubletten
 
 ## Projektstruktur
 
@@ -362,11 +367,17 @@ Aktuell verfuegbar:
 - neu bestaetigte oder neu angelegte Organisationseinheiten nach dem UI-Rerun sofort in den folgenden Auswahllisten verfuegbar machen
 - gemappte Kandidaten als `(:Alias)-[:KANN_MEINEN]->(:OrgEinheit)` nach Neo4j projizieren
 - bei gemappten oder uebernommenen Kandidaten betroffene Prozesse im letzten Lauf gezielt neu bewerten und `VERANTWORTET`-Beziehungen in Neo4j nachziehen
+- Bereich `Letzte manuelle Aenderungen` mit ruecknehmbaren Entscheidungen fuer sichere Faelle
+- menschenlesbare Kontexte in der Aenderungshistorie, z.B. Prozessname und Eigentuemer statt nur technischer IDs
+- Bereich `Organisationseinheiten konsolidieren` fuer den Merge fachlicher Dubletten
+- Merge uebernimmt passende Beziehungen auf den Zielknoten, vermeidet Duplikate und fuehrt den Quellnamen als Alias auf dem Zielobjekt weiter
 
 Wichtige Einordnung:
 - manuell angelegte Organisationseinheiten koennen zunaechst ohne Prozessbezug im Graph existieren
 - CMDB-Owner mit sicherem 1:1-Match koennen direkt als `VERANTWORTET` auf CMDB-Objekte landen
 - unsichere CMDB-Owner werden wie andere Org-Kandidaten ueber denselben Review-Pfad behandelt
+- `ManualDecision` ist ein interner Betriebs-Knotentyp und wird bewusst nicht fuer den Chat freigegeben
+- der aktuell umgesetzte Merge gilt nur fuer `OrgEinheit`; `Prozess`-Merges sind architektonisch vorgesehen, aber noch nicht implementiert
 
 ### Tab 5 - EA-Modell
 

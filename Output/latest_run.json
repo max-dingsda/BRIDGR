@@ -49,7 +49,8 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-001_eingangsrechnung_pruefen_und_buchen.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-001_eingangsrechnung_pruefen_und_buchen.txt",
+        "process_owner_candidate": "Buchhaltung"
       },
       "matches": [
         {
@@ -88,20 +89,44 @@
           "application_name": "Invoice OCR",
           "cmdb_id": "APP-053",
           "matched_name": "Invoice OCR Service",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "Invoice OCR",
+          "cmdb_id": "IF-008",
+          "matched_name": "Invoice OCR REST API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         },
         {
           "application_name": "DATEV",
           "cmdb_id": "APP-014",
           "matched_name": "DATEV Unternehmen Online",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Eingangsrechnung prüfen und buchen",
+          "application_name": "Invoice OCR",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Eingangsrechnung prüfen und buchen",
+          "application_name": "Invoice OCR",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Eingangsrechnung prüfen und buchen",
+          "application_name": "DATEV",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Eingangsrechnung prüfen und buchen",
@@ -145,7 +170,8 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-001_eingangsrechnung_pruefen_und_buchen.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-001_eingangsrechnung_pruefen_und_buchen.txt",
+          "process_owner_candidate": "Buchhaltung"
         },
         "matches": [
           {
@@ -184,17 +210,25 @@
             "application_name": "Invoice OCR",
             "cmdb_id": "APP-053",
             "matched_name": "Invoice OCR Service",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "Invoice OCR",
+            "cmdb_id": "IF-008",
+            "matched_name": "Invoice OCR REST API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           },
           {
             "application_name": "DATEV",
             "cmdb_id": "APP-014",
             "matched_name": "DATEV Unternehmen Online",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           }
         ]
       },
@@ -239,27 +273,65 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-002_monatsabschluss_durchfuehren.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-002_monatsabschluss_durchfuehren.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
           "application_name": "SAP FI",
           "cmdb_id": "APP-001",
           "matched_name": "SAP S/4HANA FI",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "SAP FI",
+          "cmdb_id": "IF-001",
+          "matched_name": "SAP FI Bank API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         },
         {
           "application_name": "Power BI",
           "cmdb_id": "APP-015",
           "matched_name": "Power BI Service",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "Power BI",
+          "cmdb_id": "IF-013",
+          "matched_name": "Power BI Dataset API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Monatsabschluss durchführen",
+          "application_name": "SAP FI",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Monatsabschluss durchführen",
+          "application_name": "SAP FI",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Monatsabschluss durchführen",
+          "application_name": "Power BI",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Monatsabschluss durchführen",
+          "application_name": "Power BI",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Monatsabschluss durchführen",
@@ -295,24 +367,41 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-002_monatsabschluss_durchfuehren.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-002_monatsabschluss_durchfuehren.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
             "application_name": "SAP FI",
             "cmdb_id": "APP-001",
             "matched_name": "SAP S/4HANA FI",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "SAP FI",
+            "cmdb_id": "IF-001",
+            "matched_name": "SAP FI Bank API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           },
           {
             "application_name": "Power BI",
             "cmdb_id": "APP-015",
             "matched_name": "Power BI Service",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "Power BI",
+            "cmdb_id": "IF-013",
+            "matched_name": "Power BI Dataset API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           }
         ]
       },
@@ -357,16 +446,25 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-003_zahlungslauf_freigeben.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-003_zahlungslauf_freigeben.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
           "application_name": "SAP FI",
           "cmdb_id": "APP-001",
           "matched_name": "SAP S/4HANA FI",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "SAP FI",
+          "cmdb_id": "IF-001",
+          "matched_name": "SAP FI Bank API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         },
         {
           "application_name": "Banking Gateway",
@@ -377,7 +475,18 @@
           "score": 1.05
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Zahlungslauf freigeben",
+          "application_name": "SAP FI",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Zahlungslauf freigeben",
+          "application_name": "SAP FI",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Zahlungslauf freigeben",
@@ -413,16 +522,25 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-003_zahlungslauf_freigeben.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-003_zahlungslauf_freigeben.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
             "application_name": "SAP FI",
             "cmdb_id": "APP-001",
             "matched_name": "SAP S/4HANA FI",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "SAP FI",
+            "cmdb_id": "IF-001",
+            "matched_name": "SAP FI Bank API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           },
           {
             "application_name": "Banking Gateway",
@@ -475,27 +593,65 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-004_budgetplanung_konsolidieren.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-004_budgetplanung_konsolidieren.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
           "application_name": "SAP CO",
           "cmdb_id": "APP-002",
           "matched_name": "SAP S/4HANA CO",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "SAP CO",
+          "cmdb_id": "IF-002",
+          "matched_name": "SAP CO Reporting API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         },
         {
           "application_name": "PowerBI",
           "cmdb_id": "APP-015",
           "matched_name": "Power BI Service",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "PowerBI",
+          "cmdb_id": "IF-013",
+          "matched_name": "Power BI Dataset API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Budgetplanung konsolidieren",
+          "application_name": "SAP CO",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Budgetplanung konsolidieren",
+          "application_name": "SAP CO",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Budgetplanung konsolidieren",
+          "application_name": "PowerBI",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Budgetplanung konsolidieren",
+          "application_name": "PowerBI",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Budgetplanung konsolidieren",
@@ -531,24 +687,41 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-004_budgetplanung_konsolidieren.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-004_budgetplanung_konsolidieren.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
             "application_name": "SAP CO",
             "cmdb_id": "APP-002",
             "matched_name": "SAP S/4HANA CO",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "SAP CO",
+            "cmdb_id": "IF-002",
+            "matched_name": "SAP CO Reporting API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           },
           {
             "application_name": "PowerBI",
             "cmdb_id": "APP-015",
             "matched_name": "Power BI Service",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "PowerBI",
+            "cmdb_id": "IF-013",
+            "matched_name": "Power BI Dataset API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           }
         ]
       },
@@ -593,27 +766,52 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-005_forecast_aktualisieren.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-005_forecast_aktualisieren.txt",
+        "process_owner_candidate": "Controlling"
       },
       "matches": [
         {
           "application_name": "SAP CO",
           "cmdb_id": "APP-002",
           "matched_name": "SAP S/4HANA CO",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "SAP CO",
+          "cmdb_id": "IF-002",
+          "matched_name": "SAP CO Reporting API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         },
         {
           "application_name": "BI Warehouse",
           "cmdb_id": "APP-055",
           "matched_name": "BI Data Warehouse",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Forecast aktualisieren",
+          "application_name": "SAP CO",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Forecast aktualisieren",
+          "application_name": "SAP CO",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Forecast aktualisieren",
+          "application_name": "BI Warehouse",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Forecast aktualisieren",
@@ -649,24 +847,33 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-005_forecast_aktualisieren.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-005_forecast_aktualisieren.txt",
+          "process_owner_candidate": "Controlling"
         },
         "matches": [
           {
             "application_name": "SAP CO",
             "cmdb_id": "APP-002",
             "matched_name": "SAP S/4HANA CO",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "SAP CO",
+            "cmdb_id": "IF-002",
+            "matched_name": "SAP CO Reporting API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           },
           {
             "application_name": "BI Warehouse",
             "cmdb_id": "APP-055",
             "matched_name": "BI Data Warehouse",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           }
         ]
       },
@@ -703,19 +910,26 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-006_lieferanten_anlegen.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-006_lieferanten_anlegen.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
           "application_name": "SAP MM",
           "cmdb_id": "APP-003",
           "matched_name": "SAP S/4HANA MM",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Lieferanten anlegen",
+          "application_name": "SAP MM",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Lieferanten anlegen",
@@ -743,16 +957,17 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-006_lieferanten_anlegen.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-006_lieferanten_anlegen.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
             "application_name": "SAP MM",
             "cmdb_id": "APP-003",
             "matched_name": "SAP S/4HANA MM",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           }
         ]
       },
@@ -797,16 +1012,17 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-007_bestellung_ausloesen.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-007_bestellung_ausloesen.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
           "application_name": "SAP MM",
           "cmdb_id": "APP-003",
           "matched_name": "SAP S/4HANA MM",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         },
         {
           "application_name": "EDI Gateway",
@@ -817,7 +1033,13 @@
           "score": 1.05
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Bestellung auslösen",
+          "application_name": "SAP MM",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Bestellung auslösen",
@@ -853,16 +1075,17 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-007_bestellung_ausloesen.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-007_bestellung_ausloesen.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
             "application_name": "SAP MM",
             "cmdb_id": "APP-003",
             "matched_name": "SAP S/4HANA MM",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           },
           {
             "application_name": "EDI Gateway",
@@ -915,16 +1138,17 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-008_rahmenvertrag_pruefen.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-008_rahmenvertrag_pruefen.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
           "application_name": "DocuSign",
           "cmdb_id": "APP-013",
           "matched_name": "DocuSign CLM",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         },
         {
           "application_name": "ContractSafe",
@@ -935,7 +1159,13 @@
           "score": 1.05
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Rahmenvertrag prüfen",
+          "application_name": "DocuSign",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Rahmenvertrag prüfen",
@@ -971,16 +1201,17 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-008_rahmenvertrag_pruefen.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-008_rahmenvertrag_pruefen.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
             "application_name": "DocuSign",
             "cmdb_id": "APP-013",
             "matched_name": "DocuSign CLM",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           },
           {
             "application_name": "ContractSafe",
@@ -1033,27 +1264,52 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-009_kundenangebot_erstellen.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-009_kundenangebot_erstellen.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
           "application_name": "CRM",
           "cmdb_id": "APP-006",
           "matched_name": "Microsoft Dynamics CRM",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "CRM",
+          "cmdb_id": "IF-003",
+          "matched_name": "CRM Customer API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         },
         {
           "application_name": "SAP SD",
           "cmdb_id": "APP-004",
           "matched_name": "SAP S/4HANA SD",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Kundenangebot erstellen",
+          "application_name": "CRM",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Kundenangebot erstellen",
+          "application_name": "CRM",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Kundenangebot erstellen",
+          "application_name": "SAP SD",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Kundenangebot erstellen",
@@ -1089,24 +1345,33 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-009_kundenangebot_erstellen.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-009_kundenangebot_erstellen.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
             "application_name": "CRM",
             "cmdb_id": "APP-006",
             "matched_name": "Microsoft Dynamics CRM",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "CRM",
+            "cmdb_id": "IF-003",
+            "matched_name": "CRM Customer API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           },
           {
             "application_name": "SAP SD",
             "cmdb_id": "APP-004",
             "matched_name": "SAP S/4HANA SD",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           }
         ]
       },
@@ -1159,35 +1424,65 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-010_auftrag_erfassen.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-010_auftrag_erfassen.txt",
+        "process_owner_candidate": "Vertrieb"
       },
       "matches": [
         {
           "application_name": "Dynamics CRM",
           "cmdb_id": "APP-006",
           "matched_name": "Microsoft Dynamics CRM",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         },
         {
           "application_name": "SAP SD",
           "cmdb_id": "APP-004",
           "matched_name": "SAP S/4HANA SD",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         },
         {
           "application_name": "Webshop",
           "cmdb_id": "APP-022",
           "matched_name": "Webshop Portal",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "Webshop",
+          "cmdb_id": "IF-016",
+          "matched_name": "Webshop Order API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Auftrag erfassen",
+          "application_name": "Dynamics CRM",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Auftrag erfassen",
+          "application_name": "SAP SD",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Auftrag erfassen",
+          "application_name": "Webshop",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Auftrag erfassen",
+          "application_name": "Webshop",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Auftrag erfassen",
@@ -1231,32 +1526,41 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-010_auftrag_erfassen.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-010_auftrag_erfassen.txt",
+          "process_owner_candidate": "Vertrieb"
         },
         "matches": [
           {
             "application_name": "Dynamics CRM",
             "cmdb_id": "APP-006",
             "matched_name": "Microsoft Dynamics CRM",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           },
           {
             "application_name": "SAP SD",
             "cmdb_id": "APP-004",
             "matched_name": "SAP S/4HANA SD",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           },
           {
             "application_name": "Webshop",
             "cmdb_id": "APP-022",
             "matched_name": "Webshop Portal",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "Webshop",
+            "cmdb_id": "IF-016",
+            "matched_name": "Webshop Order API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           }
         ]
       },
@@ -1301,16 +1605,25 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-011_kundenreklamation_bearbeiten.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-011_kundenreklamation_bearbeiten.txt",
+        "process_owner_candidate": "Kundenservice"
       },
       "matches": [
         {
           "application_name": "Zendesk",
           "cmdb_id": "APP-024",
           "matched_name": "Zendesk Support",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "Zendesk",
+          "cmdb_id": "IF-017",
+          "matched_name": "Zendesk Ticket API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         },
         {
           "application_name": "QMSuite",
@@ -1321,7 +1634,18 @@
           "score": 1.05
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Kundenreklamation bearbeiten",
+          "application_name": "Zendesk",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Kundenreklamation bearbeiten",
+          "application_name": "Zendesk",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Kundenreklamation bearbeiten",
@@ -1357,16 +1681,25 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-011_kundenreklamation_bearbeiten.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-011_kundenreklamation_bearbeiten.txt",
+          "process_owner_candidate": "Kundenservice"
         },
         "matches": [
           {
             "application_name": "Zendesk",
             "cmdb_id": "APP-024",
             "matched_name": "Zendesk Support",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "Zendesk",
+            "cmdb_id": "IF-017",
+            "matched_name": "Zendesk Ticket API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           },
           {
             "application_name": "QMSuite",
@@ -1507,27 +1840,39 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-013_wareneingang_buchen.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-013_wareneingang_buchen.txt",
+        "process_owner_candidate": "Logistik"
       },
       "matches": [
         {
           "application_name": "WarehousePro",
           "cmdb_id": "APP-017",
           "matched_name": "WarehousePro WMS",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         },
         {
           "application_name": "SAP MM",
           "cmdb_id": "APP-003",
           "matched_name": "SAP S/4HANA MM",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Wareneingang buchen",
+          "application_name": "WarehousePro",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Wareneingang buchen",
+          "application_name": "SAP MM",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Wareneingang buchen",
@@ -1563,24 +1908,25 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-013_wareneingang_buchen.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-013_wareneingang_buchen.txt",
+          "process_owner_candidate": "Logistik"
         },
         "matches": [
           {
             "application_name": "WarehousePro",
             "cmdb_id": "APP-017",
             "matched_name": "WarehousePro WMS",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           },
           {
             "application_name": "SAP MM",
             "cmdb_id": "APP-003",
             "matched_name": "SAP S/4HANA MM",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           }
         ]
       },
@@ -1607,26 +1953,27 @@
         "follows_after": [],
         "raw_applications": [
           {
-            "name": "WMS",
+            "name": "WarehousePro WMS",
             "confidence": "stark"
           }
         ],
         "applications": [
           {
-            "name": "WMS",
+            "name": "WarehousePro WMS",
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-014_kommissionierung_planen.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-014_kommissionierung_planen.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
-          "application_name": "WMS",
+          "application_name": "WarehousePro WMS",
           "cmdb_id": "APP-017",
           "matched_name": "WarehousePro WMS",
           "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "source": "fuzzy",
+          "score": 1.05
         }
       ],
       "review_items": [],
@@ -1647,26 +1994,27 @@
           "follows_after": [],
           "raw_applications": [
             {
-              "name": "WMS",
+              "name": "WarehousePro WMS",
               "confidence": "stark"
             }
           ],
           "applications": [
             {
-              "name": "WMS",
+              "name": "WarehousePro WMS",
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-014_kommissionierung_planen.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-014_kommissionierung_planen.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
-            "application_name": "WMS",
+            "application_name": "WarehousePro WMS",
             "cmdb_id": "APP-017",
             "matched_name": "WarehousePro WMS",
             "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "source": "fuzzy",
+            "score": 1.05
           }
         ]
       },
@@ -1799,16 +2147,25 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-016_produktionsauftrag_starten.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-016_produktionsauftrag_starten.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
           "application_name": "MES",
           "cmdb_id": "APP-019",
           "matched_name": "MES FactoryLine",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "MES",
+          "cmdb_id": "IF-005",
+          "matched_name": "MES Production API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         },
         {
           "application_name": "SAP PP",
@@ -1820,6 +2177,16 @@
         }
       ],
       "review_items": [
+        {
+          "process_name": "Produktionsauftrag starten",
+          "application_name": "MES",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Produktionsauftrag starten",
+          "application_name": "MES",
+          "reason": "fuzzy"
+        },
         {
           "process_name": "Produktionsauftrag starten",
           "application_name": "SAP PP",
@@ -1861,16 +2228,25 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-016_produktionsauftrag_starten.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-016_produktionsauftrag_starten.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
             "application_name": "MES",
             "cmdb_id": "APP-019",
             "matched_name": "MES FactoryLine",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "MES",
+            "cmdb_id": "IF-005",
+            "matched_name": "MES Production API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           },
           {
             "application_name": "SAP PP",
@@ -1923,27 +2299,52 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-017_anlagenstoerung_melden.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-017_anlagenstoerung_melden.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
           "application_name": "PlantView",
           "cmdb_id": "APP-020",
           "matched_name": "SCADA PlantView",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         },
         {
           "application_name": "ServiceNow",
           "cmdb_id": "APP-007",
           "matched_name": "ServiceNow ITSM",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "ServiceNow",
+          "cmdb_id": "IF-014",
+          "matched_name": "ServiceNow Incident API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Anlagenstörung melden",
+          "application_name": "PlantView",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Anlagenstörung melden",
+          "application_name": "ServiceNow",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Anlagenstörung melden",
+          "application_name": "ServiceNow",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Anlagenstörung melden",
@@ -1979,24 +2380,33 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-017_anlagenstoerung_melden.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-017_anlagenstoerung_melden.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
             "application_name": "PlantView",
             "cmdb_id": "APP-020",
             "matched_name": "SCADA PlantView",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           },
           {
             "application_name": "ServiceNow",
             "cmdb_id": "APP-007",
             "matched_name": "ServiceNow ITSM",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "ServiceNow",
+            "cmdb_id": "IF-014",
+            "matched_name": "ServiceNow Incident API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           }
         ]
       },
@@ -2183,8 +2593,7 @@
         ]
       },
       "process_write_action": "inserted",
-      "error_message": null,
-      "process_owner_candidate_status": "accepted"
+      "error_message": null
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-020_bewerbung_pruefen.txt",
@@ -2224,27 +2633,39 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-020_bewerbung_pruefen.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-020_bewerbung_pruefen.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
           "application_name": "Workday",
           "cmdb_id": "APP-025",
           "matched_name": "Workday Recruiting",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         },
         {
           "application_name": "Teams",
           "cmdb_id": "APP-011",
           "matched_name": "Microsoft Teams",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Bewerbung prüfen",
+          "application_name": "Workday",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Bewerbung prüfen",
+          "application_name": "Teams",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Bewerbung prüfen",
@@ -2280,24 +2701,25 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-020_bewerbung_pruefen.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-020_bewerbung_pruefen.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
             "application_name": "Workday",
             "cmdb_id": "APP-025",
             "matched_name": "Workday Recruiting",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           },
           {
             "application_name": "Teams",
             "cmdb_id": "APP-011",
             "matched_name": "Microsoft Teams",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           }
         ]
       },
@@ -2350,16 +2772,17 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-021_onboarding_durchfuehren.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-021_onboarding_durchfuehren.txt",
+        "process_owner_candidate": "Personal"
       },
       "matches": [
         {
           "application_name": "SuccessFactors",
           "cmdb_id": "APP-005",
           "matched_name": "SAP SuccessFactors",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         },
         {
           "application_name": "AD",
@@ -2373,16 +2796,26 @@
           "application_name": "Teams",
           "cmdb_id": "APP-011",
           "matched_name": "Microsoft Teams",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         }
       ],
       "review_items": [
         {
           "process_name": "Onboarding durchführen",
+          "application_name": "SuccessFactors",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Onboarding durchführen",
           "application_name": "AD",
           "reason": "unmatched"
+        },
+        {
+          "process_name": "Onboarding durchführen",
+          "application_name": "Teams",
+          "reason": "fuzzy"
         }
       ],
       "graph_payload": {
@@ -2428,16 +2861,17 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-021_onboarding_durchfuehren.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-021_onboarding_durchfuehren.txt",
+          "process_owner_candidate": "Personal"
         },
         "matches": [
           {
             "application_name": "SuccessFactors",
             "cmdb_id": "APP-005",
             "matched_name": "SAP SuccessFactors",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           },
           {
             "application_name": "AD",
@@ -2451,9 +2885,9 @@
             "application_name": "Teams",
             "cmdb_id": "APP-011",
             "matched_name": "Microsoft Teams",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           }
         ]
       },
@@ -2490,19 +2924,26 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-022_arbeitszeit_korrigieren.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-022_arbeitszeit_korrigieren.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
           "application_name": "Clockwise",
           "cmdb_id": "APP-051",
           "matched_name": "Clockwise Time Tracking",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Arbeitszeit korrigieren",
+          "application_name": "Clockwise",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Arbeitszeit korrigieren",
@@ -2530,16 +2971,17 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-022_arbeitszeit_korrigieren.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-022_arbeitszeit_korrigieren.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
             "application_name": "Clockwise",
             "cmdb_id": "APP-051",
             "matched_name": "Clockwise Time Tracking",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           }
         ]
       },
@@ -2576,19 +3018,26 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-023_pflichtschulung_zuweisen.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-023_pflichtschulung_zuweisen.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
           "application_name": "LearningHub",
           "cmdb_id": "APP-050",
           "matched_name": "LearningHub LMS",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Pflichtschulung zuweisen",
+          "application_name": "LearningHub",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Pflichtschulung zuweisen",
@@ -2616,16 +3065,17 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-023_pflichtschulung_zuweisen.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-023_pflichtschulung_zuweisen.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
             "application_name": "LearningHub",
             "cmdb_id": "APP-050",
             "matched_name": "LearningHub LMS",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           }
         ]
       },
@@ -2670,27 +3120,39 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-024_marketingkampagne_planen.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-024_marketingkampagne_planen.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
           "application_name": "PIM",
           "cmdb_id": "APP-021",
           "matched_name": "PIM ContentHub",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         },
         {
           "application_name": "SharePoint",
           "cmdb_id": "APP-010",
           "matched_name": "Microsoft SharePoint Online",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Marketingkampagne planen",
+          "application_name": "PIM",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Marketingkampagne planen",
+          "application_name": "SharePoint",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Marketingkampagne planen",
@@ -2726,24 +3188,25 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-024_marketingkampagne_planen.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-024_marketingkampagne_planen.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
             "application_name": "PIM",
             "cmdb_id": "APP-021",
             "matched_name": "PIM ContentHub",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           },
           {
             "application_name": "SharePoint",
             "cmdb_id": "APP-010",
             "matched_name": "Microsoft SharePoint Online",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           }
         ]
       },
@@ -2922,7 +3385,8 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-026_security_incident_triagieren.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-026_security_incident_triagieren.txt",
+        "process_owner_candidate": "Informationssicherheit"
       },
       "matches": [
         {
@@ -2961,9 +3425,17 @@
           "application_name": "ServiceNow",
           "cmdb_id": "APP-007",
           "matched_name": "ServiceNow ITSM",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "ServiceNow",
+          "cmdb_id": "IF-014",
+          "matched_name": "ServiceNow Incident API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         }
       ],
       "review_items": [
@@ -2985,6 +3457,16 @@
         {
           "process_name": "Security Incident triagieren",
           "application_name": "Defender",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Security Incident triagieren",
+          "application_name": "ServiceNow",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Security Incident triagieren",
+          "application_name": "ServiceNow",
           "reason": "fuzzy"
         }
       ],
@@ -3031,7 +3513,8 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-026_security_incident_triagieren.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-026_security_incident_triagieren.txt",
+          "process_owner_candidate": "Informationssicherheit"
         },
         "matches": [
           {
@@ -3070,9 +3553,17 @@
             "application_name": "ServiceNow",
             "cmdb_id": "APP-007",
             "matched_name": "ServiceNow ITSM",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "ServiceNow",
+            "cmdb_id": "IF-014",
+            "matched_name": "ServiceNow Incident API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           }
         ]
       },
@@ -3248,16 +3739,17 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-028_mitarbeiterzugang_bereitstellen.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-028_mitarbeiterzugang_bereitstellen.txt",
+        "process_owner_candidate": "IT-Betrieb"
       },
       "matches": [
         {
           "application_name": "Entra ID",
           "cmdb_id": "APP-030",
           "matched_name": "Microsoft Entra ID",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         },
         {
           "application_name": "Active Directory",
@@ -3269,6 +3761,11 @@
         }
       ],
       "review_items": [
+        {
+          "process_name": "Mitarbeiterzugang bereitstellen",
+          "application_name": "Entra ID",
+          "reason": "fuzzy"
+        },
         {
           "process_name": "Mitarbeiterzugang bereitstellen",
           "application_name": "Active Directory",
@@ -3310,16 +3807,17 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-028_mitarbeiterzugang_bereitstellen.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-028_mitarbeiterzugang_bereitstellen.txt",
+          "process_owner_candidate": "IT-Betrieb"
         },
         "matches": [
           {
             "application_name": "Entra ID",
             "cmdb_id": "APP-030",
             "matched_name": "Microsoft Entra ID",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           },
           {
             "application_name": "Active Directory",
@@ -3332,8 +3830,7 @@
         ]
       },
       "process_write_action": "inserted",
-      "error_message": null,
-      "process_owner_candidate_status": "accepted"
+      "error_message": null
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-029_passwort_zuruecksetzen.txt",
@@ -3373,7 +3870,8 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-029_passwort_zuruecksetzen.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-029_passwort_zuruecksetzen.txt",
+        "process_owner_candidate": "IT-Betrieb"
       },
       "matches": [
         {
@@ -3388,9 +3886,17 @@
           "application_name": "ServiceNow",
           "cmdb_id": "APP-007",
           "matched_name": "ServiceNow ITSM",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "ServiceNow",
+          "cmdb_id": "IF-014",
+          "matched_name": "ServiceNow Incident API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         }
       ],
       "review_items": [
@@ -3398,6 +3904,16 @@
           "process_name": "Passwort zurücksetzen",
           "application_name": "AD",
           "reason": "unmatched"
+        },
+        {
+          "process_name": "Passwort zurücksetzen",
+          "application_name": "ServiceNow",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Passwort zurücksetzen",
+          "application_name": "ServiceNow",
+          "reason": "fuzzy"
         }
       ],
       "graph_payload": {
@@ -3435,7 +3951,8 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-029_passwort_zuruecksetzen.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-029_passwort_zuruecksetzen.txt",
+          "process_owner_candidate": "IT-Betrieb"
         },
         "matches": [
           {
@@ -3450,9 +3967,17 @@
             "application_name": "ServiceNow",
             "cmdb_id": "APP-007",
             "matched_name": "ServiceNow ITSM",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "ServiceNow",
+            "cmdb_id": "IF-014",
+            "matched_name": "ServiceNow Incident API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           }
         ]
       },
@@ -3489,19 +4014,26 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-030_backup_restore_testen.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-030_backup_restore_testen.txt",
+        "process_owner_candidate": "IT-Betrieb"
       },
       "matches": [
         {
           "application_name": "Veeam",
           "cmdb_id": "APP-029",
           "matched_name": "Veeam Backup & Replication",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Backup Restore testen",
+          "application_name": "Veeam",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Backup Restore testen",
@@ -3529,16 +4061,17 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-030_backup_restore_testen.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-030_backup_restore_testen.txt",
+          "process_owner_candidate": "IT-Betrieb"
         },
         "matches": [
           {
             "application_name": "Veeam",
             "cmdb_id": "APP-029",
             "matched_name": "Veeam Backup & Replication",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           }
         ]
       },
@@ -3800,8 +4333,7 @@
         ]
       },
       "process_write_action": "inserted",
-      "error_message": null,
-      "process_owner_candidate_status": "accepted"
+      "error_message": null
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-033_datenqualitaetspruefung_ausfuehren.txt",
@@ -4336,27 +4868,52 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-038_management_reporting_vorbereiten.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-038_management_reporting_vorbereiten.txt",
+        "process_owner_candidate": "Geschaeftsfuehrung"
       },
       "matches": [
         {
           "application_name": "Power BI",
           "cmdb_id": "APP-015",
           "matched_name": "Power BI Service",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "Power BI",
+          "cmdb_id": "IF-013",
+          "matched_name": "Power BI Dataset API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         },
         {
           "application_name": "SharePoint",
           "cmdb_id": "APP-010",
           "matched_name": "Microsoft SharePoint Online",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Management Reporting vorbereiten",
+          "application_name": "Power BI",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Management Reporting vorbereiten",
+          "application_name": "Power BI",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Management Reporting vorbereiten",
+          "application_name": "SharePoint",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Management Reporting vorbereiten",
@@ -4392,24 +4949,33 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-038_management_reporting_vorbereiten.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-038_management_reporting_vorbereiten.txt",
+          "process_owner_candidate": "Geschaeftsfuehrung"
         },
         "matches": [
           {
             "application_name": "Power BI",
             "cmdb_id": "APP-015",
             "matched_name": "Power BI Service",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "Power BI",
+            "cmdb_id": "IF-013",
+            "matched_name": "Power BI Dataset API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           },
           {
             "application_name": "SharePoint",
             "cmdb_id": "APP-010",
             "matched_name": "Microsoft SharePoint Online",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           }
         ]
       },
@@ -4454,27 +5020,39 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-039_datenschutzanfrage_bearbeiten.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-039_datenschutzanfrage_bearbeiten.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
           "application_name": "SharePoint",
           "cmdb_id": "APP-010",
           "matched_name": "Microsoft SharePoint Online",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         },
         {
           "application_name": "Exchange",
           "cmdb_id": "APP-012",
           "matched_name": "Microsoft Exchange Online",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Datenschutzanfrage bearbeiten",
+          "application_name": "SharePoint",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Datenschutzanfrage bearbeiten",
+          "application_name": "Exchange",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Datenschutzanfrage bearbeiten",
@@ -4510,24 +5088,25 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-039_datenschutzanfrage_bearbeiten.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-039_datenschutzanfrage_bearbeiten.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
             "application_name": "SharePoint",
             "cmdb_id": "APP-010",
             "matched_name": "Microsoft SharePoint Online",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           },
           {
             "application_name": "Exchange",
             "cmdb_id": "APP-012",
             "matched_name": "Microsoft Exchange Online",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           }
         ]
       },
@@ -4573,16 +5152,17 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-040_lieferantenbewertung_durchfuehren.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-040_lieferantenbewertung_durchfuehren.txt",
+        "process_owner_candidate": "Einkauf"
       },
       "matches": [
         {
           "application_name": "SAP MM",
           "cmdb_id": "APP-003",
           "matched_name": "SAP S/4HANA MM",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         },
         {
           "application_name": "QMSuite",
@@ -4593,7 +5173,13 @@
           "score": 1.05
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Lieferantenbewertung durchführen",
+          "application_name": "SAP MM",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Lieferantenbewertung durchführen",
@@ -4630,16 +5216,17 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-040_lieferantenbewertung_durchfuehren.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-040_lieferantenbewertung_durchfuehren.txt",
+          "process_owner_candidate": "Einkauf"
         },
         "matches": [
           {
             "application_name": "SAP MM",
             "cmdb_id": "APP-003",
             "matched_name": "SAP S/4HANA MM",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           },
           {
             "application_name": "QMSuite",
@@ -4661,17 +5248,15 @@
       "extracted_process": {
         "process_name": "Kundenstammdaten bereinigen",
         "process_id": "PROC-041",
-        "org_unit": "",
+        "org_unit": "Vertrieb",
         "roles": [
           "CRM Data Steward"
         ],
         "org_units": [
-          "Vertrieb",
-          "Kundenservice"
+          "Vertrieb"
         ],
         "org_unit_candidates": [
-          "Vertrieb",
-          "Kundenservice"
+          "Vertrieb"
         ],
         "follows_after": [],
         "raw_applications": [
@@ -4691,8 +5276,8 @@
       "matches": [
         {
           "application_name": "CRM",
-          "cmdb_id": "APP-006",
-          "matched_name": "Microsoft Dynamics CRM",
+          "cmdb_id": "IF-003",
+          "matched_name": "CRM Customer API",
           "confidence": "stark",
           "source": "knowledge_base",
           "score": 1.0
@@ -4703,17 +5288,15 @@
         "process": {
           "process_name": "Kundenstammdaten bereinigen",
           "process_id": "PROC-041",
-          "org_unit": "",
+          "org_unit": "Vertrieb",
           "roles": [
             "CRM Data Steward"
           ],
           "org_units": [
-            "Vertrieb",
-            "Kundenservice"
+            "Vertrieb"
           ],
           "org_unit_candidates": [
-            "Vertrieb",
-            "Kundenservice"
+            "Vertrieb"
           ],
           "follows_after": [],
           "raw_applications": [
@@ -4733,8 +5316,8 @@
         "matches": [
           {
             "application_name": "CRM",
-            "cmdb_id": "APP-006",
-            "matched_name": "Microsoft Dynamics CRM",
+            "cmdb_id": "IF-003",
+            "matched_name": "CRM Customer API",
             "confidence": "stark",
             "source": "knowledge_base",
             "score": 1.0
@@ -4782,7 +5365,8 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-042_retourenprozess_steuern.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-042_retourenprozess_steuern.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
@@ -4805,9 +5389,9 @@
           "application_name": "SAP SD",
           "cmdb_id": "APP-004",
           "matched_name": "SAP S/4HANA SD",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         }
       ],
       "review_items": [
@@ -4819,6 +5403,11 @@
         {
           "process_name": "Retourenprozess steuern",
           "application_name": "WMS",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Retourenprozess steuern",
+          "application_name": "SAP SD",
           "reason": "fuzzy"
         }
       ],
@@ -4857,7 +5446,8 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-042_retourenprozess_steuern.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-042_retourenprozess_steuern.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
@@ -4880,9 +5470,9 @@
             "application_name": "SAP SD",
             "cmdb_id": "APP-004",
             "matched_name": "SAP S/4HANA SD",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           }
         ]
       },
@@ -4927,16 +5517,25 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-043_produktionskennzahlen_analysieren.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-043_produktionskennzahlen_analysieren.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
           "application_name": "MES",
           "cmdb_id": "APP-019",
           "matched_name": "MES FactoryLine",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "MES",
+          "cmdb_id": "IF-005",
+          "matched_name": "MES Production API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         },
         {
           "application_name": "PowerBI",
@@ -4956,6 +5555,16 @@
         }
       ],
       "review_items": [
+        {
+          "process_name": "Produktionskennzahlen analysieren",
+          "application_name": "MES",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Produktionskennzahlen analysieren",
+          "application_name": "MES",
+          "reason": "fuzzy"
+        },
         {
           "process_name": "Produktionskennzahlen analysieren",
           "application_name": "PowerBI",
@@ -5002,16 +5611,25 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-043_produktionskennzahlen_analysieren.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-043_produktionskennzahlen_analysieren.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
             "application_name": "MES",
             "cmdb_id": "APP-019",
             "matched_name": "MES FactoryLine",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "MES",
+            "cmdb_id": "IF-005",
+            "matched_name": "MES Production API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           },
           {
             "application_name": "PowerBI",
@@ -5055,7 +5673,7 @@
         "raw_applications": [],
         "applications": [],
         "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-044_notfalluebung_dokumentieren.txt",
-        "process_owner_candidate": ""
+        "process_owner_candidate": "Informationssicherheit"
       },
       "matches": [],
       "review_items": [],
@@ -5077,7 +5695,7 @@
           "raw_applications": [],
           "applications": [],
           "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-044_notfalluebung_dokumentieren.txt",
-          "process_owner_candidate": ""
+          "process_owner_candidate": "Informationssicherheit"
         },
         "matches": []
       },
@@ -5267,7 +5885,8 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-047_zahlungseingaenge_abstimmen.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-047_zahlungseingaenge_abstimmen.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
@@ -5282,12 +5901,31 @@
           "application_name": "SAP FI",
           "cmdb_id": "APP-001",
           "matched_name": "SAP S/4HANA FI",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "SAP FI",
+          "cmdb_id": "IF-001",
+          "matched_name": "SAP FI Bank API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Zahlungseingänge abstimmen",
+          "application_name": "SAP FI",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Zahlungseingänge abstimmen",
+          "application_name": "SAP FI",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Zahlungseingänge abstimmen",
@@ -5323,7 +5961,8 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-047_zahlungseingaenge_abstimmen.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-047_zahlungseingaenge_abstimmen.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
@@ -5338,9 +5977,17 @@
             "application_name": "SAP FI",
             "cmdb_id": "APP-001",
             "matched_name": "SAP S/4HANA FI",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "SAP FI",
+            "cmdb_id": "IF-001",
+            "matched_name": "SAP FI Bank API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           }
         ]
       },
@@ -5395,8 +6042,7 @@
         "matches": []
       },
       "process_write_action": "inserted",
-      "error_message": null,
-      "process_owner_candidate_status": "accepted"
+      "error_message": null
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-049_risikobewertung_aktualisieren.txt",
@@ -5530,27 +6176,39 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-050_kampagnenabstimmung_durchfuehren.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-050_kampagnenabstimmung_durchfuehren.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
           "application_name": "Teams",
           "cmdb_id": "APP-011",
           "matched_name": "Microsoft Teams",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         },
         {
           "application_name": "SharePoint",
           "cmdb_id": "APP-010",
           "matched_name": "Microsoft SharePoint Online",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Kampagnenabstimmung durchführen",
+          "application_name": "Teams",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Kampagnenabstimmung durchführen",
+          "application_name": "SharePoint",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Kampagnenabstimmung durchführen",
@@ -5586,24 +6244,25 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-050_kampagnenabstimmung_durchfuehren.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-050_kampagnenabstimmung_durchfuehren.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
             "application_name": "Teams",
             "cmdb_id": "APP-011",
             "matched_name": "Microsoft Teams",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           },
           {
             "application_name": "SharePoint",
             "cmdb_id": "APP-010",
             "matched_name": "Microsoft SharePoint Online",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
           }
         ]
       },
@@ -5994,17 +6653,15 @@
       "extracted_process": {
         "process_name": "EDI-Fehler nachbearbeiten",
         "process_id": "PROC-054",
-        "org_unit": "",
+        "org_unit": "Einkauf",
         "roles": [
           "Integration Specialist"
         ],
         "org_units": [
-          "Einkauf",
-          "IT-Betrieb"
+          "Einkauf"
         ],
         "org_unit_candidates": [
-          "Einkauf",
-          "IT-Betrieb"
+          "Einkauf"
         ],
         "follows_after": [],
         "raw_applications": [
@@ -6077,17 +6734,15 @@
         "process": {
           "process_name": "EDI-Fehler nachbearbeiten",
           "process_id": "PROC-054",
-          "org_unit": "",
+          "org_unit": "Einkauf",
           "roles": [
             "Integration Specialist"
           ],
           "org_units": [
-            "Einkauf",
-            "IT-Betrieb"
+            "Einkauf"
           ],
           "org_unit_candidates": [
-            "Einkauf",
-            "IT-Betrieb"
+            "Einkauf"
           ],
           "follows_after": [],
           "raw_applications": [
@@ -6275,281 +6930,281 @@
       "error_message": null
     }
   ],
-  "import_archive_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828",
+  "import_archive_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444",
   "import_archived_files": [
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-001_eingangsrechnung_pruefen_und_buchen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-001_eingangsrechnung_pruefen_und_buchen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-001_eingangsrechnung_pruefen_und_buchen.txt",
       "display_path": "proc-001_eingangsrechnung_pruefen_und_buchen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-002_monatsabschluss_durchfuehren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-002_monatsabschluss_durchfuehren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-002_monatsabschluss_durchfuehren.txt",
       "display_path": "proc-002_monatsabschluss_durchfuehren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-003_zahlungslauf_freigeben.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-003_zahlungslauf_freigeben.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-003_zahlungslauf_freigeben.txt",
       "display_path": "proc-003_zahlungslauf_freigeben.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-004_budgetplanung_konsolidieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-004_budgetplanung_konsolidieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-004_budgetplanung_konsolidieren.txt",
       "display_path": "proc-004_budgetplanung_konsolidieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-005_forecast_aktualisieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-005_forecast_aktualisieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-005_forecast_aktualisieren.txt",
       "display_path": "proc-005_forecast_aktualisieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-006_lieferanten_anlegen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-006_lieferanten_anlegen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-006_lieferanten_anlegen.txt",
       "display_path": "proc-006_lieferanten_anlegen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-007_bestellung_ausloesen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-007_bestellung_ausloesen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-007_bestellung_ausloesen.txt",
       "display_path": "proc-007_bestellung_ausloesen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-008_rahmenvertrag_pruefen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-008_rahmenvertrag_pruefen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-008_rahmenvertrag_pruefen.txt",
       "display_path": "proc-008_rahmenvertrag_pruefen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-009_kundenangebot_erstellen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-009_kundenangebot_erstellen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-009_kundenangebot_erstellen.txt",
       "display_path": "proc-009_kundenangebot_erstellen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-010_auftrag_erfassen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-010_auftrag_erfassen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-010_auftrag_erfassen.txt",
       "display_path": "proc-010_auftrag_erfassen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-011_kundenreklamation_bearbeiten.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-011_kundenreklamation_bearbeiten.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-011_kundenreklamation_bearbeiten.txt",
       "display_path": "proc-011_kundenreklamation_bearbeiten.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-012_ticket_priorisieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-012_ticket_priorisieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-012_ticket_priorisieren.txt",
       "display_path": "proc-012_ticket_priorisieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-013_wareneingang_buchen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-013_wareneingang_buchen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-013_wareneingang_buchen.txt",
       "display_path": "proc-013_wareneingang_buchen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-014_kommissionierung_planen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-014_kommissionierung_planen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-014_kommissionierung_planen.txt",
       "display_path": "proc-014_kommissionierung_planen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-015_tour_disponieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-015_tour_disponieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-015_tour_disponieren.txt",
       "display_path": "proc-015_tour_disponieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-016_produktionsauftrag_starten.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-016_produktionsauftrag_starten.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-016_produktionsauftrag_starten.txt",
       "display_path": "proc-016_produktionsauftrag_starten.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-017_anlagenstoerung_melden.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-017_anlagenstoerung_melden.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-017_anlagenstoerung_melden.txt",
       "display_path": "proc-017_anlagenstoerung_melden.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-018_qualitaetsabweichung_erfassen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-018_qualitaetsabweichung_erfassen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-018_qualitaetsabweichung_erfassen.txt",
       "display_path": "proc-018_qualitaetsabweichung_erfassen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-019_internes_audit_planen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-019_internes_audit_planen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-019_internes_audit_planen.txt",
       "display_path": "proc-019_internes_audit_planen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-020_bewerbung_pruefen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-020_bewerbung_pruefen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-020_bewerbung_pruefen.txt",
       "display_path": "proc-020_bewerbung_pruefen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-021_onboarding_durchfuehren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-021_onboarding_durchfuehren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-021_onboarding_durchfuehren.txt",
       "display_path": "proc-021_onboarding_durchfuehren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-022_arbeitszeit_korrigieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-022_arbeitszeit_korrigieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-022_arbeitszeit_korrigieren.txt",
       "display_path": "proc-022_arbeitszeit_korrigieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-023_pflichtschulung_zuweisen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-023_pflichtschulung_zuweisen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-023_pflichtschulung_zuweisen.txt",
       "display_path": "proc-023_pflichtschulung_zuweisen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-024_marketingkampagne_planen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-024_marketingkampagne_planen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-024_marketingkampagne_planen.txt",
       "display_path": "proc-024_marketingkampagne_planen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-025_produktdaten_veroeffentlichen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-025_produktdaten_veroeffentlichen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-025_produktdaten_veroeffentlichen.txt",
       "display_path": "proc-025_produktdaten_veroeffentlichen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-026_security_incident_triagieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-026_security_incident_triagieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-026_security_incident_triagieren.txt",
       "display_path": "proc-026_security_incident_triagieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-027_firewall-regel_beantragen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-027_firewall-regel_beantragen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-027_firewall-regel_beantragen.txt",
       "display_path": "proc-027_firewall-regel_beantragen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-028_mitarbeiterzugang_bereitstellen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-028_mitarbeiterzugang_bereitstellen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-028_mitarbeiterzugang_bereitstellen.txt",
       "display_path": "proc-028_mitarbeiterzugang_bereitstellen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-029_passwort_zuruecksetzen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-029_passwort_zuruecksetzen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-029_passwort_zuruecksetzen.txt",
       "display_path": "proc-029_passwort_zuruecksetzen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-030_backup_restore_testen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-030_backup_restore_testen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-030_backup_restore_testen.txt",
       "display_path": "proc-030_backup_restore_testen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-031_server_monitoring_pruefen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-031_server_monitoring_pruefen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-031_server_monitoring_pruefen.txt",
       "display_path": "proc-031_server_monitoring_pruefen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-032_softwareaenderung_koordinieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-032_softwareaenderung_koordinieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-032_softwareaenderung_koordinieren.txt",
       "display_path": "proc-032_softwareaenderung_koordinieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-033_datenqualitaetspruefung_ausfuehren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-033_datenqualitaetspruefung_ausfuehren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-033_datenqualitaetspruefung_ausfuehren.txt",
       "display_path": "proc-033_datenqualitaetspruefung_ausfuehren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-034_archivierungsregel_aendern.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-034_archivierungsregel_aendern.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-034_archivierungsregel_aendern.txt",
       "display_path": "proc-034_archivierungsregel_aendern.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-035_druckerstoerung_beheben.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-035_druckerstoerung_beheben.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-035_druckerstoerung_beheben.txt",
       "display_path": "proc-035_druckerstoerung_beheben.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-036_besucher_anmelden.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-036_besucher_anmelden.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-036_besucher_anmelden.txt",
       "display_path": "proc-036_besucher_anmelden.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-037_wartungsauftrag_planen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-037_wartungsauftrag_planen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-037_wartungsauftrag_planen.txt",
       "display_path": "proc-037_wartungsauftrag_planen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-038_management_reporting_vorbereiten.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-038_management_reporting_vorbereiten.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-038_management_reporting_vorbereiten.txt",
       "display_path": "proc-038_management_reporting_vorbereiten.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-039_datenschutzanfrage_bearbeiten.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-039_datenschutzanfrage_bearbeiten.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-039_datenschutzanfrage_bearbeiten.txt",
       "display_path": "proc-039_datenschutzanfrage_bearbeiten.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-040_lieferantenbewertung_durchfuehren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-040_lieferantenbewertung_durchfuehren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-040_lieferantenbewertung_durchfuehren.txt",
       "display_path": "proc-040_lieferantenbewertung_durchfuehren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-041_kundenstammdaten_bereinigen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-041_kundenstammdaten_bereinigen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-041_kundenstammdaten_bereinigen.txt",
       "display_path": "proc-041_kundenstammdaten_bereinigen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-042_retourenprozess_steuern.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-042_retourenprozess_steuern.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-042_retourenprozess_steuern.txt",
       "display_path": "proc-042_retourenprozess_steuern.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-043_produktionskennzahlen_analysieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-043_produktionskennzahlen_analysieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-043_produktionskennzahlen_analysieren.txt",
       "display_path": "proc-043_produktionskennzahlen_analysieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-044_notfalluebung_dokumentieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-044_notfalluebung_dokumentieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-044_notfalluebung_dokumentieren.txt",
       "display_path": "proc-044_notfalluebung_dokumentieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-045_strategieworkshop_vorbereiten.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-045_strategieworkshop_vorbereiten.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-045_strategieworkshop_vorbereiten.txt",
       "display_path": "proc-045_strategieworkshop_vorbereiten.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-046_reisekosten_pruefen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-046_reisekosten_pruefen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-046_reisekosten_pruefen.txt",
       "display_path": "proc-046_reisekosten_pruefen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-047_zahlungseingaenge_abstimmen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-047_zahlungseingaenge_abstimmen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-047_zahlungseingaenge_abstimmen.txt",
       "display_path": "proc-047_zahlungseingaenge_abstimmen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-048_it_bestandsuebersicht_aktualisieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-048_it_bestandsuebersicht_aktualisieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-048_it_bestandsuebersicht_aktualisieren.txt",
       "display_path": "proc-048_it_bestandsuebersicht_aktualisieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-049_risikobewertung_aktualisieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-049_risikobewertung_aktualisieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-049_risikobewertung_aktualisieren.txt",
       "display_path": "proc-049_risikobewertung_aktualisieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-050_kampagnenabstimmung_durchfuehren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-050_kampagnenabstimmung_durchfuehren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-050_kampagnenabstimmung_durchfuehren.txt",
       "display_path": "proc-050_kampagnenabstimmung_durchfuehren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-051_kuendigungsbestaetigung_erstellen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-051_kuendigungsbestaetigung_erstellen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-051_kuendigungsbestaetigung_erstellen.txt",
       "display_path": "proc-051_kuendigungsbestaetigung_erstellen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-052_maschinenparameter_pruefen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-052_maschinenparameter_pruefen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-052_maschinenparameter_pruefen.txt",
       "display_path": "proc-052_maschinenparameter_pruefen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-053_kundenportal_stoerung_analysieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-053_kundenportal_stoerung_analysieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-053_kundenportal_stoerung_analysieren.txt",
       "display_path": "proc-053_kundenportal_stoerung_analysieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-054_edi_fehler_nachbearbeiten.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-054_edi_fehler_nachbearbeiten.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-054_edi_fehler_nachbearbeiten.txt",
       "display_path": "proc-054_edi_fehler_nachbearbeiten.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-055_zertifikatsablauf_pruefen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_083828\\proc-055_zertifikatsablauf_pruefen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-055_zertifikatsablauf_pruefen.txt",
       "display_path": "proc-055_zertifikatsablauf_pruefen.txt"
     }
   ]

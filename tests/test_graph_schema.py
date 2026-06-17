@@ -21,6 +21,10 @@ def test_ablehnung_not_in_node_schema() -> None:
     assert "Ablehnung" not in QUERY_NODE_SCHEMA
 
 
+def test_manual_decision_not_in_node_schema() -> None:
+    assert "ManualDecision" not in QUERY_NODE_SCHEMA
+
+
 def test_expected_labels_in_node_schema() -> None:
     for label in ("Prozess", "Anwendung", "Schnittstelle", "Server", "OrgEinheit", "Rolle"):
         assert label in QUERY_NODE_SCHEMA
@@ -47,6 +51,11 @@ def test_schema_reference_excludes_ablehnung() -> None:
     assert "Ablehnung" not in ref
 
 
+def test_schema_reference_excludes_manual_decision() -> None:
+    ref = build_query_schema_reference()
+    assert "ManualDecision" not in ref
+
+
 def test_schema_reference_excludes_raw_name() -> None:
     ref = build_query_schema_reference()
     assert "raw_name" not in ref
@@ -63,6 +72,11 @@ def test_schema_reference_includes_konfidenz_and_source() -> None:
 def test_validator_rejects_ablehnung_label() -> None:
     with pytest.raises(ValueError, match="unknown node label"):
         validate_query_schema("MATCH (a:Ablehnung) RETURN a.prozess_name")
+
+
+def test_validator_rejects_manual_decision_label() -> None:
+    with pytest.raises(ValueError, match="unknown node label"):
+        validate_query_schema("MATCH (d:ManualDecision) RETURN d.decision_id")
 
 
 # --- validate_query_schema: known labels accepted ---

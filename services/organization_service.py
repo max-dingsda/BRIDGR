@@ -19,6 +19,7 @@ from processing.knowledge_base import (
 from core.neo4j_utils import Neo4jQueryError
 from processing.run_artifacts import load_latest_run, write_latest_run
 from services.alias_service import sync_knowledge_base_aliases
+from services.decision_service import create_manual_decision
 from services.review_service import (
     persist_latest_run_refresh,
     reconstruct_extracted_process,
@@ -240,13 +241,27 @@ def load_all_processes_with_owner(config: AppConfig) -> list[dict]:
     ]
 
 
-def set_process_owner(config: AppConfig, process_id: str, org_unit_name: str) -> tuple[str, str]:
+def set_process_owner(
+    config: AppConfig,
+    process_id: str,
+    org_unit_name: str,
+    process_name: str = "",
+) -> tuple[str, str]:
     cleaned = " ".join(org_unit_name.strip().split())
     if not cleaned:
         return "error", "Organisationseinheit darf nicht leer sein."
     ensure_org_unit_registered(config, cleaned, source="manual")
     neo4j_client = get_session_neo4j_client(config)
     GraphWriter().write_process_owner(neo4j_client, cleaned, process_id)
+    create_manual_decision(
+        neo4j_client,
+        "manual_process_owner_assignment",
+        {
+            "process_id": process_id,
+            "process_name": process_name,
+            "org_unit_name": cleaned,
+        },
+    )
     return "success", f"Eigentümer gesetzt."
 
 
@@ -304,9 +319,14 @@ def _update_process_owner_candidate_status(config: AppConfig, process_id: str, s
     write_latest_run(latest_run, output_path)
 
 
-def accept_process_owner_candidate(config: AppConfig, process_id: str, org_unit_name: str) -> tuple[str, str]:
+def accept_process_owner_candidate(
+    config: AppConfig,
+    process_id: str,
+    org_unit_name: str,
+    process_name: str = "",
+) -> tuple[str, str]:
     ensure_org_unit_registered(config, org_unit_name, source="candidate")
-    level, message = set_process_owner(config, process_id, org_unit_name)
+    level, message = set_process_owner(config, process_id, org_unit_name, process_name=process_name)
     if level == "success":
         _update_process_owner_candidate_status(config, process_id, "accepted")
     return level, message
@@ -343,6 +363,14 @@ def assign_role_to_org_unit(config: AppConfig, role_name: str, org_unit_name: st
     ensure_org_unit_registered(config, cleaned_org_unit, source="manual")
     neo4j_client = get_session_neo4j_client(config)
     GraphWriter().write_role_assignment(neo4j_client, cleaned_org_unit, role_name)
+    create_manual_decision(
+        neo4j_client,
+        "manual_role_assignment",
+        {
+            "role_name": role_name,
+            "org_unit_name": cleaned_org_unit,
+        },
+    )
     return "success", f"Rolle \"{role_name}\" wurde \"{cleaned_org_unit}\" zugeordnet."
 
 
