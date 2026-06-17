@@ -215,3 +215,74 @@ def test_archimate_mapping_reference_no_ignore_note_when_empty() -> None:
     }
     ref = _make_archimate_ref_from_mapping(mapping_data)
     assert "intentionally ignored" not in ref
+
+
+# --- Motivation-Layer labels in QUERY_NODE_SCHEMA ---
+
+def test_motivation_labels_in_node_schema() -> None:
+    for label in ("Stakeholder", "Kontext", "Anforderung"):
+        assert label in QUERY_NODE_SCHEMA, f"{label} missing from QUERY_NODE_SCHEMA"
+
+
+def test_motivation_labels_have_required_properties() -> None:
+    for label in ("Stakeholder", "Kontext", "Anforderung"):
+        props = QUERY_NODE_SCHEMA[label]
+        assert "name" in props
+        assert "archimate_type" in props
+        assert "archimate_id" in props
+
+
+# --- Motivation-Layer relationship patterns ---
+
+def test_motivation_relationship_patterns_present() -> None:
+    patterns = {(p.relationship_type, p.source_label, p.target_label) for p in QUERY_RELATIONSHIP_PATTERNS}
+    expected = [
+        ("REALISIERT", "Anforderung", "Ziel"),
+        ("BEEINFLUSST", "Kontext", "Ziel"),
+        ("BEEINFLUSST", "Kontext", "Anforderung"),
+        ("BEEINFLUSST", "Anforderung", "Prozess"),
+        ("BEEINFLUSST", "Anforderung", "Anwendung"),
+        ("BEEINFLUSST", "Anforderung", "Schnittstelle"),
+        ("BEEINFLUSST", "Anforderung", "Server"),
+        ("IST_VERBUNDEN_MIT", "Stakeholder", "Ziel"),
+        ("IST_VERBUNDEN_MIT", "Stakeholder", "Anforderung"),
+        ("IST_VERBUNDEN_MIT", "Stakeholder", "Prozess"),
+        ("IST_VERBUNDEN_MIT", "Stakeholder", "Anwendung"),
+    ]
+    for pattern in expected:
+        assert pattern in patterns, f"Pattern {pattern} missing from QUERY_RELATIONSHIP_PATTERNS"
+
+
+def test_motivation_labels_in_schema_reference() -> None:
+    ref = build_query_schema_reference()
+    for label in ("Stakeholder", "Kontext", "Anforderung"):
+        assert label in ref, f"{label} missing from schema reference"
+
+
+# --- Validator: motivation labels and relations accepted ---
+
+def test_validator_accepts_anforderung_label() -> None:
+    validate_query_schema("MATCH (a:Anforderung)-[:REALISIERT]->(z:Ziel) RETURN a.name, z.name")
+
+
+def test_validator_accepts_kontext_beeinflusst() -> None:
+    validate_query_schema("MATCH (k:Kontext)-[:BEEINFLUSST]->(z:Ziel) RETURN k.name, z.name")
+
+
+def test_validator_accepts_beeinflusst_anforderung_prozess() -> None:
+    validate_query_schema("MATCH (a:Anforderung)-[:BEEINFLUSST]->(p:Prozess) RETURN a.name, p.name")
+
+
+def test_validator_accepts_stakeholder_ist_verbunden_mit_ziel() -> None:
+    validate_query_schema("MATCH (s:Stakeholder)-[:IST_VERBUNDEN_MIT]->(z:Ziel) RETURN s.name, z.name")
+
+
+def test_validator_accepts_ist_verbunden_mit_arbitrary_labels() -> None:
+    # IST_VERBUNDEN_MIT is unrestricted — any label pair is valid
+    validate_query_schema("MATCH (a:Anwendung)-[:IST_VERBUNDEN_MIT]->(p:Prozess) RETURN a.name, p.name")
+    validate_query_schema("MATCH (k:Kontext)-[:IST_VERBUNDEN_MIT]->(r:Risiko) RETURN k.name, r.name")
+
+
+def test_validator_rejects_undirected_ist_verbunden_mit() -> None:
+    with pytest.raises(ValueError, match="undirected"):
+        validate_query_schema("MATCH (a:Anwendung)-[:IST_VERBUNDEN_MIT]-(p:Prozess) RETURN a.name")

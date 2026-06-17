@@ -3,7 +3,7 @@
 BRIDGR verbindet Prozessdokumentation mit CMDB-Daten, um einen EA-Wissensgraphen aufzubauen und spaeter ueber eine natuerlichsprachliche Oberflaeche abfragbar zu machen.
 
 Der aktuelle Architektur-Referenzstand fuer die Umsetzung ist:
-- `Specs/Bridgr_Architektur_v23.md`
+- `Specs/Bridgr_Architektur_v26.md`
 
 ## Zielbild
 

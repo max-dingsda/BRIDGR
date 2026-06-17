@@ -10,23 +10,32 @@ from core.app_config import AppConfig, resolve_project_path
 from core.neo4j_utils import Neo4jClient
 from skills.graph_writer import GraphWriter
 
-_ARCHIMATE_NS = "http://www.opengroup.org/xsd/archimate/3.0/"
+_ARCHIMATE_NS_30 = "http://www.opengroup.org/xsd/archimate/3.0/"
+_ARCHIMATE_NS_31 = "http://www.opengroup.org/xsd/archimate/3.1/"
 _XSI_NS = "http://www.w3.org/2001/XMLSchema-instance"
 
-ARCHIMATE_ELEMENT_TYPES: list[str] = [
-    "BusinessActor", "BusinessRole", "BusinessCollaboration", "BusinessInterface",
-    "BusinessProcess", "BusinessFunction", "BusinessInteraction", "BusinessEvent",
-    "BusinessService", "BusinessObject", "Contract", "Product", "Representation",
-    "ApplicationComponent", "ApplicationCollaboration", "ApplicationInterface",
-    "ApplicationFunction", "ApplicationInteraction", "ApplicationProcess",
-    "ApplicationEvent", "ApplicationService", "DataObject",
-    "Node", "Device", "SystemSoftware", "TechnologyCollaboration",
-    "TechnologyInterface", "Path", "CommunicationNetwork",
-    "TechnologyFunction", "TechnologyProcess", "TechnologyInteraction",
-    "TechnologyEvent", "TechnologyService", "Artifact",
-    "Capability", "CourseOfAction", "ValueStream", "Resource",
+ARCHIMATE_ELEMENT_TYPES: list[str] = sorted([
+    # Business layer
+    "BusinessActor", "BusinessCollaboration", "BusinessEvent", "BusinessFunction",
+    "BusinessInterface", "BusinessInteraction", "BusinessObject", "BusinessProcess",
+    "BusinessRole", "BusinessService", "Contract", "Product", "Representation",
+    # Application layer
+    "ApplicationCollaboration", "ApplicationComponent", "ApplicationEvent",
+    "ApplicationFunction", "ApplicationInterface", "ApplicationInteraction",
+    "ApplicationProcess", "ApplicationService", "DataObject",
+    # Technology layer
+    "Artifact", "CommunicationNetwork", "Device", "Node", "Path", "SystemSoftware",
+    "TechnologyCollaboration", "TechnologyEvent", "TechnologyFunction",
+    "TechnologyInterface", "TechnologyInteraction", "TechnologyProcess",
+    "TechnologyService",
+    # Strategy layer
+    "Capability", "CourseOfAction", "Resource", "ValueStream",
+    # Motivation layer
+    "Assessment", "Constraint", "Driver", "Goal", "Meaning", "Outcome",
+    "Principle", "Requirement", "Risk", "Stakeholder", "Value",
+    # Other
     "Grouping", "Location",
-]
+])
 
 ARCHIMATE_RELATION_TYPES: list[str] = [
     "Association", "Assignment", "Aggregation", "Composition",
@@ -36,7 +45,8 @@ ARCHIMATE_RELATION_TYPES: list[str] = [
 
 _BRIDGR_LABELS = {
     "Prozess", "Anwendung", "Schnittstelle", "Server", "OrgEinheit", "Rolle",
-    "Faehigkeit", "Ressource", "Ziel", "Risiko", "Datenobjekt", "Infrastruktur",
+    "Faehigkeit", "Ressource", "Ziel", "Anforderung", "Kontext", "Stakeholder",
+    "Risiko", "Datenobjekt", "Infrastruktur",
 }
 
 _DEFAULT_MAPPING_PATH = "data/archimate_mapping.json"
@@ -109,6 +119,13 @@ def persist_archimate_import(config: AppConfig, source_path: Path) -> ArchiMateI
     return result
 
 
+def _detect_namespace(root: ET.Element) -> str:
+    tag = root.tag
+    if tag.startswith(f"{{{_ARCHIMATE_NS_31}}}"):
+        return _ARCHIMATE_NS_31
+    return _ARCHIMATE_NS_30
+
+
 def _parse_archimate_xml(
     source_path: Path,
     mapping: dict,
@@ -119,20 +136,21 @@ def _parse_archimate_xml(
         raise ValueError(f"Invalid ArchiMate XML: {exc}") from exc
 
     root = tree.getroot()
+    ns = _detect_namespace(root)
     import_map: dict[str, str] = mapping.get("elements", {}).get("import", {})
     ignore_set: set[str] = set(mapping.get("elements", {}).get("ignore", []))
     language_preference: list[str] = mapping.get("language_preference", ["de", "german", "en", "english"])
 
     elements: list[ArchiMateElement] = []
     skipped_types: dict[str, int] = {}
-    for elem in root.iter(f"{{{_ARCHIMATE_NS}}}element"):
+    for elem in root.iter(f"{{{ns}}}element"):
         archimate_id = elem.get("identifier", "")
         raw_type = elem.get(f"{{{_XSI_NS}}}type", "")
         archimate_type = raw_type.split(":")[-1] if ":" in raw_type else raw_type
 
         names = [
             (name_el.get("{http://www.w3.org/XML/1998/namespace}lang", ""), name_el.text or "")
-            for name_el in elem.findall(f"{{{_ARCHIMATE_NS}}}name")
+            for name_el in elem.findall(f"{{{ns}}}name")
         ]
         name = _select_name(names, language_preference)
         if not name or not archimate_id:
@@ -152,7 +170,7 @@ def _parse_archimate_xml(
         ))
 
     relations: list[ArchiMateRelation] = []
-    for rel in root.iter(f"{{{_ARCHIMATE_NS}}}relationship"):
+    for rel in root.iter(f"{{{ns}}}relationship"):
         archimate_id = rel.get("identifier", "")
         raw_type = rel.get(f"{{{_XSI_NS}}}type", "")
         rel_type = raw_type.split(":")[-1] if ":" in raw_type else raw_type
@@ -199,18 +217,40 @@ def _import_to_neo4j(
     rel_import_map: dict[str, list[str]] = mapping.get("relationships", {}).get("import", {})
     bridgr_map: dict[str, str] = mapping.get("relationships", {}).get("bridgr_relation", {})
 
+    # Snapshot of existing names per label taken BEFORE this import run.
+    # Fuzzy matching uses only this snapshot so that nodes created during
+    # the current import cannot match each other.
+    all_labels = {elem.bridgr_label for elem in elements}
+    pre_existing_names: dict[str, list[str]] = {
+        label: [
+            r["name"]
+            for r in client.execute_read(
+                f"MATCH (n:{label}) WHERE n.name IS NOT NULL RETURN n.name AS name", {}
+            )
+        ]
+        for label in all_labels
+    }
+
     # archimate_id → resolved name (for nodes successfully imported/merged)
     id_to_name: dict[str, str] = {}
     # archimate_id → bridgr_label
     id_to_label: dict[str, str] = {}
+    # archimate_id → original archimate name (all elements, incl. candidates)
+    id_to_archimate_name: dict[str, str] = {e.archimate_id: e.name for e in elements}
 
     skipped_types: dict[str, int] = {}
 
     for elem in elements:
-        resolved_name = _resolve_identity(client, elem, threshold, mapping)
-        if resolved_name is None:
+        resolved_name = _resolve_identity(
+            client, elem, threshold, mapping,
+            pre_existing_names.get(elem.bridgr_label, []),
+        )
+        is_candidate = resolved_name is None
+        if is_candidate:
+            resolved_name = elem.name
             result.elements_as_candidates += 1
-            continue
+        else:
+            result.elements_imported += 1
 
         writer.merge_archimate_node(
             client,
@@ -222,7 +262,6 @@ def _import_to_neo4j(
         )
         id_to_name[elem.archimate_id] = resolved_name
         id_to_label[elem.archimate_id] = elem.bridgr_label
-        result.elements_imported += 1
 
     for rel in relations:
         source_name = id_to_name.get(rel.source_archimate_id)
@@ -232,9 +271,11 @@ def _import_to_neo4j(
 
         if not source_name or not target_name or not source_label or not target_label:
             result.relations_skipped += 1
+            src_display = source_name or f"~{id_to_archimate_name.get(rel.source_archimate_id, '?')} (Kandidat)"
+            tgt_display = target_name or f"~{id_to_archimate_name.get(rel.target_archimate_id, '?')} (Kandidat)"
             result.skipped_relations.append({
-                "source": source_name or "?",
-                "target": target_name or "?",
+                "source": src_display,
+                "target": tgt_display,
                 "rel_type": rel.archimate_rel_type,
                 "reason": "unresolvable_endpoint",
             })
@@ -284,6 +325,7 @@ def _resolve_identity(
     element: ArchiMateElement,
     threshold: float,
     mapping: dict,
+    pre_existing_names: list[str],
 ) -> str | None:
     # 1. archimate_id lookup (Re-Import)
     rows = client.execute_read(
@@ -293,7 +335,7 @@ def _resolve_identity(
     if rows:
         return rows[0]["name"]
 
-    # 2. Exact name match
+    # 2. Exact name match against pre-existing nodes
     rows = client.execute_read(
         f"MATCH (n:{element.bridgr_label} {{name: $name}}) RETURN n.name AS name",
         {"name": element.name},
@@ -301,18 +343,14 @@ def _resolve_identity(
     if rows:
         return rows[0]["name"]
 
-    # 3. Fuzzy match against all names of this label
-    rows = client.execute_read(
-        f"MATCH (n:{element.bridgr_label}) WHERE n.name IS NOT NULL RETURN n.name AS name",
-        {},
-    )
-    candidates = [r["name"] for r in rows]
-    matched, score = _fuzzy_match_name(element.name, candidates, threshold)
+    # 3. Fuzzy match — only against names that existed BEFORE this import run.
+    # This prevents nodes created during the current import from matching each other.
+    matched, score = _fuzzy_match_name(element.name, pre_existing_names, threshold)
     if matched is not None:
         _add_pending_candidate(element, matched, score)
         return None
 
-    # 4. New node — return the element name to create it
+    # 4. New node
     return element.name
 
 

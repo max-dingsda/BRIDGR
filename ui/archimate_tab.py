@@ -7,7 +7,7 @@ from pathlib import Path
 import streamlit as st
 
 from core.app_config import load_config
-from core.graph_schema import QUERY_NODE_SCHEMA, QUERY_RELATIONSHIP_PATTERNS
+from core.graph_schema import QUERY_NODE_SCHEMA, QUERY_RELATIONSHIP_PATTERNS, QUERY_RELATIONSHIP_SCHEMA
 from services.archimate_import_service import (
     ARCHIMATE_ELEMENT_TYPES,
     ARCHIMATE_RELATION_TYPES,
@@ -24,14 +24,17 @@ from services.archimate_export_service import (
 _INTERNAL_LABELS = {"Alias"}
 _WEAK_RELATIONSHIP_TYPES = {"KÖNNTE_DIENEN", "KÖNNTE_VERANTWORTEN", "KANN_MEINEN"}
 
-_BRIDGR_LABELS: list[str] = [l for l in QUERY_NODE_SCHEMA if l not in _INTERNAL_LABELS]
-_LABEL_PAIRS: list[str] = list(dict.fromkeys(
+_BRIDGR_LABELS: list[str] = sorted(l for l in QUERY_NODE_SCHEMA if l not in _INTERNAL_LABELS)
+_LABEL_PAIRS: list[str] = sorted(dict.fromkeys(
     f"{p.source_label}->{p.target_label}"
     for p in QUERY_RELATIONSHIP_PATTERNS
     if p.relationship_type not in _WEAK_RELATIONSHIP_TYPES
 ))
 _NO_MAPPING = "(nicht mappen)"
 _RELATION_TYPE_OPTIONS = sorted(ARCHIMATE_RELATION_TYPES)
+_BRIDGR_RELATION_OPTIONS: list[str] = sorted(
+    r for r in QUERY_RELATIONSHIP_SCHEMA if r not in _WEAK_RELATIONSHIP_TYPES
+)
 
 # Session state keys
 _STATE_IMPORT_ROWS = "archimate_import_rows"
@@ -95,8 +98,10 @@ def _render_mapping_section(mapping: dict) -> None:
                 updated_elem_export[label] = chosen_export
 
     # --- Relationship mapping (optional, rarely changed) ---
+    rel_bridgr: dict[str, str] = mapping.get("relationships", {}).get("bridgr_relation", {})
     updated_rel_import: dict[str, list[str]] = {}
     updated_rel_export: dict[str, str] = {}
+    updated_rel_bridgr: dict[str, str] = {}
     show_rel = st.checkbox(
         "Beziehungs-Mapping bearbeiten",
         value=False,
@@ -104,15 +109,18 @@ def _render_mapping_section(mapping: dict) -> None:
     )
     if show_rel:
         with st.expander("Beziehungen", expanded=True):
-            col_pair, col_imp, col_exp = st.columns([3, 4, 3])
+            col_pair, col_imp, col_exp, col_bridgr = st.columns([3, 4, 2, 3])
             col_pair.markdown("**Label-Paar**")
             col_imp.markdown("**Import: akzeptierte AM-Typen**")
-            col_exp.markdown("**Export: kanonischer AM-Typ**")
+            col_exp.markdown("**Export: AM-Typ**")
+            col_bridgr.markdown("**BRIDGR-Relation**")
 
+            bridgr_opts = [_NO_MAPPING] + _BRIDGR_RELATION_OPTIONS
             for pair in _LABEL_PAIRS:
                 current_imp_list = rel_import.get(pair, [])
                 current_exp = rel_export.get(pair, _NO_MAPPING)
-                c_pair, c_imp, c_exp = st.columns([3, 4, 3])
+                current_bridgr = rel_bridgr.get(pair, _NO_MAPPING)
+                c_pair, c_imp, c_exp, c_bridgr = st.columns([3, 4, 2, 3])
                 c_pair.markdown(f"`{pair}`")
 
                 chosen_imp_list = c_imp.multiselect(
@@ -126,12 +134,20 @@ def _render_mapping_section(mapping: dict) -> None:
                     f"export_{pair}", exp_opts, index=exp_idx,
                     label_visibility="collapsed", key=f"rel_export_{pair}",
                 )
+                bridgr_idx = bridgr_opts.index(current_bridgr) if current_bridgr in bridgr_opts else 0
+                chosen_bridgr = c_bridgr.selectbox(
+                    f"bridgr_{pair}", bridgr_opts, index=bridgr_idx,
+                    label_visibility="collapsed", key=f"rel_bridgr_{pair}",
+                )
                 updated_rel_import[pair] = chosen_imp_list
                 if chosen_exp != _NO_MAPPING:
                     updated_rel_export[pair] = chosen_exp
+                if chosen_bridgr != _NO_MAPPING:
+                    updated_rel_bridgr[pair] = chosen_bridgr
     else:
         updated_rel_import = rel_import
         updated_rel_export = rel_export
+        updated_rel_bridgr = rel_bridgr
 
     st.caption(
         "Änderungen werden erst nach dem Klick auf 'Mapping speichern' in "
@@ -139,7 +155,11 @@ def _render_mapping_section(mapping: dict) -> None:
     )
     if st.button("Mapping speichern", key="save_archimate_mapping"):
         mapping["elements"] = {"import": updated_import_storage, "export": updated_elem_export}
-        mapping["relationships"] = {"import": updated_rel_import, "export": updated_rel_export}
+        mapping["relationships"] = {
+            "import": updated_rel_import,
+            "export": updated_rel_export,
+            "bridgr_relation": updated_rel_bridgr,
+        }
         try:
             save_archimate_mapping(mapping)
             # Clear session state so rows reinitialize from the saved file
@@ -292,9 +312,14 @@ def _render_import_section(config, mapping: dict) -> None:
             tmp_path.parent.mkdir(parents=True, exist_ok=True)
             tmp_path.write_bytes(uploaded.read())
             result = persist_archimate_import(config, tmp_path)
+            candidate_note = (
+                f", davon {result.elements_as_candidates} zur Prüfung markiert"
+                if result.elements_as_candidates else ""
+            )
             st.success(
-                f"Import abgeschlossen: {result.elements_imported} Elemente importiert, "
-                f"{result.elements_as_candidates} Kandidaten, "
+                f"Import abgeschlossen: "
+                f"{result.elements_imported + result.elements_as_candidates} Elemente importiert"
+                f"{candidate_note}, "
                 f"{result.elements_skipped} übersprungen, "
                 f"{result.relations_imported} Beziehungen importiert, "
                 f"{result.relations_skipped} Beziehungen übersprungen."

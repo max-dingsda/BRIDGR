@@ -385,7 +385,7 @@ def test_skipped_relation_unresolved_endpoint_recorded() -> None:
     assert entry["reason"] == "unresolvable_endpoint"
     assert entry["rel_type"] == "Serving"
     assert entry["target"] == "Posteingang"
-    assert entry["source"] == "?"
+    assert "Kandidat" in entry["source"]
 
 
 def test_skipped_relation_type_not_accepted_recorded() -> None:
@@ -570,3 +570,221 @@ def test_new_label_risiko_imported(tmp_path: Path) -> None:
     assert elements[0].bridgr_label == "Risiko"
     assert elements[0].archimate_type == "Risk"
     assert "Risk" not in skipped
+
+
+# --- ArchiMate 3.1 namespace support ---
+
+_MINIMAL_XML_31 = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.opengroup.org/xsd/archimate/3.1/"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       identifier="id-model-31" version="3.1">
+  <name xml:lang="de">Test 3.1</name>
+  <elements>
+    <element identifier="id-p1" xsi:type="BusinessProcess">
+      <name xml:lang="de">Rechnungsstellung</name>
+    </element>
+    <element identifier="id-a1" xsi:type="ApplicationComponent">
+      <name xml:lang="de">SAP FI</name>
+    </element>
+  </elements>
+  <relationships>
+    <relationship identifier="id-r1" xsi:type="Serving"
+                  source="id-a1" target="id-p1"/>
+  </relationships>
+</model>
+"""
+
+
+def test_parse_archimate_31_namespace(tmp_path: Path) -> None:
+    xml_file = tmp_path / "model31.xml"
+    xml_file.write_text(_MINIMAL_XML_31, encoding="utf-8")
+    elements, relations, skipped = _parse_archimate_xml(xml_file, _DEFAULT_MAPPING)
+    assert len(elements) == 2
+    names = {e.name for e in elements}
+    assert "Rechnungsstellung" in names
+    assert "SAP FI" in names
+    assert len(relations) == 1
+    assert relations[0].archimate_rel_type == "Serving"
+    assert skipped == {}
+
+
+def test_parse_archimate_30_namespace_still_works(tmp_path: Path) -> None:
+    xml_file = tmp_path / "model30.xml"
+    xml_file.write_text(_MINIMAL_XML, encoding="utf-8")
+    elements, relations, _ = _parse_archimate_xml(xml_file, _DEFAULT_MAPPING)
+    assert len(elements) == 2
+    assert len(relations) == 1
+
+
+# --- Motivation layer type mappings ---
+
+_MOTIVATION_MAPPING = {
+    **_DEFAULT_MAPPING,
+    "elements": {
+        **_DEFAULT_MAPPING["elements"],
+        "import": {
+            **_DEFAULT_MAPPING["elements"]["import"],
+            "Goal": "Ziel",
+            "Outcome": "Ziel",
+            "Meaning": "Ziel",
+            "Value": "Ziel",
+            "Principle": "Anforderung",
+            "Requirement": "Anforderung",
+            "Constraint": "Anforderung",
+            "Driver": "Kontext",
+            "Assessment": "Kontext",
+            "Stakeholder": "Stakeholder",
+        },
+    },
+}
+
+_MOTIVATION_XML = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.opengroup.org/xsd/archimate/3.0/"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       identifier="id-motivation" version="3.0">
+  <elements>
+    <element identifier="id-g1" xsi:type="Goal">
+      <name xml:lang="de">Kundenzufriedenheit steigern</name>
+    </element>
+    <element identifier="id-r1" xsi:type="Requirement">
+      <name xml:lang="de">Antwortzeit unter 2 Sekunden</name>
+    </element>
+    <element identifier="id-d1" xsi:type="Driver">
+      <name xml:lang="de">Wettbewerbsdruck</name>
+    </element>
+    <element identifier="id-s1" xsi:type="Stakeholder">
+      <name xml:lang="de">IT-Leitung</name>
+    </element>
+    <element identifier="id-a1" xsi:type="Assessment">
+      <name xml:lang="de">SWOT-Analyse 2026</name>
+    </element>
+    <element identifier="id-c1" xsi:type="Constraint">
+      <name xml:lang="de">DSGVO-Konformität</name>
+    </element>
+  </elements>
+  <relationships/>
+</model>
+"""
+
+
+def test_motivation_types_mapped_to_correct_labels(tmp_path: Path) -> None:
+    xml_file = tmp_path / "motivation.xml"
+    xml_file.write_text(_MOTIVATION_XML, encoding="utf-8")
+    elements, _, skipped = _parse_archimate_xml(xml_file, _MOTIVATION_MAPPING)
+    label_map = {e.archimate_type: e.bridgr_label for e in elements}
+    assert label_map["Goal"] == "Ziel"
+    assert label_map["Requirement"] == "Anforderung"
+    assert label_map["Driver"] == "Kontext"
+    assert label_map["Stakeholder"] == "Stakeholder"
+    assert label_map["Assessment"] == "Kontext"
+    assert label_map["Constraint"] == "Anforderung"
+    assert skipped == {}
+
+
+def test_goal_maps_to_ziel(tmp_path: Path) -> None:
+    xml = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.opengroup.org/xsd/archimate/3.0/"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       identifier="id-g" version="3.0">
+  <elements>
+    <element identifier="id-1" xsi:type="Goal">
+      <name xml:lang="de">Effizienz steigern</name>
+    </element>
+  </elements>
+  <relationships/>
+</model>
+"""
+    xml_file = tmp_path / "goal.xml"
+    xml_file.write_text(xml, encoding="utf-8")
+    elements, _, _ = _parse_archimate_xml(xml_file, _MOTIVATION_MAPPING)
+    assert elements[0].bridgr_label == "Ziel"
+    assert elements[0].archimate_type == "Goal"
+
+
+def test_business_actor_maps_to_orgeinheit(tmp_path: Path) -> None:
+    xml = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.opengroup.org/xsd/archimate/3.0/"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       identifier="id-ba" version="3.0">
+  <elements>
+    <element identifier="id-1" xsi:type="BusinessActor">
+      <name xml:lang="de">Vertriebsabteilung</name>
+    </element>
+  </elements>
+  <relationships/>
+</model>
+"""
+    xml_file = tmp_path / "actor.xml"
+    xml_file.write_text(xml, encoding="utf-8")
+    elements, _, _ = _parse_archimate_xml(xml_file, _DEFAULT_MAPPING)
+    assert len(elements) == 1
+    assert elements[0].bridgr_label == "OrgEinheit"
+    assert elements[0].archimate_type == "BusinessActor"
+
+
+# --- Motivation layer relation imports ---
+
+_MOTIVATION_WITH_RELS_XML = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.opengroup.org/xsd/archimate/3.0/"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       identifier="id-mrels" version="3.0">
+  <elements>
+    <element identifier="id-k1" xsi:type="Driver">
+      <name xml:lang="de">Regulierung</name>
+    </element>
+    <element identifier="id-z1" xsi:type="Goal">
+      <name xml:lang="de">Compliance</name>
+    </element>
+    <element identifier="id-anf1" xsi:type="Requirement">
+      <name xml:lang="de">Datenschutzpflicht</name>
+    </element>
+    <element identifier="id-sh1" xsi:type="Stakeholder">
+      <name xml:lang="de">Datenschutzbeauftragter</name>
+    </element>
+  </elements>
+  <relationships>
+    <relationship identifier="id-r1" xsi:type="Influence" source="id-k1" target="id-z1"/>
+    <relationship identifier="id-r2" xsi:type="Realization" source="id-anf1" target="id-z1"/>
+    <relationship identifier="id-r3" xsi:type="Association" source="id-sh1" target="id-z1"/>
+  </relationships>
+</model>
+"""
+
+_MOTIVATION_MAPPING_WITH_RELS = {
+    **_MOTIVATION_MAPPING,
+    "relationships": {
+        "import": {
+            "Kontext->Ziel": ["Influence", "Association"],
+            "Anforderung->Ziel": ["Realization", "Association"],
+            "Stakeholder->Ziel": ["Association"],
+        },
+        "export": {},
+        "bridgr_relation": {
+            "Kontext->Ziel": "BEEINFLUSST",
+            "Anforderung->Ziel": "REALISIERT",
+            "Stakeholder->Ziel": "IST_VERBUNDEN_MIT",
+        },
+    },
+}
+
+
+def test_motivation_relations_imported(tmp_path: Path) -> None:
+    xml_file = tmp_path / "mrels.xml"
+    xml_file.write_text(_MOTIVATION_WITH_RELS_XML, encoding="utf-8")
+    client = RecordingNeo4jClient(read_results={})
+    elements, relations, _ = _parse_archimate_xml(xml_file, _MOTIVATION_MAPPING_WITH_RELS)
+    result = _import_to_neo4j(client, elements, relations, _MOTIVATION_MAPPING_WITH_RELS, "mrels.xml")
+    assert result.elements_imported == 4
+    assert result.relations_imported == 3
+    assert result.relations_skipped == 0
+    beeinflusst_qs = [q for q, _ in client.queries if "BEEINFLUSST" in q]
+    realisiert_qs = [q for q, _ in client.queries if "REALISIERT" in q]
+    verbunden_qs = [q for q, _ in client.queries if "IST_VERBUNDEN_MIT" in q]
+    assert len(beeinflusst_qs) == 1
+    assert len(realisiert_qs) == 1
+    assert len(verbunden_qs) == 1

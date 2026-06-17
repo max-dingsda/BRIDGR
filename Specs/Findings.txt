@@ -196,6 +196,38 @@ unmöglich machen.
 Zu klären: Ist im Nordstern-Testdatensatz (und generell im Anwendungsfall) davon auszugehen, dass
 gleiche Bezeichner immer dieselbe Entität meinen? Oder gibt es Gegenbeispiele aus der Praxis?
 
+25. ArchiMate-Import: Kandidaten-Bestätigung führt nicht zu Node-Merge in Neo4j - offen
+Seit v0.26 werden ArchiMate-Elemente mit wahrscheinlichem Fuzzy-Match (Score ≥ Schwellwert)
+ebenfalls als eigene Nodes in Neo4j angelegt (eigener ArchiMate-Name) und in pending_candidates
+für den Review eingetragen. Beziehungen dieser Elemente werden korrekt importiert.
+
+Problem: Die Bestätigung eines Kandidaten in Tab 5 ("ja, SAP S/4HANA FI IST SAP S/4HANA CO")
+entfernt nur den pending_candidates-Eintrag aus archimate_mapping.json — ein Node-Merge in
+Neo4j findet nicht statt. Der Kandidat-Node bleibt als separate Entität bestehen.
+
+Gewünschtes Verhalten bei Bestätigung:
+  1. Alle Beziehungen des Kandidat-Nodes auf den Ziel-Node übertragen
+  2. archimate_id auf dem Ziel-Node setzen
+  3. Kandidat-Node DETACH DELETE
+
+Technische Einschränkung: Neo4j hat keine native MERGE-BY-ID-Funktion. Der Merge muss
+über Cypher mit explizitem Relationship-Transfer implementiert werden:
+  MATCH (kandidat:Label {name: $kandidat_name})
+  MATCH (ziel:Label {name: $ziel_name})
+  CALL apoc.refactor.mergeNodes([ziel, kandidat], {properties: 'discard'}) ...
+  (oder manuell via FOREACH über alle Beziehungstypen)
+
+Keine APOC-Abhängigkeit bevorzugt → manueller Transfer über bekannte Relationstypen aus
+QUERY_RELATIONSHIP_PATTERNS.
+
+Ablehnung (Reject): kein Merge nötig — Kandidat-Node bleibt als eigenständige Entität,
+pending_candidate-Eintrag wird entfernt. Funktioniert korrekt.
+
+Priorität: mittel. Betrifft nur den seltenen Fall, dass ein Fuzzy-Match tatsächlich
+dieselbe Entität meint (z.B. Namensabweichung zwischen ArchiMate-Modell und CMDB).
+Bei Servernamen mit sequenziellen Nummern (ns-dev-045, ns-dev-046...) wird fast immer
+abgelehnt — dort ist das heutige Verhalten korrekt.
+
 24. Chat: fehlende Verarbeitungsrückmeldung nach Fragebsendung - offen
 Nach dem Absenden einer Frage wird das Eingabefeld geleert. Als einziges Feedback ist das
 Streamlit-Spinner-Icon oben rechts im Browser-Tab sichtbar — ein subtiles, browsernahes Signal

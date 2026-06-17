@@ -29,6 +29,9 @@ QUERY_NODE_SCHEMA: dict[str, tuple[str, ...]] = {
     "Faehigkeit":    ("name", "archimate_type", "archimate_id"),
     "Ressource":     ("name", "archimate_type", "archimate_id"),
     "Ziel":          ("name", "archimate_type", "archimate_id"),
+    "Anforderung":   ("name", "archimate_type", "archimate_id"),
+    "Kontext":       ("name", "archimate_type", "archimate_id"),
+    "Stakeholder":   ("name", "archimate_type", "archimate_id"),
     "Risiko":        ("name", "archimate_type", "archimate_id"),
     "Datenobjekt":   ("name", "archimate_type", "archimate_id"),
     "Infrastruktur": ("name", "archimate_type", "archimate_id"),
@@ -42,6 +45,7 @@ QUERY_RELATIONSHIP_PATTERNS: tuple[RelationshipPattern, ...] = (
     RelationshipPattern("VERANTWORTET", "OrgEinheit", "Anwendung"),
     RelationshipPattern("VERANTWORTET", "OrgEinheit", "Schnittstelle"),
     RelationshipPattern("VERANTWORTET", "OrgEinheit", "Server"),
+    RelationshipPattern("VERANTWORTET", "OrgEinheit", "Infrastruktur"),
     RelationshipPattern("FOLGT_AUF", "Prozess", "Prozess"),
     RelationshipPattern("USES_INTERFACE", "Anwendung", "Schnittstelle"),
     RelationshipPattern("RUNS_ON", "Anwendung", "Server"),
@@ -61,18 +65,39 @@ QUERY_RELATIONSHIP_PATTERNS: tuple[RelationshipPattern, ...] = (
     RelationshipPattern("MITIGIERT", "Anwendung", "Risiko"),
     RelationshipPattern("REALISIERT", "Faehigkeit", "Prozess"),
     RelationshipPattern("REALISIERT", "Faehigkeit", "Anwendung"),
+    RelationshipPattern("REALISIERT", "Anforderung", "Ziel"),
     RelationshipPattern("BENOETIGT", "Prozess", "Ressource"),
     RelationshipPattern("BENOETIGT", "Anwendung", "Ressource"),
     RelationshipPattern("UNTERSTUETZT", "Anwendung", "Ziel"),
     RelationshipPattern("UNTERSTUETZT", "Prozess", "Ziel"),
+    RelationshipPattern("UNTERSTUETZT", "Prozess", "Faehigkeit"),
+    RelationshipPattern("UNTERSTUETZT", "Anwendung", "Faehigkeit"),
     RelationshipPattern("VERARBEITET", "Anwendung", "Datenobjekt"),
     RelationshipPattern("VERARBEITET", "Prozess", "Datenobjekt"),
     RelationshipPattern("LAEUFT_AUF", "Anwendung", "Infrastruktur"),
+    RelationshipPattern("BEEINFLUSST", "Kontext", "Ziel"),
+    RelationshipPattern("BEEINFLUSST", "Kontext", "Anforderung"),
+    RelationshipPattern("BEEINFLUSST", "Anforderung", "Prozess"),
+    RelationshipPattern("BEEINFLUSST", "Anforderung", "Anwendung"),
+    RelationshipPattern("BEEINFLUSST", "Anforderung", "Schnittstelle"),
+    RelationshipPattern("BEEINFLUSST", "Anforderung", "Server"),
+    RelationshipPattern("IST_VERBUNDEN_MIT", "Stakeholder", "Ziel"),
+    RelationshipPattern("IST_VERBUNDEN_MIT", "Stakeholder", "Anforderung"),
+    RelationshipPattern("IST_VERBUNDEN_MIT", "Stakeholder", "Prozess"),
+    RelationshipPattern("IST_VERBUNDEN_MIT", "Stakeholder", "Anwendung"),
+    RelationshipPattern("IST_VERBUNDEN_MIT", "OrgEinheit", "Anforderung"),
+    RelationshipPattern("IST_VERBUNDEN_MIT", "Stakeholder", "Kontext"),
+    RelationshipPattern("REALISIERT", "Faehigkeit", "Ziel"),
+    RelationshipPattern("REALISIERT", "Faehigkeit", "Anforderung"),
+    RelationshipPattern("BEEINFLUSST", "Anforderung", "Anforderung"),
 )
 
 QUERY_RELATIONSHIP_SCHEMA: dict[str, tuple[str, ...]] = {}
 for _pattern in QUERY_RELATIONSHIP_PATTERNS:
     QUERY_RELATIONSHIP_SCHEMA.setdefault(_pattern.relationship_type, _pattern.properties)
+
+# IST_VERBUNDEN_MIT is unrestricted — no label-pair validation applied.
+_UNRESTRICTED_RELATIONSHIP_TYPES: frozenset[str] = frozenset({"IST_VERBUNDEN_MIT"})
 
 
 def build_query_schema_reference() -> str:
@@ -156,6 +181,8 @@ def _validate_relationship_patterns(
             raise ValueError(
                 f"Cypher query uses undirected relationship pattern for {relationship_type}; use the canonical direction."
             )
+        if relationship_type in _UNRESTRICTED_RELATIONSHIP_TYPES:
+            continue
 
         left_labels = _resolve_labels(match.group("left_var"), match.group("left_label"), variable_labels)
         right_labels = _resolve_labels(match.group("right_var"), match.group("right_label"), variable_labels)
