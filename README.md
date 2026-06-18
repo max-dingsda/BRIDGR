@@ -90,8 +90,8 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - Fuzzy-Matching im ArchiMate-Import arbeitet nur gegen einen Pre-Import-Snapshot; Elemente desselben Imports erkennen einander nicht als Kandidaten
 - Tab 4 (Organisation) zeigt OrgEinheiten direkt aus Neo4j inkl. ArchiMate-importierter `BusinessActor`-Elemente
 - manuelle fachliche Eingriffe werden als `ManualDecision` in Neo4j protokolliert
-- erste Ruecknahme-Logik fuer sichere manuelle Entscheidungen im Organisations- und Review-Kontext
-- Konsolidierung von Organisationseinheiten per Merge inklusive Alias-Fortfuehrung des Quellnamens auf den Zielknoten
+- Ruecknahme-Logik fuer manuelle Entscheidungen inklusive Merge-Ruecknahme
+- Konsolidierung von Organisationseinheiten und Prozessen per Merge inklusive Alias-Fortfuehrung des Quellnamens auf den Zielknoten
 
 Wichtige Einordnung:
 - Die aktuelle Implementierung unterstuetzt BPMN, TXT, DOCX und PDF ueber einen gemeinsamen semantischen Extraktionspfad.
@@ -104,8 +104,7 @@ Noch nicht umgesetzt:
 - vollstaendige Loesung von `knowledge_base/kb.json` (Finding #15); kb.json ist zur Loesung vorgemerkt, existiert aber noch als Sicherheitsnetz
 - ArchiMate Views/Viewpoints im Export; selektiver Export (setzt Views voraus)
 - Node-Merge beim Bestaetigen eines ArchiMate-Fuzzy-Match-Kandidaten (Finding #25)
-- Ruecknahme fuer `entity_merge`-Entscheidungen
-- Konsolidierung von `Prozess`-Dubletten
+- reichhaltiger Merge-Precheck mit Konfliktvorschau vor der Ausfuehrung
 
 ## Projektstruktur
 
@@ -370,6 +369,7 @@ Aktuell verfuegbar:
 - Bereich `Letzte manuelle Aenderungen` mit ruecknehmbaren Entscheidungen fuer sichere Faelle
 - menschenlesbare Kontexte in der Aenderungshistorie, z.B. Prozessname und Eigentuemer statt nur technischer IDs
 - Bereich `Organisationseinheiten konsolidieren` fuer den Merge fachlicher Dubletten
+- Bereich `Prozesse konsolidieren` fuer den Merge fachlicher Prozess-Dubletten
 - Merge uebernimmt passende Beziehungen auf den Zielknoten, vermeidet Duplikate und fuehrt den Quellnamen als Alias auf dem Zielobjekt weiter
 
 Wichtige Einordnung:
@@ -377,7 +377,7 @@ Wichtige Einordnung:
 - CMDB-Owner mit sicherem 1:1-Match koennen direkt als `VERANTWORTET` auf CMDB-Objekte landen
 - unsichere CMDB-Owner werden wie andere Org-Kandidaten ueber denselben Review-Pfad behandelt
 - `ManualDecision` ist ein interner Betriebs-Knotentyp und wird bewusst nicht fuer den Chat freigegeben
-- der aktuell umgesetzte Merge gilt nur fuer `OrgEinheit`; `Prozess`-Merges sind architektonisch vorgesehen, aber noch nicht implementiert
+- Merge-Ruecknahmen arbeiten snapshot-basiert aus dem Entscheidungs-Payload
 
 ### Tab 5 - EA-Modell
 

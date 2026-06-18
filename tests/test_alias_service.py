@@ -1,5 +1,13 @@
 from processing.knowledge_base import KnowledgeBase
-from services.alias_service import delete_application_alias, lookup_alias_matches, sync_knowledge_base_aliases, write_merged_org_unit_alias
+from services.alias_service import (
+    delete_application_alias,
+    delete_org_unit_alias,
+    delete_process_alias,
+    lookup_alias_matches,
+    sync_knowledge_base_aliases,
+    write_merged_org_unit_alias,
+    write_merged_process_alias,
+)
 
 
 class RecordingNeo4jClient:
@@ -179,3 +187,33 @@ def test_write_merged_org_unit_alias_writes_alias_for_source_name() -> None:
     assert any("MERGE (alias)-[r:KANN_MEINEN]->(org_unit)" in query for query in queries)
     params = [params for _, params in client.queries if params and params.get("target_name") == "Plattform IT"][0]
     assert params["source_kind"] == "merged_entity"
+
+
+def test_write_merged_process_alias_writes_alias_for_source_name() -> None:
+    client = RecordingNeo4jClient()
+
+    write_merged_process_alias(client, "Reisekostenabrechnung", target_element_id="4711")
+
+    queries = [query for query, _ in client.queries]
+    assert any("MERGE (alias:Alias {normalized_name: $normalized_name})" in query for query in queries)
+    assert any("MATCH (process:Prozess)" in query and "elementId(process) = $target_element_id" in query for query in queries)
+
+
+def test_delete_org_unit_alias_removes_relation_and_orphan_alias_cleanup() -> None:
+    client = RecordingNeo4jClient()
+
+    delete_org_unit_alias(client, "Controlling", "Buchhaltung", source_kind="merged_entity")
+
+    queries = [query for query, _ in client.queries]
+    assert any("(target:OrgEinheit {name: $target_name})" in query for query in queries)
+    assert any("WHERE NOT (alias)-[:KANN_MEINEN]->()" in query for query in queries)
+
+
+def test_delete_process_alias_removes_relation_and_orphan_alias_cleanup() -> None:
+    client = RecordingNeo4jClient()
+
+    delete_process_alias(client, "Reisekostenabrechnung", target_element_id="4711", source_kind="merged_entity")
+
+    queries = [query for query, _ in client.queries]
+    assert any("elementId(target) = $target_element_id" in query for query in queries)
+    assert any("WHERE NOT (alias)-[:KANN_MEINEN]->()" in query for query in queries)

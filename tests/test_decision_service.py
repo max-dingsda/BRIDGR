@@ -78,6 +78,8 @@ def test_get_manual_decision_returns_existing_decision() -> None:
     assert result.decision_id == "dec-1"
     assert result.decision_type == "manual_link"
     assert result.notes == "note"
+    query, _ = client.reads[0]
+    assert "WITH properties(d) AS props" in query
 
 
 def test_list_recent_manual_decisions_returns_rows_in_order() -> None:
@@ -109,6 +111,8 @@ def test_list_recent_manual_decisions_returns_rows_in_order() -> None:
 
     assert [item.decision_id for item in result] == ["dec-2", "dec-1"]
     assert client.reads[0][1] == {"limit": 5}
+    query, _ = client.reads[0]
+    assert "WITH properties(d) AS props" in query
 
 
 def test_mark_manual_decision_reverted_updates_status_and_timestamp() -> None:

@@ -10,7 +10,13 @@ from processing.knowledge_base import load_knowledge_base, normalize_org_unit_na
 from core.neo4j_utils import Neo4jConnectionError, Neo4jQueryError
 from services.correction_service import revert_manual_decision
 from services.decision_service import list_recent_manual_decisions
-from services.merge_service import merge_org_units
+from services.merge_service import (
+    get_org_unit_merge_preview,
+    get_process_merge_preview,
+    load_process_merge_candidates,
+    merge_org_units,
+    merge_processes,
+)
 from services.organization_service import (
     accept_org_candidate,
     accept_process_owner_candidate,
@@ -58,6 +64,7 @@ def render_organization_tab() -> None:
     _render_unassigned_roles_section(config, org_units)
     _render_recent_decisions_section(config)
     _render_org_unit_merge_section(config, org_units)
+    _render_process_merge_section(config)
     _render_decided_candidates_section(knowledge_base)
 
 
@@ -83,6 +90,7 @@ _SECTION_ROLES = "org_section_roles_open"
 _SECTION_DECIDED = "org_section_decided_open"
 _SECTION_RECENT_DECISIONS = "org_section_recent_decisions_open"
 _SECTION_MERGE = "org_section_merge_open"
+_SECTION_PROCESS_MERGE = "org_section_process_merge_open"
 
 
 def _rerun_keep(section_key: str) -> None:
@@ -557,9 +565,9 @@ def _render_org_unit_merge_section(config, org_units) -> None:
         )
 
         if source_name and target_name:
-            st.info(
-                "Precheck: Alle Verantwortlichkeiten, Rollen-Zuordnungen und vorhandenen Aliase "
-                "der Quelle werden auf das Ziel übertragen. Gleichartige Kanten werden nicht doppelt angelegt."
+            _render_merge_precheck(
+                lambda: get_org_unit_merge_preview(config, source_name, target_name),
+                key_prefix="org-merge-precheck",
             )
 
         if st.button("Merge ausführen", key="org-merge-submit", width="stretch"):
@@ -569,3 +577,151 @@ def _render_org_unit_merge_section(config, org_units) -> None:
                 level, message = merge_org_units(config, source_name, target_name)
                 getattr(st, level)(message)
                 _rerun_keep(_SECTION_MERGE)
+
+
+def _render_process_merge_section(config) -> None:
+    load_error: Exception | None = None
+    try:
+        process_candidates = load_process_merge_candidates(config)
+    except Exception as exc:
+        process_candidates = []
+        load_error = exc
+
+    with st.expander("Prozesse konsolidieren", expanded=st.session_state.get(_SECTION_PROCESS_MERGE, False)):
+        if load_error:
+            st.warning(f"Prozesse konnten nicht geladen werden: {load_error}")
+            return
+        if len(process_candidates) < 2:
+            st.info("Für einen Merge werden mindestens zwei Prozesse benötigt.")
+            return
+
+        process_options = [entry["element_id"] for entry in process_candidates]
+        process_labels = {
+            entry["element_id"]: (
+                f"{entry.get('process_name', '')} [{entry.get('process_id', '')}]"
+                if entry.get("process_id")
+                else entry.get("process_name", "") or entry["element_id"]
+            )
+            for entry in process_candidates
+        }
+
+        source_ref = st.selectbox(
+            "Prozess-Quelle",
+            options=[""] + process_options,
+            format_func=lambda element_id: process_labels.get(element_id, element_id),
+            key="process-merge-source",
+        )
+        target_ref = st.selectbox(
+            "Prozess-Ziel",
+            options=[""] + [option for option in process_options if option != source_ref],
+            format_func=lambda element_id: process_labels.get(element_id, element_id),
+            key="process-merge-target",
+        )
+
+        if source_ref and target_ref:
+            _render_merge_precheck(
+                lambda: get_process_merge_preview(config, source_ref, target_ref),
+                key_prefix="process-merge-precheck",
+            )
+
+        if st.button("Prozess-Merge ausführen", key="process-merge-submit", width="stretch"):
+            if not source_ref or not target_ref:
+                st.warning("Bitte Quelle und Ziel auswählen.")
+            else:
+                level, message = merge_processes(config, source_ref, target_ref)
+                getattr(st, level)(message)
+                _rerun_keep(_SECTION_PROCESS_MERGE)
+
+
+def _render_merge_precheck(load_preview, *, key_prefix: str) -> None:
+    try:
+        preview = load_preview()
+    except Exception as exc:
+        st.warning(f"Precheck konnte nicht geladen werden: {exc}")
+        return
+
+    outgoing_duplicates = [
+        rel for rel in preview.source_outgoing if _relationship_key(rel) in set(preview.target_outgoing_keys)
+    ]
+    incoming_duplicates = [
+        rel for rel in preview.source_incoming if _relationship_key(rel) in set(preview.target_incoming_keys)
+    ]
+    property_conflicts = _build_property_conflicts(preview)
+
+    st.info(
+        f"Precheck für {preview.entity_type}: Quelle **{preview.source_name or preview.source_ref}** "
+        f"→ Ziel **{preview.target_name or preview.target_ref}**"
+    )
+
+    summary_cols = st.columns(4)
+    summary_cols[0].metric("Ausgehende Kanten", len(preview.source_outgoing))
+    summary_cols[1].metric("Eingehende Kanten", len(preview.source_incoming))
+    summary_cols[2].metric("Dubletten am Ziel", len(outgoing_duplicates) + len(incoming_duplicates))
+    summary_cols[3].metric("Alias-Übernahme", len(preview.source_alias_names))
+
+    if property_conflicts:
+        st.warning("Property-Konflikte erkannt. Der Merge übernimmt aktuell fehlende Zielwerte konservativ.")
+        st.dataframe(property_conflicts, width="stretch")
+    else:
+        st.caption("Keine offensichtlichen Property-Konflikte aus den Quell-Properties erkannt.")
+
+    if preview.source_alias_names:
+        st.caption(f"Quell-Aliase: {', '.join(preview.source_alias_names)}")
+
+    with st.expander("Zu übernehmende Kanten", expanded=False):
+        _render_relationship_rows(
+            [
+                {
+                    "Richtung": "ausgehend",
+                    "Typ": rel["rel_type"],
+                    "Gegenknoten": f"{rel['other_label']}: {rel['other_ref']}",
+                    "Bereits am Ziel": "ja" if _relationship_key(rel) in set(preview.target_outgoing_keys) else "nein",
+                }
+                for rel in preview.source_outgoing
+            ]
+            + [
+                {
+                    "Richtung": "eingehend",
+                    "Typ": rel["rel_type"],
+                    "Gegenknoten": f"{rel['other_label']}: {rel['other_ref']}",
+                    "Bereits am Ziel": "ja" if _relationship_key(rel) in set(preview.target_incoming_keys) else "nein",
+                }
+                for rel in preview.source_incoming
+            ]
+        )
+
+
+def _relationship_key(rel: dict[str, str]) -> str:
+    return f"{rel.get('rel_type', '')}|{rel.get('other_label', '')}|{rel.get('other_ref', '')}"
+
+
+def _build_property_conflicts(preview) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    source_properties = getattr(preview, "source_properties", {}) or {}
+    target_properties = getattr(preview, "target_properties", {}) or {}
+    for key, value in source_properties.items():
+        if value in (None, "", False):
+            continue
+        if key in {"created_at"}:
+            continue
+        target_value = target_properties.get(key)
+        if target_value in (None, "", False):
+            continue
+        if str(target_value) == str(value):
+            continue
+        rows.append(
+            {
+                "Property": str(key),
+                "Quellwert": str(value),
+                "Zielwert": str(target_value),
+                "Hinweis": "Aktuelle Merge-Logik behält den Zielwert bei.",
+            }
+        )
+    return rows
+
+
+def _render_relationship_rows(rows: list[dict[str, str]]) -> None:
+    if not rows:
+        st.caption("Keine Kanten aus der Quelle gefunden.")
+        return
+    st.dataframe(rows, width="stretch")

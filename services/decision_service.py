@@ -72,14 +72,15 @@ def get_manual_decision(neo4j_client: Neo4jClient, decision_id: str) -> ManualDe
     rows = neo4j_client.execute_read_unvalidated(
         """
         MATCH (d:ManualDecision {decision_id: $decision_id})
-        RETURN d.decision_id AS decision_id,
-               d.decision_type AS decision_type,
-               d.status AS status,
-               d.created_at AS created_at,
-               d.payload_json AS payload_json,
-               d.supersedes_decision_id AS supersedes_decision_id,
-               d.reverted_at AS reverted_at,
-               d.notes AS notes
+        WITH properties(d) AS props
+        RETURN coalesce(props.decision_id, '') AS decision_id,
+               coalesce(props.decision_type, '') AS decision_type,
+               coalesce(props.status, '') AS status,
+               coalesce(props.created_at, '') AS created_at,
+               coalesce(props.payload_json, '') AS payload_json,
+               props.supersedes_decision_id AS supersedes_decision_id,
+               props.reverted_at AS reverted_at,
+               props.notes AS notes
         LIMIT 1
         """,
         {"decision_id": decision_id},
@@ -93,15 +94,16 @@ def list_recent_manual_decisions(neo4j_client: Neo4jClient, limit: int = 20) -> 
     rows = neo4j_client.execute_read_unvalidated(
         """
         MATCH (d:ManualDecision)
-        RETURN d.decision_id AS decision_id,
-               d.decision_type AS decision_type,
-               d.status AS status,
-               d.created_at AS created_at,
-               d.payload_json AS payload_json,
-               d.supersedes_decision_id AS supersedes_decision_id,
-               d.reverted_at AS reverted_at,
-               d.notes AS notes
-        ORDER BY d.created_at DESC
+        WITH properties(d) AS props
+        RETURN coalesce(props.decision_id, '') AS decision_id,
+               coalesce(props.decision_type, '') AS decision_type,
+               coalesce(props.status, '') AS status,
+               coalesce(props.created_at, '') AS created_at,
+               coalesce(props.payload_json, '') AS payload_json,
+               props.supersedes_decision_id AS supersedes_decision_id,
+               props.reverted_at AS reverted_at,
+               props.notes AS notes
+        ORDER BY props.created_at DESC
         LIMIT $limit
         """,
         {"limit": int(limit)},

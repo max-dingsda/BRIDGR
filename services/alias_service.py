@@ -208,6 +208,32 @@ def write_merged_org_unit_alias(
     )
 
 
+def write_merged_process_alias(
+    neo4j_client: Neo4jClient,
+    source_name: str,
+    *,
+    target_element_id: str,
+) -> None:
+    if not source_name.strip() or not target_element_id.strip():
+        return
+    _merge_alias_node(neo4j_client, source_name)
+    neo4j_client.execute_write(
+        """
+        MATCH (process:Prozess)
+        WHERE elementId(process) = $target_element_id
+        WITH process
+        MATCH (alias:Alias {normalized_name: $normalized_name})
+        MERGE (alias)-[r:KANN_MEINEN]->(process)
+        SET r.source_kind = $source_kind
+        """,
+        {
+            "target_element_id": target_element_id,
+            "normalized_name": normalize_alias_name(source_name),
+            "source_kind": ALIAS_SOURCE_KIND_MERGED_ENTITY,
+        },
+    )
+
+
 def delete_application_alias(
     neo4j_client: Neo4jClient,
     alias_name: str,
@@ -230,6 +256,66 @@ def delete_application_alias(
             "source_kind": source_kind,
         },
     )
+    neo4j_client.execute_write(
+        """
+        MATCH (alias:Alias {normalized_name: $normalized_name})
+        WHERE NOT (alias)-[:KANN_MEINEN]->()
+        DELETE alias
+        """,
+        {"normalized_name": normalized_name},
+    )
+
+
+def delete_org_unit_alias(
+    neo4j_client: Neo4jClient,
+    alias_name: str,
+    target_name: str,
+    *,
+    source_kind: str,
+) -> None:
+    _delete_alias_relation(
+        neo4j_client,
+        """
+        MATCH (alias:Alias {normalized_name: $normalized_name})-[r:KANN_MEINEN]->(target:OrgEinheit {name: $target_name})
+        WHERE r.source_kind = $source_kind
+        DELETE r
+        """,
+        {
+            "normalized_name": normalize_alias_name(alias_name),
+            "target_name": target_name,
+            "source_kind": source_kind,
+        },
+    )
+
+
+def delete_process_alias(
+    neo4j_client: Neo4jClient,
+    alias_name: str,
+    *,
+    target_element_id: str,
+    source_kind: str,
+) -> None:
+    _delete_alias_relation(
+        neo4j_client,
+        """
+        MATCH (alias:Alias {normalized_name: $normalized_name})-[r:KANN_MEINEN]->(target:Prozess)
+        WHERE elementId(target) = $target_element_id
+          AND r.source_kind = $source_kind
+        DELETE r
+        """,
+        {
+            "normalized_name": normalize_alias_name(alias_name),
+            "target_element_id": target_element_id,
+            "source_kind": source_kind,
+        },
+    )
+
+
+def _delete_alias_relation(neo4j_client: Neo4jClient, query: str, parameters: dict[str, str]) -> None:
+    normalized_name = str(parameters.get("normalized_name", "")).strip()
+    if not normalized_name:
+        return
+    neo4j_client.execute_write(query, parameters)
     neo4j_client.execute_write(
         """
         MATCH (alias:Alias {normalized_name: $normalized_name})

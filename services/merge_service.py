@@ -1,8 +1,28 @@
 from __future__ import annotations
 
-from services.alias_service import write_merged_org_unit_alias
+from dataclasses import dataclass
+from typing import Any
+
+from services.alias_service import write_merged_org_unit_alias, write_merged_process_alias
 from services.decision_service import create_manual_decision
 from services.runtime_service import get_session_neo4j_client
+
+
+@dataclass(frozen=True, slots=True)
+class MergePreview:
+    entity_type: str
+    source_ref: str
+    target_ref: str
+    source_name: str
+    target_name: str
+    source_properties: dict[str, Any]
+    target_properties: dict[str, Any]
+    source_outgoing: list[dict[str, str]]
+    source_incoming: list[dict[str, str]]
+    target_outgoing_keys: list[str]
+    target_incoming_keys: list[str]
+    source_alias_names: list[str]
+    target_alias_names: list[str]
 
 
 def merge_org_units(config, source_name: str, target_name: str) -> tuple[str, str]:
@@ -14,6 +34,7 @@ def merge_org_units(config, source_name: str, target_name: str) -> tuple[str, st
         return "error", "Quelle und Ziel dürfen nicht identisch sein."
 
     neo4j_client = get_session_neo4j_client(config)
+    preview = _collect_org_unit_preview(neo4j_client, cleaned_source, cleaned_target)
     _merge_org_unit_relationships(neo4j_client, cleaned_source, cleaned_target)
     write_merged_org_unit_alias(neo4j_client, cleaned_source, cleaned_target)
     neo4j_client.execute_write(
@@ -32,9 +53,344 @@ def merge_org_units(config, source_name: str, target_name: str) -> tuple[str, st
             "entity_type": "OrgEinheit",
             "source_name": cleaned_source,
             "target_name": cleaned_target,
+            "source_ref": cleaned_source,
+            "target_ref": cleaned_target,
+            "merge_preview": _serialize_preview(preview),
         },
     )
     return "success", f"Organisationseinheit '{cleaned_source}' wurde in '{cleaned_target}' überführt."
+
+
+def get_org_unit_merge_preview(config, source_name: str, target_name: str) -> MergePreview:
+    cleaned_source = " ".join(source_name.strip().split())
+    cleaned_target = " ".join(target_name.strip().split())
+    neo4j_client = get_session_neo4j_client(config)
+    return _collect_org_unit_preview(neo4j_client, cleaned_source, cleaned_target)
+
+
+def load_process_merge_candidates(config) -> list[dict[str, str]]:
+    neo4j_client = get_session_neo4j_client(config)
+    rows = neo4j_client.execute_read_unvalidated(
+        """
+        MATCH (p:Prozess)
+        WHERE coalesce(p.placeholder, false) = false
+        RETURN elementId(p) AS element_id,
+               coalesce(p.prozess_id, '') AS process_id,
+               coalesce(p.name, '') AS process_name
+        ORDER BY toLower(coalesce(p.name, '')), toLower(coalesce(p.prozess_id, ''))
+        """,
+        {},
+    )
+    return [
+        {
+            "element_id": str(row.get("element_id", "")).strip(),
+            "process_id": str(row.get("process_id", "")).strip(),
+            "process_name": str(row.get("process_name", "")).strip(),
+        }
+        for row in rows
+        if str(row.get("element_id", "")).strip()
+    ]
+
+
+def get_process_merge_preview(config, source_element_id: str, target_element_id: str) -> MergePreview:
+    neo4j_client = get_session_neo4j_client(config)
+    return _collect_process_preview(neo4j_client, source_element_id.strip(), target_element_id.strip())
+
+
+def merge_processes(config, source_element_id: str, target_element_id: str) -> tuple[str, str]:
+    source_ref = source_element_id.strip()
+    target_ref = target_element_id.strip()
+    if not source_ref or not target_ref:
+        return "error", "Quelle und Ziel dürfen nicht leer sein."
+    if source_ref == target_ref:
+        return "error", "Quelle und Ziel dürfen nicht identisch sein."
+
+    neo4j_client = get_session_neo4j_client(config)
+    preview = _collect_process_preview(neo4j_client, source_ref, target_ref)
+    if preview.source_name.casefold() == preview.target_name.casefold() and preview.source_properties.get("prozess_id", "").strip() == preview.source_properties.get("prozess_id", "").strip():
+        # same element ids are already blocked above; this only keeps messages stable for near-identical selections
+        pass
+    _merge_process_properties(neo4j_client, source_ref, target_ref)
+    _merge_process_relationships(neo4j_client, source_ref, target_ref)
+    write_merged_process_alias(neo4j_client, preview.source_name, target_element_id=target_ref)
+    neo4j_client.execute_write(
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        DETACH DELETE source
+        """,
+        {"source_element_id": source_ref},
+    )
+    create_manual_decision(
+        neo4j_client,
+        "entity_merge",
+        {
+            "entity_type": "Prozess",
+            "source_name": preview.source_name,
+            "target_name": preview.target_name,
+            "source_ref": source_ref,
+            "target_ref": target_ref,
+            "merge_preview": _serialize_preview(preview),
+        },
+    )
+    return "success", f"Prozess '{preview.source_name}' wurde in '{preview.target_name}' überführt."
+
+
+def _serialize_preview(preview: MergePreview) -> dict[str, Any]:
+    return {
+        "entity_type": preview.entity_type,
+        "source_ref": preview.source_ref,
+        "target_ref": preview.target_ref,
+        "source_name": preview.source_name,
+        "target_name": preview.target_name,
+        "source_properties": preview.source_properties,
+        "target_properties": preview.target_properties,
+        "source_outgoing": preview.source_outgoing,
+        "source_incoming": preview.source_incoming,
+        "target_outgoing_keys": preview.target_outgoing_keys,
+        "target_incoming_keys": preview.target_incoming_keys,
+        "source_alias_names": preview.source_alias_names,
+        "target_alias_names": preview.target_alias_names,
+    }
+
+
+def _reference_projection(node_alias: str) -> str:
+    return (
+        "CASE "
+        f"WHEN {node_alias}:Prozess THEN coalesce({node_alias}.prozess_id, {node_alias}.name, elementId({node_alias}), '') "
+        f"WHEN {node_alias}:Anwendung THEN coalesce({node_alias}.cmdb_id, {node_alias}.name, '') "
+        f"WHEN {node_alias}:Schnittstelle OR {node_alias}:Server OR {node_alias}:Infrastruktur THEN coalesce({node_alias}.id, {node_alias}.name, '') "
+        f"WHEN {node_alias}:Alias THEN coalesce({node_alias}.name, {node_alias}.normalized_name, '') "
+        f"ELSE coalesce({node_alias}.name, {node_alias}.cmdb_id, {node_alias}.id, {node_alias}.prozess_id, elementId({node_alias}), '') "
+        "END"
+    )
+
+
+def _collect_org_unit_preview(neo4j_client, source_name: str, target_name: str) -> MergePreview:
+    source_properties = _load_node_properties(
+        neo4j_client,
+        """
+        MATCH (source:OrgEinheit {name: $source_name})
+        RETURN properties(source) AS props
+        """,
+        {"source_name": source_name},
+    )
+    target_properties = _load_node_properties(
+        neo4j_client,
+        """
+        MATCH (target:OrgEinheit {name: $target_name})
+        RETURN properties(target) AS props
+        """,
+        {"target_name": target_name},
+    )
+    source_outgoing = _load_relationship_rows(
+        neo4j_client,
+        f"""
+        MATCH (source:OrgEinheit {{name: $source_name}})-[r]->(target)
+        RETURN type(r) AS rel_type,
+               labels(target)[0] AS other_label,
+               {_reference_projection("target")} AS other_ref
+        ORDER BY rel_type, other_label, other_ref
+        """,
+        {"source_name": source_name},
+    )
+    source_incoming = _load_relationship_rows(
+        neo4j_client,
+        f"""
+        MATCH (other)-[r]->(source:OrgEinheit {{name: $source_name}})
+        RETURN type(r) AS rel_type,
+               labels(other)[0] AS other_label,
+               {_reference_projection("other")} AS other_ref
+        ORDER BY rel_type, other_label, other_ref
+        """,
+        {"source_name": source_name},
+    )
+    target_outgoing_keys = _load_relationship_keys(
+        neo4j_client,
+        f"""
+        MATCH (target:OrgEinheit {{name: $target_name}})-[r]->(other)
+        RETURN type(r) + '|' + labels(other)[0] + '|' + {_reference_projection("other")} AS rel_key
+        ORDER BY rel_key
+        """,
+        {"target_name": target_name},
+    )
+    target_incoming_keys = _load_relationship_keys(
+        neo4j_client,
+        f"""
+        MATCH (other)-[r]->(target:OrgEinheit {{name: $target_name}})
+        RETURN type(r) + '|' + labels(other)[0] + '|' + {_reference_projection("other")} AS rel_key
+        ORDER BY rel_key
+        """,
+        {"target_name": target_name},
+    )
+    source_alias_names = _load_alias_names(
+        neo4j_client,
+        """
+        MATCH (alias:Alias)-[:KANN_MEINEN]->(:OrgEinheit {name: $source_name})
+        RETURN alias.name AS alias_name
+        ORDER BY alias.name
+        """,
+        {"source_name": source_name},
+    )
+    target_alias_names = _load_alias_names(
+        neo4j_client,
+        """
+        MATCH (alias:Alias)-[:KANN_MEINEN]->(:OrgEinheit {name: $target_name})
+        RETURN alias.name AS alias_name
+        ORDER BY alias.name
+        """,
+        {"target_name": target_name},
+    )
+    return MergePreview(
+        entity_type="OrgEinheit",
+        source_ref=source_name,
+        target_ref=target_name,
+        source_name=source_name,
+        target_name=target_name,
+        source_properties=source_properties,
+        target_properties=target_properties,
+        source_outgoing=source_outgoing,
+        source_incoming=source_incoming,
+        target_outgoing_keys=target_outgoing_keys,
+        target_incoming_keys=target_incoming_keys,
+        source_alias_names=source_alias_names,
+        target_alias_names=target_alias_names,
+    )
+
+
+def _collect_process_preview(neo4j_client, source_element_id: str, target_element_id: str) -> MergePreview:
+    rows = neo4j_client.execute_read_unvalidated(
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        RETURN coalesce(source.name, source.prozess_id, '') AS source_name,
+               coalesce(target.name, target.prozess_id, '') AS target_name,
+               properties(source) AS source_props
+        """,
+        {
+            "source_element_id": source_element_id,
+            "target_element_id": target_element_id,
+        },
+    )
+    row = rows[0] if rows else {}
+    source_outgoing = _load_relationship_rows(
+        neo4j_client,
+        f"""
+        MATCH (source:Prozess)-[r]->(target)
+        WHERE elementId(source) = $source_element_id
+        RETURN type(r) AS rel_type,
+               labels(target)[0] AS other_label,
+               {_reference_projection("target")} AS other_ref
+        ORDER BY rel_type, other_label, other_ref
+        """,
+        {"source_element_id": source_element_id},
+    )
+    target_properties = _load_node_properties(
+        neo4j_client,
+        """
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        RETURN properties(target) AS props
+        """,
+        {"target_element_id": target_element_id},
+    )
+    source_incoming = _load_relationship_rows(
+        neo4j_client,
+        f"""
+        MATCH (other)-[r]->(source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        RETURN type(r) AS rel_type,
+               labels(other)[0] AS other_label,
+               {_reference_projection("other")} AS other_ref
+        ORDER BY rel_type, other_label, other_ref
+        """,
+        {"source_element_id": source_element_id},
+    )
+    target_outgoing_keys = _load_relationship_keys(
+        neo4j_client,
+        f"""
+        MATCH (target:Prozess)-[r]->(other)
+        WHERE elementId(target) = $target_element_id
+        RETURN type(r) + '|' + labels(other)[0] + '|' + {_reference_projection("other")} AS rel_key
+        ORDER BY rel_key
+        """,
+        {"target_element_id": target_element_id},
+    )
+    target_incoming_keys = _load_relationship_keys(
+        neo4j_client,
+        f"""
+        MATCH (other)-[r]->(target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        RETURN type(r) + '|' + labels(other)[0] + '|' + {_reference_projection("other")} AS rel_key
+        ORDER BY rel_key
+        """,
+        {"target_element_id": target_element_id},
+    )
+    source_alias_names = _load_alias_names(
+        neo4j_client,
+        """
+        MATCH (alias:Alias)-[:KANN_MEINEN]->(source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        RETURN alias.name AS alias_name
+        ORDER BY alias.name
+        """,
+        {"source_element_id": source_element_id},
+    )
+    target_alias_names = _load_alias_names(
+        neo4j_client,
+        """
+        MATCH (alias:Alias)-[:KANN_MEINEN]->(target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        RETURN alias.name AS alias_name
+        ORDER BY alias.name
+        """,
+        {"target_element_id": target_element_id},
+    )
+    return MergePreview(
+        entity_type="Prozess",
+        source_ref=source_element_id,
+        target_ref=target_element_id,
+        source_name=str(row.get("source_name", "")).strip(),
+        target_name=str(row.get("target_name", "")).strip(),
+        source_properties=dict(row.get("source_props") or {}),
+        target_properties=target_properties,
+        source_outgoing=source_outgoing,
+        source_incoming=source_incoming,
+        target_outgoing_keys=target_outgoing_keys,
+        target_incoming_keys=target_incoming_keys,
+        source_alias_names=source_alias_names,
+        target_alias_names=target_alias_names,
+    )
+
+
+def _load_node_properties(neo4j_client, query: str, parameters: dict[str, str]) -> dict[str, Any]:
+    rows = neo4j_client.execute_read_unvalidated(query, parameters)
+    return dict((rows[0] if rows else {}).get("props") or {})
+
+
+def _load_relationship_rows(neo4j_client, query: str, parameters: dict[str, str]) -> list[dict[str, str]]:
+    rows = neo4j_client.execute_read_unvalidated(query, parameters)
+    return [
+        {
+            "rel_type": str(row.get("rel_type", "")).strip(),
+            "other_label": str(row.get("other_label", "")).strip(),
+            "other_ref": str(row.get("other_ref", "")).strip(),
+        }
+        for row in rows
+        if str(row.get("rel_type", "")).strip() and str(row.get("other_label", "")).strip()
+    ]
+
+
+def _load_relationship_keys(neo4j_client, query: str, parameters: dict[str, str]) -> list[str]:
+    rows = neo4j_client.execute_read_unvalidated(query, parameters)
+    return [str(row.get("rel_key", "")).strip() for row in rows if str(row.get("rel_key", "")).strip()]
+
+
+def _load_alias_names(neo4j_client, query: str, parameters: dict[str, str]) -> list[str]:
+    rows = neo4j_client.execute_read_unvalidated(query, parameters)
+    return [str(row.get("alias_name", "")).strip() for row in rows if str(row.get("alias_name", "")).strip()]
 
 
 def _merge_org_unit_relationships(neo4j_client, source_name: str, target_name: str) -> None:
@@ -118,3 +474,103 @@ def _merge_org_unit_relationships(neo4j_client, source_name: str, target_name: s
         """,
         {"source_name": source_name, "target_name": target_name},
     )
+
+
+def _merge_process_properties(neo4j_client, source_element_id: str, target_element_id: str) -> None:
+    neo4j_client.execute_write(
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        SET target.prozess_id = coalesce(target.prozess_id, source.prozess_id),
+            target.archimate_id = coalesce(target.archimate_id, source.archimate_id),
+            target.archimate_type = coalesce(target.archimate_type, source.archimate_type),
+            target.archimate_source = coalesce(target.archimate_source, source.archimate_source),
+            target.name = coalesce(target.name, source.name),
+            target.placeholder = coalesce(target.placeholder, source.placeholder, false)
+        """,
+        {
+            "source_element_id": source_element_id,
+            "target_element_id": target_element_id,
+        },
+    )
+
+
+def _merge_process_relationships(neo4j_client, source_element_id: str, target_element_id: str) -> None:
+    for query in (
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        MATCH (a:Anwendung)-[r:DIENT]->(source)
+        WHERE elementId(source) <> elementId(target)
+        MERGE (a)-[merged:DIENT]->(target)
+        SET merged.konfidenz = coalesce(merged.konfidenz, r.konfidenz),
+            merged.raw_name = coalesce(merged.raw_name, r.raw_name),
+            merged.source = coalesce(merged.source, r.source)
+        """,
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        MATCH (a:Anwendung)-[r:KÖNNTE_DIENEN]->(source)
+        WHERE elementId(source) <> elementId(target)
+        MERGE (a)-[merged:KÖNNTE_DIENEN]->(target)
+        SET merged.score = coalesce(merged.score, r.score)
+        """,
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        MATCH (role:Rolle)-[:BETEILIGT_AN]->(source)
+        WHERE elementId(source) <> elementId(target)
+        MERGE (role)-[:BETEILIGT_AN]->(target)
+        """,
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        MATCH (org:OrgEinheit)-[:VERANTWORTET]->(source)
+        WHERE elementId(source) <> elementId(target)
+        MERGE (org)-[:VERANTWORTET]->(target)
+        """,
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        MATCH (source)-[:FOLGT_AUF]->(previous:Prozess)
+        WHERE elementId(source) <> elementId(target) AND elementId(previous) <> elementId(target)
+        MERGE (target)-[:FOLGT_AUF]->(previous)
+        """,
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        MATCH (successor:Prozess)-[:FOLGT_AUF]->(source)
+        WHERE elementId(source) <> elementId(target) AND elementId(successor) <> elementId(target)
+        MERGE (successor)-[:FOLGT_AUF]->(target)
+        """,
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        MATCH (alias:Alias)-[:KANN_MEINEN]->(source)
+        WHERE elementId(source) <> elementId(target)
+        MERGE (alias)-[:KANN_MEINEN]->(target)
+        """,
+    ):
+        neo4j_client.execute_write(
+            query,
+            {
+                "source_element_id": source_element_id,
+                "target_element_id": target_element_id,
+            },
+        )

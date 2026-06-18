@@ -616,6 +616,7 @@ Aktuell unterstützt:
 - manuelle Rollenzuordnung
 
 Der Rücknahmevorgang erzeugt selbst wieder einen internen Nachweis im System.
+Auch Merge-Entscheidungen können in der aktuellen Version über diese Liste zurückgenommen werden.
 
 ### 9.9 Abschnitt `Organisationseinheiten konsolidieren`
 
@@ -645,7 +646,34 @@ Dabei geschieht:
 Wichtig:
 
 - Diese Funktion gilt aktuell nur für Organisationseinheiten.
-- Eine Rücknahme von Merge-Entscheidungen ist in der aktuellen Version noch nicht verfügbar.
+
+### 9.10 Abschnitt `Prozesse konsolidieren`
+
+Dieser Bereich dient zum Zusammenführen fachlicher Prozess-Dubletten.
+
+Typischer Anwendungsfall:
+
+- derselbe Prozess wurde aus unterschiedlichen Quellen mit leicht abweichendem Namen importiert
+- ein Prozess liegt einmal als Text-/BPMN-Import und einmal aus einem anderen Modell vor
+
+Felder:
+
+- `Prozess-Quelle`: der aufzulösende Prozess
+- `Prozess-Ziel`: der Prozess, der bestehen bleiben soll
+
+#### Button `Prozess-Merge ausführen`
+
+Führt den ausgewählten Quellprozess in den Zielprozess über.
+
+Dabei geschieht:
+
+- Anwendungsbeziehungen, Rollenbeteiligungen, Eigentümerbeziehungen und Prozessfolgekanten werden auf das Ziel übertragen
+- bereits vorhandene gleichartige Beziehungen werden nicht doppelt erzeugt
+- der Name der Quelle wird als Alias des Zielprozesses weitergeführt
+
+Wichtig:
+
+- Ein Prozess-Merge kann über `Letzte manuelle Änderungen` wieder zurückgenommen werden.
 
 ---
 

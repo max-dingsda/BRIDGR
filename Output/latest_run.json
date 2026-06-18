@@ -49,8 +49,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-001_eingangsrechnung_pruefen_und_buchen.txt",
-        "process_owner_candidate": "Buchhaltung"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-001_eingangsrechnung_pruefen_und_buchen.txt"
       },
       "matches": [
         {
@@ -170,8 +169,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-001_eingangsrechnung_pruefen_und_buchen.txt",
-          "process_owner_candidate": "Buchhaltung"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-001_eingangsrechnung_pruefen_und_buchen.txt"
         },
         "matches": [
           {
@@ -447,7 +445,7 @@
           }
         ],
         "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-003_zahlungslauf_freigeben.txt",
-        "process_owner_candidate": ""
+        "process_owner_candidate": "Buchhaltung"
       },
       "matches": [
         {
@@ -523,7 +521,7 @@
             }
           ],
           "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-003_zahlungslauf_freigeben.txt",
-          "process_owner_candidate": ""
+          "process_owner_candidate": "Buchhaltung"
         },
         "matches": [
           {
@@ -767,7 +765,7 @@
           }
         ],
         "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-005_forecast_aktualisieren.txt",
-        "process_owner_candidate": "Controlling"
+        "process_owner_candidate": ""
       },
       "matches": [
         {
@@ -848,7 +846,7 @@
             }
           ],
           "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-005_forecast_aktualisieren.txt",
-          "process_owner_candidate": "Controlling"
+          "process_owner_candidate": ""
         },
         "matches": [
           {
@@ -1013,7 +1011,7 @@
           }
         ],
         "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-007_bestellung_ausloesen.txt",
-        "process_owner_candidate": ""
+        "process_owner_candidate": "Einkauf"
       },
       "matches": [
         {
@@ -1076,7 +1074,7 @@
             }
           ],
           "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-007_bestellung_ausloesen.txt",
-          "process_owner_candidate": ""
+          "process_owner_candidate": "Einkauf"
         },
         "matches": [
           {
@@ -1425,7 +1423,7 @@
           }
         ],
         "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-010_auftrag_erfassen.txt",
-        "process_owner_candidate": "Vertrieb"
+        "process_owner_candidate": ""
       },
       "matches": [
         {
@@ -1527,7 +1525,7 @@
             }
           ],
           "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-010_auftrag_erfassen.txt",
-          "process_owner_candidate": "Vertrieb"
+          "process_owner_candidate": ""
         },
         "matches": [
           {
@@ -1841,7 +1839,7 @@
           }
         ],
         "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-013_wareneingang_buchen.txt",
-        "process_owner_candidate": "Logistik"
+        "process_owner_candidate": ""
       },
       "matches": [
         {
@@ -1909,7 +1907,7 @@
             }
           ],
           "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-013_wareneingang_buchen.txt",
-          "process_owner_candidate": "Logistik"
+          "process_owner_candidate": ""
         },
         "matches": [
           {
@@ -1953,13 +1951,13 @@
         "follows_after": [],
         "raw_applications": [
           {
-            "name": "WarehousePro WMS",
+            "name": "WMS",
             "confidence": "stark"
           }
         ],
         "applications": [
           {
-            "name": "WarehousePro WMS",
+            "name": "WMS",
             "confidence": "stark"
           }
         ],
@@ -1968,15 +1966,34 @@
       },
       "matches": [
         {
-          "application_name": "WarehousePro WMS",
+          "application_name": "WMS",
           "cmdb_id": "APP-017",
           "matched_name": "WarehousePro WMS",
-          "confidence": "stark",
+          "confidence": "schwach",
           "source": "fuzzy",
-          "score": 1.05
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "WMS",
+          "cmdb_id": "IF-004",
+          "matched_name": "WMS Stock API",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Kommissionierung planen",
+          "application_name": "WMS",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Kommissionierung planen",
+          "application_name": "WMS",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Kommissionierung planen",
@@ -1994,13 +2011,13 @@
           "follows_after": [],
           "raw_applications": [
             {
-              "name": "WarehousePro WMS",
+              "name": "WMS",
               "confidence": "stark"
             }
           ],
           "applications": [
             {
-              "name": "WarehousePro WMS",
+              "name": "WMS",
               "confidence": "stark"
             }
           ],
@@ -2009,12 +2026,20 @@
         },
         "matches": [
           {
-            "application_name": "WarehousePro WMS",
+            "application_name": "WMS",
             "cmdb_id": "APP-017",
             "matched_name": "WarehousePro WMS",
-            "confidence": "stark",
+            "confidence": "schwach",
             "source": "fuzzy",
-            "score": 1.05
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "WMS",
+            "cmdb_id": "IF-004",
+            "matched_name": "WMS Stock API",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           }
         ]
       },
@@ -2532,7 +2557,7 @@
           }
         ],
         "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-019_internes_audit_planen.txt",
-        "process_owner_candidate": "Qualitaetsmanagement"
+        "process_owner_candidate": ""
       },
       "matches": [
         {
@@ -2579,7 +2604,7 @@
             }
           ],
           "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-019_internes_audit_planen.txt",
-          "process_owner_candidate": "Qualitaetsmanagement"
+          "process_owner_candidate": ""
         },
         "matches": [
           {
@@ -2592,7 +2617,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -3386,7 +3411,7 @@
           }
         ],
         "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-026_security_incident_triagieren.txt",
-        "process_owner_candidate": "Informationssicherheit"
+        "process_owner_candidate": ""
       },
       "matches": [
         {
@@ -3514,7 +3539,7 @@
             }
           ],
           "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-026_security_incident_triagieren.txt",
-          "process_owner_candidate": "Informationssicherheit"
+          "process_owner_candidate": ""
         },
         "matches": [
           {
@@ -3829,7 +3854,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -4015,7 +4040,7 @@
           }
         ],
         "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-030_backup_restore_testen.txt",
-        "process_owner_candidate": "IT-Betrieb"
+        "process_owner_candidate": ""
       },
       "matches": [
         {
@@ -4062,7 +4087,7 @@
             }
           ],
           "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-030_backup_restore_testen.txt",
-          "process_owner_candidate": "IT-Betrieb"
+          "process_owner_candidate": ""
         },
         "matches": [
           {
@@ -4117,7 +4142,7 @@
           }
         ],
         "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-031_server_monitoring_pruefen.txt",
-        "process_owner_candidate": "IT-Betrieb"
+        "process_owner_candidate": ""
       },
       "matches": [
         {
@@ -4185,7 +4210,7 @@
             }
           ],
           "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-031_server_monitoring_pruefen.txt",
-          "process_owner_candidate": "IT-Betrieb"
+          "process_owner_candidate": ""
         },
         "matches": [
           {
@@ -4332,7 +4357,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -4497,7 +4522,7 @@
           }
         ],
         "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-034_archivierungsregel_aendern.txt",
-        "process_owner_candidate": "IT-Betrieb"
+        "process_owner_candidate": ""
       },
       "matches": [
         {
@@ -4544,7 +4569,7 @@
             }
           ],
           "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-034_archivierungsregel_aendern.txt",
-          "process_owner_candidate": "IT-Betrieb"
+          "process_owner_candidate": ""
         },
         "matches": [
           {
@@ -5153,7 +5178,7 @@
           }
         ],
         "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-040_lieferantenbewertung_durchfuehren.txt",
-        "process_owner_candidate": "Einkauf"
+        "process_owner_candidate": ""
       },
       "matches": [
         {
@@ -5217,7 +5242,7 @@
             }
           ],
           "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-040_lieferantenbewertung_durchfuehren.txt",
-          "process_owner_candidate": "Einkauf"
+          "process_owner_candidate": ""
         },
         "matches": [
           {
@@ -5271,19 +5296,39 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-041_kundenstammdaten_bereinigen.txt"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-041_kundenstammdaten_bereinigen.txt",
+        "process_owner_candidate": ""
       },
       "matches": [
         {
           "application_name": "CRM",
+          "cmdb_id": "APP-006",
+          "matched_name": "Microsoft Dynamics CRM",
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.9500000000000001
+        },
+        {
+          "application_name": "CRM",
           "cmdb_id": "IF-003",
           "matched_name": "CRM Customer API",
-          "confidence": "stark",
-          "source": "knowledge_base",
-          "score": 1.0
+          "confidence": "schwach",
+          "source": "fuzzy",
+          "score": 0.85
         }
       ],
-      "review_items": [],
+      "review_items": [
+        {
+          "process_name": "Kundenstammdaten bereinigen",
+          "application_name": "CRM",
+          "reason": "fuzzy"
+        },
+        {
+          "process_name": "Kundenstammdaten bereinigen",
+          "application_name": "CRM",
+          "reason": "fuzzy"
+        }
+      ],
       "graph_payload": {
         "process": {
           "process_name": "Kundenstammdaten bereinigen",
@@ -5311,16 +5356,25 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-041_kundenstammdaten_bereinigen.txt"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-041_kundenstammdaten_bereinigen.txt",
+          "process_owner_candidate": ""
         },
         "matches": [
           {
             "application_name": "CRM",
+            "cmdb_id": "APP-006",
+            "matched_name": "Microsoft Dynamics CRM",
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.9500000000000001
+          },
+          {
+            "application_name": "CRM",
             "cmdb_id": "IF-003",
             "matched_name": "CRM Customer API",
-            "confidence": "stark",
-            "source": "knowledge_base",
-            "score": 1.0
+            "confidence": "schwach",
+            "source": "fuzzy",
+            "score": 0.85
           }
         ]
       },
@@ -5843,7 +5897,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null,
       "process_owner_candidate_status": "accepted"
     },
@@ -5991,7 +6045,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -6041,7 +6095,7 @@
         },
         "matches": []
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -6266,7 +6320,7 @@
           }
         ]
       },
-      "process_write_action": "inserted",
+      "process_write_action": "updated",
       "error_message": null
     },
     {
@@ -6653,15 +6707,17 @@
       "extracted_process": {
         "process_name": "EDI-Fehler nachbearbeiten",
         "process_id": "PROC-054",
-        "org_unit": "Einkauf",
+        "org_unit": "",
         "roles": [
           "Integration Specialist"
         ],
         "org_units": [
-          "Einkauf"
+          "Einkauf",
+          "IT-Betrieb"
         ],
         "org_unit_candidates": [
-          "Einkauf"
+          "Einkauf",
+          "IT-Betrieb"
         ],
         "follows_after": [],
         "raw_applications": [
@@ -6734,15 +6790,17 @@
         "process": {
           "process_name": "EDI-Fehler nachbearbeiten",
           "process_id": "PROC-054",
-          "org_unit": "Einkauf",
+          "org_unit": "",
           "roles": [
             "Integration Specialist"
           ],
           "org_units": [
-            "Einkauf"
+            "Einkauf",
+            "IT-Betrieb"
           ],
           "org_unit_candidates": [
-            "Einkauf"
+            "Einkauf",
+            "IT-Betrieb"
           ],
           "follows_after": [],
           "raw_applications": [
@@ -6930,281 +6988,281 @@
       "error_message": null
     }
   ],
-  "import_archive_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444",
+  "import_archive_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129",
   "import_archived_files": [
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-001_eingangsrechnung_pruefen_und_buchen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-001_eingangsrechnung_pruefen_und_buchen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-001_eingangsrechnung_pruefen_und_buchen.txt",
       "display_path": "proc-001_eingangsrechnung_pruefen_und_buchen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-002_monatsabschluss_durchfuehren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-002_monatsabschluss_durchfuehren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-002_monatsabschluss_durchfuehren.txt",
       "display_path": "proc-002_monatsabschluss_durchfuehren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-003_zahlungslauf_freigeben.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-003_zahlungslauf_freigeben.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-003_zahlungslauf_freigeben.txt",
       "display_path": "proc-003_zahlungslauf_freigeben.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-004_budgetplanung_konsolidieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-004_budgetplanung_konsolidieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-004_budgetplanung_konsolidieren.txt",
       "display_path": "proc-004_budgetplanung_konsolidieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-005_forecast_aktualisieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-005_forecast_aktualisieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-005_forecast_aktualisieren.txt",
       "display_path": "proc-005_forecast_aktualisieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-006_lieferanten_anlegen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-006_lieferanten_anlegen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-006_lieferanten_anlegen.txt",
       "display_path": "proc-006_lieferanten_anlegen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-007_bestellung_ausloesen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-007_bestellung_ausloesen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-007_bestellung_ausloesen.txt",
       "display_path": "proc-007_bestellung_ausloesen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-008_rahmenvertrag_pruefen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-008_rahmenvertrag_pruefen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-008_rahmenvertrag_pruefen.txt",
       "display_path": "proc-008_rahmenvertrag_pruefen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-009_kundenangebot_erstellen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-009_kundenangebot_erstellen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-009_kundenangebot_erstellen.txt",
       "display_path": "proc-009_kundenangebot_erstellen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-010_auftrag_erfassen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-010_auftrag_erfassen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-010_auftrag_erfassen.txt",
       "display_path": "proc-010_auftrag_erfassen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-011_kundenreklamation_bearbeiten.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-011_kundenreklamation_bearbeiten.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-011_kundenreklamation_bearbeiten.txt",
       "display_path": "proc-011_kundenreklamation_bearbeiten.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-012_ticket_priorisieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-012_ticket_priorisieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-012_ticket_priorisieren.txt",
       "display_path": "proc-012_ticket_priorisieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-013_wareneingang_buchen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-013_wareneingang_buchen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-013_wareneingang_buchen.txt",
       "display_path": "proc-013_wareneingang_buchen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-014_kommissionierung_planen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-014_kommissionierung_planen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-014_kommissionierung_planen.txt",
       "display_path": "proc-014_kommissionierung_planen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-015_tour_disponieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-015_tour_disponieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-015_tour_disponieren.txt",
       "display_path": "proc-015_tour_disponieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-016_produktionsauftrag_starten.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-016_produktionsauftrag_starten.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-016_produktionsauftrag_starten.txt",
       "display_path": "proc-016_produktionsauftrag_starten.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-017_anlagenstoerung_melden.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-017_anlagenstoerung_melden.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-017_anlagenstoerung_melden.txt",
       "display_path": "proc-017_anlagenstoerung_melden.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-018_qualitaetsabweichung_erfassen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-018_qualitaetsabweichung_erfassen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-018_qualitaetsabweichung_erfassen.txt",
       "display_path": "proc-018_qualitaetsabweichung_erfassen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-019_internes_audit_planen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-019_internes_audit_planen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-019_internes_audit_planen.txt",
       "display_path": "proc-019_internes_audit_planen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-020_bewerbung_pruefen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-020_bewerbung_pruefen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-020_bewerbung_pruefen.txt",
       "display_path": "proc-020_bewerbung_pruefen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-021_onboarding_durchfuehren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-021_onboarding_durchfuehren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-021_onboarding_durchfuehren.txt",
       "display_path": "proc-021_onboarding_durchfuehren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-022_arbeitszeit_korrigieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-022_arbeitszeit_korrigieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-022_arbeitszeit_korrigieren.txt",
       "display_path": "proc-022_arbeitszeit_korrigieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-023_pflichtschulung_zuweisen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-023_pflichtschulung_zuweisen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-023_pflichtschulung_zuweisen.txt",
       "display_path": "proc-023_pflichtschulung_zuweisen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-024_marketingkampagne_planen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-024_marketingkampagne_planen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-024_marketingkampagne_planen.txt",
       "display_path": "proc-024_marketingkampagne_planen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-025_produktdaten_veroeffentlichen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-025_produktdaten_veroeffentlichen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-025_produktdaten_veroeffentlichen.txt",
       "display_path": "proc-025_produktdaten_veroeffentlichen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-026_security_incident_triagieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-026_security_incident_triagieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-026_security_incident_triagieren.txt",
       "display_path": "proc-026_security_incident_triagieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-027_firewall-regel_beantragen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-027_firewall-regel_beantragen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-027_firewall-regel_beantragen.txt",
       "display_path": "proc-027_firewall-regel_beantragen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-028_mitarbeiterzugang_bereitstellen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-028_mitarbeiterzugang_bereitstellen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-028_mitarbeiterzugang_bereitstellen.txt",
       "display_path": "proc-028_mitarbeiterzugang_bereitstellen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-029_passwort_zuruecksetzen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-029_passwort_zuruecksetzen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-029_passwort_zuruecksetzen.txt",
       "display_path": "proc-029_passwort_zuruecksetzen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-030_backup_restore_testen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-030_backup_restore_testen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-030_backup_restore_testen.txt",
       "display_path": "proc-030_backup_restore_testen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-031_server_monitoring_pruefen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-031_server_monitoring_pruefen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-031_server_monitoring_pruefen.txt",
       "display_path": "proc-031_server_monitoring_pruefen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-032_softwareaenderung_koordinieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-032_softwareaenderung_koordinieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-032_softwareaenderung_koordinieren.txt",
       "display_path": "proc-032_softwareaenderung_koordinieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-033_datenqualitaetspruefung_ausfuehren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-033_datenqualitaetspruefung_ausfuehren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-033_datenqualitaetspruefung_ausfuehren.txt",
       "display_path": "proc-033_datenqualitaetspruefung_ausfuehren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-034_archivierungsregel_aendern.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-034_archivierungsregel_aendern.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-034_archivierungsregel_aendern.txt",
       "display_path": "proc-034_archivierungsregel_aendern.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-035_druckerstoerung_beheben.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-035_druckerstoerung_beheben.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-035_druckerstoerung_beheben.txt",
       "display_path": "proc-035_druckerstoerung_beheben.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-036_besucher_anmelden.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-036_besucher_anmelden.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-036_besucher_anmelden.txt",
       "display_path": "proc-036_besucher_anmelden.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-037_wartungsauftrag_planen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-037_wartungsauftrag_planen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-037_wartungsauftrag_planen.txt",
       "display_path": "proc-037_wartungsauftrag_planen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-038_management_reporting_vorbereiten.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-038_management_reporting_vorbereiten.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-038_management_reporting_vorbereiten.txt",
       "display_path": "proc-038_management_reporting_vorbereiten.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-039_datenschutzanfrage_bearbeiten.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-039_datenschutzanfrage_bearbeiten.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-039_datenschutzanfrage_bearbeiten.txt",
       "display_path": "proc-039_datenschutzanfrage_bearbeiten.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-040_lieferantenbewertung_durchfuehren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-040_lieferantenbewertung_durchfuehren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-040_lieferantenbewertung_durchfuehren.txt",
       "display_path": "proc-040_lieferantenbewertung_durchfuehren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-041_kundenstammdaten_bereinigen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-041_kundenstammdaten_bereinigen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-041_kundenstammdaten_bereinigen.txt",
       "display_path": "proc-041_kundenstammdaten_bereinigen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-042_retourenprozess_steuern.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-042_retourenprozess_steuern.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-042_retourenprozess_steuern.txt",
       "display_path": "proc-042_retourenprozess_steuern.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-043_produktionskennzahlen_analysieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-043_produktionskennzahlen_analysieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-043_produktionskennzahlen_analysieren.txt",
       "display_path": "proc-043_produktionskennzahlen_analysieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-044_notfalluebung_dokumentieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-044_notfalluebung_dokumentieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-044_notfalluebung_dokumentieren.txt",
       "display_path": "proc-044_notfalluebung_dokumentieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-045_strategieworkshop_vorbereiten.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-045_strategieworkshop_vorbereiten.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-045_strategieworkshop_vorbereiten.txt",
       "display_path": "proc-045_strategieworkshop_vorbereiten.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-046_reisekosten_pruefen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-046_reisekosten_pruefen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-046_reisekosten_pruefen.txt",
       "display_path": "proc-046_reisekosten_pruefen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-047_zahlungseingaenge_abstimmen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-047_zahlungseingaenge_abstimmen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-047_zahlungseingaenge_abstimmen.txt",
       "display_path": "proc-047_zahlungseingaenge_abstimmen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-048_it_bestandsuebersicht_aktualisieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-048_it_bestandsuebersicht_aktualisieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-048_it_bestandsuebersicht_aktualisieren.txt",
       "display_path": "proc-048_it_bestandsuebersicht_aktualisieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-049_risikobewertung_aktualisieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-049_risikobewertung_aktualisieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-049_risikobewertung_aktualisieren.txt",
       "display_path": "proc-049_risikobewertung_aktualisieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-050_kampagnenabstimmung_durchfuehren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-050_kampagnenabstimmung_durchfuehren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-050_kampagnenabstimmung_durchfuehren.txt",
       "display_path": "proc-050_kampagnenabstimmung_durchfuehren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-051_kuendigungsbestaetigung_erstellen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-051_kuendigungsbestaetigung_erstellen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-051_kuendigungsbestaetigung_erstellen.txt",
       "display_path": "proc-051_kuendigungsbestaetigung_erstellen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-052_maschinenparameter_pruefen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-052_maschinenparameter_pruefen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-052_maschinenparameter_pruefen.txt",
       "display_path": "proc-052_maschinenparameter_pruefen.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-053_kundenportal_stoerung_analysieren.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-053_kundenportal_stoerung_analysieren.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-053_kundenportal_stoerung_analysieren.txt",
       "display_path": "proc-053_kundenportal_stoerung_analysieren.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-054_edi_fehler_nachbearbeiten.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-054_edi_fehler_nachbearbeiten.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-054_edi_fehler_nachbearbeiten.txt",
       "display_path": "proc-054_edi_fehler_nachbearbeiten.txt"
     },
     {
       "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-055_zertifikatsablauf_pruefen.txt",
-      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260617_141444\\proc-055_zertifikatsablauf_pruefen.txt",
+      "archived_path": "F:\\workspace\\BRIDGR\\data\\input_archive\\20260618_094129\\proc-055_zertifikatsablauf_pruefen.txt",
       "display_path": "proc-055_zertifikatsablauf_pruefen.txt"
     }
   ]
