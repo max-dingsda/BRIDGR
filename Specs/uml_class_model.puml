@@ -4,16 +4,12 @@ skinparam classAttributeIconSize 0
 skinparam classFontSize 12
 skinparam packageFontSize 13
 skinparam linetype ortho
-skinparam nodesep 60
-skinparam ranksep 80
+skinparam nodesep 50
+skinparam ranksep 70
 
-title BRIDGR – UML-Klassenmodell
+title BRIDGR – Aktualisiertes UML-Klassenmodell
 
-' ──────────────────────────────────────────────────────────
-' PACKAGE: Konfiguration
-' ──────────────────────────────────────────────────────────
-package "Konfiguration" #FFFDE7 {
-
+package "Konfiguration & Infrastruktur" #ECEFF1 {
   class AppConfig {
     + llm_base_url : str
     + llm_model : str
@@ -25,25 +21,13 @@ package "Konfiguration" #FFFDE7 {
     + neo4j_password : str
     + neo4j_database : str
     + fuzzy_threshold : float
-    + cmdb_uuid_column : str
-    + cmdb_name_column : str
-    + cmdb_entity_type_column : str
-    + cmdb_server_type_column : str
-    + cmdb_owner_name_column : str
-    + cmdb_relations_filename : str
-    + cmdb_relation_source_column : str
-    + cmdb_relation_type_column : str
-    + cmdb_relation_target_column : str
-    + cmdb_multivalue_separator : str
     + input_path : str
     + cmdb_filename : str
+    + cmdb_relations_filename : str
     + output_path : str
     + last_run_mode : str
     + chat_mode : str
     + debug_mode : bool
-    --
-    + load_config() : AppConfig
-    + save_config() : void
   }
 
   class Neo4jConfig {
@@ -58,159 +42,42 @@ package "Konfiguration" #FFFDE7 {
     + model : str
     + api_key_env : str
     + timeout_seconds : int
-    + debug_logger : Callable
+  }
+
+  class Neo4jClient {
+    + execute_write(query, parameters) : list[dict]
+    + execute_read(query, parameters) : list[dict]
+    + execute_read_unvalidated(query, parameters) : list[dict]
+    + ensure_constraints() : void
+    + close() : void
+  }
+
+  class OpenAICompatibleClient {
+    + list_models() : list[str]
+    + generate_json(system_prompt, user_prompt, required_keys) : dict
+    + generate_chat(messages) : str
+    + generate_with_tools(messages, tools) : tuple[str, list[dict]]
   }
 }
 
-' ──────────────────────────────────────────────────────────
-' PACKAGE: CMDB-Datenmodell
-' ──────────────────────────────────────────────────────────
-package "CMDB-Datenmodell" #E8F5E9 {
-
-  class CmdbEntity {
-    + entity_id : str
-    + name : str
-    + entity_type : str
-    + server_type : str | None
-    + owner_name : str | None
-    + raw_row : dict | None
-    --
-    {static} ENTITY_TYPE_APPLICATION : str
-    {static} ENTITY_TYPE_INTERFACE : str
-    {static} ENTITY_TYPE_PROCESS : str
-    {static} ENTITY_TYPE_SERVER : str
-  }
-
-  class CmdbRelation {
-    + source_id : str
-    + relation_type : str
-    + target_id : str
-    + raw_row : dict | None
-  }
-
-  class NormalizedCmdb {
-    + entities : list[CmdbEntity]
-    + relations : list[CmdbRelation]
-  }
-
-  class CmdbValidationIssue {
-    + line_number : int
-    + message : str
-  }
-
-  class CmdbSyncResult {
-    + entity_count : int
-    + relation_count : int
-    + owner_assignment_count : int
-    + owner_candidate_count : int
-  }
-
-  NormalizedCmdb "1" *-- "0..*" CmdbEntity : entities
-  NormalizedCmdb "1" *-- "0..*" CmdbRelation : relations
-}
-
-' ──────────────────────────────────────────────────────────
-' PACKAGE: Wissensbasis
-' ──────────────────────────────────────────────────────────
-package "Wissensbasis" #E3F2FD {
-
-  class KnowledgeBase {
-    + confirmed : list[ConfirmedLink]
-    + rejected : list[RejectedLink]
-    + disambiguation : list[dict]
-    + process_identity : list[dict]
-    + org_units : list[OrgUnitEntry]
-    + org_unit_candidates : list[OrgUnitCandidate]
-    + role_decisions : list[RoleDecision]
-  }
-
-  class ConfirmedLink <<TypedDict>> {
-    + prozess : str
-    + anwendung_name : str
-    + cmdb_id : str
-    + resolved_to : str
-    + bestaetigt_am : str
-    + quelle : str
-  }
-
-  class RejectedLink <<TypedDict>> {
-    + prozess : str
-    + anwendung_name : str
-    + cmdb_id : str | None
-    + abgelehnt_am : str
-  }
-
-  class OrgUnitEntry <<TypedDict>> {
-    + name : str
-    + created_at : str
-    + source : str
-  }
-
-  class OrgUnitCandidate <<TypedDict>> {
-    + candidate_name : str
-    + normalized_name : str
-    + source_paths : list[str]
-    + process_names : list[str]
-    + role_names : list[str]
-    + status : str
-    + mapped_org_unit : str
-    + first_seen : str
-    + last_seen : str
-  }
-
-  class RoleDecision <<TypedDict>> {
-    + role_name : str
-    + normalized_name : str
-    + status : str
-    + decided_at : str
-  }
-
-  KnowledgeBase "1" *-- "0..*" ConfirmedLink : confirmed
-  KnowledgeBase "1" *-- "0..*" RejectedLink : rejected
-  KnowledgeBase "1" *-- "0..*" OrgUnitEntry : org_units
-  KnowledgeBase "1" *-- "0..*" OrgUnitCandidate : org_unit_candidates
-  KnowledgeBase "1" *-- "0..*" RoleDecision : role_decisions
-}
-
-' ──────────────────────────────────────────────────────────
-' PACKAGE: Extraktion & Verarbeitung
-' ──────────────────────────────────────────────────────────
-package "Extraktion & Verarbeitung" #FCE4EC {
-
+package "Extraktion & Pipeline" #FFF3E0 {
   interface Extractor <<Protocol>> {
     + extract(source_path: Path) : ExtractedProcess
   }
 
   class TextExtractor {
-    - prompt_path : Path
-    - llm_client : OpenAICompatibleClient
-    --
     + extract(source_path: Path) : ExtractedProcess
-    # _read_document_text(source_path: Path) : str
-    # _to_domain_model(payload, source_path, text) : ExtractedProcess
-    # _resolve_process_id(payload, source_path, text) : str
-    # _resolve_roles(payload, text) : list[str]
-    # _resolve_org_unit_candidates(payload, text) : list[str]
-    # _resolve_process_owner_candidate(payload, text) : str
-    # _deduplicate_applications(raw) : list[ApplicationReference]
-    # _generate_json_with_required_keys(...) : dict
   }
 
-  class PdfExtractor {
-    # _read_document_text(source_path: Path) : str
-  }
-
-  class DocxExtractor {
-    # _read_document_text(source_path: Path) : str
-  }
-
+  class DocxExtractor
+  class PdfExtractor
   class BpmnExtractor {
-    - prompt_path : Path
-    - llm_client : OpenAICompatibleClient
-    --
     + extract(source_path: Path) : ExtractedProcess
-    # _deduplicate_applications(raw) : list[ApplicationReference]
-    # _resolve_process_id(payload, source_path, text) : str
+  }
+
+  class ApplicationReference {
+    + name : str
+    + confidence : str
   }
 
   class ExtractedProcess {
@@ -227,33 +94,6 @@ package "Extraktion & Verarbeitung" #FCE4EC {
     + process_owner_candidate : str
   }
 
-  class ApplicationReference {
-    + name : str
-    + confidence : str
-  }
-
-  class BpmnTransformer {
-    + transform_bpmn_for_import(source_path, target_root) : list[Path]
-    - _build_process_transform_text(entry, source_path) : str
-    - _extract_process_entries(root) : list[dict]
-    - _extract_participant_names_by_process(root) : dict
-    - _extract_lane_names(process) : list[str]
-    - _extract_application_names(process, names) : set[str]
-  }
-
-  Extractor <|.. TextExtractor : implements
-  Extractor <|.. BpmnExtractor : implements
-  TextExtractor <|-- PdfExtractor : extends
-  TextExtractor <|-- DocxExtractor : extends
-
-  ExtractedProcess "1" *-- "0..*" ApplicationReference : applications
-}
-
-' ──────────────────────────────────────────────────────────
-' PACKAGE: Matching & Review
-' ──────────────────────────────────────────────────────────
-package "Matching & Review" #F3E5F5 {
-
   class MatchResult {
     + application_name : str
     + cmdb_id : str | None
@@ -269,40 +109,9 @@ package "Matching & Review" #F3E5F5 {
     + reason : str
   }
 
-  class GraphWriter {
-    + build_payload(process, matches) : GraphWritePayload
-    + write_payload(client, payload) : str
-    + sync_cmdb(client, normalized_cmdb, assignments) : void
-    + write_process_owner(client, org_unit, process_id) : void
-    + remove_process_owner(client, process_id) : void
-    + write_role_assignment(client, org_unit, role_name) : void
-    - _upsert_process_node(client, process_id, name) : str
-    - _upsert_cmdb_entity(client, entity) : void
-    - _merge_cmdb_relation(client, relation) : void
-  }
-
   class GraphWritePayload {
     + process : ExtractedProcess
     + matches : list[MatchResult]
-  }
-
-  GraphWritePayload "1" *-- "1" ExtractedProcess : process
-  GraphWritePayload "1" *-- "0..*" MatchResult : matches
-}
-
-' ──────────────────────────────────────────────────────────
-' PACKAGE: Pipeline & Artefakte
-' ──────────────────────────────────────────────────────────
-package "Pipeline & Artefakte" #FFF3E0 {
-
-  class Pipeline {
-    + run_pipeline(config, input_paths, progress_cb) : PipelineRunResult
-    + should_skip_file(run_mode, input_paths, path, hash, prev) : bool
-    + build_neo4j_client(config) : Neo4jClient
-    + list_bpmn_files(root_path) : list[Path]
-    + extract_single_document(extractor, source_path, config) : DocumentRunResult
-    + apply_org_unit_mapping(process, kb) : ExtractedProcess
-    + build_manual_matches(process_name, apps, confirmed) : list[MatchResult]
   }
 
   class DocumentRunResult {
@@ -333,166 +142,89 @@ package "Pipeline & Artefakte" #FFF3E0 {
   class ImportState {
     + documents : list[DocumentState]
   }
-
-  PipelineRunResult "1" *-- "0..*" DocumentRunResult : documents
-  DocumentRunResult "1" o-- "0..1" ExtractedProcess : extracted_process
-  DocumentRunResult "1" o-- "0..*" MatchResult : matches
-  DocumentRunResult "1" o-- "0..*" ReviewItem : review_items
-  DocumentRunResult "1" o-- "0..1" GraphWritePayload : graph_payload
-  ImportState "1" *-- "0..*" DocumentState : documents
 }
 
-' ──────────────────────────────────────────────────────────
-' PACKAGE: Infrastruktur
-' ──────────────────────────────────────────────────────────
-package "Infrastruktur" #ECEFF1 {
-
-  class Neo4jClient {
-    - config : Neo4jConfig
-    --
-    + execute_write(query, parameters) : list[dict]
-    + execute_read(query, parameters) : list[dict]
-    + execute_read_unvalidated(query, parameters) : list[dict]
-    + ensure_constraints() : void
-    + close() : void
-    - _execute(query, parameters) : list[dict]
+package "CMDB & Wissensbasis" #E3F2FD {
+  class CmdbEntity {
+    + entity_id : str
+    + name : str
+    + entity_type : str
+    + server_type : str | None
+    + owner_name : str | None
   }
 
-  class OpenAICompatibleClient {
-    - config : LlmClientConfig
-    --
-    + list_models() : list[str]
-    + generate_json(system_prompt, user_prompt, required_keys) : dict
-    + generate_text(system_prompt, user_prompt) : str
-    + generate_chat(messages) : str
-    + generate_with_tools(messages, tools) : tuple[str, list[dict]]
-    - _generate_content_from_messages(messages, format) : str
-    - _validate_required_keys(payload, required_keys) : void
-    - _build_json_repair_instruction(required_keys, error) : str
-    - _log_debug(event, details) : void
+  class CmdbRelation {
+    + source_id : str
+    + relation_type : str
+    + target_id : str
   }
 
-  Neo4jClient ..> Neo4jConfig : uses
-  OpenAICompatibleClient ..> LlmClientConfig : uses
-}
-
-' ──────────────────────────────────────────────────────────
-' PACKAGE: Fehlerbehandlung
-' ──────────────────────────────────────────────────────────
-package "Fehlerbehandlung" #FFEBEE {
-
-  class Neo4jExecutionError <<Exception>> {}
-  class Neo4jConnectionError <<Exception>> {}
-  class Neo4jAuthenticationError <<Exception>> {}
-  class Neo4jServiceUnavailableError <<Exception>> {}
-  class Neo4jQueryError <<Exception>> {}
-  class Neo4jQuerySyntaxError <<Exception>> {}
-  class QueryValidationError <<Exception>> {}
-  class LlmClientError <<Exception>> {}
-  class CmdbLoadError <<Exception>> {}
-  class TextExtractorError <<Exception>> {}
-  class PdfExtractorError <<Exception>> {}
-  class DocxExtractorError <<Exception>> {}
-  class BpmnTransformError <<Exception>> {}
-
-  Neo4jExecutionError <|-- Neo4jConnectionError
-  Neo4jExecutionError <|-- Neo4jQueryError
-  Neo4jConnectionError <|-- Neo4jAuthenticationError
-  Neo4jConnectionError <|-- Neo4jServiceUnavailableError
-  Neo4jQueryError <|-- Neo4jQuerySyntaxError
-  TextExtractorError <|-- PdfExtractorError
-  TextExtractorError <|-- DocxExtractorError
-}
-
-' ──────────────────────────────────────────────────────────
-' PACKAGE: Services
-' ──────────────────────────────────────────────────────────
-package "Services" #E8EAF6 {
-
-  class OrganizationService {
-    + persist_org_unit_node(config, name) : void
-    + persist_organization_sync(config) : tuple
-    + add_org_unit_entry(config, kb, name) : tuple
-    + ensure_org_unit_registered(config, name, source) : str
-    + map_org_candidate(config, kb, candidate, target) : tuple
-    + accept_org_candidate(config, kb, ...) : tuple
-    + reject_org_candidate(kb, candidate_name) : tuple
-    + load_all_processes_with_owner(config) : list[dict]
-    + set_process_owner(config, process_id, org_unit) : tuple
-    + clear_process_owner(config, process_id) : tuple
-    + load_process_owner_candidates(config) : list[dict]
-    + accept_process_owner_candidate(config, ...) : tuple
-    + reject_process_owner_candidate(config, ...) : tuple
-    + load_unassigned_roles(config) : list[dict]
-    + assign_role_to_org_unit(config, role, org_unit) : tuple
-    + mark_role_as_role_only(role_name) : tuple
+  class NormalizedCmdb {
+    + entities : list[CmdbEntity]
+    + relations : list[CmdbRelation]
   }
 
-  class QueryService {
-    + run_query_chat_turn(question, config) : void
-    - _run_prompt_only_turn(...) : tuple
-    - _run_tool_use_turn(...) : tuple
-    - _build_chat_system_prompt(config) : str
-    - _build_llm_history(messages) : list[dict]
-    - _extract_cypher_from_response(response) : str
-    - _collect_alias_hints(cypher, client) : list[str]
-    - _format_query_result(rows, hints) : str
-    - _translate_error_for_user(exc) : str
-  }
+  class ConfirmedLink <<TypedDict>>
+  class RejectedLink <<TypedDict>>
+  class OrgUnitEntry <<TypedDict>>
+  class OrgUnitCandidate <<TypedDict>>
+  class RoleDecision <<TypedDict>>
 
-  class CmdbService {
-    + persist_cmdb_sync(config) : CmdbSyncResult
-    + sync_cmdb_to_neo4j(config, client, kb) : tuple
-    + update_organization_knowledge_from_cmdb(kb, cmdb, path) : KnowledgeBase
-    + resolve_cmdb_owner_assignments(kb, cmdb) : dict
-  }
-
-  class ReviewService {
-    + reconstruct_extracted_process(payload) : ExtractedProcess
-    + reconstruct_match_result(payload) : MatchResult
-    + rerun_single_document_from_artifact(doc, config, ...) : dict
-    + persist_single_document_refresh(config, path, ...) : void
-    + persist_latest_run_refresh(config, cmdb_rows) : int
-    + confirm_review_link(config, process, app, cmdb_id, ...) : tuple
-    + reject_review_link(config, process, app, cmdb_id) : tuple
-    + save_manual_link(config, kb, process, app, ...) : tuple
-  }
-
-  class RuntimeService {
-    + build_neo4j_client_key(config) : tuple
-    + reset_session_neo4j_client(show_warning) : void
-    + get_session_neo4j_client(config) : Neo4jClient
-    + write_debug_log(config, event, details) : void
-    + get_neo4j_connection_status(config, force) : tuple
-    + get_llm_status(config, force) : tuple
-    + append_chat_message(role, content, cypher, rows) : void
-    + apply_pending_review_scope_defaults(config) : void
-    + render_run_feedback(feedback) : void
-  }
-
-  class AliasService {
-    + normalize_alias_name(value) : str
-    + lookup_alias_matches(client, alias_name) : list[dict]
-    + sync_knowledge_base_aliases(client, kb) : int
-    - _should_skip_alias(alias_name, target_name) : bool
-    - _merge_alias_node(client, alias_name) : void
-    - _merge_application_alias(...) : void
-    - _merge_org_unit_alias(...) : void
-  }
-
-  class ImportService {
-    + build_import_archive_dir() : Path
-    + archive_processed_input_files(root, paths) : tuple
-    + finalize_import_artifacts(config, out, root, ...) : tuple
-    + build_import_completion_message(duration, ...) : str
+  class KnowledgeBase {
+    + confirmed : list[ConfirmedLink]
+    + rejected : list[RejectedLink]
+    + disambiguation : list[dict]
+    + process_identity : list[dict]
+    + org_units : list[OrgUnitEntry]
+    + org_unit_candidates : list[OrgUnitCandidate]
+    + role_decisions : list[RoleDecision]
   }
 }
 
-' ──────────────────────────────────────────────────────────
-' PACKAGE: ArchiMate-Integration
-' ──────────────────────────────────────────────────────────
-package "ArchiMate-Integration" #F1F8E9 {
+package "Graph-Schreibmodell & Audit" #F3E5F5 {
+  class GraphWriter {
+    + build_payload(process, matches) : GraphWritePayload
+    + write_payload(client, payload) : str
+    + sync_cmdb(client, normalized_cmdb, owner_assignments) : void
+    + write_process_owner(client, org_unit_name, process_id) : void
+    + remove_process_owner(client, process_id) : void
+    + write_role_assignment(client, org_unit_name, role_name) : void
+    + promote_candidate_link(client, cmdb_id, process_id, raw_name, matched_name) : void
+    + reject_candidate_link(client, cmdb_id, process_id, prozess_name, anwendung_name) : void
+    + write_candidate_ownership(client, org_unit_name, entity_id, score) : void
+    + merge_archimate_node(client, label, name, archimate_id, archimate_source, archimate_type) : void
+    + merge_archimate_relation(client, source_name, source_label, target_name, target_label, bridgr_relation, archimate_rel_type) : void
+  }
 
+  class ManualDecision {
+    + decision_id : str
+    + decision_type : str
+    + status : str
+    + created_at : str
+    + payload_json : str
+    + supersedes_decision_id : str | None
+    + reverted_at : str | None
+    + notes : str | None
+  }
+
+  class MergePreview {
+    + entity_type : str
+    + source_ref : str
+    + target_ref : str
+    + source_name : str
+    + target_name : str
+    + source_properties : dict[str, Any]
+    + target_properties : dict[str, Any]
+    + source_outgoing : list[dict[str, str]]
+    + source_incoming : list[dict[str, str]]
+    + target_outgoing_keys : list[str]
+    + target_incoming_keys : list[str]
+    + source_alias_names : list[str]
+    + target_alias_names : list[str]
+  }
+}
+
+package "ArchiMate" #F1F8E9 {
   class ArchiMateElement {
     + element_id : str
     + element_type : str
@@ -508,120 +240,87 @@ package "ArchiMate-Integration" #F1F8E9 {
     + mapped_type : str | None
   }
 
-  class ArchiMateImportResult {
-    + element_count : int
-    + relation_count : int
-    + skipped_count : int
-  }
-
-  class ArchiMateExportResult {
-    + element_count : int
-    + relation_count : int
-    + output_path : str
-  }
-
-  class ArchiMateImportService {
-    + persist_archimate_import(config, source_path) : ArchiMateImportResult
-  }
-
-  class ArchiMateExportService {
-    + export_graph_as_archimate(config, mapping) : ArchiMateExportResult
-  }
-
-  ArchiMateImportService ..> ArchiMateImportResult : produces
-  ArchiMateExportService ..> ArchiMateExportResult : produces
+  class ArchiMateImportResult
+  class ArchiMateExportResult
 }
 
-' ──────────────────────────────────────────────────────────
-' PACKAGE: UI-Komponenten
-' ──────────────────────────────────────────────────────────
-package "UI-Komponenten" #FFF8E1 {
-
-  class ReviewTab {
-    + render(config, knowledge_base) : void
-  }
-
-  class ConfigTab {
-    + render(config) : void
-  }
-
-  class OrganizationTab {
-    + render(config, knowledge_base) : void
-  }
-
-  class QueryTab {
-    + render(config) : void
-  }
-
-  class ArchiMateTab {
-    + render(config) : void
-  }
-
-  class UIRunView {
-    + summarize_run(latest_run, documents) : dict
-    + filter_documents(latest_run, statuses) : list[dict]
-    + deduplicate_documents(documents) : list[dict]
-    + build_document_status_rows(documents) : list[dict]
-    + build_review_rows(documents) : list[dict]
-    + build_duplicate_application_warnings(documents) : list[dict]
-    + build_document_details(document, config) : dict
-    + summarize_review_artifacts(documents, org_candidates) : dict
-    + summarize_org_candidate_scope(documents, org_candidates) : dict
-  }
+package "Services" #E8EAF6 {
+  class RuntimeService <<module>>
+  class QueryService <<module>>
+  class ReviewService <<module>>
+  class CmdbService <<module>>
+  class OrganizationService <<module>>
+  class MergeService <<module>>
+  class CorrectionService <<module>>
+  class DecisionService <<module>>
+  class AliasService <<module>>
+  class ImportService <<module>>
+  class ArchiMateImportService <<module>>
+  class ArchiMateExportService <<module>>
 }
 
-' ──────────────────────────────────────────────────────────
-' PAKETÜBERGREIFENDE ABHÄNGIGKEITEN
-' ──────────────────────────────────────────────────────────
+Extractor <|.. TextExtractor
+Extractor <|.. BpmnExtractor
+TextExtractor <|-- DocxExtractor
+TextExtractor <|-- PdfExtractor
 
-' AppConfig erzeugt Unterconfigs
-AppConfig ..> Neo4jConfig : creates
-AppConfig ..> LlmClientConfig : creates
+ExtractedProcess "1" *-- "0..*" ApplicationReference
+GraphWritePayload "1" *-- "1" ExtractedProcess
+GraphWritePayload "1" *-- "0..*" MatchResult
+DocumentRunResult "1" o-- "0..1" ExtractedProcess
+DocumentRunResult "1" o-- "0..*" MatchResult
+DocumentRunResult "1" o-- "0..*" ReviewItem
+DocumentRunResult "1" o-- "0..1" GraphWritePayload
+PipelineRunResult "1" *-- "0..*" DocumentRunResult
+ImportState "1" *-- "0..*" DocumentState
+NormalizedCmdb "1" *-- "0..*" CmdbEntity
+NormalizedCmdb "1" *-- "0..*" CmdbRelation
+KnowledgeBase "1" *-- "0..*" ConfirmedLink
+KnowledgeBase "1" *-- "0..*" RejectedLink
+KnowledgeBase "1" *-- "0..*" OrgUnitEntry
+KnowledgeBase "1" *-- "0..*" OrgUnitCandidate
+KnowledgeBase "1" *-- "0..*" RoleDecision
 
-' Pipeline nutzt alle Kernklassen
-Pipeline ..> AppConfig : uses
-Pipeline ..> OpenAICompatibleClient : uses
-Pipeline ..> Neo4jClient : uses
-Pipeline ..> KnowledgeBase : uses
-Pipeline ..> NormalizedCmdb : uses
-Pipeline ..> Extractor : uses
-Pipeline ..> GraphWriter : uses
-Pipeline --> PipelineRunResult : produces
+AppConfig ..> Neo4jConfig
+AppConfig ..> LlmClientConfig
+Neo4jClient ..> Neo4jConfig
+OpenAICompatibleClient ..> LlmClientConfig
 
-' Extraktoren nutzen LLM
-TextExtractor ..> OpenAICompatibleClient : uses
-BpmnExtractor ..> OpenAICompatibleClient : uses
+TextExtractor ..> OpenAICompatibleClient
+BpmnExtractor ..> OpenAICompatibleClient
+GraphWriter ..> Neo4jClient
+GraphWriter ..> NormalizedCmdb
+GraphWriter ..> MergePreview
 
-' GraphWriter nutzt Neo4j und CMDB
-GraphWriter ..> Neo4jClient : uses
-GraphWriter ..> NormalizedCmdb : uses
+QueryService ..> AppConfig
+QueryService ..> OpenAICompatibleClient
+QueryService ..> Neo4jClient
 
-' Services nutzen Infrastruktur
-QueryService ..> Neo4jClient : uses
-QueryService ..> OpenAICompatibleClient : uses
-CmdbService ..> Neo4jClient : uses
-CmdbService ..> KnowledgeBase : uses
-CmdbService ..> NormalizedCmdb : uses
-CmdbService --> CmdbSyncResult : produces
-OrganizationService ..> Neo4jClient : uses
-OrganizationService ..> KnowledgeBase : uses
-ReviewService ..> KnowledgeBase : uses
-ReviewService ..> AppConfig : uses
-AliasService ..> Neo4jClient : uses
-AliasService ..> KnowledgeBase : uses
-RuntimeService ..> Neo4jClient : uses
-RuntimeService ..> AppConfig : uses
+ReviewService ..> GraphWriter
+ReviewService ..> KnowledgeBase
+ReviewService ..> MatchResult
+ReviewService ..> ExtractedProcess
 
-' ArchiMate Services
-ArchiMateImportService ..> Neo4jClient : uses
-ArchiMateExportService ..> Neo4jClient : uses
+CmdbService ..> GraphWriter
+CmdbService ..> KnowledgeBase
+CmdbService ..> NormalizedCmdb
 
-' UI nutzt Services und Config
-ReviewTab ..> ReviewService : uses
-OrganizationTab ..> OrganizationService : uses
-QueryTab ..> QueryService : uses
-ArchiMateTab ..> ArchiMateImportService : uses
-ArchiMateTab ..> ArchiMateExportService : uses
-ConfigTab ..> AppConfig : uses
+OrganizationService ..> GraphWriter
+OrganizationService ..> KnowledgeBase
+OrganizationService ..> ManualDecision
+
+MergeService ..> MergePreview
+MergeService ..> ManualDecision
+CorrectionService ..> ManualDecision
+DecisionService ..> ManualDecision
+AliasService ..> KnowledgeBase
+ImportService ..> PipelineRunResult
+
+ArchiMateImportService ..> ArchiMateElement
+ArchiMateImportService ..> ArchiMateRelation
+ArchiMateImportService ..> ArchiMateImportResult
+ArchiMateImportService ..> GraphWriter
+ArchiMateExportService ..> ArchiMateExportResult
+ArchiMateExportService ..> Neo4jClient
 
 @enduml

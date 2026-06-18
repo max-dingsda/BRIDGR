@@ -1,4 +1,5 @@
 # Bridgr
+
 **EA-Wissensgraph mit Entscheidungs- und Konsolidierungsschicht** | Stand: Juni 2026 | v0.27
 
 ---
@@ -120,7 +121,7 @@ CMDB-Synchronisation und ArchiMate-Import/-Export werden separat ausgeloest.
 ## 4. Scope
 
 | Bereich | In Scope | Out of Scope |
-|---|---|---|
+| --- | --- | --- |
 | Eingabeformate | BPMN, TXT, DOCX, PDF, CSV-CMDB, ArchiMate 3.0/3.1 | weitere Office-/CMDB-Formate |
 | UI | Streamlit mit 5 Tabs | eigenstaendige CLI-Review |
 | Chat | LLM-Orchestrierung mit Tool-Use und Prompt-Only-Fallback | Agenten-Orchestrierung |
@@ -819,27 +820,57 @@ Merge- und Alias-Entscheidungen muessen so gestaltet sein, dass:
 
 ---
 
-## 16. Nichtfunktionale Anforderungen
+## 16. UML-Diagramme
 
-### 16.1 Nachvollziehbarkeit
+### 16.1 Komponentendiagramm
+
+Zeigt die logischen Komponenten und ihre Abhaengigkeiten.
+
+![BRIDGR Komponentendiagramm](BRIDGR_Komponentendiagramm.png)
+
+### 16.2 Klassenmodell
+
+Zeigt alle Klassen mit Attributen und Methoden, gegliedert nach den Packages Konfiguration, CMDB-Datenmodell,
+Wissensbasis, Extraktion & Verarbeitung, Matching & Review, Pipeline & Artefakte, Infrastruktur, Fehlerbehandlung,
+Services, ArchiMate-Integration und UI-Komponenten.
+
+![BRIDGR Klassenmodell](BRIDGR_Klassenmodell.png)
+
+### 16.3 Sequenzdiagramme
+
+Zeigt die wichtigsten Ablaeufe als Sequenzdiagramme.
+
+![Sequenz 1 – Dokument-Import-Pipeline](BRIDGR_Sequenzdiagramme_001.png)
+
+![Sequenz 2 – Natuerlichsprachige Graph-Abfrage](BRIDGR_Sequenzdiagramme_002.png)
+
+![Sequenz 3 – CMDB-Synchronisation](BRIDGR_Sequenzdiagramme_003.png)
+
+![Sequenz 4 – Review, Merge und Undo](BRIDGR_Sequenzdiagramme.png)
+
+---
+
+## 17. Nichtfunktionale Anforderungen
+
+### 17.1 Nachvollziehbarkeit
 
 Alle manuellen Eingriffe muessen auditierbar sein.
 
-### 16.2 Idempotenz
+### 17.2 Idempotenz
 
 Wiederholte Importe duerfen keine unkontrollierten Duplikate erzeugen.
 
-### 16.3 Geringe Seiteneffekte
+### 17.3 Geringe Seiteneffekte
 
 UI-Aktionen sollen gezielt nur die betroffenen Prozesse, Kandidaten oder Knoten aktualisieren.
 
-### 16.4 Trennung von Fach- und Betriebsmetadaten
+### 17.4 Trennung von Fach- und Betriebsmetadaten
 
 Der Chat darf nur den Fachgraphen sehen. Betriebsmetadaten bleiben intern.
 
 ---
 
-## 17. Akzeptanzkriterien
+## 18. Akzeptanzkriterien
 
 1. Korrekte Informationen aus den Quelldaten koennen ueber die Weboberflaeche abgefragt werden.
 2. Mappings sind ueber die Weboberflaeche pflegbar.
@@ -864,10 +895,10 @@ Der Chat darf nur den Fachgraphen sehen. Betriebsmetadaten bleiben intern.
 
 ---
 
-## 18. Getroffene Architekturentscheidungen
+## 19. Getroffene Architekturentscheidungen
 
 | Entscheidung | Gewaehlt | Verworfen | Begruendung |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Kanonischer Fachspeicher | Neo4j | Dateibasierte Wahrheitsquelle | Query-, Review- und Chat-Faehigkeit |
 | Persistenz manueller Korrekturen | interner Entscheidungsgraph in Neo4j | globale Snapshots | selektive Ruecknahme ohne Komplettrestore |
 | Sichtbarkeit der Korrekturschicht im Chat | verborgen | im Query-Schema freigeben | trennt Fachdialog von Betriebsmetadaten |
@@ -878,7 +909,7 @@ Der Chat darf nur den Fachgraphen sehen. Betriebsmetadaten bleiben intern.
 
 ---
 
-## 19. Bekannte Einschraenkungen
+## 20. Bekannte Einschraenkungen
 
 - Die beschriebene Entscheidungs- und Korrekturschicht ist architektonisch festgelegt,
   aber noch nicht vollstaendig implementiert.
