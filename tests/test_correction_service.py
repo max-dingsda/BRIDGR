@@ -291,6 +291,14 @@ def test_revert_process_match_supports_element_id_process_id_and_name() -> None:
     assert "coalesce(other.name, '') = $other_ref" in query
 
 
+def test_revert_name_based_domain_labels_are_supported() -> None:
+    from services.correction_service import _node_match
+
+    query = _node_match("other", "Anforderung")
+
+    assert query == "MATCH (other:Anforderung {name: $other_ref})"
+
+
 @patch("services.correction_service.mark_manual_decision_reverted")
 @patch("services.correction_service.get_manual_decision")
 @patch("services.correction_service.get_session_neo4j_client")
@@ -355,3 +363,32 @@ def test_revert_manual_decision_returns_warning_when_audit_write_fails(
     assert "fachlich ausgeführt" in message
     assert "audit failed" in message
     mock_mark_reverted.assert_called_once()
+
+
+@patch("services.correction_service.create_manual_decision")
+@patch("services.correction_service.mark_manual_decision_reverted")
+@patch("services.correction_service.get_manual_decision")
+@patch("services.correction_service.get_session_neo4j_client")
+def test_revert_manual_decision_records_revert_audit_as_reverted_status(
+    mock_get_client, mock_get_decision, mock_mark_reverted, mock_create_manual_decision
+) -> None:
+    fake_client = FakeNeo4jClient()
+    mock_get_client.return_value = fake_client
+    mock_get_decision.return_value = type(
+        "Decision",
+        (),
+        {
+            "decision_id": "dec-9",
+            "decision_type": "manual_role_assignment",
+            "status": "active",
+            "payload_json": json.dumps({
+                "role_name": "Einkäufer",
+                "org_unit_name": "Einkauf",
+            }),
+        },
+    )()
+
+    level, _ = revert_manual_decision(_make_config(), "dec-9")
+
+    assert level == "success"
+    assert mock_create_manual_decision.call_args.kwargs["status"] == "reverted"

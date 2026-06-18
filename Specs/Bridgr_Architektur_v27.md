@@ -516,6 +516,8 @@ Aktueller Umsetzungsstand:
 - Die Ruecknahme arbeitet aktuell payload-basiert und setzt den urspruenglichen
   Entscheidungsknoten auf `status = reverted`.
 - Zusaetzlich wird eine neue `ManualDecision` vom Typ `decision_revert` geschrieben.
+- Der Ruecknahme-Eintrag dient als Auditspur und wird selbst nicht als neue aktive
+  Fachentscheidung behandelt.
 
 ### 10.8 Ruecknahmesichere Faelle
 
@@ -619,6 +621,14 @@ Zu beruecksichtigende Fachbeziehungen:
 - ausgehend: `FOLGT_AUF`, `UNTERSTUETZT`, `BENOETIGT`, `VERARBEITET`
 - zusaetzliche Konsolidierung von `prozess_id`, `archimate_id`, `archimate_type`
 
+Aktueller Umsetzungsstand:
+
+- Der Backend-Merge fuer `Prozess` ist implementiert.
+- Bestehende gleichartige Beziehungen am Ziel werden nicht doppelt angelegt.
+- Der Quellname wird als Alias des Zielprozesses weitergefuehrt.
+- Die Ruecknahme arbeitet snapshot-basiert ueber die im Merge-Payload gespeicherten
+  Knoten- und Beziehungshinweise.
+
 ### 11.9 Merge-Precheck
 
 Vor jedem Merge zeigt die UI:
@@ -633,10 +643,13 @@ Erst danach darf der Merge explizit bestaetigt werden.
 
 Aktueller Umsetzungsstand:
 
-- Im UI existiert bereits ein erster Merge-Bereich fuer `OrgEinheit`.
-- Der Precheck ist derzeit ein kompakter fachlicher Hinweistext zur Wirkung des Merges.
-- Eine detaillierte Vorschau mit Beziehungszaehlung und Konfliktauflistung ist
-  architektonisch vorgesehen, aber noch nicht implementiert.
+- Im UI existieren Merge-Bereiche fuer `OrgEinheit` und `Prozess`.
+- Der Precheck zeigt bereits Quell-/Zielobjekt, Anzahl ein- und ausgehender Kanten,
+  Dubletten am Ziel, Alias-Uebernahme sowie erkannte Property-Konflikte.
+- Zusaetzlich wird eine kompakte Wirkungszusammenfassung angezeigt
+  (zu uebertragende Kanten, nicht doppelt anzulegende Kanten, Verhalten bei Konflikten).
+- Weitere Verfeinerungen der Visualisierung sind moeglich, aber keine funktionale
+  Voraussetzung mehr fuer die erste Ausbaustufe.
 
 ---
 
@@ -715,7 +728,7 @@ Entscheidungsmetadaten selbst sind kein Chat-Gegenstand.
 - Prozess-Owner-Zuordnung
 - Rollenzuordnung
 - zentrale Ruecknahme manueller Entscheidungen
-- erste Merge-Verwaltung fuer `OrgEinheit`
+- Merge-Verwaltung fuer `OrgEinheit` und `Prozess`
 
 ### 13.5 Tab `EA-Modell`
 
@@ -737,9 +750,10 @@ Aktueller Umsetzungsstand:
 
 - `Letzte manuelle Änderungen` und `Entscheidung zurücknehmen` sind im
   Organisation-Tab bereits vorhanden.
-- `Objekte konsolidieren` ist fuer `OrgEinheit` bereits als erste Ausbaustufe vorhanden.
-- Offen ist die reichhaltigere Merge-Vorschau mit Konfliktanzeige sowie die
-  Erweiterung auf weitere Objektarten, insbesondere `Prozess`.
+- `Objekte konsolidieren` ist fuer `OrgEinheit` und `Prozess` vorhanden.
+- Der Merge-Precheck zeigt bereits fachlich relevante Wirkungen und Konflikte.
+- Offen bleiben nur moegliche spaetere UX-Verfeinerungen oder die Erweiterung auf
+  weitere Objektarten.
 
 ---
 
@@ -873,8 +887,8 @@ Der Chat darf nur den Fachgraphen sehen. Betriebsmetadaten bleiben intern.
 - `kb.json` ist noch im Projekt vorhanden und wird in Teilpfaden der UI weiterhin
   mitgefuehrt, obwohl neue Architekturentscheidungen auf Neo4j ausgerichtet sind.
 - Merge-Workflows fuer `Anwendung` sind bewusst noch nicht Teil der ersten Ausbaustufe.
-- Ein dedizierter Merge fuer `Prozess` ist architektonisch vorgesehen, aber noch nicht
-  implementiert.
+- Ein generischer Merge fuer weitere Labels ausser `OrgEinheit` und `Prozess` ist noch
+  nicht Teil der aktuellen Ausbaustufe.
 - UML-Diagramme im Repository koennen dem beschriebenen Stand voraus- oder hinterherlaufen
   und sind vor Aktualisierung nicht die kanonische Referenz.
 

@@ -49,6 +49,20 @@ def test_create_manual_decision_writes_manual_decision_node() -> None:
     assert params["notes"] == "created during review"
 
 
+def test_create_manual_decision_accepts_non_active_status() -> None:
+    client = RecordingNeo4jClient()
+
+    decision = create_manual_decision(
+        client,
+        "decision_revert",
+        {"reverted_decision_id": "dec-1"},
+        status="reverted",
+    )
+
+    assert decision.status == "reverted"
+    assert client.writes[0][1]["status"] == "reverted"
+
+
 def test_get_manual_decision_returns_none_when_missing() -> None:
     client = RecordingNeo4jClient()
 

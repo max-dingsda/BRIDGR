@@ -92,6 +92,7 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - manuelle fachliche Eingriffe werden als `ManualDecision` in Neo4j protokolliert
 - Ruecknahme-Logik fuer manuelle Entscheidungen inklusive Merge-Ruecknahme
 - Konsolidierung von Organisationseinheiten und Prozessen per Merge inklusive Alias-Fortfuehrung des Quellnamens auf den Zielknoten
+- Merge-Precheck mit Beziehungszaehlung, Dublettenhinweis, Alias-Uebernahme und kompakter Wirkungszusammenfassung
 
 Wichtige Einordnung:
 - Die aktuelle Implementierung unterstuetzt BPMN, TXT, DOCX und PDF ueber einen gemeinsamen semantischen Extraktionspfad.
@@ -104,7 +105,6 @@ Noch nicht umgesetzt:
 - vollstaendige Loesung von `knowledge_base/kb.json` (Finding #15); kb.json ist zur Loesung vorgemerkt, existiert aber noch als Sicherheitsnetz
 - ArchiMate Views/Viewpoints im Export; selektiver Export (setzt Views voraus)
 - Node-Merge beim Bestaetigen eines ArchiMate-Fuzzy-Match-Kandidaten (Finding #25)
-- reichhaltiger Merge-Precheck mit Konfliktvorschau vor der Ausfuehrung
 
 ## Projektstruktur
 

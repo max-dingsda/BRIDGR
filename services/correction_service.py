@@ -55,6 +55,7 @@ def revert_manual_decision(config: AppConfig, decision_id: str) -> tuple[str, st
             neo4j_client,
             "decision_revert",
             {"reverted_decision_id": decision_id, "reverted_type": decision.decision_type},
+            status="reverted",
             supersedes_decision_id=decision_id,
         )
     except Neo4jExecutionError as exc:
@@ -367,6 +368,8 @@ def _node_match(alias: str, label: str) -> str:
     parameter = "$source_ref" if alias == "source" else "$other_ref"
     if label == "OrgEinheit":
         return f"MATCH ({alias}:OrgEinheit {{name: {parameter}}})"
+    if label in {"Anforderung", "Faehigkeit", "Kontext", "Ressource", "Risiko", "Stakeholder", "Ziel"}:
+        return f"MATCH ({alias}:{label} {{name: {parameter}}})"
     if label == "Prozess":
         return (
             f"MATCH ({alias}:Prozess) "

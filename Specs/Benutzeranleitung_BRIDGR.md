@@ -617,6 +617,7 @@ Aktuell unterstützt:
 
 Der Rücknahmevorgang erzeugt selbst wieder einen internen Nachweis im System.
 Auch Merge-Entscheidungen können in der aktuellen Version über diese Liste zurückgenommen werden.
+Rücknahmen gelten dabei fachlich als abgeschlossen und erscheinen nicht mehr als neue aktive manuelle Entscheidung.
 
 ### 9.9 Abschnitt `Organisationseinheiten konsolidieren`
 
@@ -632,7 +633,14 @@ Felder:
 - `Quelle`: die Organisationseinheit, die aufgelöst werden soll
 - `Ziel`: die Organisationseinheit, die bestehen bleiben soll
 
-#### Button `Organisationseinheiten zusammenführen`
+Vor dem eigentlichen Merge zeigt BRIDGR einen Precheck mit:
+
+- Anzahl eingehender und ausgehender Beziehungen der Quelle
+- Hinweis auf bereits vorhandene gleichartige Beziehungen am Ziel
+- Alias-Übernahme des Quellnamens
+- kompaktem Hinweis, welche Wirkungen der Merge fachlich hat
+
+#### Button `Merge ausführen`
 
 Führt die ausgewählte Quell-Organisationseinheit in die Ziel-Organisationseinheit über.
 
@@ -660,6 +668,9 @@ Felder:
 
 - `Prozess-Quelle`: der aufzulösende Prozess
 - `Prozess-Ziel`: der Prozess, der bestehen bleiben soll
+
+Vor dem eigentlichen Merge zeigt BRIDGR auch hier einen Precheck mit Beziehungshinweisen,
+Dublettenprüfung und einer kompakten Wirkungszusammenfassung.
 
 #### Button `Prozess-Merge ausführen`
 

@@ -163,6 +163,6 @@ abgelehnt — dort ist das heutige Verhalten korrekt.
  
 27. auf dem tab "Zuordnungen" sollte der Button "mauell zuweisen" für die zuordnung einer vermuteten Anwendung zu einem CMDB Eintrag ein alphabetisch sortiertes dropdown öffnen. Aktuell ist die Liste unsortiert und damit schwer zu druchsuchen - offen
 
-28. Bei manuellen Zuordnungen können Fehler durch unbedachte Klicks entstehen. Dies führt dann an verschiedenen Stellen zu Fehlerhaften Nodes im Graphen. Hier müssen Möglichkeiten (oder eine Möglichkeit?) geschaffen werden, manuelle Zuordnungen wieder Rückabzuwickeln, sei es durch löschen der fehlerhaften Node und restaurierung des vorherigen Zustandes oder durch mergen zweiter Nodes (Beispiel: es wurd versehentlich eine OrgEinheit "Plattform IT" und eine OrgEinheit "Team IT Plattforms" angelegt. Hier ist ein merge sinnvoller als ein einfaches wiederherstellen des ursprünglichen Zustandes) - offen
+28. Manuelle Zuordnungen und Merges können rückgängig gemacht werden. - erledigt
 
 29. bei komplexen fragen, die nicht direkt auf die graph-struktur eingehen kann das LLM manchmal nicht die korrekte Cypher-query erzeugen. - erledigt

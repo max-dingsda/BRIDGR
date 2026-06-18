@@ -35,10 +35,16 @@ from services.organization_service import (
     set_process_owner,
 )
 from services.runtime_service import get_session_neo4j_client
+from services.runtime_service import (
+    ORGANIZATION_RUN_FEEDBACK_STATE_KEY,
+    render_run_feedback,
+    set_run_feedback,
+)
 
 
 def render_organization_tab() -> None:
     st.subheader("Organisation")
+    render_run_feedback(ORGANIZATION_RUN_FEEDBACK_STATE_KEY)
     config = load_config(Path("config.json"))
     knowledge_base = load_knowledge_base()
 
@@ -535,9 +541,9 @@ def _render_recent_decisions_section(config) -> None:
                     cols[0].caption(context)
                 cols[1].caption(f"Status: {decision.status}")
                 cols[1].caption(f"Zeitpunkt: {decision.created_at}")
-                if cols[2].button("Zurücknehmen", key=f"decision-revert::{decision.decision_id}", width="stretch"):
+                if _decision_is_revertable(decision) and cols[2].button("Zurücknehmen", key=f"decision-revert::{decision.decision_id}", width="stretch"):
                     level, message = revert_manual_decision(config, decision.decision_id)
-                    getattr(st, level)(message)
+                    set_run_feedback(ORGANIZATION_RUN_FEEDBACK_STATE_KEY, level, message)
                     _rerun_keep(_SECTION_RECENT_DECISIONS)
 
 
@@ -575,7 +581,7 @@ def _render_org_unit_merge_section(config, org_units) -> None:
                 st.warning("Bitte Quelle und Ziel auswählen.")
             else:
                 level, message = merge_org_units(config, source_name, target_name)
-                getattr(st, level)(message)
+                set_run_feedback(ORGANIZATION_RUN_FEEDBACK_STATE_KEY, level, message)
                 _rerun_keep(_SECTION_MERGE)
 
 
@@ -629,7 +635,7 @@ def _render_process_merge_section(config) -> None:
                 st.warning("Bitte Quelle und Ziel auswählen.")
             else:
                 level, message = merge_processes(config, source_ref, target_ref)
-                getattr(st, level)(message)
+                set_run_feedback(ORGANIZATION_RUN_FEEDBACK_STATE_KEY, level, message)
                 _rerun_keep(_SECTION_PROCESS_MERGE)
 
 
@@ -668,6 +674,15 @@ def _render_merge_precheck(load_preview, *, key_prefix: str) -> None:
     if preview.source_alias_names:
         st.caption(f"Quell-Aliase: {', '.join(preview.source_alias_names)}")
 
+    moved_edges = len(preview.source_outgoing) + len(preview.source_incoming)
+    duplicate_edges = len(outgoing_duplicates) + len(incoming_duplicates)
+    st.markdown("**Was passiert?**")
+    st.caption(f"{moved_edges} Kante(n) der Quelle werden fachlich geprüft und auf das Ziel übertragen.")
+    if duplicate_edges:
+        st.caption(f"{duplicate_edges} bereits vorhandene gleichartige Kante(n) am Ziel werden nicht doppelt angelegt.")
+    if property_conflicts:
+        st.caption(f"{len(property_conflicts)} Property-Konflikt(e): vorhandene Zielwerte bleiben erhalten.")
+
     with st.expander("Zu übernehmende Kanten", expanded=False):
         _render_relationship_rows(
             [
@@ -693,6 +708,10 @@ def _render_merge_precheck(load_preview, *, key_prefix: str) -> None:
 
 def _relationship_key(rel: dict[str, str]) -> str:
     return f"{rel.get('rel_type', '')}|{rel.get('other_label', '')}|{rel.get('other_ref', '')}"
+
+
+def _decision_is_revertable(decision) -> bool:
+    return getattr(decision, "status", "") == "active" and getattr(decision, "decision_type", "") != "decision_revert"
 
 
 def _build_property_conflicts(preview) -> list[dict[str, str]]:

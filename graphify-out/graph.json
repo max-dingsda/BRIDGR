@@ -10997,7 +10997,7 @@
       "file_type": "document",
       "source_file": "Specs/Benutzeranleitung_BRIDGR.md",
       "source_location": "L33",
-      "community": 31,
+      "community": 68,
       "norm_label": "3. voraussetzungen",
       "id": "specs_benutzeranleitung_bridgr_3_voraussetzungen"
     },
@@ -11006,7 +11006,7 @@
       "file_type": "document",
       "source_file": "Specs/Benutzeranleitung_BRIDGR.md",
       "source_location": "L44",
-      "community": 31,
+      "community": 68,
       "norm_label": "3.1 benotigte daten",
       "id": "specs_benutzeranleitung_bridgr_3_1_ben\u00f6tigte_daten"
     },
@@ -11015,7 +11015,7 @@
       "file_type": "document",
       "source_file": "Specs/Benutzeranleitung_BRIDGR.md",
       "source_location": "L54",
-      "community": 31,
+      "community": 68,
       "norm_label": "3.2 benotigte technische angaben",
       "id": "specs_benutzeranleitung_bridgr_3_2_ben\u00f6tigte_technische_angaben"
     },
@@ -11024,7 +11024,7 @@
       "file_type": "document",
       "source_file": "Specs/Benutzeranleitung_BRIDGR.md",
       "source_location": "L66",
-      "community": 31,
+      "community": 68,
       "norm_label": "3.3 wichtige ordner",
       "id": "specs_benutzeranleitung_bridgr_3_3_wichtige_ordner"
     },
@@ -11762,7 +11762,7 @@
       "file_type": "document",
       "source_file": "Specs/Benutzeranleitung_BRIDGR.md",
       "source_location": "L669",
-      "community": 68,
+      "community": 31,
       "norm_label": "11. typische nutzungsszenarien",
       "id": "specs_benutzeranleitung_bridgr_11_typische_nutzungsszenarien"
     },
@@ -11771,7 +11771,7 @@
       "file_type": "document",
       "source_file": "Specs/Benutzeranleitung_BRIDGR.md",
       "source_location": "L671",
-      "community": 68,
+      "community": 31,
       "norm_label": "11.1 erster import",
       "id": "specs_benutzeranleitung_bridgr_11_1_erster_import"
     },
@@ -11780,7 +11780,7 @@
       "file_type": "document",
       "source_file": "Specs/Benutzeranleitung_BRIDGR.md",
       "source_location": "L683",
-      "community": 68,
+      "community": 31,
       "norm_label": "11.2 offene zuordnungen bereinigen",
       "id": "specs_benutzeranleitung_bridgr_11_2_offene_zuordnungen_bereinigen"
     },
@@ -11789,7 +11789,7 @@
       "file_type": "document",
       "source_file": "Specs/Benutzeranleitung_BRIDGR.md",
       "source_location": "L690",
-      "community": 68,
+      "community": 31,
       "norm_label": "11.3 fragen an den graph stellen",
       "id": "specs_benutzeranleitung_bridgr_11_3_fragen_an_den_graph_stellen"
     },
@@ -85141,5 +85141,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "73cd524ea0dfcfe5e75ca069032d1051e2fc01da"
+  "built_at_commit": "a1f1978ab4f724e061ae15c53e55bff5827fce2c"
 }
