@@ -234,10 +234,11 @@ data/input_archive/*
 prompttesting.txt
 *tmp*.*
 *.archimate
+Specs/20260618testprotokoll.md
 
 # Local maintenance scripts (not for distribution)
 reset_to_delivery_state.py
 
 # Claude Code internal session data
 .claude/
-Specs/20260618testprotokoll.md
+

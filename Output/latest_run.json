@@ -271,8 +271,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-002_monatsabschluss_durchfuehren.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-002_monatsabschluss_durchfuehren.txt"
       },
       "matches": [
         {
@@ -295,17 +294,9 @@
           "application_name": "Power BI",
           "cmdb_id": "APP-015",
           "matched_name": "Power BI Service",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.9500000000000001
-        },
-        {
-          "application_name": "Power BI",
-          "cmdb_id": "IF-013",
-          "matched_name": "Power BI Dataset API",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.85
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
         }
       ],
       "review_items": [
@@ -317,16 +308,6 @@
         {
           "process_name": "Monatsabschluss durchführen",
           "application_name": "SAP FI",
-          "reason": "fuzzy"
-        },
-        {
-          "process_name": "Monatsabschluss durchführen",
-          "application_name": "Power BI",
-          "reason": "fuzzy"
-        },
-        {
-          "process_name": "Monatsabschluss durchführen",
-          "application_name": "Power BI",
           "reason": "fuzzy"
         }
       ],
@@ -365,8 +346,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-002_monatsabschluss_durchfuehren.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-002_monatsabschluss_durchfuehren.txt"
         },
         "matches": [
           {
@@ -389,17 +369,9 @@
             "application_name": "Power BI",
             "cmdb_id": "APP-015",
             "matched_name": "Power BI Service",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.9500000000000001
-          },
-          {
-            "application_name": "Power BI",
-            "cmdb_id": "IF-013",
-            "matched_name": "Power BI Dataset API",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.85
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
           }
         ]
       },
@@ -444,8 +416,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-003_zahlungslauf_freigeben.txt",
-        "process_owner_candidate": "Buchhaltung"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-003_zahlungslauf_freigeben.txt"
       },
       "matches": [
         {
@@ -520,8 +491,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-003_zahlungslauf_freigeben.txt",
-          "process_owner_candidate": "Buchhaltung"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-003_zahlungslauf_freigeben.txt"
         },
         "matches": [
           {
@@ -591,8 +561,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-004_budgetplanung_konsolidieren.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-004_budgetplanung_konsolidieren.txt"
       },
       "matches": [
         {
@@ -615,17 +584,9 @@
           "application_name": "PowerBI",
           "cmdb_id": "APP-015",
           "matched_name": "Power BI Service",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.9500000000000001
-        },
-        {
-          "application_name": "PowerBI",
-          "cmdb_id": "IF-013",
-          "matched_name": "Power BI Dataset API",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.85
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
         }
       ],
       "review_items": [
@@ -637,16 +598,6 @@
         {
           "process_name": "Budgetplanung konsolidieren",
           "application_name": "SAP CO",
-          "reason": "fuzzy"
-        },
-        {
-          "process_name": "Budgetplanung konsolidieren",
-          "application_name": "PowerBI",
-          "reason": "fuzzy"
-        },
-        {
-          "process_name": "Budgetplanung konsolidieren",
-          "application_name": "PowerBI",
           "reason": "fuzzy"
         }
       ],
@@ -685,8 +636,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-004_budgetplanung_konsolidieren.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-004_budgetplanung_konsolidieren.txt"
         },
         "matches": [
           {
@@ -709,17 +659,9 @@
             "application_name": "PowerBI",
             "cmdb_id": "APP-015",
             "matched_name": "Power BI Service",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.9500000000000001
-          },
-          {
-            "application_name": "PowerBI",
-            "cmdb_id": "IF-013",
-            "matched_name": "Power BI Dataset API",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.85
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
           }
         ]
       },
@@ -764,8 +706,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-005_forecast_aktualisieren.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-005_forecast_aktualisieren.txt"
       },
       "matches": [
         {
@@ -845,8 +786,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-005_forecast_aktualisieren.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-005_forecast_aktualisieren.txt"
         },
         "matches": [
           {
@@ -908,8 +848,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-006_lieferanten_anlegen.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-006_lieferanten_anlegen.txt"
       },
       "matches": [
         {
@@ -955,8 +894,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-006_lieferanten_anlegen.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-006_lieferanten_anlegen.txt"
         },
         "matches": [
           {
@@ -1010,8 +948,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-007_bestellung_ausloesen.txt",
-        "process_owner_candidate": "Einkauf"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-007_bestellung_ausloesen.txt"
       },
       "matches": [
         {
@@ -1073,8 +1010,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-007_bestellung_ausloesen.txt",
-          "process_owner_candidate": "Einkauf"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-007_bestellung_ausloesen.txt"
         },
         "matches": [
           {
@@ -1136,8 +1072,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-008_rahmenvertrag_pruefen.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-008_rahmenvertrag_pruefen.txt"
       },
       "matches": [
         {
@@ -1199,8 +1134,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-008_rahmenvertrag_pruefen.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-008_rahmenvertrag_pruefen.txt"
         },
         "matches": [
           {
@@ -1262,25 +1196,16 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-009_kundenangebot_erstellen.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-009_kundenangebot_erstellen.txt"
       },
       "matches": [
         {
           "application_name": "CRM",
           "cmdb_id": "APP-006",
           "matched_name": "Microsoft Dynamics CRM",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.9500000000000001
-        },
-        {
-          "application_name": "CRM",
-          "cmdb_id": "IF-003",
-          "matched_name": "CRM Customer API",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.85
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
         },
         {
           "application_name": "SAP SD",
@@ -1292,16 +1217,6 @@
         }
       ],
       "review_items": [
-        {
-          "process_name": "Kundenangebot erstellen",
-          "application_name": "CRM",
-          "reason": "fuzzy"
-        },
-        {
-          "process_name": "Kundenangebot erstellen",
-          "application_name": "CRM",
-          "reason": "fuzzy"
-        },
         {
           "process_name": "Kundenangebot erstellen",
           "application_name": "SAP SD",
@@ -1343,25 +1258,16 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-009_kundenangebot_erstellen.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-009_kundenangebot_erstellen.txt"
         },
         "matches": [
           {
             "application_name": "CRM",
             "cmdb_id": "APP-006",
             "matched_name": "Microsoft Dynamics CRM",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.9500000000000001
-          },
-          {
-            "application_name": "CRM",
-            "cmdb_id": "IF-003",
-            "matched_name": "CRM Customer API",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.85
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
           },
           {
             "application_name": "SAP SD",
@@ -1422,8 +1328,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-010_auftrag_erfassen.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-010_auftrag_erfassen.txt"
       },
       "matches": [
         {
@@ -1524,8 +1429,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-010_auftrag_erfassen.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-010_auftrag_erfassen.txt"
         },
         "matches": [
           {
@@ -1603,8 +1507,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-011_kundenreklamation_bearbeiten.txt",
-        "process_owner_candidate": "Kundenservice"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-011_kundenreklamation_bearbeiten.txt"
       },
       "matches": [
         {
@@ -1679,8 +1582,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-011_kundenreklamation_bearbeiten.txt",
-          "process_owner_candidate": "Kundenservice"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-011_kundenreklamation_bearbeiten.txt"
         },
         "matches": [
           {
@@ -1742,8 +1644,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-012_ticket_priorisieren.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-012_ticket_priorisieren.txt"
       },
       "matches": [
         {
@@ -1783,8 +1684,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-012_ticket_priorisieren.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-012_ticket_priorisieren.txt"
         },
         "matches": [
           {
@@ -1838,8 +1738,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-013_wareneingang_buchen.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-013_wareneingang_buchen.txt"
       },
       "matches": [
         {
@@ -1906,8 +1805,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-013_wareneingang_buchen.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-013_wareneingang_buchen.txt"
         },
         "matches": [
           {
@@ -1961,8 +1859,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-014_kommissionierung_planen.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-014_kommissionierung_planen.txt"
       },
       "matches": [
         {
@@ -2021,8 +1918,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-014_kommissionierung_planen.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-014_kommissionierung_planen.txt"
         },
         "matches": [
           {
@@ -2076,8 +1972,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-015_tour_disponieren.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-015_tour_disponieren.txt"
       },
       "matches": [
         {
@@ -2117,8 +2012,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-015_tour_disponieren.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-015_tour_disponieren.txt"
         },
         "matches": [
           {
@@ -2172,25 +2066,16 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-016_produktionsauftrag_starten.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-016_produktionsauftrag_starten.txt"
       },
       "matches": [
         {
           "application_name": "MES",
           "cmdb_id": "APP-019",
           "matched_name": "MES FactoryLine",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.9500000000000001
-        },
-        {
-          "application_name": "MES",
-          "cmdb_id": "IF-005",
-          "matched_name": "MES Production API",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.85
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
         },
         {
           "application_name": "SAP PP",
@@ -2202,16 +2087,6 @@
         }
       ],
       "review_items": [
-        {
-          "process_name": "Produktionsauftrag starten",
-          "application_name": "MES",
-          "reason": "fuzzy"
-        },
-        {
-          "process_name": "Produktionsauftrag starten",
-          "application_name": "MES",
-          "reason": "fuzzy"
-        },
         {
           "process_name": "Produktionsauftrag starten",
           "application_name": "SAP PP",
@@ -2253,25 +2128,16 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-016_produktionsauftrag_starten.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-016_produktionsauftrag_starten.txt"
         },
         "matches": [
           {
             "application_name": "MES",
             "cmdb_id": "APP-019",
             "matched_name": "MES FactoryLine",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.9500000000000001
-          },
-          {
-            "application_name": "MES",
-            "cmdb_id": "IF-005",
-            "matched_name": "MES Production API",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.85
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
           },
           {
             "application_name": "SAP PP",
@@ -2324,8 +2190,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-017_anlagenstoerung_melden.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-017_anlagenstoerung_melden.txt"
       },
       "matches": [
         {
@@ -2405,8 +2270,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-017_anlagenstoerung_melden.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-017_anlagenstoerung_melden.txt"
         },
         "matches": [
           {
@@ -2468,8 +2332,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-018_qualitaetsabweichung_erfassen.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-018_qualitaetsabweichung_erfassen.txt"
       },
       "matches": [
         {
@@ -2509,8 +2372,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-018_qualitaetsabweichung_erfassen.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-018_qualitaetsabweichung_erfassen.txt"
         },
         "matches": [
           {
@@ -2556,8 +2418,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-019_internes_audit_planen.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-019_internes_audit_planen.txt"
       },
       "matches": [
         {
@@ -2603,8 +2464,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-019_internes_audit_planen.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-019_internes_audit_planen.txt"
         },
         "matches": [
           {
@@ -2658,8 +2518,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-020_bewerbung_pruefen.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-020_bewerbung_pruefen.txt"
       },
       "matches": [
         {
@@ -2726,8 +2585,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-020_bewerbung_pruefen.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-020_bewerbung_pruefen.txt"
         },
         "matches": [
           {
@@ -2797,8 +2655,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-021_onboarding_durchfuehren.txt",
-        "process_owner_candidate": "Personal"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-021_onboarding_durchfuehren.txt"
       },
       "matches": [
         {
@@ -2886,8 +2743,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-021_onboarding_durchfuehren.txt",
-          "process_owner_candidate": "Personal"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-021_onboarding_durchfuehren.txt"
         },
         "matches": [
           {
@@ -2949,8 +2805,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-022_arbeitszeit_korrigieren.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-022_arbeitszeit_korrigieren.txt"
       },
       "matches": [
         {
@@ -2996,8 +2851,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-022_arbeitszeit_korrigieren.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-022_arbeitszeit_korrigieren.txt"
         },
         "matches": [
           {
@@ -3043,8 +2897,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-023_pflichtschulung_zuweisen.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-023_pflichtschulung_zuweisen.txt"
       },
       "matches": [
         {
@@ -3090,8 +2943,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-023_pflichtschulung_zuweisen.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-023_pflichtschulung_zuweisen.txt"
         },
         "matches": [
           {
@@ -3145,8 +2997,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-024_marketingkampagne_planen.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-024_marketingkampagne_planen.txt"
       },
       "matches": [
         {
@@ -3213,8 +3064,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-024_marketingkampagne_planen.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-024_marketingkampagne_planen.txt"
         },
         "matches": [
           {
@@ -3276,8 +3126,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-025_produktdaten_veroeffentlichen.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-025_produktdaten_veroeffentlichen.txt"
       },
       "matches": [
         {
@@ -3339,8 +3188,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-025_produktdaten_veroeffentlichen.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-025_produktdaten_veroeffentlichen.txt"
         },
         "matches": [
           {
@@ -3410,8 +3258,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-026_security_incident_triagieren.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-026_security_incident_triagieren.txt"
       },
       "matches": [
         {
@@ -3538,8 +3385,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-026_security_incident_triagieren.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-026_security_incident_triagieren.txt"
         },
         "matches": [
           {
@@ -3633,8 +3479,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-027_firewall-regel_beantragen.txt",
-        "process_owner_candidate": "Informationssicherheit"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-027_firewall-regel_beantragen.txt"
       },
       "matches": [
         {
@@ -3701,8 +3546,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-027_firewall-regel_beantragen.txt",
-          "process_owner_candidate": "Informationssicherheit"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-027_firewall-regel_beantragen.txt"
         },
         "matches": [
           {
@@ -3764,8 +3608,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-028_mitarbeiterzugang_bereitstellen.txt",
-        "process_owner_candidate": "IT-Betrieb"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-028_mitarbeiterzugang_bereitstellen.txt"
       },
       "matches": [
         {
@@ -3832,8 +3675,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-028_mitarbeiterzugang_bereitstellen.txt",
-          "process_owner_candidate": "IT-Betrieb"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-028_mitarbeiterzugang_bereitstellen.txt"
         },
         "matches": [
           {
@@ -3895,8 +3737,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-029_passwort_zuruecksetzen.txt",
-        "process_owner_candidate": "IT-Betrieb"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-029_passwort_zuruecksetzen.txt"
       },
       "matches": [
         {
@@ -3976,8 +3817,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-029_passwort_zuruecksetzen.txt",
-          "process_owner_candidate": "IT-Betrieb"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-029_passwort_zuruecksetzen.txt"
         },
         "matches": [
           {
@@ -4039,8 +3879,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-030_backup_restore_testen.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-030_backup_restore_testen.txt"
       },
       "matches": [
         {
@@ -4086,8 +3925,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-030_backup_restore_testen.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-030_backup_restore_testen.txt"
         },
         "matches": [
           {
@@ -4141,8 +3979,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-031_server_monitoring_pruefen.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-031_server_monitoring_pruefen.txt"
       },
       "matches": [
         {
@@ -4209,8 +4046,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-031_server_monitoring_pruefen.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-031_server_monitoring_pruefen.txt"
         },
         "matches": [
           {
@@ -4272,8 +4108,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-032_softwareaenderung_koordinieren.txt",
-        "process_owner_candidate": "IT-Betrieb"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-032_softwareaenderung_koordinieren.txt"
       },
       "matches": [
         {
@@ -4335,8 +4170,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-032_softwareaenderung_koordinieren.txt",
-          "process_owner_candidate": "IT-Betrieb"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-032_softwareaenderung_koordinieren.txt"
         },
         "matches": [
           {
@@ -4398,8 +4232,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-033_datenqualitaetspruefung_ausfuehren.txt",
-        "process_owner_candidate": "IT-Betrieb"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-033_datenqualitaetspruefung_ausfuehren.txt"
       },
       "matches": [
         {
@@ -4466,8 +4299,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-033_datenqualitaetspruefung_ausfuehren.txt",
-          "process_owner_candidate": "IT-Betrieb"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-033_datenqualitaetspruefung_ausfuehren.txt"
         },
         "matches": [
           {
@@ -4521,8 +4353,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-034_archivierungsregel_aendern.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-034_archivierungsregel_aendern.txt"
       },
       "matches": [
         {
@@ -4568,8 +4399,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-034_archivierungsregel_aendern.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-034_archivierungsregel_aendern.txt"
         },
         "matches": [
           {
@@ -4615,8 +4445,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-035_druckerstoerung_beheben.txt",
-        "process_owner_candidate": "IT-Betrieb"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-035_druckerstoerung_beheben.txt"
       },
       "matches": [
         {
@@ -4656,8 +4485,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-035_druckerstoerung_beheben.txt",
-          "process_owner_candidate": "IT-Betrieb"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-035_druckerstoerung_beheben.txt"
         },
         "matches": [
           {
@@ -4703,8 +4531,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-036_besucher_anmelden.txt",
-        "process_owner_candidate": "Facility Management"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-036_besucher_anmelden.txt"
       },
       "matches": [
         {
@@ -4744,8 +4571,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-036_besucher_anmelden.txt",
-          "process_owner_candidate": "Facility Management"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-036_besucher_anmelden.txt"
         },
         "matches": [
           {
@@ -4791,8 +4617,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-037_wartungsauftrag_planen.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-037_wartungsauftrag_planen.txt"
       },
       "matches": [
         {
@@ -4838,8 +4663,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-037_wartungsauftrag_planen.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-037_wartungsauftrag_planen.txt"
         },
         "matches": [
           {
@@ -4893,25 +4717,16 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-038_management_reporting_vorbereiten.txt",
-        "process_owner_candidate": "Geschaeftsfuehrung"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-038_management_reporting_vorbereiten.txt"
       },
       "matches": [
         {
           "application_name": "Power BI",
           "cmdb_id": "APP-015",
           "matched_name": "Power BI Service",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.9500000000000001
-        },
-        {
-          "application_name": "Power BI",
-          "cmdb_id": "IF-013",
-          "matched_name": "Power BI Dataset API",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.85
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
         },
         {
           "application_name": "SharePoint",
@@ -4923,16 +4738,6 @@
         }
       ],
       "review_items": [
-        {
-          "process_name": "Management Reporting vorbereiten",
-          "application_name": "Power BI",
-          "reason": "fuzzy"
-        },
-        {
-          "process_name": "Management Reporting vorbereiten",
-          "application_name": "Power BI",
-          "reason": "fuzzy"
-        },
         {
           "process_name": "Management Reporting vorbereiten",
           "application_name": "SharePoint",
@@ -4974,25 +4779,16 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-038_management_reporting_vorbereiten.txt",
-          "process_owner_candidate": "Geschaeftsfuehrung"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-038_management_reporting_vorbereiten.txt"
         },
         "matches": [
           {
             "application_name": "Power BI",
             "cmdb_id": "APP-015",
             "matched_name": "Power BI Service",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.9500000000000001
-          },
-          {
-            "application_name": "Power BI",
-            "cmdb_id": "IF-013",
-            "matched_name": "Power BI Dataset API",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.85
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
           },
           {
             "application_name": "SharePoint",
@@ -5045,8 +4841,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-039_datenschutzanfrage_bearbeiten.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-039_datenschutzanfrage_bearbeiten.txt"
       },
       "matches": [
         {
@@ -5113,8 +4908,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-039_datenschutzanfrage_bearbeiten.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-039_datenschutzanfrage_bearbeiten.txt"
         },
         "matches": [
           {
@@ -5177,8 +4971,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-040_lieferantenbewertung_durchfuehren.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-040_lieferantenbewertung_durchfuehren.txt"
       },
       "matches": [
         {
@@ -5241,8 +5034,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-040_lieferantenbewertung_durchfuehren.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-040_lieferantenbewertung_durchfuehren.txt"
         },
         "matches": [
           {
@@ -5296,39 +5088,19 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-041_kundenstammdaten_bereinigen.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-041_kundenstammdaten_bereinigen.txt"
       },
       "matches": [
         {
           "application_name": "CRM",
           "cmdb_id": "APP-006",
           "matched_name": "Microsoft Dynamics CRM",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.9500000000000001
-        },
-        {
-          "application_name": "CRM",
-          "cmdb_id": "IF-003",
-          "matched_name": "CRM Customer API",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.85
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
         }
       ],
-      "review_items": [
-        {
-          "process_name": "Kundenstammdaten bereinigen",
-          "application_name": "CRM",
-          "reason": "fuzzy"
-        },
-        {
-          "process_name": "Kundenstammdaten bereinigen",
-          "application_name": "CRM",
-          "reason": "fuzzy"
-        }
-      ],
+      "review_items": [],
       "graph_payload": {
         "process": {
           "process_name": "Kundenstammdaten bereinigen",
@@ -5356,25 +5128,16 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-041_kundenstammdaten_bereinigen.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-041_kundenstammdaten_bereinigen.txt"
         },
         "matches": [
           {
             "application_name": "CRM",
             "cmdb_id": "APP-006",
             "matched_name": "Microsoft Dynamics CRM",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.9500000000000001
-          },
-          {
-            "application_name": "CRM",
-            "cmdb_id": "IF-003",
-            "matched_name": "CRM Customer API",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.85
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
           }
         ]
       },
@@ -5419,8 +5182,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-042_retourenprozess_steuern.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-042_retourenprozess_steuern.txt"
       },
       "matches": [
         {
@@ -5500,8 +5262,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-042_retourenprozess_steuern.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-042_retourenprozess_steuern.txt"
         },
         "matches": [
           {
@@ -5571,65 +5332,27 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-043_produktionskennzahlen_analysieren.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-043_produktionskennzahlen_analysieren.txt"
       },
       "matches": [
         {
           "application_name": "MES",
           "cmdb_id": "APP-019",
           "matched_name": "MES FactoryLine",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.9500000000000001
-        },
-        {
-          "application_name": "MES",
-          "cmdb_id": "IF-005",
-          "matched_name": "MES Production API",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.85
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
         },
         {
           "application_name": "PowerBI",
           "cmdb_id": "APP-015",
           "matched_name": "Power BI Service",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.9500000000000001
-        },
-        {
-          "application_name": "PowerBI",
-          "cmdb_id": "IF-013",
-          "matched_name": "Power BI Dataset API",
-          "confidence": "schwach",
-          "source": "fuzzy",
-          "score": 0.85
+          "confidence": "stark",
+          "source": "knowledge_base",
+          "score": 1.0
         }
       ],
-      "review_items": [
-        {
-          "process_name": "Produktionskennzahlen analysieren",
-          "application_name": "MES",
-          "reason": "fuzzy"
-        },
-        {
-          "process_name": "Produktionskennzahlen analysieren",
-          "application_name": "MES",
-          "reason": "fuzzy"
-        },
-        {
-          "process_name": "Produktionskennzahlen analysieren",
-          "application_name": "PowerBI",
-          "reason": "fuzzy"
-        },
-        {
-          "process_name": "Produktionskennzahlen analysieren",
-          "application_name": "PowerBI",
-          "reason": "fuzzy"
-        }
-      ],
+      "review_items": [],
       "graph_payload": {
         "process": {
           "process_name": "Produktionskennzahlen analysieren",
@@ -5665,41 +5388,24 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-043_produktionskennzahlen_analysieren.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-043_produktionskennzahlen_analysieren.txt"
         },
         "matches": [
           {
             "application_name": "MES",
             "cmdb_id": "APP-019",
             "matched_name": "MES FactoryLine",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.9500000000000001
-          },
-          {
-            "application_name": "MES",
-            "cmdb_id": "IF-005",
-            "matched_name": "MES Production API",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.85
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
           },
           {
             "application_name": "PowerBI",
             "cmdb_id": "APP-015",
             "matched_name": "Power BI Service",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.9500000000000001
-          },
-          {
-            "application_name": "PowerBI",
-            "cmdb_id": "IF-013",
-            "matched_name": "Power BI Dataset API",
-            "confidence": "schwach",
-            "source": "fuzzy",
-            "score": 0.85
+            "confidence": "stark",
+            "source": "knowledge_base",
+            "score": 1.0
           }
         ]
       },
@@ -5726,8 +5432,7 @@
         "follows_after": [],
         "raw_applications": [],
         "applications": [],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-044_notfalluebung_dokumentieren.txt",
-        "process_owner_candidate": "Informationssicherheit"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-044_notfalluebung_dokumentieren.txt"
       },
       "matches": [],
       "review_items": [],
@@ -5748,8 +5453,7 @@
           "follows_after": [],
           "raw_applications": [],
           "applications": [],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-044_notfalluebung_dokumentieren.txt",
-          "process_owner_candidate": "Informationssicherheit"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-044_notfalluebung_dokumentieren.txt"
         },
         "matches": []
       },
@@ -5776,8 +5480,7 @@
         "follows_after": [],
         "raw_applications": [],
         "applications": [],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-045_strategieworkshop_vorbereiten.txt",
-        "process_owner_candidate": "Geschaeftsfuehrung"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-045_strategieworkshop_vorbereiten.txt"
       },
       "matches": [],
       "review_items": [],
@@ -5798,8 +5501,7 @@
           "follows_after": [],
           "raw_applications": [],
           "applications": [],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-045_strategieworkshop_vorbereiten.txt",
-          "process_owner_candidate": "Geschaeftsfuehrung"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-045_strategieworkshop_vorbereiten.txt"
         },
         "matches": []
       },
@@ -5836,8 +5538,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-046_reisekosten_pruefen.txt",
-        "process_owner_candidate": "Buchhaltung"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-046_reisekosten_pruefen.txt"
       },
       "matches": [
         {
@@ -5883,8 +5584,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-046_reisekosten_pruefen.txt",
-          "process_owner_candidate": "Buchhaltung"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-046_reisekosten_pruefen.txt"
         },
         "matches": [
           {
@@ -5908,11 +5608,12 @@
       "extracted_process": {
         "process_name": "Zahlungseingänge abstimmen",
         "process_id": "PROC-047",
-        "org_unit": "Buchhaltung",
+        "org_unit": "",
         "roles": [
           "Finanzkoordination"
         ],
         "org_units": [
+          "Finanzkoordination",
           "Buchhaltung"
         ],
         "org_unit_candidates": [
@@ -5939,8 +5640,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-047_zahlungseingaenge_abstimmen.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-047_zahlungseingaenge_abstimmen.txt"
       },
       "matches": [
         {
@@ -5984,11 +5684,12 @@
         "process": {
           "process_name": "Zahlungseingänge abstimmen",
           "process_id": "PROC-047",
-          "org_unit": "Buchhaltung",
+          "org_unit": "",
           "roles": [
             "Finanzkoordination"
           ],
           "org_units": [
+            "Finanzkoordination",
             "Buchhaltung"
           ],
           "org_unit_candidates": [
@@ -6015,8 +5716,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-047_zahlungseingaenge_abstimmen.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-047_zahlungseingaenge_abstimmen.txt"
         },
         "matches": [
           {
@@ -6068,8 +5768,7 @@
         "follows_after": [],
         "raw_applications": [],
         "applications": [],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-048_it_bestandsuebersicht_aktualisieren.txt",
-        "process_owner_candidate": "IT-Betrieb"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-048_it_bestandsuebersicht_aktualisieren.txt"
       },
       "matches": [],
       "review_items": [],
@@ -6090,8 +5789,7 @@
           "follows_after": [],
           "raw_applications": [],
           "applications": [],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-048_it_bestandsuebersicht_aktualisieren.txt",
-          "process_owner_candidate": "IT-Betrieb"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-048_it_bestandsuebersicht_aktualisieren.txt"
         },
         "matches": []
       },
@@ -6128,8 +5826,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-049_risikobewertung_aktualisieren.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-049_risikobewertung_aktualisieren.txt"
       },
       "matches": [
         {
@@ -6175,8 +5872,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-049_risikobewertung_aktualisieren.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-049_risikobewertung_aktualisieren.txt"
         },
         "matches": [
           {
@@ -6230,8 +5926,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-050_kampagnenabstimmung_durchfuehren.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-050_kampagnenabstimmung_durchfuehren.txt"
       },
       "matches": [
         {
@@ -6298,8 +5993,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-050_kampagnenabstimmung_durchfuehren.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-050_kampagnenabstimmung_durchfuehren.txt"
         },
         "matches": [
           {
@@ -6361,8 +6055,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-051_kuendigungsbestaetigung_erstellen.txt",
-        "process_owner_candidate": "Personal"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-051_kuendigungsbestaetigung_erstellen.txt"
       },
       "matches": [
         {
@@ -6429,8 +6122,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-051_kuendigungsbestaetigung_erstellen.txt",
-          "process_owner_candidate": "Personal"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-051_kuendigungsbestaetigung_erstellen.txt"
         },
         "matches": [
           {
@@ -6484,8 +6176,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-052_maschinenparameter_pruefen.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-052_maschinenparameter_pruefen.txt"
       },
       "matches": [
         {
@@ -6531,8 +6222,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-052_maschinenparameter_pruefen.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-052_maschinenparameter_pruefen.txt"
         },
         "matches": [
           {
@@ -6586,8 +6276,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-053_kundenportal_stoerung_analysieren.txt",
-        "process_owner_candidate": "Kundenservice"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-053_kundenportal_stoerung_analysieren.txt"
       },
       "matches": [
         {
@@ -6667,8 +6356,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-053_kundenportal_stoerung_analysieren.txt",
-          "process_owner_candidate": "Kundenservice"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-053_kundenportal_stoerung_analysieren.txt"
         },
         "matches": [
           {
@@ -6740,8 +6428,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-054_edi_fehler_nachbearbeiten.txt",
-        "process_owner_candidate": ""
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-054_edi_fehler_nachbearbeiten.txt"
       },
       "matches": [
         {
@@ -6823,8 +6510,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-054_edi_fehler_nachbearbeiten.txt",
-          "process_owner_candidate": ""
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-054_edi_fehler_nachbearbeiten.txt"
         },
         "matches": [
           {
@@ -6894,8 +6580,7 @@
             "confidence": "stark"
           }
         ],
-        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-055_zertifikatsablauf_pruefen.txt",
-        "process_owner_candidate": "Informationssicherheit"
+        "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-055_zertifikatsablauf_pruefen.txt"
       },
       "matches": [
         {
@@ -6962,8 +6647,7 @@
               "confidence": "stark"
             }
           ],
-          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-055_zertifikatsablauf_pruefen.txt",
-          "process_owner_candidate": "Informationssicherheit"
+          "source_path": "F:\\workspace\\BRIDGR\\Input\\proc-055_zertifikatsablauf_pruefen.txt"
         },
         "matches": [
           {

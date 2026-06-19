@@ -1,141 +1,141 @@
-id,name,entity_type,server_type,owner_name
-APP-001,SAP S/4HANA FI,application,,Buchhaltung
-APP-002,SAP S/4HANA CO,application,,Controlling
-APP-003,SAP S/4HANA MM,application,,Einkauf
-APP-004,SAP S/4HANA SD,application,,Vertrieb
-APP-005,SAP SuccessFactors,application,,Personal
-APP-006,Microsoft Dynamics CRM,application,,Vertrieb
-APP-007,ServiceNow ITSM,application,,IT-Betrieb
-APP-008,Jira Service Management,application,,IT-Betrieb
-APP-009,Confluence,application,,IT-Betrieb
-APP-010,Microsoft SharePoint Online,application,,IT-Betrieb
-APP-011,Microsoft Teams,application,,IT-Betrieb
-APP-012,Microsoft Exchange Online,application,,IT-Betrieb
-APP-013,DocuSign CLM,application,,Rechtsabteilung
-APP-014,DATEV Unternehmen Online,application,,Buchhaltung
-APP-015,Power BI Service,application,,Controlling
-APP-016,QMSuite,application,,Qualitaetsmanagement
-APP-017,WarehousePro WMS,application,,Logistik
-APP-018,FleetTrack,application,,Logistik
-APP-019,MES FactoryLine,application,,Produktion
-APP-020,SCADA PlantView,application,,Produktion
-APP-021,PIM ContentHub,application,,Marketing
-APP-022,Webshop Portal,application,,Vertrieb
-APP-023,Customer Self Service Portal,application,,Kundenservice
-APP-024,Zendesk Support,application,,Kundenservice
-APP-025,Workday Recruiting,application,,Personal
-APP-026,TravelExpense Cloud,application,,Buchhaltung
-APP-027,ContractSafe,application,,Rechtsabteilung
-APP-028,RiskRadar GRC,application,,Informationssicherheit
-APP-029,Veeam Backup & Replication,application,,IT-Betrieb
-APP-030,Microsoft Entra ID,application,,IT-Betrieb
-APP-031,Active Directory Domain Services,application,,IT-Betrieb
-APP-032,Palo Alto Firewall Management,application,,Informationssicherheit
-APP-033,Fortinet FortiGate Cluster,application,,Informationssicherheit
-APP-034,Splunk Enterprise Security,application,,Informationssicherheit
-APP-035,Microsoft Defender for Endpoint,application,,Informationssicherheit
-APP-036,PRTG Network Monitor,application,,IT-Betrieb
-APP-037,Zabbix Monitoring,application,,IT-Betrieb
-APP-038,Nexus Repository,application,,IT-Betrieb
-APP-039,GitHub Enterprise Cloud,application,,IT-Betrieb
-APP-040,Azure DevOps,application,,IT-Betrieb
-APP-041,Okta Workforce Identity,application,,IT-Betrieb
-APP-042,Citrix Virtual Apps,application,,IT-Betrieb
-APP-043,Remote Access VPN,application,,Informationssicherheit
-APP-044,MuleSoft Anypoint Platform,application,,IT-Betrieb
-APP-045,Talend Data Integration,application,,IT-Betrieb
-APP-046,OpenText Archive Center,application,,IT-Betrieb
-APP-047,PrintFleet,application,,IT-Betrieb
-APP-048,VisitorPro,application,,Facility Management
-APP-049,AssetTrack CMMS,application,,Facility Management
-APP-050,LearningHub LMS,application,,Personal
-APP-051,Clockwise Time Tracking,application,,Personal
-APP-052,Banking Gateway,application,,Buchhaltung
-APP-053,Invoice OCR Service,application,,Buchhaltung
-APP-054,EDI Gateway,application,,IT-Betrieb
-APP-055,BI Data Warehouse,application,,Controlling
-APP-056,Azure SQL Managed Instance,application,,IT-Betrieb
-APP-057,DNS Resolver Service,application,,IT-Betrieb
-APP-058,SMTP Relay Service,application,,IT-Betrieb
-APP-059,PKI Certificate Services,application,,Informationssicherheit
-APP-060,Elastic Observability,application,,IT-Betrieb
-IF-001,SAP FI Bank API,interface,,Buchhaltung
-IF-002,SAP CO Reporting API,interface,,Controlling
-IF-003,CRM Customer API,interface,,Vertrieb
-IF-004,WMS Stock API,interface,,Logistik
-IF-005,MES Production API,interface,,Produktion
-IF-006,HR Master Data API,interface,,Personal
-IF-007,QMS Audit API,interface,,Qualitaetsmanagement
-IF-008,Invoice OCR REST API,interface,,Buchhaltung
-IF-009,EDI Orders Interface,interface,,IT-Betrieb
-IF-010,Identity LDAP Interface,interface,,IT-Betrieb
-IF-011,SMTP Mail Interface,interface,,IT-Betrieb
-IF-012,Archive Document API,interface,,IT-Betrieb
-IF-013,Power BI Dataset API,interface,,Controlling
-IF-014,ServiceNow Incident API,interface,,IT-Betrieb
-IF-015,Bank Statement EBICS Interface,interface,,Buchhaltung
-IF-016,Webshop Order API,interface,,Vertrieb
-IF-017,Zendesk Ticket API,interface,,Kundenservice
-IF-018,Fleet GPS Interface,interface,,Logistik
-IF-019,Defender Security API,interface,,Informationssicherheit
-IF-020,Splunk Event Collector,interface,,Informationssicherheit
-SRV-001,ns-prd-001,server,virtual,IT-Betrieb
-SRV-002,ns-prd-002,server,virtual,IT-Betrieb
-SRV-003,ns-prd-003,server,virtual,IT-Betrieb
-SRV-004,ns-prd-004,server,physical,IT-Betrieb
-SRV-005,ns-prd-005,server,virtual,Informationssicherheit
-SRV-006,ns-prd-006,server,virtual,IT-Betrieb
-SRV-007,ns-prd-007,server,virtual,IT-Betrieb
-SRV-008,ns-prd-008,server,physical,IT-Betrieb
-SRV-009,ns-prd-009,server,virtual,IT-Betrieb
-SRV-010,ns-prd-010,server,virtual,Informationssicherheit
-SRV-011,ns-prd-011,server,virtual,IT-Betrieb
-SRV-012,ns-prd-012,server,physical,IT-Betrieb
-SRV-013,ns-prd-013,server,virtual,IT-Betrieb
-SRV-014,ns-prd-014,server,virtual,IT-Betrieb
-SRV-015,ns-prd-015,server,virtual,Informationssicherheit
-SRV-016,ns-prd-016,server,physical,IT-Betrieb
-SRV-017,ns-prd-017,server,virtual,IT-Betrieb
-SRV-018,ns-prd-018,server,virtual,IT-Betrieb
-SRV-019,ns-prd-019,server,virtual,IT-Betrieb
-SRV-020,ns-prd-020,server,physical,Informationssicherheit
-SRV-021,ns-prd-021,server,virtual,IT-Betrieb
-SRV-022,ns-prd-022,server,virtual,IT-Betrieb
-SRV-023,ns-prd-023,server,virtual,IT-Betrieb
-SRV-024,ns-prd-024,server,physical,IT-Betrieb
-SRV-025,ns-prd-025,server,virtual,Informationssicherheit
-SRV-026,ns-prd-026,server,virtual,IT-Betrieb
-SRV-027,ns-prd-027,server,virtual,IT-Betrieb
-SRV-028,ns-prd-028,server,physical,IT-Betrieb
-SRV-029,ns-prd-029,server,virtual,IT-Betrieb
-SRV-030,ns-prd-030,server,virtual,Informationssicherheit
-SRV-031,ns-prd-031,server,virtual,IT-Betrieb
-SRV-032,ns-prd-032,server,physical,IT-Betrieb
-SRV-033,ns-prd-033,server,virtual,IT-Betrieb
-SRV-034,ns-prd-034,server,virtual,IT-Betrieb
-SRV-035,ns-prd-035,server,virtual,Informationssicherheit
-SRV-036,ns-prd-036,server,physical,IT-Betrieb
-SRV-037,ns-prd-037,server,virtual,IT-Betrieb
-SRV-038,ns-prd-038,server,virtual,IT-Betrieb
-SRV-039,ns-prd-039,server,virtual,IT-Betrieb
-SRV-040,ns-prd-040,server,physical,Informationssicherheit
-SRV-041,ns-prd-041,server,virtual,IT-Betrieb
-SRV-042,ns-prd-042,server,virtual,IT-Betrieb
-SRV-043,ns-prd-043,server,virtual,IT-Betrieb
-SRV-044,ns-prd-044,server,physical,IT-Betrieb
-SRV-045,ns-dev-045,server,virtual,Informationssicherheit
-SRV-046,ns-dev-046,server,virtual,IT-Betrieb
-SRV-047,ns-dev-047,server,virtual,IT-Betrieb
-SRV-048,ns-dev-048,server,physical,IT-Betrieb
-SRV-049,ns-dev-049,server,virtual,IT-Betrieb
-SRV-050,ns-dev-050,server,virtual,Informationssicherheit
-SRV-051,ns-dev-051,server,virtual,IT-Betrieb
-SRV-052,ns-dev-052,server,physical,IT-Betrieb
-SRV-053,ns-dev-053,server,virtual,IT-Betrieb
-SRV-054,ns-dev-054,server,virtual,IT-Betrieb
-SRV-055,ns-dev-055,server,virtual,Informationssicherheit
-SRV-056,ns-dev-056,server,physical,IT-Betrieb
-SRV-057,ns-dev-057,server,virtual,IT-Betrieb
-SRV-058,ns-dev-058,server,virtual,IT-Betrieb
-SRV-059,ns-dev-059,server,virtual,IT-Betrieb
-SRV-060,ns-dev-060,server,physical,Informationssicherheit
+id;name;entity_type;server_type;owner_name
+APP-001;SAP S/4HANA FI;application;;Buchhaltung
+APP-002;SAP S/4HANA CO;application;;Controlling
+APP-003;SAP S/4HANA MM;application;;Einkauf
+APP-004;SAP S/4HANA SD;application;;Vertrieb
+APP-005;SAP SuccessFactors;application;;Personal
+APP-006;Microsoft Dynamics CRM;application;;Vertrieb
+APP-007;ServiceNow ITSM;application;;IT-Betrieb
+APP-008;Jira Service Management;application;;IT-Betrieb
+APP-009;Confluence;application;;IT-Betrieb
+APP-010;Microsoft SharePoint Online;application;;IT-Betrieb
+APP-011;Microsoft Teams;application;;IT-Betrieb
+APP-012;Microsoft Exchange Online;application;;IT-Betrieb
+APP-013;DocuSign CLM;application;;Rechtsabteilung
+APP-014;DATEV Unternehmen Online;application;;Buchhaltung
+APP-015;Power BI Service;application;;Controlling
+APP-016;QMSuite;application;;Qualitaetsmanagement
+APP-017;WarehousePro WMS;application;;Logistik
+APP-018;FleetTrack;application;;Logistik
+APP-019;MES FactoryLine;application;;Produktion
+APP-020;SCADA PlantView;application;;Produktion
+APP-021;PIM ContentHub;application;;Marketing
+APP-022;Webshop Portal;application;;Vertrieb
+APP-023;Customer Self Service Portal;application;;Kundenservice
+APP-024;Zendesk Support;application;;Kundenservice
+APP-025;Workday Recruiting;application;;Personal
+APP-026;TravelExpense Cloud;application;;Buchhaltung
+APP-027;ContractSafe;application;;Rechtsabteilung
+APP-028;RiskRadar GRC;application;;Informationssicherheit
+APP-029;Veeam Backup & Replication;application;;IT-Betrieb
+APP-030;Microsoft Entra ID;application;;IT-Betrieb
+APP-031;Active Directory Domain Services;application;;IT-Betrieb
+APP-032;Palo Alto Firewall Management;application;;Informationssicherheit
+APP-033;Fortinet FortiGate Cluster;application;;Informationssicherheit
+APP-034;Splunk Enterprise Security;application;;Informationssicherheit
+APP-035;Microsoft Defender for Endpoint;application;;Informationssicherheit
+APP-036;PRTG Network Monitor;application;;IT-Betrieb
+APP-037;Zabbix Monitoring;application;;IT-Betrieb
+APP-038;Nexus Repository;application;;IT-Betrieb
+APP-039;GitHub Enterprise Cloud;application;;IT-Betrieb
+APP-040;Azure DevOps;application;;IT-Betrieb
+APP-041;Okta Workforce Identity;application;;IT-Betrieb
+APP-042;Citrix Virtual Apps;application;;IT-Betrieb
+APP-043;Remote Access VPN;application;;Informationssicherheit
+APP-044;MuleSoft Anypoint Platform;application;;IT-Betrieb
+APP-045;Talend Data Integration;application;;IT-Betrieb
+APP-046;OpenText Archive Center;application;;IT-Betrieb
+APP-047;PrintFleet;application;;IT-Betrieb
+APP-048;VisitorPro;application;;Facility Management
+APP-049;AssetTrack CMMS;application;;Facility Management
+APP-050;LearningHub LMS;application;;Personal
+APP-051;Clockwise Time Tracking;application;;Personal
+APP-052;Banking Gateway;application;;Buchhaltung
+APP-053;Invoice OCR Service;application;;Buchhaltung
+APP-054;EDI Gateway;application;;IT-Betrieb
+APP-055;BI Data Warehouse;application;;Controlling
+APP-056;Azure SQL Managed Instance;application;;IT-Betrieb
+APP-057;DNS Resolver Service;application;;IT-Betrieb
+APP-058;SMTP Relay Service;application;;IT-Betrieb
+APP-059;PKI Certificate Services;application;;Informationssicherheit
+APP-060;Elastic Observability;application;;IT-Betrieb
+IF-001;SAP FI Bank API;interface;;Buchhaltung
+IF-002;SAP CO Reporting API;interface;;Controlling
+IF-003;CRM Customer API;interface;;Vertrieb
+IF-004;WMS Stock API;interface;;Logistik
+IF-005;MES Production API;interface;;Produktion
+IF-006;HR Master Data API;interface;;Personal
+IF-007;QMS Audit API;interface;;Qualitaetsmanagement
+IF-008;Invoice OCR REST API;interface;;Buchhaltung
+IF-009;EDI Orders Interface;interface;;IT-Betrieb
+IF-010;Identity LDAP Interface;interface;;IT-Betrieb
+IF-011;SMTP Mail Interface;interface;;IT-Betrieb
+IF-012;Archive Document API;interface;;IT-Betrieb
+IF-013;Power BI Dataset API;interface;;Controlling
+IF-014;ServiceNow Incident API;interface;;IT-Betrieb
+IF-015;Bank Statement EBICS Interface;interface;;Buchhaltung
+IF-016;Webshop Order API;interface;;Vertrieb
+IF-017;Zendesk Ticket API;interface;;Kundenservice
+IF-018;Fleet GPS Interface;interface;;Logistik
+IF-019;Defender Security API;interface;;Informationssicherheit
+IF-020;Splunk Event Collector;interface;;Informationssicherheit
+SRV-001;ns-prd-001;server;virtual;IT-Betrieb
+SRV-002;ns-prd-002;server;virtual;IT-Betrieb
+SRV-003;ns-prd-003;server;virtual;IT-Betrieb
+SRV-004;ns-prd-004;server;physical;IT-Betrieb
+SRV-005;ns-prd-005;server;virtual;Informationssicherheit
+SRV-006;ns-prd-006;server;virtual;IT-Betrieb
+SRV-007;ns-prd-007;server;virtual;IT-Betrieb
+SRV-008;ns-prd-008;server;physical;IT-Betrieb
+SRV-009;ns-prd-009;server;virtual;IT-Betrieb
+SRV-010;ns-prd-010;server;virtual;Informationssicherheit
+SRV-011;ns-prd-011;server;virtual;IT-Betrieb
+SRV-012;ns-prd-012;server;physical;IT-Betrieb
+SRV-013;ns-prd-013;server;virtual;IT-Betrieb
+SRV-014;ns-prd-014;server;virtual;IT-Betrieb
+SRV-015;ns-prd-015;server;virtual;Informationssicherheit
+SRV-016;ns-prd-016;server;physical;IT-Betrieb
+SRV-017;ns-prd-017;server;virtual;IT-Betrieb
+SRV-018;ns-prd-018;server;virtual;IT-Betrieb
+SRV-019;ns-prd-019;server;virtual;IT-Betrieb
+SRV-020;ns-prd-020;server;physical;Informationssicherheit
+SRV-021;ns-prd-021;server;virtual;IT-Betrieb
+SRV-022;ns-prd-022;server;virtual;IT-Betrieb
+SRV-023;ns-prd-023;server;virtual;IT-Betrieb
+SRV-024;ns-prd-024;server;physical;IT-Betrieb
+SRV-025;ns-prd-025;server;virtual;Informationssicherheit
+SRV-026;ns-prd-026;server;virtual;IT-Betrieb
+SRV-027;ns-prd-027;server;virtual;IT-Betrieb
+SRV-028;ns-prd-028;server;physical;IT-Betrieb
+SRV-029;ns-prd-029;server;virtual;IT-Betrieb
+SRV-030;ns-prd-030;server;virtual;Informationssicherheit
+SRV-031;ns-prd-031;server;virtual;IT-Betrieb
+SRV-032;ns-prd-032;server;physical;IT-Betrieb
+SRV-033;ns-prd-033;server;virtual;IT-Betrieb
+SRV-034;ns-prd-034;server;virtual;IT-Betrieb
+SRV-035;ns-prd-035;server;virtual;Informationssicherheit
+SRV-036;ns-prd-036;server;physical;IT-Betrieb
+SRV-037;ns-prd-037;server;virtual;IT-Betrieb
+SRV-038;ns-prd-038;server;virtual;IT-Betrieb
+SRV-039;ns-prd-039;server;virtual;IT-Betrieb
+SRV-040;ns-prd-040;server;physical;Informationssicherheit
+SRV-041;ns-prd-041;server;virtual;IT-Betrieb
+SRV-042;ns-prd-042;server;virtual;IT-Betrieb
+SRV-043;ns-prd-043;server;virtual;IT-Betrieb
+SRV-044;ns-prd-044;server;physical;IT-Betrieb
+SRV-045;ns-dev-045;server;virtual;Informationssicherheit
+SRV-046;ns-dev-046;server;virtual;IT-Betrieb
+SRV-047;ns-dev-047;server;virtual;IT-Betrieb
+SRV-048;ns-dev-048;server;physical;IT-Betrieb
+SRV-049;ns-dev-049;server;virtual;IT-Betrieb
+SRV-050;ns-dev-050;server;virtual;Informationssicherheit
+SRV-051;ns-dev-051;server;virtual;IT-Betrieb
+SRV-052;ns-dev-052;server;physical;IT-Betrieb
+SRV-053;ns-dev-053;server;virtual;IT-Betrieb
+SRV-054;ns-dev-054;server;virtual;IT-Betrieb
+SRV-055;ns-dev-055;server;virtual;Informationssicherheit
+SRV-056;ns-dev-056;server;physical;IT-Betrieb
+SRV-057;ns-dev-057;server;virtual;IT-Betrieb
+SRV-058;ns-dev-058;server;virtual;IT-Betrieb
+SRV-059;ns-dev-059;server;virtual;IT-Betrieb
+SRV-060;ns-dev-060;server;physical;Informationssicherheit

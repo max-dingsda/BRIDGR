@@ -66,6 +66,25 @@ def test_list_cmdb_relation_files_filters_by_required_columns(tmp_path: Path) ->
     assert result == [nested_dir / "cmdb_relations.csv"]
 
 
+def test_list_cmdb_entity_files_accepts_semicolon_delimited_csv(tmp_path: Path) -> None:
+    (tmp_path / "cmdb_entities.csv").write_text("id;name;entity_type\napp-1;SAP Sales;application\n", encoding="utf-8")
+
+    result = list_cmdb_entity_files(tmp_path, "id", "name")
+
+    assert result == [tmp_path / "cmdb_entities.csv"]
+
+
+def test_list_cmdb_relation_files_accepts_semicolon_delimited_csv(tmp_path: Path) -> None:
+    (tmp_path / "cmdb_relations.csv").write_text(
+        "source_id;relation_type;target_id\napp-1;RUNS_ON;srv-1\n",
+        encoding="utf-8",
+    )
+
+    result = list_cmdb_relation_files(tmp_path, "source_id", "relation_type", "target_id")
+
+    assert result == [tmp_path / "cmdb_relations.csv"]
+
+
 def test_describe_cmdb_file_returns_relative_posix_path(tmp_path: Path) -> None:
     nested_dir = tmp_path / "cmdb testdata"
     nested_dir.mkdir()

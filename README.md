@@ -305,6 +305,7 @@ Aktuell verfuegbar:
 - Query gegen Neo4j ausfuehren, Ergebnis in natuerliche Sprache umformulieren
 - technische Query-/Validierungsfehler in benutzerverstaendliche Hinweise uebersetzen
 - generierten Cypher als technische Details anzeigen
+- sofortiges visuelles Feedback nach Fragenabsendung: Nutzerfrage und Verarbeitungs-Spinner erscheinen direkt im Chat-Bereich
 
 ### Tab 2 - Zuordnungen
 
@@ -313,7 +314,11 @@ Aktuell verfuegbar:
 - letzten gespeicherten Lauf aus `Output/latest_run.json` anzeigen
 - letzten Importkontext inklusive Archivpfad anzeigen
 - Statusfilter fuer Dokumente
+- Sortierung der Review-Liste nach Prozess oder nach Anwendungsbezeichner (umschaltbar)
 - aktionsfaehige Review-Liste mit `Bestaetigen`, `Ablehnen` und `Manuell anlegen`
+- Checkbox-Spalte fuer Mehrfachauswahl: bei gueltiger Selektion (gleicher normalisierter raw_name + gleiche cmdb_id) bestaetigt ein Klick auf `Bestaetigen` alle markierten Eintraege auf einmal
+- bei ungueltiger Mehrfachauswahl (gemischte Bezeichner oder CMDB-Ziele): rotes Banner + alle Aktionsbuttons der markierten Zeilen deaktiviert
+- `Manuell anlegen`-Dropdown ist alphabetisch sortiert
 - mehrere schwache CMDB-Kandidaten pro Prozessanwendung anzeigen
 - Dokumentdetails mit Prozesskontext und technischen Rohdaten (reine Ansicht, keine Aktionen)
 - Hinweise auf moegliche Mehrfachnotation derselben Anwendung innerhalb eines Prozesses

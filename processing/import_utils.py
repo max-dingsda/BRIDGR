@@ -68,7 +68,13 @@ def list_cmdb_relation_files(
 def _csv_has_columns(path: Path, required_columns: set[str]) -> bool:
     try:
         with path.open("r", encoding="utf-8", newline="") as handle:
-            reader = csv.DictReader(handle)
+            sample = handle.read(4096)
+            handle.seek(0)
+            try:
+                dialect = csv.Sniffer().sniff(sample, delimiters=",;")
+            except csv.Error:
+                dialect = csv.excel
+            reader = csv.DictReader(handle, dialect=dialect)
             if reader.fieldnames is None:
                 return False
             return required_columns.issubset(set(reader.fieldnames))

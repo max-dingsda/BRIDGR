@@ -74,58 +74,11 @@ sollten diese beiden Einträge mit korrigiert werden (import ebenfalls auf "Assi
 20. ArchiMate-Import: Detailinformation zu übersprungenen Beziehungen fehlt - erledigt
 21. Validator-Regex in graph_schema.py nicht Unicode-fähig — KÖNNTE_DIENEN/KÖNNTE_VERANTWORTEN werden abgewiesen (Bug, erledigt)
 
-22. Alias-Lifecycle bei Ablehnung bestätigter KÖNNTE_DIENEN-Links (offen)
-Wenn ein Benutzer eine bestätigte DIENT-Kante (source: manuell_bestaetigt) nachträglich ablehnt oder
-die Bestätigung zurückzieht, bleibt der zugehörige (:Alias {source_kind: 'confirmed_match'})-Knoten
-im Graphen. Der Chat würde weiterhin "SAP CRM → SAP SRM" auflösen, obwohl der Link nicht mehr
-bestätigt ist.
+22. Alias-Lifecycle bei Ablehnung bestätigter KÖNNTE_DIENEN-Links — beim Revert einer manuell_bestaetigt-Entscheidung wird der zugehörige confirmed_match-Alias mitgelöscht (inkl. Orphan-Cleanup). - erledigt
 
-Frage: Soll beim Zurückziehen einer manuell_bestaetigt-Bestätigung der Alias mitgelöscht werden?
-Oder bleibt der Alias dauerhaft, weil der Bezeichner real ist (er wurde im Dokument gefunden)?
+23. Batch-Bestätigung gleichartiger Matches im Review — Sortierung nach Anwendungsbezeichner, Checkboxen pro Zeile; bei gültiger Mehrfachauswahl (gleicher normalisierter raw_name + gleiche cmdb_id) löst "Bestätigen" in jeder gechecken Zeile den Batch für alle aus; bei ungültiger Auswahl rotes Banner + alle Buttons der gechecken Zeilen deaktiviert. - erledigt
 
-Aktuell: kein Löschpfad — Alias bleibt bis zur nächsten Diskussion unangetastet.
-
-23. Im Review der Zuordnung Prozess-Anwendung sollte eine Bestätigung eines schwachen Match dazu führen dass alle gleichartigen Matches ebenfalls bestätigt werden. - offen
-Beispiel:
-Nach dem Import der Testdaten aus \Specs\testdata_nordstern existieren unter anderem folgende Vorschläge:
-
-Prozess Budgetplanung konsolidieren - Anwendung SAP CO - Match SAP S/4 HANA Co
-Prozess Forecast aktualisieren - Anwendung SAP CO - Match SAP S/4 Hana Co
-
-Präzisierung "gleichartig":
-Gemeint ist: gleicher raw_name → gleiche CMDB-App (cmdb_id), prozessübergreifend.
-Nicht gemeint: gleicher raw_name → unterschiedliche CMDB-Apps (das wäre ein anderes Review-Problem).
-
-Verhältnis zum Alias-Mechanismus:
-Nach einer Bestätigung wird bereits ein (:Alias)-[:KANN_MEINEN]->(:Anwendung) angelegt.
-Damit sind zukünftige Importe abgedeckt — "SAP CO" wird beim nächsten Import direkt aufgelöst.
-Was fehlt: die rückwirkende Bestätigung bereits existierender KÖNNTE_DIENEN-Kanten mit demselben
-raw_name → cmdb_id-Paar. Das ist der eigentliche Kern des Vorschlags.
-
-Gegenargument (vor Implementierung zu prüfen):
-Im Prozessmanagement kann derselbe Bezeichner in unterschiedlichen Prozesskontexten bewusst
-unterschiedliche Dinge meinen. "SAP CO" könnte in Prozess A das Controlling-Modul und in Prozess B
-einen anderen Einsatzbereich desselben Systems bezeichnen — und damit in Prozess B zu einer anderen
-CMDB-App gehören. Eine automatische prozessübergreifende Bestätigung würde diese Unterscheidung
-unmöglich machen.
-
-Zu klären: Ist im Nordstern-Testdatensatz (und generell im Anwendungsfall) davon auszugehen, dass
-gleiche Bezeichner immer dieselbe Entität meinen? Oder gibt es Gegenbeispiele aus der Praxis?
-
-24. Chat: fehlende Verarbeitungsrückmeldung nach Fragebsendung - offen
-Nach dem Absenden einer Frage wird das Eingabefeld geleert. Als einziges Feedback ist das
-Streamlit-Spinner-Icon oben rechts im Browser-Tab sichtbar — ein subtiles, browsernahes Signal
-das Nutzern ohne Gewöhnung kaum auffällt.
-
-Problem: Für Anfragen mit mehreren Graphabfragen und LLM-Synthese (z.B. offene Analysefragen)
-kann die Verarbeitungszeit deutlich spürbar sein, besonders bei lokalen Modellen mit hoher Latenz.
-Ohne sichtbare Rückmeldung entsteht der Eindruck, die Anwendung hänge oder die Eingabe sei
-verloren gegangen. "Daran gewöhnt haben" ist kein akzeptabler UX-Zustand.
-
-Gewünschtes Verhalten (Richtung, nicht Lösung):
-Der Nutzer soll unmittelbar nach dem Absenden erkennen können, dass BRIDGR die Anfrage
-verarbeitet. Lösungsraum: Spinner im Chat-Bereich selbst, Wiederanzeige der Frage als
-"ausstehende Nachricht", Statuszeile, o.ä. — Entscheidung offen.
+24. Chat: fehlende Verarbeitungsrückmeldung — User-Nachricht und Spinner erscheinen sofort im Chat-Bereich nach dem Absenden. - erledigt
 
 25. ArchiMate-Import: Kandidaten-Bestätigung führt nicht zu Node-Merge in Neo4j - offen
 Seit v0.26 werden ArchiMate-Elemente mit wahrscheinlichem Fuzzy-Match (Score ≥ Schwellwert)
@@ -161,8 +114,23 @@ abgelehnt — dort ist das heutige Verhalten korrekt.
 
 26. aktuell besteht der CMDB Import aus 2 Dateien, eine für Entities, eine für Beziehungen zwischen Entities. Dies war für die Entwicklung hilfreich, ist jedoch unrealistisch. Realistischer ist ein CMDB Export je "Objektart" (Server, Anwendungen, Interfaces...) mit Einträgen für die jeweils verbundenen Objekte. Da dieser Wechsel komplexer ist, sollten wir zunächst ein Konzept erarbeiten  - offen
  
-27. auf dem tab "Zuordnungen" sollte der Button "mauell zuweisen" für die zuordnung einer vermuteten Anwendung zu einem CMDB Eintrag ein alphabetisch sortiertes dropdown öffnen. Aktuell ist die Liste unsortiert und damit schwer zu druchsuchen - offen
+27. Dropdown "Manuell anlegen" im Tab Zuordnungen ist jetzt alphabetisch sortiert. - erledigt
 
 28. Manuelle Zuordnungen und Merges können rückgängig gemacht werden. - erledigt
 
 29. bei komplexen fragen, die nicht direkt auf die graph-struktur eingehen kann das LLM manchmal nicht die korrekte Cypher-query erzeugen. - erledigt
+
+30. vor einer Veröffentlichung des Projekts bedarf es einer Überarbeitung der GUI - offen
+-> Anordnung der Tabs
+-> Anordnung der Bereiche innerhalb der Tabs
+-> Sind alle Bereiche auf dem logischen/intutiv vermuteten Tab?
+
+31. vor einer Veröffentlichung des Projekts ist die Einführung eines Rollenkonzepts zu diskutieren - offen
+
+32. vor einer Veröffentlichung des Projekts ist eines der Logos einzubinden ( Specs\img ) - offen
+
+33. vor einer Veröffentlichung des Projekts ist ein optionaler Darkmode einzuführen - offen
+
+34. vor einer Veröffentlichung des Projekts ist das Thema "Mehrsprachigkeit" zu diskutieren und zu entscheiden - offen
+
+35. Neo4j-Server: UnknownPropertyKeyWarning für anwendung_name durch notifications_disabled_categories=["UNRECOGNIZED"] im Driver unterdrückt. - erledigt

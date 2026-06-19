@@ -19,7 +19,7 @@
   "cmdb_relation_type_column": "relation_type",
   "cmdb_relation_target_column": "target_id",
   "cmdb_multivalue_separator": "|",
-  "input_path": "Input",
+  "input_path": "F:\\workspace\\BRIDGR\\Input",
   "cmdb_filename": "cmdb_entities.csv",
   "output_path": "F:/workspace/BRIDGR/Output",
   "last_run_mode": "full",

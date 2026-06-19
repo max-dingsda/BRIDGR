@@ -24,6 +24,15 @@ def test_load_cmdb_rows_reads_valid_csv(tmp_path: Path) -> None:
     assert rows == [{"app_id": "1", "application_name": "SAP Sales"}]
 
 
+def test_load_cmdb_rows_reads_semicolon_delimited_csv(tmp_path: Path) -> None:
+    cmdb_path = tmp_path / "cmdb.csv"
+    cmdb_path.write_text("id;name;entity_type\n1;SAP Sales;application\n", encoding="utf-8")
+
+    rows = load_cmdb_rows(cmdb_path, "id", "name")
+
+    assert rows == [{"id": "1", "name": "SAP Sales", "entity_type": "application"}]
+
+
 def test_load_cmdb_rows_raises_for_missing_file(tmp_path: Path) -> None:
     with pytest.raises(CmdbLoadError):
         load_cmdb_rows(tmp_path / "missing.csv", "app_id", "application_name")
@@ -145,6 +154,17 @@ def test_load_cmdb_relation_rows_reads_valid_csv(tmp_path: Path) -> None:
     assert rows == [{"source_id": "app-1", "relation_type": "USES_INTERFACE", "target_id": "if-1"}]
 
 
+def test_load_cmdb_relation_rows_reads_semicolon_delimited_csv(tmp_path: Path) -> None:
+    from processing.cmdb import load_cmdb_relation_rows
+
+    relations_path = tmp_path / "cmdb_relations.csv"
+    relations_path.write_text("source_id;relation_type;target_id\napp-1;USES_INTERFACE;if-1\n", encoding="utf-8")
+
+    rows = load_cmdb_relation_rows(relations_path)
+
+    assert rows == [{"source_id": "app-1", "relation_type": "USES_INTERFACE", "target_id": "if-1"}]
+
+
 def test_load_cmdb_relation_rows_raises_for_missing_file(tmp_path: Path) -> None:
     from processing.cmdb import load_cmdb_relation_rows
 
@@ -179,7 +199,7 @@ def test_build_cmdb_option_labels_formats_name_and_id() -> None:
 
     labels = build_cmdb_option_labels(rows, uuid_column="app_id", name_column="application_name")
 
-    assert labels == ["SAP Sales [cmdb-1]", "Mail System [cmdb-2]"]
+    assert labels == ["Mail System [cmdb-2]", "SAP Sales [cmdb-1]"]
 
 
 def test_find_cmdb_row_by_label_returns_matching_row() -> None:
@@ -240,3 +260,16 @@ def test_validate_cmdb_relation_file_reports_incomplete_rows(tmp_path: Path) -> 
     assert len(issues) == 1
     assert issues[0].line_number == 2
     assert "Strukturfehler" in issues[0].message
+
+
+def test_validate_cmdb_files_accept_semicolon_delimited_csv(tmp_path: Path) -> None:
+    entity_path = tmp_path / "cmdb_entities.csv"
+    relation_path = tmp_path / "cmdb_relations.csv"
+    entity_path.write_text("id;name;entity_type\napp-1;SAP Sales;application\n", encoding="utf-8")
+    relation_path.write_text("source_id;relation_type;target_id\napp-1;RUNS_ON;srv-1\n", encoding="utf-8")
+
+    entity_issues = validate_cmdb_entity_file(entity_path, id_column="id", name_column="name")
+    relation_issues = validate_cmdb_relation_file(relation_path)
+
+    assert entity_issues == []
+    assert relation_issues == []

@@ -171,7 +171,7 @@ Hier geben Sie Ihre Frage in normaler Sprache ein.
 
 #### Chat-Antworten
 
-BRIDGR zeigt Antworten des Systems direkt im Gesprächsverlauf an.
+Unmittelbar nach dem Absenden einer Frage erscheinen Ihre Eingabe und ein Verarbeitungs-Spinner direkt im Gesprächsverlauf — so ist jederzeit erkennbar, dass BRIDGR die Anfrage verarbeitet. Die Antwort des Systems folgt sobald die Verarbeitung abgeschlossen ist.
 
 Mögliche zusätzliche Inhalte:
 
@@ -231,8 +231,13 @@ Typische Informationen:
 
 ### 7.5 Bereich `Offene Zuordnungen`
 
+#### Sortierung
+
+Über den Sortierungsschalter oberhalb der Tabelle können Sie die Einträge wahlweise **nach Prozess** (Standard) oder **nach Anwendungsbezeichner** sortieren. Die Sortierung nach Anwendungsbezeichner erleichtert das Erkennen von Fällen, bei denen derselbe Begriff in mehreren Prozessen auftaucht und auf dieselbe CMDB-Anwendung verweist.
+
 Hier sehen Sie pro Review-Fall:
 
+- Checkbox (für Mehrfachauswahl)
 - `Prozess`
 - `Anwendung im Prozess`
 - `Anwendung in der CMDB`
@@ -244,17 +249,21 @@ Zu jedem Fall gibt es folgende Aktionen:
 
 Übernimmt die vorgeschlagene Zuordnung als korrekt.
 
+**Batch-Bestätigung:** Wenn Sie mehrere Zeilen per Checkbox markieren und alle markierten Einträge denselben Anwendungsbezeichner (normalisiert) und dasselbe CMDB-Ziel haben, bestätigt ein Klick auf `Bestätigen` in einer der markierten Zeilen alle markierten Einträge auf einmal. Zeilen ohne Markierung sind davon nicht betroffen.
+
+Bei ungültiger Mehrfachauswahl (unterschiedliche Bezeichner oder unterschiedliche CMDB-Ziele) werden alle Aktionsbuttons der markierten Zeilen deaktiviert und ein rotes Banner erklärt den Grund. Nicht markierte Zeilen bleiben weiterhin einzeln bedienbar.
+
 #### Button `Ablehnen`
 
 Lehnt die vorgeschlagene Zuordnung ab.
 
 #### Popover `Manuell anlegen`
 
-Öffnet eine manuelle Auswahl.
+Öffnet eine manuelle Auswahl mit alphabetisch sortierter CMDB-Liste.
 
 Darin enthalten:
 
-- Feld `CMDB-Ziel`: Auswahl eines CMDB-Eintrags
+- Feld `CMDB-Ziel`: alphabetisch sortierte Auswahl eines CMDB-Eintrags
 - Button `Speichern`: speichert die manuell gewählte Zuordnung
 
 ### 7.6 Bereich `Dokumentdetails`
@@ -412,6 +421,8 @@ Felder:
 - `Eigentümer-Spalte`
 
 Diese Felder müssen zu den Spaltennamen Ihrer CMDB-Entities-CSV passen.
+
+Hinweis zum Dateiformat: BRIDGR erkennt das Trennzeichen der CSV-Dateien automatisch. Sowohl Komma (`,`) als auch Semikolon (`;`) werden unterstützt.
 
 #### Abschnitt `CMDB-Spaltenmapping — Relationen`
 

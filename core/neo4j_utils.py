@@ -67,7 +67,11 @@ class Neo4jClient:
             ) from exc
 
         self._database = config.database
-        self._driver = GraphDatabase.driver(config.url, auth=(config.user, config.password))
+        self._driver = GraphDatabase.driver(
+            config.url,
+            auth=(config.user, config.password),
+            notifications_disabled_categories=["UNRECOGNIZED"],
+        )
 
     def close(self) -> None:
         self._driver.close()

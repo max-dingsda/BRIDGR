@@ -58,13 +58,29 @@ class CmdbValidationIssue:
     message: str
 
 
+def _build_csv_reader(handle, *, dict_reader: bool):
+    sample = handle.read(4096)
+    handle.seek(0)
+    dialect = _detect_csv_dialect(sample)
+    if dict_reader:
+        return csv.DictReader(handle, dialect=dialect)
+    return csv.reader(handle, dialect=dialect)
+
+
+def _detect_csv_dialect(sample: str) -> csv.Dialect:
+    try:
+        return csv.Sniffer().sniff(sample, delimiters=",;")
+    except csv.Error:
+        return csv.excel
+
+
 def load_cmdb_rows(path: Path, uuid_column: str, name_column: str) -> list[dict[str, str]]:
     if not path.exists():
         raise CmdbLoadError(f"CMDB-Datei wurde nicht gefunden: {path}")
 
     try:
         with path.open("r", encoding="utf-8", newline="") as handle:
-            reader = csv.DictReader(handle)
+            reader = _build_csv_reader(handle, dict_reader=True)
             if reader.fieldnames is None:
                 raise CmdbLoadError("CMDB-Datei enthält keine Header-Zeile.")
 
@@ -168,7 +184,7 @@ def load_cmdb_relation_rows(
 
     try:
         with path.open("r", encoding="utf-8", newline="") as handle:
-            reader = csv.DictReader(handle)
+            reader = _build_csv_reader(handle, dict_reader=True)
             if reader.fieldnames is None:
                 raise CmdbLoadError("CMDB-Relationsdatei enthält keine Header-Zeile.")
 
@@ -281,7 +297,7 @@ def _collect_csv_shape_issues(path: Path) -> list[CmdbValidationIssue]:
     issues: list[CmdbValidationIssue] = []
     try:
         with path.open("r", encoding="utf-8", newline="") as handle:
-            reader = csv.reader(handle)
+            reader = _build_csv_reader(handle, dict_reader=False)
             header = next(reader, None)
             if header is None:
                 return issues
@@ -344,7 +360,7 @@ def build_cmdb_option_labels(
     labels = []
     for row in cmdb_rows:
         labels.append(f"{row.get(name_column, '')} [{row.get(uuid_column, '')}]")
-    return labels
+    return sorted(labels)
 
 
 def find_cmdb_row_by_label(

@@ -11,9 +11,12 @@ from processing.knowledge_base import load_knowledge_base
 from processing.run_artifacts import load_last_import_context, load_latest_run
 from services.review_service import (
     confirm_review_link,
+    confirm_review_links_batch,
     reject_review_link,
     save_manual_link,
 )
+
+_REVIEW_COL_WIDTHS = [0.5, 2, 3, 3, 1, 1, 1, 2]
 from services.runtime_service import (
     REVIEW_RUN_FEEDBACK_STATE_KEY,
     apply_pending_review_scope_defaults,
@@ -93,7 +96,34 @@ def _filter_application_cmdb_rows(config: AppConfig, cmdb_rows: list[dict[str, s
     return filtered_rows
 
 
-def render_review_item_actions(review_row: dict, config: AppConfig, cmdb_rows: list[dict[str, str]]) -> None:
+def _normalize_app_name_for_batch(name: str) -> str:
+    return "".join(name.casefold().split())
+
+
+def _compute_batch_state(review_rows: list[dict]) -> tuple[str, list[dict], set[str]]:
+    checked_rows = [
+        row for row in review_rows
+        if st.session_state.get(f"review-batch-select::{row.get('row_id', '')}", False)
+    ]
+    checked_row_ids = {row.get("row_id", "") for row in checked_rows}
+    if len(checked_rows) < 2:
+        return "none", checked_rows, checked_row_ids
+    app_names = {_normalize_app_name_for_batch(r.get("anwendung_im_prozess", "")) for r in checked_rows}
+    cmdb_ids = {r.get("cmdb_id") for r in checked_rows}
+    if len(app_names) == 1 and len(cmdb_ids) == 1 and None not in cmdb_ids and "" not in cmdb_ids:
+        return "valid", checked_rows, checked_row_ids
+    return "invalid", checked_rows, checked_row_ids
+
+
+def render_review_item_actions(
+    review_row: dict,
+    config: AppConfig,
+    cmdb_rows: list[dict[str, str]],
+    *,
+    batch_blocked: bool = False,
+    checked_row_ids: set[str] | None = None,
+    batch_valid_rows: list[dict] | None = None,
+) -> None:
     process_name = review_row.get("prozess", "")
     process_id = review_row.get("process_id", "")
     source_path = review_row.get("source_path", "")
@@ -101,28 +131,43 @@ def render_review_item_actions(review_row: dict, config: AppConfig, cmdb_rows: l
     matched_name = review_row.get("anwendung_in_cmdb", "")
     cmdb_id = review_row.get("cmdb_id")
     row_id = review_row.get("row_id", "")
+    _checked = checked_row_ids or set()
+    is_blocked = batch_blocked and row_id in _checked
+    is_batch_trigger = batch_valid_rows is not None and row_id in _checked
 
-    row_columns = st.columns([2, 3, 3, 1, 1, 1, 2])
-    row_columns[0].write(process_name)
-    row_columns[1].write(application_name)
-    row_columns[2].write(matched_name)
-    row_columns[3].write(review_row.get("confidence", ""))
+    row_columns = st.columns(_REVIEW_COL_WIDTHS)
+    row_columns[0].checkbox("", key=f"review-batch-select::{row_id}", label_visibility="collapsed")
+    row_columns[1].write(process_name)
+    row_columns[2].write(application_name)
+    row_columns[3].write(matched_name)
+    row_columns[4].write(review_row.get("confidence", ""))
 
-    if cmdb_id and row_columns[4].button("Bestätigen", key=f"review-confirm::{row_id}", width="stretch"):
+    if is_blocked:
+        row_columns[5].button("Bestätigen", key=f"review-confirm::{row_id}", disabled=True, width="stretch")
+        row_columns[6].button("Ablehnen", key=f"review-reject::{row_id}", disabled=True, width="stretch")
+        row_columns[7].button("Manuell anlegen", key=f"review-manual-disabled::{row_id}", disabled=True, width="stretch")
+        caption_cols = st.columns([sum(_REVIEW_COL_WIDTHS[:5]), sum(_REVIEW_COL_WIDTHS[5:])])
+        caption_cols[1].caption("Aufgrund der Selektion nicht ausführbar")
+        return
+    elif is_batch_trigger:
+        if cmdb_id and row_columns[5].button("Bestätigen", key=f"review-confirm::{row_id}", width="stretch"):
+            st.success(confirm_review_links_batch(config, batch_valid_rows, cmdb_rows))
+            st.rerun()
+    elif cmdb_id and row_columns[5].button("Bestätigen", key=f"review-confirm::{row_id}", width="stretch"):
         st.success(confirm_review_link(config, process_name, application_name, cmdb_id, matched_name, process_id, source_path, cmdb_rows))
         st.rerun()
 
-    if row_columns[5].button("Ablehnen", key=f"review-reject::{row_id}", width="stretch"):
+    if row_columns[6].button("Ablehnen", key=f"review-reject::{row_id}", width="stretch"):
         st.success(reject_review_link(config, process_name, application_name, cmdb_id, process_id, source_path, cmdb_rows))
         st.rerun()
 
     application_rows = _filter_application_cmdb_rows(config, cmdb_rows)
     cmdb_options = build_cmdb_option_labels(application_rows, config.cmdb_uuid_column, config.cmdb_name_column)
     if not cmdb_options:
-        row_columns[6].write("-")
+        row_columns[7].write("-")
         return
 
-    with row_columns[6].popover("Manuell anlegen", use_container_width=True):
+    with row_columns[7].popover("Manuell anlegen", use_container_width=True):
         selected_label = st.selectbox(
             "CMDB-Ziel",
             options=cmdb_options,
@@ -161,17 +206,47 @@ def render_review_items_table(documents: list[dict], config: AppConfig, cmdb_row
         st.success("Keine offenen Zuordnungen für den aktuellen Filter.")
         return
 
-    header_columns = st.columns([2, 3, 3, 1, 1, 1, 2])
-    header_columns[0].markdown("**Prozess**")
-    header_columns[1].markdown("**Anwendung im Prozess**")
-    header_columns[2].markdown("**Anwendung in der CMDB**")
-    header_columns[3].markdown("**Bewertung**")
-    header_columns[4].markdown("**Bestätigen**")
-    header_columns[5].markdown("**Ablehnen**")
-    header_columns[6].markdown("**Manuell anlegen**")
+    sort_mode = st.radio(
+        "Sortierung",
+        options=["Nach Prozess", "Nach Anwendungsbezeichner"],
+        horizontal=True,
+        key="review_sort_mode",
+        label_visibility="collapsed",
+    )
+    if sort_mode == "Nach Anwendungsbezeichner":
+        review_rows = sorted(
+            review_rows,
+            key=lambda r: (r.get("anwendung_im_prozess", "").lower(), r.get("prozess", "").lower()),
+        )
+
+    batch_state, checked_rows, checked_row_ids = _compute_batch_state(review_rows)
+
+    if batch_state == "invalid":
+        st.markdown(
+            '<p style="background-color:#c0392b;color:white;padding:8px 12px;border-radius:4px;margin:0;">'
+            "Ausgewählte Einträge müssen denselben Bezeichner und dieselbe CMDB-Anwendung haben."
+            "</p>",
+            unsafe_allow_html=True,
+        )
+
+    header_columns = st.columns(_REVIEW_COL_WIDTHS)
+    header_columns[1].markdown("**Prozess**")
+    header_columns[2].markdown("**Anwendung im Prozess**")
+    header_columns[3].markdown("**Anwendung in der CMDB**")
+    header_columns[4].markdown("**Bewertung**")
+    header_columns[5].markdown("**Bestätigen**")
+    header_columns[6].markdown("**Ablehnen**")
+    header_columns[7].markdown("**Manuell anlegen**")
 
     for review_row in review_rows:
-        render_review_item_actions(review_row, config, cmdb_rows)
+        render_review_item_actions(
+            review_row,
+            config,
+            cmdb_rows,
+            batch_blocked=(batch_state == "invalid"),
+            checked_row_ids=checked_row_ids,
+            batch_valid_rows=(checked_rows if batch_state == "valid" else None),
+        )
 
 
 def render_document_details(documents: list[dict]) -> None:

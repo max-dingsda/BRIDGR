@@ -97,11 +97,21 @@ def _resolve_process_text_path(dataset_dir: Path, process_id: str, declared_file
     raise FileNotFoundError(f"Could not resolve text file for {process_id}: {declared_filename}")
 
 
+def _sniffed_dict_reader(handle) -> csv.DictReader:
+    sample = handle.read(4096)
+    handle.seek(0)
+    try:
+        dialect = csv.Sniffer().sniff(sample, delimiters=",;")
+    except csv.Error:
+        dialect = csv.excel
+    return csv.DictReader(handle, dialect=dialect)
+
+
 def load_processes(dataset_dir: Path = DATASET_DIR) -> list[ProcessRecord]:
     inventory_path = dataset_dir / "process_inventory.csv"
     processes: list[ProcessRecord] = []
     with inventory_path.open(encoding="utf-8", newline="") as handle:
-        reader = csv.DictReader(handle)
+        reader = _sniffed_dict_reader(handle)
         for row in reader:
             text_path = _resolve_process_text_path(
                 dataset_dir,
@@ -127,7 +137,7 @@ def load_entities(dataset_dir: Path = DATASET_DIR) -> dict[str, Entity]:
     entities_path = dataset_dir / "cmdb_entities.csv"
     entities: dict[str, Entity] = {}
     with entities_path.open(encoding="utf-8", newline="") as handle:
-        reader = csv.DictReader(handle)
+        reader = _sniffed_dict_reader(handle)
         for row in reader:
             entity = Entity(
                 source_id=row["id"].strip(),
@@ -143,7 +153,7 @@ def load_entities(dataset_dir: Path = DATASET_DIR) -> dict[str, Entity]:
 def load_relations(dataset_dir: Path = DATASET_DIR) -> list[dict[str, str]]:
     relations_path = dataset_dir / "cmdb_relations.csv"
     with relations_path.open(encoding="utf-8", newline="") as handle:
-        return list(csv.DictReader(handle))
+        return list(_sniffed_dict_reader(handle))
 
 
 def _application_aliases() -> dict[str, str]:

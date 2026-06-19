@@ -194,6 +194,50 @@ def persist_latest_run_refresh(config: AppConfig, cmdb_rows: list[dict[str, str]
     return refreshed_count
 
 
+def confirm_review_links_batch(
+    config: AppConfig,
+    review_rows: list[dict],
+    cmdb_rows: list[dict[str, str]],
+) -> str:
+    if not review_rows:
+        return "Keine Einträge ausgewählt."
+    neo4j_client = get_session_neo4j_client(config)
+    writer = GraphWriter()
+    source_paths: set[str] = set()
+    for row in review_rows:
+        application_name = row.get("anwendung_im_prozess", "")
+        matched_name = row.get("anwendung_in_cmdb", "")
+        cmdb_id = row.get("cmdb_id", "")
+        process_id = row.get("process_id", "")
+        process_name = row.get("prozess", "")
+        source_path = row.get("source_path", "")
+        writer.promote_candidate_link(
+            neo4j_client,
+            cmdb_id=cmdb_id,
+            process_id=process_id,
+            raw_name=application_name,
+            matched_name=matched_name or application_name,
+        )
+        create_manual_decision(
+            neo4j_client,
+            "confirmed_candidate_link",
+            {
+                "process_name": process_name,
+                "process_id": process_id,
+                "application_name": application_name,
+                "matched_name": matched_name or application_name,
+                "cmdb_id": cmdb_id,
+                "source_path": source_path,
+            },
+        )
+        if source_path:
+            source_paths.add(source_path)
+    for source_path in source_paths:
+        persist_single_document_refresh(config, source_path, cmdb_rows)
+    app_name = review_rows[0].get("anwendung_im_prozess", "")
+    return f"{len(review_rows)} Einträge für '{app_name}' bestätigt."
+
+
 def confirm_review_link(
     config: AppConfig,
     process_name: str,

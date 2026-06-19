@@ -68,5 +68,9 @@ def render_query_tab() -> None:
         return
 
     append_chat_message("user", question)
-    run_query_chat_turn(question, config)
+    with st.chat_message("user"):
+        st.write(question)
+    with st.chat_message("assistant"):
+        with st.spinner(""):
+            run_query_chat_turn(question, config)
     st.rerun()
