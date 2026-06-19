@@ -11,6 +11,7 @@ from services.archimate_import_service import (
     _fuzzy_match_name,
     _import_to_neo4j,
     _label_pair_to_relation,
+    confirm_archimate_candidate_node,
     load_archimate_mapping,
 )
 
@@ -366,6 +367,55 @@ def test_import_org_prozess_skipped_without_bridgr_relation_entry() -> None:
     result = _import_to_neo4j(client, elements, [relation], mapping_no_bridgr, "test.xml")
     assert result.relations_skipped == 1
     assert result.relations_imported == 0
+
+
+# --- confirm_archimate_candidate_node ---
+
+def test_confirm_archimate_candidate_node_transfers_relations_and_deletes_candidate() -> None:
+    client = RecordingNeo4jClient(read_results={})
+
+    confirm_archimate_candidate_node(
+        client,
+        label="Anwendung",
+        candidate_name="SAP S/4HANA FI",
+        target_name="SAP S/4HANA CO",
+        archimate_id="id-abc123",
+    )
+
+    written_queries = [q for q, _ in client.queries]
+    assert any("DETACH DELETE" in q for q in written_queries)
+    assert any("SET n.archimate_id" in q for q in written_queries)
+    assert any("MERGE" in q for q in written_queries)
+
+
+def test_confirm_archimate_candidate_node_raises_for_unknown_label() -> None:
+    client = RecordingNeo4jClient(read_results={})
+
+    with pytest.raises(ValueError, match="Unbekanntes Label"):
+        confirm_archimate_candidate_node(
+            client,
+            label="UnbekanntesSonderLabel",
+            candidate_name="X",
+            target_name="Y",
+            archimate_id="id-1",
+        )
+
+
+def test_confirm_archimate_candidate_node_sets_archimate_id_on_target() -> None:
+    client = RecordingNeo4jClient(read_results={})
+
+    confirm_archimate_candidate_node(
+        client,
+        label="Server",
+        candidate_name="ns-dev-045",
+        target_name="ns-dev-046",
+        archimate_id="id-srv-99",
+    )
+
+    set_queries = [(q, p) for q, p in client.queries if "SET n.archimate_id" in q]
+    assert len(set_queries) == 1
+    assert set_queries[0][1].get("archimate_id") == "id-srv-99"
+    assert set_queries[0][1].get("target_name") == "ns-dev-046"
 
 
 # --- skipped_relations detail ---

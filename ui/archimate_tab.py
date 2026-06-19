@@ -6,15 +6,17 @@ from pathlib import Path
 
 import streamlit as st
 
-from core.app_config import load_config
+from core.app_config import AppConfig, load_config
 from core.graph_schema import QUERY_NODE_SCHEMA, QUERY_RELATIONSHIP_PATTERNS, QUERY_RELATIONSHIP_SCHEMA
 from services.archimate_import_service import (
     ARCHIMATE_ELEMENT_TYPES,
     ARCHIMATE_RELATION_TYPES,
+    confirm_archimate_candidate_node,
     load_archimate_mapping,
     save_archimate_mapping,
     persist_archimate_import,
 )
+from services.runtime_service import get_session_neo4j_client
 from services.archimate_export_service import (
     export_graph_as_archimate,
     fetch_untyped_nodes,
@@ -53,7 +55,7 @@ def render_archimate_tab() -> None:
 
     mapping = load_archimate_mapping()
 
-    _render_mapping_section(mapping)
+    _render_mapping_section(mapping, config)
     st.divider()
     _render_import_section(config, mapping)
     st.divider()
@@ -64,7 +66,7 @@ def render_archimate_tab() -> None:
 # Mapping section
 # ---------------------------------------------------------------------------
 
-def _render_mapping_section(mapping: dict) -> None:
+def _render_mapping_section(mapping: dict, config: AppConfig) -> None:
     st.markdown("#### Mapping konfigurieren")
 
     elem_import_storage: dict[str, str] = mapping.get("elements", {}).get("import", {})
@@ -168,7 +170,7 @@ def _render_mapping_section(mapping: dict) -> None:
         except Exception as exc:
             st.error(f"Fehler beim Speichern: {exc}")
 
-    _render_candidates_section(mapping)
+    _render_candidates_section(mapping, config)
 
 
 def _ensure_import_rows_initialized(elem_import_storage: dict[str, str]) -> None:
@@ -239,7 +241,7 @@ def _render_import_mapping_editor() -> dict[str, str]:
 # Candidates section
 # ---------------------------------------------------------------------------
 
-def _render_candidates_section(mapping: dict) -> None:
+def _render_candidates_section(mapping: dict, config: AppConfig) -> None:
     candidates: list[dict] = mapping.get("pending_candidates", [])
     if not candidates:
         return
@@ -256,19 +258,34 @@ def _render_candidates_section(mapping: dict) -> None:
             f"(Score: {cand['score']:.0%})"
         )
         if col_confirm.button("✓", key=f"confirm_cand_{i}"):
-            _confirm_candidate(mapping, cand)
-            st.rerun()
+            error = _confirm_candidate(mapping, cand, config)
+            if error:
+                st.error(error)
+            else:
+                st.rerun()
         if col_reject.button("✗", key=f"reject_cand_{i}"):
             _reject_candidate(mapping, cand)
             st.rerun()
 
 
-def _confirm_candidate(mapping: dict, candidate: dict) -> None:
+def _confirm_candidate(mapping: dict, candidate: dict, config: AppConfig) -> str | None:
+    try:
+        neo4j_client = get_session_neo4j_client(config)
+        confirm_archimate_candidate_node(
+            neo4j_client,
+            label=candidate["bridgr_label"],
+            candidate_name=candidate["archimate_name"],
+            target_name=candidate["suggested_match"],
+            archimate_id=candidate["archimate_id"],
+        )
+    except Exception as exc:
+        return f"Neo4j-Merge fehlgeschlagen: {exc}"
     mapping["pending_candidates"] = [
         c for c in mapping.get("pending_candidates", [])
         if c.get("archimate_id") != candidate["archimate_id"]
     ]
     save_archimate_mapping(mapping)
+    return None
 
 
 def _reject_candidate(mapping: dict, candidate: dict) -> None:

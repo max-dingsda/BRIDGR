@@ -87,6 +87,46 @@ def load_archimate_mapping(path: Path | None = None) -> dict:
         return json.load(fh)
 
 
+def confirm_archimate_candidate_node(
+    neo4j_client: Neo4jClient,
+    label: str,
+    candidate_name: str,
+    target_name: str,
+    archimate_id: str,
+) -> None:
+    from core.graph_schema import QUERY_NODE_SCHEMA, QUERY_RELATIONSHIP_PATTERNS
+    if label not in QUERY_NODE_SCHEMA:
+        raise ValueError(f"Unbekanntes Label: {label}")
+    outgoing = {p.relationship_type for p in QUERY_RELATIONSHIP_PATTERNS if p.source_label == label}
+    incoming = {p.relationship_type for p in QUERY_RELATIONSHIP_PATTERNS if p.target_label == label}
+    for rel_type in outgoing:
+        neo4j_client.execute_write(
+            f"""
+            MATCH (kandidat:{label} {{name: $candidate_name}})-[:{rel_type}]->(other)
+            MATCH (ziel:{label} {{name: $target_name}})
+            MERGE (ziel)-[:{rel_type}]->(other)
+            """,
+            {"candidate_name": candidate_name, "target_name": target_name},
+        )
+    for rel_type in incoming:
+        neo4j_client.execute_write(
+            f"""
+            MATCH (other)-[:{rel_type}]->(kandidat:{label} {{name: $candidate_name}})
+            MATCH (ziel:{label} {{name: $target_name}})
+            MERGE (other)-[:{rel_type}]->(ziel)
+            """,
+            {"candidate_name": candidate_name, "target_name": target_name},
+        )
+    neo4j_client.execute_write(
+        f"MATCH (n:{label} {{name: $target_name}}) SET n.archimate_id = $archimate_id",
+        {"target_name": target_name, "archimate_id": archimate_id},
+    )
+    neo4j_client.execute_write(
+        f"MATCH (n:{label} {{name: $candidate_name}}) DETACH DELETE n",
+        {"candidate_name": candidate_name},
+    )
+
+
 def save_archimate_mapping(mapping: dict, path: Path | None = None) -> None:
     mapping_path = path or resolve_project_path(_DEFAULT_MAPPING_PATH)
     with mapping_path.open("w", encoding="utf-8") as fh:

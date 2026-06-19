@@ -8,9 +8,8 @@
 8. nicht zugeordnete rollen können aktuell einer Organisationseinheit zugewiesen werden, aber erfolgt dies nicht, bleiben sie in der Übersicht. - erledigt
 9. gemma4:12b beantwortet faktische Fragen ohne den Graphen abzufragen (halluziniert trotz korrektem System Prompt). - erledigt
 
-10. konfidenz-Eigenschaft auf DIENT-Kanten im Chat nicht nutzbar — abhängig von #13 (offen)
-r.konfidenz ist zwar in graph_schema.py dokumentiert und dem LLM bekannt, aber in der Praxis existiert im Graphen ausschließlich "stark" (verifiziert: MATCH ()-[r]-() WHERE r.konfidenz IS NOT NULL RETURN DISTINCT r.konfidenz). Schwache Matches werden vom graph_writer herausgefiltert und nie geschrieben. Ein Prompt-Beispiel für konfidenz = 'schwach' ist daher aktuell wertlos — es gibt kein Datum zum Abfragen.
-Voraussetzung: #13 muss zuerst gelöst werden. Erst danach ist das Ergänzen eines Cypher-Beispiels in chat_system.md sinnvoll.
+10. konfidenz-Eigenschaft auf DIENT-Kanten im Chat nicht nutzbar — zurückgestellt
+r.konfidenz ist zwar in graph_schema.py dokumentiert und dem LLM bekannt, aber in der Praxis existiert im Graphen ausschließlich "stark". Zurückgestellt, weil per Designentscheid (#13, 2026-06-19) KÖNNTE_DIENEN aus dem LLM-Query-Schema ausgeschlossen bleibt — ein Prompt-Beispiel für konfidenz='schwach' wäre damit wertlos, da das LLM diese Kanten ohnehin nicht abfragen kann.
 
 11. ArchiMate-Typen nicht im Chat-System-Prompt verankert. - erledigt
 12. Transitive Impact-Analysen durch Prompt-Beispiele nicht abgedeckt. - erledigt
@@ -19,35 +18,21 @@ Voraussetzung: #13 muss zuerst gelöst werden. Erst danach ist das Ergänzen ein
 Schwache Nicht-KB-Matches werden vom graph_writer gefiltert und nicht nach Neo4j geschrieben. Sie existieren nur in latest_run.json/Review-Tab. Damit kann der Chat-Layer BRIDGRs Kernfrage ("wie sicher wissen wir das?") nicht beantworten — weder für offene Kandidaten noch für schwache Matches. Dies ist kein Bug, sondern eine bewusste Designentscheidung (conservative write model).
 Ein Ausbau erfordert einen expliziten Designentscheid: Kandidaten als Pending-Nodes/-Kanten in Neo4j schreiben mit eigenem Status-Attribut. #10 ist von dieser Entscheidung abhängig.
 
+Designentscheid (2026-06-19): Variante A — KÖNNTE_DIENEN-Kanten werden in Neo4j geschrieben (single source of truth),
+bleiben aber aus dem LLM-Query-Schema ausgeschlossen. Das LLM antwortet weiterhin nur auf Basis bestätigter DIENT-Kanten.
+Begründung: schwammige "könnte sein"-Antworten des LLM sind im Unternehmenskontext schlechter als eine ehrliche Datenlücke.
+Konsequenz für #10: bleibt zurückgestellt — ein konfidenz='schwach'-Beispiel im Chat-Prompt ergibt keinen Sinn solange KÖNNTE_DIENEN für das LLM unsichtbar ist.
+Implementierung bereits vorhanden: graph_writer schreibt schwache Matches (cmdb_id vorhanden, confidence != stark) bereits als KÖNNTE_DIENEN in Neo4j. Finding war zum Zeitpunkt der Erfassung korrekt, die Implementierung erfolgte seitdem. - erledigt
+
 14. UI: einklappbare Abschnitte mit To-dos zeigen Item-Anzahl im Titel. - erledigt
 
 15. kb.json zur Löschung vorgemerkt - erledigt (Datei darf weiter existieren; kein aktives Lesen/Schreiben mehr aus Pipeline und Review-Layer)
 Ziel: in einer späteren Session vollständig entfernen, sobald sichergestellt ist, dass kein
 Code mehr darauf zugreift.
 
-16. Bestätigte KÖNNTE_DIENEN-Kandidaten verschwinden aus dem Graphen — teilweise erledigt
-Nach Bestätigung eines schwachen Kandidaten (KÖNNTE_DIENEN → DIENT) ist der raw_name nur noch als
-Property auf der DIENT-Kante sichtbar, nicht mehr als eigenständiges Graphobjekt.
-
-Zwei konkrete Fragestellungen:
-
-a) Re-Import ohne den ursprünglichen Bezeichner:
-manuell_bestaetigt-Entscheidungen greifen nur, wenn der exakt gleiche raw_name beim nächsten Import
-wieder extrahiert wird. Ändert sich das Dokument und "SAP CRM" taucht nicht mehr auf, wird die
-DIENT-Kante beim Re-Import gelöscht — der bestätigte Link geht verloren. Manuell angelegte Links
-(source: manueller_link) sind dagegen persistent via build_manual_matches. Frage: Sollten
-manuell_bestaetigt-Entscheidungen genauso behandelt werden wie manueller_link?
-
-b) Alias-Semantik des raw_name:
-"SAP CRM" wurde als Bezeichner für "SAP SRM" bestätigt. Diese Information (raw_name ist ein
-Synonym für die CMDB-Entität) könnte sinnvoll als Alias in Neo4j projiziert werden, ähnlich wie
-OrgEinheit-Aliases über (:Alias)-[:KANN_MEINEN]->(:Anwendung). Dann würde der Chat "SAP CRM"
-auch ohne explizite DIENT-Kante auflösen können.
-
-Keine sofortige Aktion nötig, aber vor dem nächsten Release explizit entscheiden.
-
-Umgesetzt (b): Bei Bestätigung (promote_candidate_link) wird ein (:Alias {source_kind: 'confirmed_match'})-[:KANN_MEINEN]->(:Anwendung) angelegt, sofern raw_name ≠ matched_name (normalisiert). Der Chat kann den bestätigten Bezeichner damit direkt auflösen.
-Offen (a): Re-Import-Schutz für manuell_bestaetigt-Kanten. Alias-Lifecycle bei Ablehnung: siehe Finding #22.
+16. Bestätigte KÖNNTE_DIENEN-Kandidaten — beide Teilprobleme erledigt. - erledigt
+(a) manuell_bestaetigt ist in _PERSISTENT_LINK_SOURCES (pipeline.py) — Links überleben Re-Importe auch wenn der raw_name im Dokument nicht mehr vorkommt.
+(b) Bei Bestätigung wird ein (:Alias {source_kind: 'confirmed_match'})-[:KANN_MEINEN]->(:Anwendung) angelegt, sofern raw_name ≠ matched_name. Alias-Lifecycle bei Ablehnung: Finding #22.
 
 17. graph_schema.py: Ablehnung-Node und raw_name/source aus Query-Schema entfernen - erledigt
 18. OrgEinheit-Duplikate in Neo4j durch case-sensitive MERGE - erledigt
@@ -80,37 +65,7 @@ sollten diese beiden Einträge mit korrigiert werden (import ebenfalls auf "Assi
 
 24. Chat: fehlende Verarbeitungsrückmeldung — User-Nachricht und Spinner erscheinen sofort im Chat-Bereich nach dem Absenden. - erledigt
 
-25. ArchiMate-Import: Kandidaten-Bestätigung führt nicht zu Node-Merge in Neo4j - offen
-Seit v0.26 werden ArchiMate-Elemente mit wahrscheinlichem Fuzzy-Match (Score ≥ Schwellwert)
-ebenfalls als eigene Nodes in Neo4j angelegt (eigener ArchiMate-Name) und in pending_candidates
-für den Review eingetragen. Beziehungen dieser Elemente werden korrekt importiert.
-
-Problem: Die Bestätigung eines Kandidaten in Tab 5 ("ja, SAP S/4HANA FI IST SAP S/4HANA CO")
-entfernt nur den pending_candidates-Eintrag aus archimate_mapping.json — ein Node-Merge in
-Neo4j findet nicht statt. Der Kandidat-Node bleibt als separate Entität bestehen.
-
-Gewünschtes Verhalten bei Bestätigung:
-  1. Alle Beziehungen des Kandidat-Nodes auf den Ziel-Node übertragen
-  2. archimate_id auf dem Ziel-Node setzen
-  3. Kandidat-Node DETACH DELETE
-
-Technische Einschränkung: Neo4j hat keine native MERGE-BY-ID-Funktion. Der Merge muss
-über Cypher mit explizitem Relationship-Transfer implementiert werden:
-  MATCH (kandidat:Label {name: $kandidat_name})
-  MATCH (ziel:Label {name: $ziel_name})
-  CALL apoc.refactor.mergeNodes([ziel, kandidat], {properties: 'discard'}) ...
-  (oder manuell via FOREACH über alle Beziehungstypen)
-
-Keine APOC-Abhängigkeit bevorzugt → manueller Transfer über bekannte Relationstypen aus
-QUERY_RELATIONSHIP_PATTERNS.
-
-Ablehnung (Reject): kein Merge nötig — Kandidat-Node bleibt als eigenständige Entität,
-pending_candidate-Eintrag wird entfernt. Funktioniert korrekt.
-
-Priorität: mittel. Betrifft nur den seltenen Fall, dass ein Fuzzy-Match tatsächlich
-dieselbe Entität meint (z.B. Namensabweichung zwischen ArchiMate-Modell und CMDB).
-Bei Servernamen mit sequenziellen Nummern (ns-dev-045, ns-dev-046...) wird fast immer
-abgelehnt — dort ist das heutige Verhalten korrekt.
+25. ArchiMate-Import: Kandidaten-Bestätigung — bei Bestätigung werden alle Beziehungen des Kandidat-Nodes auf den Ziel-Node übertragen (via QUERY_RELATIONSHIP_PATTERNS), archimate_id gesetzt und der Kandidat-Node DETACH DELETE. - erledigt
 
 26. aktuell besteht der CMDB Import aus 2 Dateien, eine für Entities, eine für Beziehungen zwischen Entities. Dies war für die Entwicklung hilfreich, ist jedoch unrealistisch. Realistischer ist ein CMDB Export je "Objektart" (Server, Anwendungen, Interfaces...) mit Einträgen für die jeweils verbundenen Objekte. Da dieser Wechsel komplexer ist, sollten wir zunächst ein Konzept erarbeiten  - offen
  

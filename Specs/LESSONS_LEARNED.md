@@ -82,6 +82,9 @@ It is a reference for developers and project owners, not an agent instruction fi
   to rescue weak ones. Models that repeatedly violate the tool/answer contract for abstract EA
   questions should be excluded from future chat-model evaluations for this use case.
 
+- **Findings.txt nicht zeitnah gepflegt führt zu Mehraufwand:** In zwei Fällen wurde ein Finding als offen behandelt, obwohl die Implementierung bereits erfolgt war — die Findings.txt war nicht aktualisiert worden. Das verursacht unnötige Analyse und Diskussion in späteren Sessions.
+  *Prevention:* Findings.txt wird unmittelbar nach Behebung eines Findings aktualisiert — entweder auf eine prägnante Zusammenfassung + "- erledigt", oder mit dokumentiertem Designentscheid wenn kein Code geändert wird. Kein Finding darf eine Session als offen verlassen, wenn es in dieser Session entschieden oder umgesetzt wurde.
+
 - **Suspicious chat answers can originate from stale graph residues, not current code behavior:**
   A follow-up answer to an ownerless-process query returned technical names such as `t1 -> t2`,
   which initially looked like a model or query-layer failure. Direct Neo4j inspection showed these
