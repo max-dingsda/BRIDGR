@@ -4,14 +4,14 @@ import pytest
 
 from processing.cmdb import (
     CMDB_ENTITY_TYPE_APPLICATION,
+    CMDB_ENTITY_TYPE_INTERFACE,
     CMDB_ENTITY_TYPE_SERVER,
     CmdbLoadError,
     load_cmdb_rows,
-    load_normalized_cmdb,
+    load_normalized_cmdb_from_type_files,
     normalize_cmdb_entities,
-    normalize_cmdb_relations,
+    parse_relation_columns,
     validate_cmdb_entity_file,
-    validate_cmdb_relation_file,
 )
 
 
@@ -58,29 +58,6 @@ def test_normalize_cmdb_entities_defaults_missing_entity_type_to_application() -
     assert entities[0].server_type is None
 
 
-def test_load_normalized_cmdb_reads_extended_entity_metadata(tmp_path: Path) -> None:
-    cmdb_path = tmp_path / "cmdb.csv"
-    cmdb_path.write_text(
-        "app_id,application_name,entity_type,server_type,owner_name\n"
-        "srv-1,VM App 01,server,virtual,Team Platform\n",
-        encoding="utf-8",
-    )
-
-    normalized = load_normalized_cmdb(
-        cmdb_path,
-        id_column="app_id",
-        name_column="application_name",
-        entity_type_column="entity_type",
-        server_type_column="server_type",
-        owner_name_column="owner_name",
-    )
-
-    assert len(normalized.entities) == 1
-    assert normalized.entities[0].entity_type == CMDB_ENTITY_TYPE_SERVER
-    assert normalized.entities[0].server_type == "virtual"
-    assert normalized.entities[0].owner_name == "Team Platform"
-
-
 def test_normalize_cmdb_entities_rejects_duplicate_ids() -> None:
     with pytest.raises(CmdbLoadError, match="doppelte ID"):
         normalize_cmdb_entities(
@@ -91,17 +68,6 @@ def test_normalize_cmdb_entities_rejects_duplicate_ids() -> None:
             id_column="app_id",
             name_column="application_name",
         )
-
-
-def test_normalize_cmdb_relations_reads_valid_rows() -> None:
-    relations = normalize_cmdb_relations(
-        rows=[{"source_id": "app-1", "relation_type": "USES_INTERFACE", "target_id": "if-1"}]
-    )
-
-    assert len(relations) == 1
-    assert relations[0].source_id == "app-1"
-    assert relations[0].relation_type == "USES_INTERFACE"
-    assert relations[0].target_id == "if-1"
 
 
 def test_normalize_cmdb_entities_raises_for_empty_entity_id() -> None:
@@ -140,52 +106,6 @@ def test_normalize_server_type_raises_for_unknown_server_type() -> None:
             name_column="application_name",
             entity_type_column="entity_type",
             server_type_column="server_type",
-        )
-
-
-def test_load_cmdb_relation_rows_reads_valid_csv(tmp_path: Path) -> None:
-    from processing.cmdb import load_cmdb_relation_rows
-
-    relations_path = tmp_path / "cmdb_relations.csv"
-    relations_path.write_text("source_id,relation_type,target_id\napp-1,USES_INTERFACE,if-1\n", encoding="utf-8")
-
-    rows = load_cmdb_relation_rows(relations_path)
-
-    assert rows == [{"source_id": "app-1", "relation_type": "USES_INTERFACE", "target_id": "if-1"}]
-
-
-def test_load_cmdb_relation_rows_reads_semicolon_delimited_csv(tmp_path: Path) -> None:
-    from processing.cmdb import load_cmdb_relation_rows
-
-    relations_path = tmp_path / "cmdb_relations.csv"
-    relations_path.write_text("source_id;relation_type;target_id\napp-1;USES_INTERFACE;if-1\n", encoding="utf-8")
-
-    rows = load_cmdb_relation_rows(relations_path)
-
-    assert rows == [{"source_id": "app-1", "relation_type": "USES_INTERFACE", "target_id": "if-1"}]
-
-
-def test_load_cmdb_relation_rows_raises_for_missing_file(tmp_path: Path) -> None:
-    from processing.cmdb import load_cmdb_relation_rows
-
-    with pytest.raises(CmdbLoadError):
-        load_cmdb_relation_rows(tmp_path / "missing_relations.csv")
-
-
-def test_load_cmdb_relation_rows_raises_for_missing_required_columns(tmp_path: Path) -> None:
-    from processing.cmdb import load_cmdb_relation_rows
-
-    relations_path = tmp_path / "cmdb_relations.csv"
-    relations_path.write_text("source,type,target\napp-1,USES_INTERFACE,if-1\n", encoding="utf-8")
-
-    with pytest.raises(CmdbLoadError, match="Pflichtspalten"):
-        load_cmdb_relation_rows(relations_path)
-
-
-def test_normalize_cmdb_relations_raises_for_incomplete_row() -> None:
-    with pytest.raises(CmdbLoadError):
-        normalize_cmdb_relations(
-            rows=[{"source_id": "app-1", "relation_type": "", "target_id": "if-1"}]
         )
 
 
@@ -247,29 +167,100 @@ def test_validate_cmdb_entity_file_reports_row_shape_issues(tmp_path: Path) -> N
     assert any("Strukturfehler" in issue.message for issue in issues)
 
 
-def test_validate_cmdb_relation_file_reports_incomplete_rows(tmp_path: Path) -> None:
-    relations_path = tmp_path / "cmdb_relations.csv"
-    relations_path.write_text(
-        "source_id,relation_type,target_id\n"
-        "app-1,USES_INTERFACE,\n",
-        encoding="utf-8",
+def test_parse_relation_columns_extracts_single_runs_on() -> None:
+    row = {"id": "APP-001", "runs_on": "SRV-001", "uses_interfaces": ""}
+    relations = parse_relation_columns(row, "APP-001", "runs_on", "uses_interfaces", "|")
+    assert len(relations) == 1
+    assert relations[0].source_id == "APP-001"
+    assert relations[0].relation_type == "RUNS_ON"
+    assert relations[0].target_id == "SRV-001"
+
+
+def test_parse_relation_columns_extracts_multiple_values_with_pipe_separator() -> None:
+    row = {"id": "APP-001", "runs_on": "SRV-001|SRV-002", "uses_interfaces": "IF-001|IF-002"}
+    relations = parse_relation_columns(row, "APP-001", "runs_on", "uses_interfaces", "|")
+    runs_on = [r for r in relations if r.relation_type == "RUNS_ON"]
+    uses = [r for r in relations if r.relation_type == "USES_INTERFACE"]
+    assert [r.target_id for r in runs_on] == ["SRV-001", "SRV-002"]
+    assert [r.target_id for r in uses] == ["IF-001", "IF-002"]
+
+
+def test_parse_relation_columns_ignores_empty_columns() -> None:
+    row = {"id": "APP-001", "runs_on": "", "uses_interfaces": ""}
+    relations = parse_relation_columns(row, "APP-001", "runs_on", "uses_interfaces", "|")
+    assert relations == []
+
+
+def test_parse_relation_columns_tolerates_missing_columns() -> None:
+    row = {"id": "APP-001"}
+    relations = parse_relation_columns(row, "APP-001", "runs_on", "uses_interfaces", "|")
+    assert relations == []
+
+
+def test_load_normalized_cmdb_from_type_files_reads_application_and_server(tmp_path: Path) -> None:
+    app_file = tmp_path / "apps.csv"
+    srv_file = tmp_path / "servers.csv"
+    app_file.write_text("id;name;owner_name;runs_on;uses_interfaces\nAPP-1;SAP;Buchhaltung;SRV-1;IF-1\n", encoding="utf-8")
+    srv_file.write_text("id;name;server_type;owner_name\nSRV-1;ns-001;virtual;IT-Betrieb\n", encoding="utf-8")
+
+    result = load_normalized_cmdb_from_type_files(
+        {"application": app_file, "server": srv_file},
+        id_column="id",
+        name_column="name",
     )
 
-    issues = validate_cmdb_relation_file(relations_path)
+    assert len(result.entities) == 2
+    app = next(e for e in result.entities if e.entity_type == CMDB_ENTITY_TYPE_APPLICATION)
+    srv = next(e for e in result.entities if e.entity_type == CMDB_ENTITY_TYPE_SERVER)
+    assert app.entity_id == "APP-1"
+    assert srv.entity_id == "SRV-1"
+    assert srv.server_type == "virtual"
+    assert len(result.relations) == 2
+    runs_on = next(r for r in result.relations if r.relation_type == "RUNS_ON")
+    uses = next(r for r in result.relations if r.relation_type == "USES_INTERFACE")
+    assert runs_on.target_id == "SRV-1"
+    assert uses.target_id == "IF-1"
 
-    assert len(issues) == 1
-    assert issues[0].line_number == 2
-    assert "Strukturfehler" in issues[0].message
+
+def test_load_normalized_cmdb_from_type_files_skips_missing_files(tmp_path: Path) -> None:
+    app_file = tmp_path / "apps.csv"
+    app_file.write_text("id;name;owner_name\nAPP-1;SAP;Buchhaltung\n", encoding="utf-8")
+
+    result = load_normalized_cmdb_from_type_files(
+        {"application": app_file, "server": tmp_path / "missing.csv"},
+        id_column="id",
+        name_column="name",
+    )
+
+    assert len(result.entities) == 1
+    assert result.entities[0].entity_type == CMDB_ENTITY_TYPE_APPLICATION
+
+
+def test_load_normalized_cmdb_from_type_files_supports_custom_separator(tmp_path: Path) -> None:
+    app_file = tmp_path / "apps.csv"
+    app_file.write_text("id;name;runs_on\nAPP-1;SAP;SRV-1,SRV-2\n", encoding="utf-8")
+
+    result = load_normalized_cmdb_from_type_files(
+        {"application": app_file},
+        id_column="id",
+        name_column="name",
+        multivalue_separator=",",
+    )
+
+    assert len(result.relations) == 2
+    assert {r.target_id for r in result.relations} == {"SRV-1", "SRV-2"}
+
+
+def test_load_normalized_cmdb_from_type_files_empty_dict_returns_empty(tmp_path: Path) -> None:
+    result = load_normalized_cmdb_from_type_files({}, id_column="id", name_column="name")
+    assert result.entities == []
+    assert result.relations == []
 
 
 def test_validate_cmdb_files_accept_semicolon_delimited_csv(tmp_path: Path) -> None:
     entity_path = tmp_path / "cmdb_entities.csv"
-    relation_path = tmp_path / "cmdb_relations.csv"
     entity_path.write_text("id;name;entity_type\napp-1;SAP Sales;application\n", encoding="utf-8")
-    relation_path.write_text("source_id;relation_type;target_id\napp-1;RUNS_ON;srv-1\n", encoding="utf-8")
 
     entity_issues = validate_cmdb_entity_file(entity_path, id_column="id", name_column="name")
-    relation_issues = validate_cmdb_relation_file(relation_path)
 
     assert entity_issues == []
-    assert relation_issues == []

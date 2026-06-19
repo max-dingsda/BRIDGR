@@ -1,0 +1,21 @@
+id;name;owner_name
+IF-001;SAP FI Bank API;Buchhaltung
+IF-002;SAP CO Reporting API;Controlling
+IF-003;CRM Customer API;Vertrieb
+IF-004;WMS Stock API;Logistik
+IF-005;MES Production API;Produktion
+IF-006;HR Master Data API;Personal
+IF-007;QMS Audit API;Qualitaetsmanagement
+IF-008;Invoice OCR REST API;Buchhaltung
+IF-009;EDI Orders Interface;IT-Betrieb
+IF-010;Identity LDAP Interface;IT-Betrieb
+IF-011;SMTP Mail Interface;IT-Betrieb
+IF-012;Archive Document API;IT-Betrieb
+IF-013;Power BI Dataset API;Controlling
+IF-014;ServiceNow Incident API;IT-Betrieb
+IF-015;Bank Statement EBICS Interface;Buchhaltung
+IF-016;Webshop Order API;Vertrieb
+IF-017;Zendesk Ticket API;Kundenservice
+IF-018;Fleet GPS Interface;Logistik
+IF-019;Defender Security API;Informationssicherheit
+IF-020;Splunk Event Collector;Informationssicherheit

@@ -1,0 +1,61 @@
+id;name;owner_name;runs_on;uses_interfaces
+APP-001;SAP S/4HANA FI;Buchhaltung;SRV-001;IF-001|IF-015
+APP-002;SAP S/4HANA CO;Controlling;SRV-001;IF-002
+APP-003;SAP S/4HANA MM;Einkauf;SRV-001;IF-003
+APP-004;SAP S/4HANA SD;Vertrieb;SRV-001;IF-004|IF-016
+APP-005;SAP SuccessFactors;Personal;SRV-001;IF-005|IF-006
+APP-006;Microsoft Dynamics CRM;Vertrieb;SRV-006;IF-003|IF-006
+APP-007;ServiceNow ITSM;IT-Betrieb;SRV-007;IF-007|IF-014
+APP-008;Jira Service Management;IT-Betrieb;SRV-008;IF-001|IF-008
+APP-009;Confluence;IT-Betrieb;SRV-009;IF-002|IF-009
+APP-010;Microsoft SharePoint Online;IT-Betrieb;SRV-010;IF-003|IF-010
+APP-011;Microsoft Teams;IT-Betrieb;SRV-011;IF-004|IF-011
+APP-012;Microsoft Exchange Online;IT-Betrieb;SRV-012;IF-005|IF-012
+APP-013;DocuSign CLM;Rechtsabteilung;SRV-013;IF-006|IF-013
+APP-014;DATEV Unternehmen Online;Buchhaltung;SRV-014;IF-007|IF-014
+APP-015;Power BI Service;Controlling;SRV-015;IF-008|IF-013
+APP-016;QMSuite;Qualitaetsmanagement;SRV-016;IF-009|IF-007
+APP-017;WarehousePro WMS;Logistik;SRV-017;IF-004|IF-010
+APP-018;FleetTrack;Logistik;SRV-018;IF-011|IF-018
+APP-019;MES FactoryLine;Produktion;SRV-019;IF-005|IF-012
+APP-020;SCADA PlantView;Produktion;SRV-020;IF-013|IF-020
+APP-021;PIM ContentHub;Marketing;SRV-021;IF-014
+APP-022;Webshop Portal;Vertrieb;SRV-022;IF-015|IF-016
+APP-023;Customer Self Service Portal;Kundenservice;SRV-023;IF-016|IF-017
+APP-024;Zendesk Support;Kundenservice;SRV-024;IF-017
+APP-025;Workday Recruiting;Personal;SRV-025;IF-018
+APP-026;TravelExpense Cloud;Buchhaltung;SRV-026;IF-019
+APP-027;ContractSafe;Rechtsabteilung;SRV-027;IF-020
+APP-028;RiskRadar GRC;Informationssicherheit;SRV-028;IF-019
+APP-029;Veeam Backup & Replication;IT-Betrieb;SRV-029;
+APP-030;Microsoft Entra ID;IT-Betrieb;SRV-030;IF-010
+APP-031;Active Directory Domain Services;IT-Betrieb;SRV-031;IF-010
+APP-032;Palo Alto Firewall Management;Informationssicherheit;SRV-032;
+APP-033;Fortinet FortiGate Cluster;Informationssicherheit;SRV-033;
+APP-034;Splunk Enterprise Security;Informationssicherheit;SRV-034;IF-020
+APP-035;Microsoft Defender for Endpoint;Informationssicherheit;SRV-035;IF-019
+APP-036;PRTG Network Monitor;IT-Betrieb;SRV-036;
+APP-037;Zabbix Monitoring;IT-Betrieb;SRV-037;
+APP-038;Nexus Repository;IT-Betrieb;SRV-038;
+APP-039;GitHub Enterprise Cloud;IT-Betrieb;SRV-039;
+APP-040;Azure DevOps;IT-Betrieb;SRV-040;
+APP-041;Okta Workforce Identity;IT-Betrieb;SRV-041;IF-010
+APP-042;Citrix Virtual Apps;IT-Betrieb;SRV-042;
+APP-043;Remote Access VPN;Informationssicherheit;SRV-043;
+APP-044;MuleSoft Anypoint Platform;IT-Betrieb;SRV-044;IF-009
+APP-045;Talend Data Integration;IT-Betrieb;SRV-045;
+APP-046;OpenText Archive Center;IT-Betrieb;SRV-046;IF-012
+APP-047;PrintFleet;IT-Betrieb;SRV-047;
+APP-048;VisitorPro;Facility Management;SRV-048;
+APP-049;AssetTrack CMMS;Facility Management;SRV-049;
+APP-050;LearningHub LMS;Personal;SRV-050;
+APP-051;Clockwise Time Tracking;Personal;SRV-051;
+APP-052;Banking Gateway;Buchhaltung;SRV-052;IF-015
+APP-053;Invoice OCR Service;Buchhaltung;SRV-053;IF-008
+APP-054;EDI Gateway;IT-Betrieb;SRV-054;IF-009
+APP-055;BI Data Warehouse;Controlling;SRV-055;IF-013
+APP-056;Azure SQL Managed Instance;IT-Betrieb;SRV-056;
+APP-057;DNS Resolver Service;IT-Betrieb;SRV-057;
+APP-058;SMTP Relay Service;IT-Betrieb;SRV-058;IF-011
+APP-059;PKI Certificate Services;Informationssicherheit;SRV-059;
+APP-060;Elastic Observability;IT-Betrieb;SRV-060;IF-020

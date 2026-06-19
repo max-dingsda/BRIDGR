@@ -8,9 +8,9 @@ import streamlit as st
 
 from core.app_config import AppConfig, load_config, normalize_run_mode, resolve_project_path, resolve_runtime_output_path, save_config
 from processing.bpmn_transformer import BpmnTransformError, transform_bpmn_for_import
-from processing.cmdb import CmdbLoadError, validate_cmdb_entity_file, validate_cmdb_relation_file
+from processing.cmdb import CmdbLoadError, validate_cmdb_entity_file
 from ui.dialog_utils import pick_directory, pick_file
-from processing.import_utils import describe_cmdb_file, list_cmdb_entity_files, list_cmdb_relation_files, list_process_files
+from processing.import_utils import describe_cmdb_file, list_cmdb_candidate_files, list_process_files
 from core.llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleClient
 from core.neo4j_utils import Neo4jConnectionError, Neo4jQueryError
 from services.cmdb_service import persist_cmdb_sync
@@ -19,7 +19,6 @@ from services.review_service import clear_knowledge_base_and_refresh
 from services.runtime_service import (
     IMPORT_RUN_FEEDBACK_STATE_KEY,
     build_neo4j_client_key,
-    ensure_active_cmdb_selection,
     ensure_config_session_defaults,
     ensure_import_session_defaults,
     get_llm_status,
@@ -55,28 +54,12 @@ def _apply_llm_preset(preset: dict[str, str]) -> None:
 
 def render_path_picker_controls() -> None:
     st.markdown("**Pfade auswählen**")
-    input_column, cmdb_column, relations_column, output_column = st.columns(4)
+    input_column, output_column = st.columns(2)
 
     if input_column.button("Eingabe-Ordner wählen", width="stretch"):
         selected_path = pick_directory(st.session_state["config_input_path"])
         if selected_path:
             st.session_state["config_input_path"] = selected_path
-            st.rerun()
-
-    if cmdb_column.button("CMDB-Datei im Eingabe-Ordner wählen", width="stretch"):
-        selected_path = pick_file(st.session_state["config_input_path"], [("CSV-Dateien", "*.csv"), ("Alle Dateien", "*.*")])
-        if selected_path:
-            selected_file = Path(selected_path)
-            st.session_state["config_input_path"] = str(selected_file.parent)
-            st.session_state["config_cmdb_filename"] = selected_file.name
-            st.rerun()
-
-    if relations_column.button("CMDB-Relationsdatei wählen", width="stretch"):
-        selected_path = pick_file(st.session_state["config_input_path"], [("CSV-Dateien", "*.csv"), ("Alle Dateien", "*.*")])
-        if selected_path:
-            selected_file = Path(selected_path)
-            st.session_state["config_input_path"] = str(selected_file.parent)
-            st.session_state["config_cmdb_relations_filename"] = selected_file.name
             st.rerun()
 
     if output_column.button("Ausgabe-Ordner wählen", width="stretch"):
@@ -167,11 +150,6 @@ def render_import_section(config: AppConfig) -> None:
                     **{
                         **asdict(config),
                         "last_run_mode": normalize_run_mode(selected_run_mode),
-                        "cmdb_filename": st.session_state.get("active_cmdb_filename", config.cmdb_filename),
-                        "cmdb_relations_filename": st.session_state.get(
-                            "active_cmdb_relations_filename",
-                            config.cmdb_relations_filename,
-                        ),
                     }
                 )
                 run_result, duration = run_pipeline_with_live_feedback(
@@ -205,19 +183,6 @@ def render_import_section(config: AppConfig) -> None:
                 set_run_feedback(IMPORT_RUN_FEEDBACK_STATE_KEY, "success", message)
                 st.rerun()
 
-    current_entity_files = list_cmdb_entity_files(input_dir, config.cmdb_uuid_column, config.cmdb_name_column)
-    current_relation_files = list_cmdb_relation_files(
-        input_dir,
-        config.cmdb_relation_source_column,
-        config.cmdb_relation_type_column,
-        config.cmdb_relation_target_column,
-    )
-    ensure_active_cmdb_selection(
-        config,
-        [Path(describe_cmdb_file(path, input_dir)) for path in current_entity_files],
-        [Path(describe_cmdb_file(path, input_dir)) for path in current_relation_files],
-    )
-
     st.caption(f"Aktueller Eingabepfad: `{input_dir}`")
     if current_process_files:
         st.dataframe(
@@ -227,56 +192,55 @@ def render_import_section(config: AppConfig) -> None:
     else:
         st.info("Noch keine Prozessdateien im Eingabepfad vorhanden.")
 
-    st.caption("Verfügbare CMDB-Dateien im Eingabepfad")
-    if current_entity_files or current_relation_files:
-        available_entity_paths = [describe_cmdb_file(path, input_dir) for path in current_entity_files]
-        available_relation_paths = [describe_cmdb_file(path, input_dir) for path in current_relation_files]
-        cmdb_config_column, relations_config_column = st.columns(2)
-        with cmdb_config_column:
-            selected_cmdb_filename = st.selectbox(
-                "Aktive CMDB-Entities-Datei",
-                options=available_entity_paths,
-                key="active_cmdb_filename",
-            )
-        with relations_config_column:
-            selected_relations_filename = st.selectbox(
-                "Aktive CMDB-Relationsdatei",
-                options=[""] + available_relation_paths,
-                key="active_cmdb_relations_filename",
-                format_func=lambda value: value or "(keine)",
-            )
-        action_column_save, action_column_sync = st.columns(2)
-        with action_column_save:
-            if st.button("Aktive CMDB-Dateien übernehmen", width="stretch"):
-                updated_config = AppConfig(
-                    **{
-                        **asdict(config),
-                        "cmdb_filename": selected_cmdb_filename,
-                        "cmdb_relations_filename": selected_relations_filename,
-                    }
-                )
+    st.caption("CMDB-Typ-Dateien")
+    available_csv_files = [describe_cmdb_file(path, input_dir) for path in list_cmdb_candidate_files(input_dir, config.cmdb_uuid_column, config.cmdb_name_column)]
+    if available_csv_files:
+        current_type_files = config.cmdb_type_files
+        file_options = [""] + available_csv_files
+
+        app_col, srv_col, if_col = st.columns(3)
+        with app_col:
+            app_default = current_type_files.get("application", "")
+            app_idx = file_options.index(app_default) if app_default in file_options else 0
+            selected_app_file = st.selectbox("Anwendungen", options=file_options, index=app_idx,
+                                              format_func=lambda v: v or "(keine)", key="active_cmdb_application_file")
+        with srv_col:
+            srv_default = current_type_files.get("server", "")
+            srv_idx = file_options.index(srv_default) if srv_default in file_options else 0
+            selected_srv_file = st.selectbox("Server", options=file_options, index=srv_idx,
+                                              format_func=lambda v: v or "(keine)", key="active_cmdb_server_file")
+        with if_col:
+            if_default = current_type_files.get("interface", "")
+            if_idx = file_options.index(if_default) if if_default in file_options else 0
+            selected_if_file = st.selectbox("Schnittstellen", options=file_options, index=if_idx,
+                                             format_func=lambda v: v or "(keine)", key="active_cmdb_interface_file")
+
+        def _build_type_files_from_selection() -> dict[str, str]:
+            return {k: v for k, v in {
+                "application": selected_app_file,
+                "server": selected_srv_file,
+                "interface": selected_if_file,
+            }.items() if v}
+
+        action_col_save, action_col_sync = st.columns(2)
+        with action_col_save:
+            if st.button("Typ-Dateien übernehmen", width="stretch"):
+                new_type_files = _build_type_files_from_selection()
+                updated_config = AppConfig(**{**asdict(config), "cmdb_type_files": new_type_files})
                 save_config(updated_config)
                 update_config_session_defaults(updated_config)
-                relations_message = (
-                    f", Relationsdatei auf '{selected_relations_filename}'"
-                    if selected_relations_filename
-                    else ", Relationsdatei deaktiviert"
-                )
-                st.success(f"Aktive CMDB-Entities-Datei auf '{selected_cmdb_filename}' gesetzt{relations_message}.")
+                label = ", ".join(f"{k}={v}" for k, v in new_type_files.items()) if new_type_files else "(keine)"
+                st.success(f"CMDB-Typ-Dateien gespeichert: {label}.")
                 st.rerun()
-        with action_column_sync:
+
+        with action_col_sync:
             if st.button("CMDB nach Neo4j synchronisieren", width="stretch"):
-                updated_config = AppConfig(
-                    **{
-                        **asdict(config),
-                        "cmdb_filename": selected_cmdb_filename,
-                        "cmdb_relations_filename": selected_relations_filename,
-                    }
-                )
-                save_config(updated_config)
-                update_config_session_defaults(updated_config)
+                new_type_files = _build_type_files_from_selection()
+                sync_config = AppConfig(**{**asdict(config), "cmdb_type_files": new_type_files})
+                save_config(sync_config)
+                update_config_session_defaults(sync_config)
                 try:
-                    result = persist_cmdb_sync(updated_config)
+                    result = persist_cmdb_sync(sync_config)
                 except (CmdbLoadError, Neo4jConnectionError, Neo4jQueryError) as exc:
                     st.error(f"CMDB konnte nicht nach Neo4j synchronisiert werden: {exc}")
                 else:
@@ -287,40 +251,23 @@ def render_import_section(config: AppConfig) -> None:
                     )
                 st.rerun()
 
-        entity_validation_issues = validate_cmdb_entity_file(
-            input_dir / selected_cmdb_filename,
-            id_column=config.cmdb_uuid_column,
-            name_column=config.cmdb_name_column,
-            entity_type_column=config.cmdb_entity_type_column,
-            server_type_column=config.cmdb_server_type_column,
-            owner_name_column=config.cmdb_owner_name_column,
-        )
-        relation_validation_issues = (
-            validate_cmdb_relation_file(
-                input_dir / selected_relations_filename,
-                source_id_column=config.cmdb_relation_source_column,
-                relation_type_column=config.cmdb_relation_type_column,
-                target_id_column=config.cmdb_relation_target_column,
+        for type_label, file_name in _build_type_files_from_selection().items():
+            issues = validate_cmdb_entity_file(
+                input_dir / file_name,
+                id_column=config.cmdb_uuid_column,
+                name_column=config.cmdb_name_column,
+                server_type_column=config.cmdb_server_type_column,
+                owner_name_column=config.cmdb_owner_name_column,
             )
-            if selected_relations_filename
-            else []
-        )
-        if entity_validation_issues:
-            st.error(f"CMDB-Entities-Strukturfehler in `{selected_cmdb_filename}`:")
-            st.dataframe(
-                [{"Meldung": f"Zeile {issue.line_number} {issue.message}"} for issue in entity_validation_issues],
-                width="stretch",
-                hide_index=True,
-            )
-        if relation_validation_issues:
-            st.error(f"CMDB-Relations-Strukturfehler in `{selected_relations_filename}`:")
-            st.dataframe(
-                [{"Meldung": f"Zeile {issue.line_number} {issue.message}"} for issue in relation_validation_issues],
-                width="stretch",
-                hide_index=True,
-            )
+            if issues:
+                st.error(f"CMDB-Strukturfehler in `{file_name}` ({type_label}):")
+                st.dataframe(
+                    [{"Meldung": f"Zeile {issue.line_number} {issue.message}"} for issue in issues],
+                    width="stretch",
+                    hide_index=True,
+                )
     else:
-        st.info("Noch keine CMDB-Datei im Eingabepfad vorhanden.")
+        st.info("Noch keine CMDB-Dateien im Eingabepfad vorhanden.")
 
     st.caption(f"Konfigurierter Ausgabepfad: `{resolve_project_path(config.output_path)}`")
     if used_output_fallback:
@@ -415,23 +362,16 @@ def render_config_tab(config_path: Path) -> None:
             st.divider()
             st.markdown("#### Datei-Pfade")
             input_path = st.text_input("Eingabepfad", value=st.session_state["config_input_path"])
-            cmdb_filename = st.text_input("CMDB-Dateiname (Entities)", value=st.session_state["config_cmdb_filename"])
-            cmdb_relations_filename = st.text_input("CMDB-Dateiname (Relationen)", value=st.session_state["config_cmdb_relations_filename"])
             output_path = st.text_input("Ausgabepfad", value=st.session_state["config_output_path"])
 
             st.divider()
-            st.markdown("#### CMDB-Spaltenmapping — Entities")
+            st.markdown("#### CMDB-Spaltenmapping")
             cmdb_uuid_column = st.text_input("ID-Spalte", value=config.cmdb_uuid_column)
             cmdb_name_column = st.text_input("Namensspalte", value=config.cmdb_name_column)
-            cmdb_entity_type_column = st.text_input("Typ-Spalte", value=config.cmdb_entity_type_column)
             cmdb_server_type_column = st.text_input("Servertyp-Spalte", value=config.cmdb_server_type_column)
             cmdb_owner_name_column = st.text_input("Eigentümer-Spalte", value=config.cmdb_owner_name_column)
-
-            st.divider()
-            st.markdown("#### CMDB-Spaltenmapping — Relationen")
-            cmdb_relation_source_column = st.text_input("Quell-ID-Spalte", value=config.cmdb_relation_source_column)
-            cmdb_relation_type_column = st.text_input("Relationstyp-Spalte", value=config.cmdb_relation_type_column)
-            cmdb_relation_target_column = st.text_input("Ziel-ID-Spalte", value=config.cmdb_relation_target_column)
+            cmdb_runs_on_column = st.text_input("Spalte 'läuft auf' (Server-IDs)", value=config.cmdb_runs_on_column)
+            cmdb_uses_interfaces_column = st.text_input("Spalte 'nutzt Schnittstellen' (Schnittstellen-IDs)", value=config.cmdb_uses_interfaces_column)
             cmdb_multivalue_separator = st.text_input("Mehrwert-Trennzeichen", value=config.cmdb_multivalue_separator)
 
             st.divider()
@@ -457,16 +397,13 @@ def render_config_tab(config_path: Path) -> None:
                 fuzzy_threshold=float(fuzzy_threshold),
                 cmdb_uuid_column=cmdb_uuid_column,
                 cmdb_name_column=cmdb_name_column,
-                cmdb_entity_type_column=cmdb_entity_type_column,
                 cmdb_server_type_column=cmdb_server_type_column,
                 cmdb_owner_name_column=cmdb_owner_name_column,
-                cmdb_relations_filename=cmdb_relations_filename.strip(),
-                cmdb_relation_source_column=cmdb_relation_source_column,
-                cmdb_relation_type_column=cmdb_relation_type_column,
-                cmdb_relation_target_column=cmdb_relation_target_column,
                 cmdb_multivalue_separator=cmdb_multivalue_separator or "|",
+                cmdb_type_files=config.cmdb_type_files,
+                cmdb_runs_on_column=cmdb_runs_on_column or "runs_on",
+                cmdb_uses_interfaces_column=cmdb_uses_interfaces_column or "uses_interfaces",
                 input_path=input_path,
-                cmdb_filename=cmdb_filename,
                 output_path=output_path,
                 last_run_mode=last_run_mode,
                 chat_mode=chat_mode,

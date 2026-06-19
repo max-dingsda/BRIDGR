@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 
@@ -27,18 +27,15 @@ class AppConfig:
     neo4j_password: str = ""
     neo4j_database: str = ""
     fuzzy_threshold: float = 0.85
-    cmdb_uuid_column: str = "app_id"
-    cmdb_name_column: str = "application_name"
-    cmdb_entity_type_column: str = "entity_type"
+    cmdb_uuid_column: str = "id"
+    cmdb_name_column: str = "name"
     cmdb_server_type_column: str = "server_type"
     cmdb_owner_name_column: str = "owner_name"
-    cmdb_relations_filename: str = ""
-    cmdb_relation_source_column: str = "source_id"
-    cmdb_relation_type_column: str = "relation_type"
-    cmdb_relation_target_column: str = "target_id"
     cmdb_multivalue_separator: str = "|"
+    cmdb_type_files: dict[str, str] = field(default_factory=dict)
+    cmdb_runs_on_column: str = "runs_on"
+    cmdb_uses_interfaces_column: str = "uses_interfaces"
     input_path: str = "Input"
-    cmdb_filename: str = "cmdb.csv"
     output_path: str = "Output"
     last_run_mode: str = "partial"
     chat_mode: str = "prompt-only"
@@ -58,11 +55,10 @@ def load_config(path: Path | None = None) -> AppConfig:
     else:
         raw_config.pop("process_input_path", None)
 
-    if "cmdb_filename" not in raw_config:
-        legacy_cmdb_path = raw_config.pop("cmdb_path", "cmdb.csv")
-        raw_config["cmdb_filename"] = Path(legacy_cmdb_path).name
-    else:
-        raw_config.pop("cmdb_path", None)
+    for legacy_key in ("cmdb_filename", "cmdb_relations_filename", "cmdb_entity_type_column",
+                        "cmdb_relation_source_column", "cmdb_relation_type_column",
+                        "cmdb_relation_target_column", "cmdb_path"):
+        raw_config.pop(legacy_key, None)
 
     raw_config["neo4j_url"] = resolve_env_backed_value(
         raw_config.get("neo4j_url"),
@@ -138,21 +134,16 @@ def resolve_archimate_mapping_path() -> Path:
     return resolve_project_path("data/archimate_mapping.json")
 
 
-def resolve_input_cmdb_path(config: AppConfig) -> Path:
-    """Return the absolute path to the configured CMDB file.
-
-    The returned path may not exist yet and should be validated by the caller
-    before reading.
-    """
-
-    return resolve_project_path(config.input_path) / config.cmdb_filename
-
-
-def resolve_input_cmdb_relations_path(config: AppConfig) -> Path | None:
-    relations_filename = config.cmdb_relations_filename.strip()
-    if not relations_filename:
-        return None
-    return resolve_project_path(config.input_path) / relations_filename
+def resolve_cmdb_type_file_paths(config: AppConfig) -> dict[str, Path]:
+    """Return {entity_type: absolute_path} for each configured CMDB type file."""
+    if not config.cmdb_type_files:
+        return {}
+    input_dir = resolve_project_path(config.input_path)
+    return {
+        entity_type: input_dir / filename
+        for entity_type, filename in config.cmdb_type_files.items()
+        if filename.strip()
+    }
 
 
 def resolve_runtime_output_path(path_value: str | Path) -> tuple[Path, bool]:

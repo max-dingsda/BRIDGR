@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from core.app_config import AppConfig, resolve_input_cmdb_path, resolve_runtime_output_path
-from processing.cmdb import CmdbLoadError, load_cmdb_rows
+from core.app_config import AppConfig, resolve_runtime_output_path
+from services.cmdb_service import load_all_cmdb_rows
 from processing.knowledge_base import (
     KnowledgeBase,
     accept_org_unit_candidate_as_new,
@@ -70,13 +70,8 @@ def persist_organization_sync(config: AppConfig) -> tuple[int, int]:
         synced_names.append(org_unit_name)
     sync_knowledge_base_aliases(get_session_neo4j_client(config), knowledge_base)
 
-    try:
-        cmdb_rows = load_cmdb_rows(
-            resolve_input_cmdb_path(config),
-            config.cmdb_uuid_column,
-            config.cmdb_name_column,
-        )
-    except CmdbLoadError:
+    cmdb_rows = load_all_cmdb_rows(config)
+    if not cmdb_rows:
         write_debug_log(
             config,
             "organization_sync",
@@ -129,14 +124,7 @@ def persist_org_candidate_mapping_refresh(config: AppConfig, candidate_name: str
     if latest_run is None:
         return 0
 
-    try:
-        cmdb_rows = load_cmdb_rows(
-            resolve_input_cmdb_path(config),
-            config.cmdb_uuid_column,
-            config.cmdb_name_column,
-        )
-    except CmdbLoadError:
-        cmdb_rows = []
+    cmdb_rows = load_all_cmdb_rows(config)
 
     target_source_paths = set(candidate_entry.get("source_paths", []))
     target_process_names = set(candidate_entry.get("process_names", []))

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from dataclasses import asdict
 
-from core.app_config import AppConfig, resolve_input_cmdb_path, resolve_runtime_output_path
-from processing.cmdb import CmdbLoadError, load_cmdb_rows
+from core.app_config import AppConfig, resolve_runtime_output_path
+from services.cmdb_service import load_all_cmdb_rows
 from processing.knowledge_base import (
     clear_knowledge_base_sections,
     load_knowledge_base,
@@ -348,15 +348,7 @@ def clear_knowledge_base_and_refresh(config: AppConfig, sections: set[str], succ
     except Exception as exc:
         return "warning", f"{success_message} Die Alias-Synchronisation nach Neo4j ist fehlgeschlagen: {exc}"
 
-    try:
-        cmdb_rows = load_cmdb_rows(
-            resolve_input_cmdb_path(config),
-            config.cmdb_uuid_column,
-            config.cmdb_name_column,
-        )
-    except CmdbLoadError as exc:
-        return "warning", f"{success_message} Die Aktualisierung des letzten Laufs ist fehlgeschlagen: {exc}"
-
+    cmdb_rows = load_all_cmdb_rows(config)
     try:
         refreshed_count = persist_latest_run_refresh(config, cmdb_rows)
     except Exception as exc:

@@ -243,7 +243,6 @@ def test_run_pipeline_writes_artifacts_for_full_runs(tmp_path: Path, monkeypatch
         llm_model="test-model",
         neo4j_password="test-password",
         input_path="Input",
-        cmdb_filename="cmdb.csv",
         output_path="Output",
         last_run_mode="full",
     )
@@ -298,7 +297,6 @@ def test_run_pipeline_partial_without_explicit_files_returns_empty_run(tmp_path:
             llm_model="test-model",
             neo4j_password="test-password",
             input_path="Input",
-            cmdb_filename="cmdb.csv",
             output_path="Output",
             last_run_mode="partial",
         )
@@ -363,7 +361,6 @@ def test_run_pipeline_reports_progress_updates(tmp_path: Path, monkeypatch) -> N
         llm_model="test-model",
         neo4j_password="test-password",
         input_path="Input",
-        cmdb_filename="cmdb.csv",
         output_path="Output",
         last_run_mode="full",
     )
@@ -433,6 +430,9 @@ def test_run_pipeline_propagates_neo4j_write_failures(tmp_path: Path, monkeypatc
         def execute_read(self, query: str, parameters=None):
             return []
 
+        def execute_read_unvalidated(self, query: str, parameters=None):
+            return []
+
         def ensure_constraints(self) -> None:
             return None
 
@@ -444,7 +444,6 @@ def test_run_pipeline_propagates_neo4j_write_failures(tmp_path: Path, monkeypatc
         llm_model="test-model",
         neo4j_password="test-password",
         input_path="Input",
-        cmdb_filename="cmdb.csv",
         output_path="Output",
         last_run_mode="full",
     )
@@ -524,6 +523,75 @@ def test_update_organization_knowledge_from_cmdb_adds_only_unresolved_owner_cand
 
     assert len(updated.org_unit_candidates) == 1
     assert updated.org_unit_candidates[0]["candidate_name"] == "Team Plattform"
+
+
+def test_run_pipeline_persists_org_candidates_to_knowledge_base(tmp_path: Path, monkeypatch) -> None:
+    input_dir = tmp_path / "Input"
+    output_dir = tmp_path / "Output"
+    prompts_dir = tmp_path / "prompts"
+    input_dir.mkdir()
+    output_dir.mkdir()
+    prompts_dir.mkdir()
+
+    txt_path = input_dir / "process.txt"
+    txt_path.write_text("Prozessbeschreibung Einkauf", encoding="utf-8")
+    (input_dir / "cmdb.csv").write_text("app_id,application_name\n", encoding="utf-8")
+    (prompts_dir / "extract_generic.md").write_text("prompt", encoding="utf-8")
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr("core.app_config.PROJECT_ROOT", tmp_path)
+
+    class TxtLlmClient:
+        def __init__(self, config) -> None:
+            pass
+
+        def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
+            return {
+                "prozess": "Einkaufsprozess",
+                "prozess_id": "proc_einkauf",
+                "rolle": "Einkäufer",
+                "prozess_eigentuemer": "",
+                "org_einheit_kandidaten": ["Team Einkauf"],
+                "folgt_auf": [],
+                "anwendungen": [],
+            }
+
+    class FakeNeo4jClient:
+        def close(self) -> None:
+            return None
+
+        def execute_write(self, query: str, parameters=None):
+            return []
+
+        def execute_read(self, query: str, parameters=None):
+            return []
+
+        def execute_read_unvalidated(self, query: str, parameters=None):
+            return []
+
+        def ensure_constraints(self) -> None:
+            return None
+
+    monkeypatch.setattr("processing.pipeline.OpenAICompatibleClient", TxtLlmClient)
+    monkeypatch.setattr("processing.pipeline.build_neo4j_client", lambda config: FakeNeo4jClient())
+
+    run_pipeline(
+        AppConfig(
+            llm_base_url="http://localhost:11434/v1",
+            llm_model="test-model",
+            neo4j_password="test-password",
+            input_path="Input",
+            output_path="Output",
+            last_run_mode="full",
+        )
+    )
+
+    kb_path = tmp_path / "knowledge_base" / "kb.json"
+    assert kb_path.exists(), "save_knowledge_base was not called after pipeline run"
+    import json
+    saved = json.loads(kb_path.read_text(encoding="utf-8"))
+    candidate_names = [c["candidate_name"] for c in saved.get("org_unit_candidates", [])]
+    assert "Team Einkauf" in candidate_names
 
 
 def test_resolve_cmdb_owner_assignments_returns_exact_and_mapped_matches() -> None:

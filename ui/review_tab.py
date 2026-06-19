@@ -4,8 +4,9 @@ from pathlib import Path
 
 import streamlit as st
 
-from core.app_config import AppConfig, load_config, resolve_input_cmdb_path, resolve_runtime_output_path
-from processing.cmdb import CmdbLoadError, build_cmdb_option_labels, find_cmdb_row_by_label, load_cmdb_rows
+from core.app_config import AppConfig, load_config, resolve_runtime_output_path
+from processing.cmdb import build_cmdb_option_labels, find_cmdb_row_by_label
+from services.cmdb_service import load_all_cmdb_rows, load_application_cmdb_rows
 from core.constants import DOCUMENT_STATUS_OPTIONS, MATCH_SOURCE_REJECTED
 from processing.knowledge_base import load_knowledge_base
 from processing.run_artifacts import load_last_import_context, load_latest_run
@@ -79,21 +80,7 @@ def render_duplicate_application_warnings(documents: list[dict]) -> None:
 
 
 def _resolve_cmdb_rows(config: AppConfig) -> list[dict[str, str]]:
-    return load_cmdb_rows(
-        resolve_input_cmdb_path(config),
-        config.cmdb_uuid_column,
-        config.cmdb_name_column,
-    )
-
-
-def _filter_application_cmdb_rows(config: AppConfig, cmdb_rows: list[dict[str, str]]) -> list[dict[str, str]]:
-    entity_type_column = config.cmdb_entity_type_column
-    filtered_rows: list[dict[str, str]] = []
-    for row in cmdb_rows:
-        entity_type = (row.get(entity_type_column) or "").strip().lower()
-        if not entity_type or entity_type == "application":
-            filtered_rows.append(row)
-    return filtered_rows
+    return load_all_cmdb_rows(config)
 
 
 def _normalize_app_name_for_batch(name: str) -> str:
@@ -161,7 +148,7 @@ def render_review_item_actions(
         st.success(reject_review_link(config, process_name, application_name, cmdb_id, process_id, source_path, cmdb_rows))
         st.rerun()
 
-    application_rows = _filter_application_cmdb_rows(config, cmdb_rows)
+    application_rows = load_application_cmdb_rows(config)
     cmdb_options = build_cmdb_option_labels(application_rows, config.cmdb_uuid_column, config.cmdb_name_column)
     if not cmdb_options:
         row_columns[7].write("-")
@@ -362,11 +349,7 @@ def render_review_tab() -> None:
         st.info("Bitte wählen Sie mindestens eine Prozessdatei für die Überprüfung aus.")
         filtered_documents = []
     render_latest_run_summary(latest_run, filtered_documents)
-    try:
-        cmdb_rows = _resolve_cmdb_rows(config)
-    except CmdbLoadError as exc:
-        st.error(str(exc))
-        return
+    cmdb_rows = _resolve_cmdb_rows(config)
     render_review_artifact_summary(filtered_documents)
     render_document_status_table(filtered_documents)
     knowledge_base = load_knowledge_base()

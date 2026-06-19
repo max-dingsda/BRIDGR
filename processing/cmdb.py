@@ -125,83 +125,6 @@ def validate_cmdb_entity_file(
     return issues
 
 
-def validate_cmdb_relation_file(
-    path: Path,
-    source_id_column: str = "source_id",
-    relation_type_column: str = "relation_type",
-    target_id_column: str = "target_id",
-) -> list[CmdbValidationIssue]:
-    try:
-        rows = load_cmdb_relation_rows(path, source_id_column, relation_type_column, target_id_column)
-    except CmdbLoadError as exc:
-        return [CmdbValidationIssue(line_number=1, message=str(exc))]
-
-    issues = _collect_csv_shape_issues(path)
-    for index, row in enumerate(rows, start=2):
-        source_id = (row.get(source_id_column) or "").strip()
-        relation_type = (row.get(relation_type_column) or "").strip()
-        target_id = (row.get(target_id_column) or "").strip()
-        if not source_id or not relation_type or not target_id:
-            issues.append(
-                CmdbValidationIssue(
-                    line_number=index,
-                    message="nicht importiert wegen Strukturfehler (source_id, relation_type oder target_id fehlt)",
-                )
-            )
-    return issues
-
-
-def load_normalized_cmdb(
-    path: Path,
-    id_column: str,
-    name_column: str,
-    entity_type_column: str = "entity_type",
-    server_type_column: str = "server_type",
-    owner_name_column: str = "owner_name",
-) -> NormalizedCmdb:
-    rows = load_cmdb_rows(path, id_column, name_column)
-    return NormalizedCmdb(
-        entities=normalize_cmdb_entities(
-            rows,
-            id_column=id_column,
-            name_column=name_column,
-            entity_type_column=entity_type_column,
-            server_type_column=server_type_column,
-            owner_name_column=owner_name_column,
-        ),
-        relations=[],
-    )
-
-
-def load_cmdb_relation_rows(
-    path: Path,
-    source_id_column: str = "source_id",
-    relation_type_column: str = "relation_type",
-    target_id_column: str = "target_id",
-) -> list[dict[str, str]]:
-    if not path.exists():
-        raise CmdbLoadError(f"CMDB-Relationsdatei wurde nicht gefunden: {path}")
-
-    try:
-        with path.open("r", encoding="utf-8", newline="") as handle:
-            reader = _build_csv_reader(handle, dict_reader=True)
-            if reader.fieldnames is None:
-                raise CmdbLoadError("CMDB-Relationsdatei enthält keine Header-Zeile.")
-
-            missing_columns = [
-                column_name
-                for column_name in (source_id_column, relation_type_column, target_id_column)
-                if column_name not in reader.fieldnames
-            ]
-            if missing_columns:
-                missing_text = ", ".join(missing_columns)
-                raise CmdbLoadError(f"CMDB-Relationsdatei enthält Pflichtspalten nicht: {missing_text}")
-
-            return [dict(row) for row in reader]
-    except csv.Error as exc:
-        raise CmdbLoadError(f"CMDB-Relationsdatei konnte nicht gelesen werden: {path}") from exc
-
-
 def normalize_cmdb_entities(
     rows: list[dict[str, str]],
     id_column: str,
@@ -238,30 +161,6 @@ def normalize_cmdb_entities(
             )
         )
     return entities
-
-
-def normalize_cmdb_relations(
-    rows: list[dict[str, str]],
-    source_id_column: str = "source_id",
-    relation_type_column: str = "relation_type",
-    target_id_column: str = "target_id",
-) -> list[CmdbRelation]:
-    relations: list[CmdbRelation] = []
-    for row in rows:
-        source_id = (row.get(source_id_column) or "").strip()
-        relation_type = (row.get(relation_type_column) or "").strip()
-        target_id = (row.get(target_id_column) or "").strip()
-        if not source_id or not relation_type or not target_id:
-            raise CmdbLoadError("CMDB-Relationszeile muss source_id, relation_type und target_id enthalten.")
-        relations.append(
-            CmdbRelation(
-                source_id=source_id,
-                relation_type=relation_type,
-                target_id=target_id,
-                raw_row=dict(row),
-            )
-        )
-    return relations
 
 
 def normalize_entity_type(value: str | None) -> str:
@@ -350,6 +249,85 @@ def _validate_entity_rows(
         except CmdbLoadError as exc:
             issues.append(CmdbValidationIssue(index, f"nicht importiert wegen Strukturfehler ({exc})"))
     return issues
+
+
+def parse_relation_columns(
+    row: dict[str, str],
+    source_id: str,
+    runs_on_column: str,
+    uses_interfaces_column: str,
+    separator: str,
+) -> list[CmdbRelation]:
+    """Parse multi-value relation columns from an application row into CmdbRelation objects."""
+    relations: list[CmdbRelation] = []
+    for column, relation_type in (
+        (runs_on_column, "RUNS_ON"),
+        (uses_interfaces_column, "USES_INTERFACE"),
+    ):
+        raw_value = (row.get(column) or "").strip()
+        if not raw_value:
+            continue
+        for target_id in raw_value.split(separator):
+            target_id = target_id.strip()
+            if target_id:
+                relations.append(CmdbRelation(source_id=source_id, relation_type=relation_type, target_id=target_id))
+    return relations
+
+
+def load_normalized_cmdb_from_type_files(
+    type_file_paths: dict[str, Path],
+    id_column: str,
+    name_column: str,
+    entity_type_column: str = "entity_type",
+    server_type_column: str = "server_type",
+    owner_name_column: str = "owner_name",
+    runs_on_column: str = "runs_on",
+    uses_interfaces_column: str = "uses_interfaces",
+    multivalue_separator: str = "|",
+) -> NormalizedCmdb:
+    """Load a NormalizedCmdb from one CSV file per entity type.
+
+    Relation columns (runs_on, uses_interfaces) are read from the application file.
+    Missing files are silently skipped so partial configurations work.
+    """
+    all_entities: list[CmdbEntity] = []
+    all_relations: list[CmdbRelation] = []
+
+    for entity_type, path in type_file_paths.items():
+        if not path.exists():
+            continue
+        rows = load_cmdb_rows(path, id_column, name_column)
+        for row in rows:
+            entity_id = (row.get(id_column) or "").strip()
+            name = (row.get(name_column) or "").strip()
+            if not entity_id or not name:
+                raise CmdbLoadError(
+                    f"CMDB-Typ-Datei '{path.name}' enthält eine Zeile ohne ID oder Name."
+                )
+            server_type = normalize_server_type(row.get(server_type_column, ""), entity_type, entity_id)
+            owner_name = normalize_optional_value(row.get(owner_name_column, ""))
+            all_entities.append(
+                CmdbEntity(
+                    entity_id=entity_id,
+                    name=name,
+                    entity_type=entity_type,
+                    server_type=server_type,
+                    owner_name=owner_name,
+                    raw_row=dict(row),
+                )
+            )
+            if entity_type == CMDB_ENTITY_TYPE_APPLICATION:
+                all_relations.extend(
+                    parse_relation_columns(
+                        row,
+                        source_id=entity_id,
+                        runs_on_column=runs_on_column,
+                        uses_interfaces_column=uses_interfaces_column,
+                        separator=multivalue_separator,
+                    )
+                )
+
+    return NormalizedCmdb(entities=all_entities, relations=all_relations)
 
 
 def build_cmdb_option_labels(

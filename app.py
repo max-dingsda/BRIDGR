@@ -32,7 +32,6 @@ from services.runtime_service import (
     clear_pipeline_run_tracker,
     clear_run_feedback,
     create_pipeline_run_tracker,
-    ensure_active_cmdb_selection,
     ensure_config_session_defaults,
     ensure_import_session_defaults,
     ensure_query_chat_defaults,

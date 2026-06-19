@@ -4,8 +4,8 @@ from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from core.app_config import AppConfig, resolve_input_cmdb_path, resolve_project_path, resolve_runtime_output_path
-from processing.cmdb import load_cmdb_rows
+from core.app_config import AppConfig, resolve_project_path, resolve_runtime_output_path
+from services.cmdb_service import load_application_cmdb_rows
 from core.constants import (
     CONFIDENCE_STRONG,
     DOCUMENT_STATUS_ERROR,
@@ -67,11 +67,7 @@ def run_pipeline(
 ) -> PipelineRunResult:
     output_path, used_output_fallback = resolve_runtime_output_path(config.output_path)
     knowledge_base = load_knowledge_base()
-    cmdb_rows = load_cmdb_rows(
-        resolve_input_cmdb_path(config),
-        config.cmdb_uuid_column,
-        config.cmdb_name_column,
-    )
+    cmdb_rows = load_application_cmdb_rows(config)
     import_state = load_import_state(output_path)
     previous_hashes = {document.source_path: document.file_hash for document in import_state.documents}
     llm_client = OpenAICompatibleClient(
@@ -164,6 +160,7 @@ def run_pipeline(
                 }
             )
 
+    save_knowledge_base(knowledge_base)
     run_result = PipelineRunResult(
         run_mode=config.last_run_mode,
         output_path=str(output_path),
@@ -268,7 +265,6 @@ def run_document(
                 threshold=config.fuzzy_threshold,
                 uuid_column=config.cmdb_uuid_column,
                 name_column=config.cmdb_name_column,
-                entity_type_column=config.cmdb_entity_type_column,
             )
         )
     matches.extend(build_manual_matches(extracted_process.process_name, extracted_process.applications, confirmed_links))

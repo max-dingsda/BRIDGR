@@ -158,17 +158,20 @@ Wichtige Felder:
 - `neo4j_password`: Neo4j-Passwort
 - `neo4j_database`: optionaler Neo4j-Datenbankname, fuer Aura typischerweise die Instanz-ID
 - `input_path`: gemeinsamer Eingabeordner fuer Prozessdokumente und CMDB-Dateien
-- `cmdb_filename`: aktive CMDB-Datei innerhalb des Eingabeordners
-- `cmdb_uuid_column`: technische ID-Spalte der CMDB-Entities-Datei
-- `cmdb_name_column`: Namensspalte der CMDB-Entities-Datei
-- `cmdb_entity_type_column`: Typ-Spalte fuer `application`, `interface`, `server`, optional `process`
-- `cmdb_server_type_column`: Server-Untertyp `physical` oder `virtual`
+- `cmdb_type_files`: Mapping von Objektart auf CSV-Dateiname, z. B. `{"application": "Anwendungen.csv", "server": "Server.csv", "interface": "Schnittstellen.csv"}`; wenn leer, wird das Legacy-Format verwendet
+- `cmdb_uuid_column`: ID-Spalte aller CMDB-Typ-Dateien
+- `cmdb_name_column`: Namensspalte aller CMDB-Typ-Dateien
+- `cmdb_server_type_column`: Server-Untertyp `physical` oder `virtual` (nur in der Server-Datei)
 - `cmdb_owner_name_column`: Owner-/Verantwortungsbezeichnung aus der CMDB
-- `cmdb_relations_filename`: optionale zweite CSV-Datei fuer CMDB-Beziehungen
-- `cmdb_relation_source_column`: Quell-ID-Spalte der Relations-Datei
-- `cmdb_relation_type_column`: Beziehungstyp-Spalte der Relations-Datei
-- `cmdb_relation_target_column`: Ziel-ID-Spalte der Relations-Datei
-- `cmdb_multivalue_separator`: vorgesehener Trenner fuer spaetere Ein-Datei-CMDB-Exporte mit Mehrfachwerten
+- `cmdb_runs_on_column`: Spaltenname fuer Server-IDs in der Anwendungsdatei (Standard: `runs_on`)
+- `cmdb_uses_interfaces_column`: Spaltenname fuer Schnittstellen-IDs in der Anwendungsdatei (Standard: `uses_interfaces`)
+- `cmdb_multivalue_separator`: Trennzeichen fuer mehrere Ziel-IDs in einer Zelle (Standard: `|`, konfigurierbar fuer CMDB-Exporte wie Jira Asset Management)
+- `cmdb_filename`: Legacy — aktive gemischte Entities-Datei (wird ignoriert wenn `cmdb_type_files` gesetzt)
+- `cmdb_entity_type_column`: Legacy — Typ-Spalte in der gemischten Entities-Datei
+- `cmdb_relations_filename`: Legacy — optionale separate Relations-Datei
+- `cmdb_relation_source_column`: Legacy — Quell-ID-Spalte der Relations-Datei
+- `cmdb_relation_type_column`: Legacy — Beziehungstyp-Spalte der Relations-Datei
+- `cmdb_relation_target_column`: Legacy — Ziel-ID-Spalte der Relations-Datei
 - `output_path`: Ziel fuer Laufartefakte
 - `last_run_mode`: Standardlaufmodus fuer den Import (`full` oder `partial`)
 - `chat_mode`: Chat-Betriebsmodus (`prompt-only` oder `tool-use`); Default: `prompt-only`
@@ -193,12 +196,17 @@ Beispiel:
   "neo4j_password": "",
   "cmdb_uuid_column": "id",
   "cmdb_name_column": "name",
-  "cmdb_entity_type_column": "entity_type",
   "cmdb_server_type_column": "server_type",
   "cmdb_owner_name_column": "owner_name",
-  "cmdb_relations_filename": "cmdb_relations.csv",
+  "cmdb_type_files": {
+    "application": "cmdb_applications.csv",
+    "server": "cmdb_servers.csv",
+    "interface": "cmdb_interfaces.csv"
+  },
+  "cmdb_runs_on_column": "runs_on",
+  "cmdb_uses_interfaces_column": "uses_interfaces",
+  "cmdb_multivalue_separator": "|",
   "input_path": "Input",
-  "cmdb_filename": "cmdb_entities.csv",
   "output_path": "Output"
 }
 ```

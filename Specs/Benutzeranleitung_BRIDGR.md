@@ -47,8 +47,7 @@ BRIDGR arbeitet mit folgenden Eingaben:
 
 - Prozessdokumente als `.bpmn`, `.txt`, `.docx` oder `.pdf`
 - optional große BPMN/XML-Dateien zur Vortransformation
-- CMDB-Entities-Datei als `.csv`
-- optional CMDB-Relationsdatei als `.csv`
+- CMDB-Dateien als `.csv`, je eine Datei pro Objektart (Anwendungen, Server, Schnittstellen)
 - optional ArchiMate-Datei als `.xml` oder `.archimate`
 
 ### 3.2 Benötigte technische Angaben
@@ -120,8 +119,7 @@ Empfohlene Reihenfolge:
 Legen Sie vor dem ersten Import Ihre Dateien in den Eingabeordner:
 
 - Prozessdateien in `Input/`
-- aktive CMDB-Datei ebenfalls in `Input/`
-- optional die Relationsdatei der CMDB ebenfalls in `Input/`
+- CMDB-Dateien (Anwendungen, Server, Schnittstellen) ebenfalls in `Input/`
 
 Wenn sehr große BPMN/XML-Dateien verwendet werden, empfiehlt es sich, diese vor dem eigentlichen Import über die BPMN-Transformation zu reduzieren.
 
@@ -334,17 +332,13 @@ Dabei werden Prozessdateien analysiert, mit der CMDB abgeglichen und Ergebnisse 
 
 Zeigt die aktuell gefundenen Prozessdateien im Eingabepfad.
 
-#### Feld `Aktive CMDB-Entities-Datei`
+#### Felder `Anwendungen`, `Server`, `Schnittstellen`
 
-Wählt die Haupt-CMDB-Datei mit den Entitäten aus.
+Weisen jeder CMDB-Objektart eine CSV-Datei aus dem Eingabeordner zu. Beziehungen (z. B. welcher Server eine Anwendung hostet) sind als Spalten in der Anwendungsdatei enthalten und werden beim Synchronisieren automatisch eingelesen.
 
-#### Feld `Aktive CMDB-Relationsdatei`
+#### Button `Typ-Dateien übernehmen`
 
-Wählt optional eine zweite CMDB-Datei mit Beziehungen aus.
-
-#### Button `Aktive CMDB-Dateien übernehmen`
-
-Speichert die aktuell ausgewählten CMDB-Dateien als aktive Konfiguration.
+Speichert die aktuell gewählten Typ-Dateien als aktive Konfiguration.
 
 #### Button `CMDB nach Neo4j synchronisieren`
 
@@ -363,8 +357,6 @@ Zeigen Probleme in der CSV-Struktur an, zum Beispiel fehlende Spalten oder unvol
 Buttons:
 
 - `Eingabe-Ordner wählen`
-- `CMDB-Datei im Eingabe-Ordner wählen`
-- `CMDB-Relationsdatei wählen`
 - `Ausgabe-Ordner wählen`
 
 Diese Buttons öffnen Dateiauswahl- oder Ordnerdialoge.
@@ -406,9 +398,15 @@ Diese Felder steuern die Verbindung zur Graphdatenbank.
 Felder:
 
 - `Eingabepfad`
-- `CMDB-Dateiname (Entities)`
-- `CMDB-Dateiname (Relationen)`
 - `Ausgabepfad`
+
+#### Abschnitt `CMDB-Spaltenmapping — Beziehungsspalten (Typ-Datei-Format)`
+
+Konfiguriert, welche Spalten in der Anwendungsdatei die Beziehungen zu Servern und Schnittstellen enthalten:
+
+- `Spalte 'läuft auf'` — Spaltennamen für Server-IDs (Standard: `runs_on`)
+- `Spalte 'nutzt Schnittstellen'` — Spaltennamen für Schnittstellen-IDs (Standard: `uses_interfaces`)
+- `Mehrwert-Trennzeichen` — Trennzeichen bei mehreren Ziel-IDs in einer Zelle (Standard: `|`)
 
 #### Abschnitt `CMDB-Spaltenmapping — Entities`
 
@@ -420,18 +418,19 @@ Felder:
 - `Servertyp-Spalte`
 - `Eigentümer-Spalte`
 
-Diese Felder müssen zu den Spaltennamen Ihrer CMDB-Entities-CSV passen.
+Diese Felder müssen zu den Spaltennamen Ihrer CMDB-CSV-Dateien passen.
 
 Hinweis zum Dateiformat: BRIDGR erkennt das Trennzeichen der CSV-Dateien automatisch. Sowohl Komma (`,`) als auch Semikolon (`;`) werden unterstützt.
 
-#### Abschnitt `CMDB-Spaltenmapping — Relationen`
+#### Abschnitt `CMDB-Spaltenmapping — Relationen (Legacy-Format)`
+
+Gilt nur, wenn noch das ältere Zwei-Dateien-Format verwendet wird.
 
 Felder:
 
 - `Quell-ID-Spalte`
 - `Relationstyp-Spalte`
 - `Ziel-ID-Spalte`
-- `Mehrwert-Trennzeichen`
 
 #### Abschnitt `Import & Matching`
 
@@ -786,8 +785,8 @@ Wichtig:
 ### 11.1 Erster Import
 
 1. Im Tab `Konfiguration` LLM und Neo4j einrichten
-2. Prozessdateien und CMDB-Dateien in `Input/` ablegen
-3. Im Bereich `Import` die aktive CMDB-Datei wählen
+2. Prozessdateien und CMDB-Dateien (Anwendungen, Server, Schnittstellen) in `Input/` ablegen
+3. Im Bereich `Import` die CMDB-Typ-Dateien den Objektarten zuweisen und mit `Typ-Dateien übernehmen` speichern
 4. Falls nötig `CMDB nach Neo4j synchronisieren`
 5. `Pipeline starten`
 6. Danach `Zuordnungen` und `Organisation` prüfen

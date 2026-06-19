@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from core.app_config import AppConfig, resolve_input_cmdb_path, resolve_input_cmdb_relations_path
-from processing.cmdb import load_cmdb_relation_rows, load_cmdb_rows, load_normalized_cmdb, normalize_cmdb_relations
+from core.app_config import AppConfig, resolve_cmdb_type_file_paths
+from processing.cmdb import CmdbLoadError, load_cmdb_rows, load_normalized_cmdb_from_type_files
 from processing.knowledge_base import KnowledgeBase, load_knowledge_base, normalize_org_unit_name, save_knowledge_base, upsert_org_unit_candidate
 from skills.graph_writer import GraphWriter
 
@@ -25,15 +25,11 @@ def persist_cmdb_sync(config: AppConfig) -> CmdbSyncResult:
     knowledge_base = load_knowledge_base()
     result, updated_knowledge_base = sync_cmdb_to_neo4j(config, neo4j_client, knowledge_base)
     save_knowledge_base(updated_knowledge_base)
-    refreshed_document_count = persist_latest_run_refresh(
-        config,
-        load_cmdb_rows(
-            resolve_input_cmdb_path(config),
-            config.cmdb_uuid_column,
-            config.cmdb_name_column,
-        ),
-    )
+
+    cmdb_rows = load_all_cmdb_rows(config)
+    refreshed_document_count = persist_latest_run_refresh(config, cmdb_rows)
     result.refreshed_document_count = refreshed_document_count
+
     write_debug_log(
         config,
         "cmdb_sync",
@@ -43,11 +39,34 @@ def persist_cmdb_sync(config: AppConfig) -> CmdbSyncResult:
             "owner_assignment_count": result.owner_assignment_count,
             "owner_candidate_count": result.owner_candidate_count,
             "refreshed_document_count": result.refreshed_document_count,
-            "cmdb_filename": config.cmdb_filename,
-            "cmdb_relations_filename": config.cmdb_relations_filename,
+            "cmdb_type_files": config.cmdb_type_files,
         },
     )
     return result
+
+
+def load_all_cmdb_rows(config: AppConfig) -> list[dict[str, str]]:
+    """Load raw CMDB rows from all configured type files."""
+    all_rows: list[dict[str, str]] = []
+    for path in resolve_cmdb_type_file_paths(config).values():
+        if path.exists():
+            try:
+                all_rows.extend(load_cmdb_rows(path, config.cmdb_uuid_column, config.cmdb_name_column))
+            except CmdbLoadError:
+                pass
+    return all_rows
+
+
+def load_application_cmdb_rows(config: AppConfig) -> list[dict[str, str]]:
+    """Load raw CMDB rows from the application type file only."""
+    type_file_paths = resolve_cmdb_type_file_paths(config)
+    app_path = type_file_paths.get("application")
+    if app_path is None or not app_path.exists():
+        return []
+    try:
+        return load_cmdb_rows(app_path, config.cmdb_uuid_column, config.cmdb_name_column)
+    except CmdbLoadError:
+        return []
 
 
 def sync_cmdb_to_neo4j(
@@ -55,29 +74,16 @@ def sync_cmdb_to_neo4j(
     neo4j_client,
     knowledge_base: KnowledgeBase,
 ) -> tuple[CmdbSyncResult, KnowledgeBase]:
-    from skills.graph_writer import GraphWriter
-
-    normalized_cmdb = load_normalized_cmdb(
-        resolve_input_cmdb_path(config),
+    normalized_cmdb = load_normalized_cmdb_from_type_files(
+        resolve_cmdb_type_file_paths(config),
         id_column=config.cmdb_uuid_column,
         name_column=config.cmdb_name_column,
-        entity_type_column=config.cmdb_entity_type_column,
         server_type_column=config.cmdb_server_type_column,
         owner_name_column=config.cmdb_owner_name_column,
+        runs_on_column=config.cmdb_runs_on_column,
+        uses_interfaces_column=config.cmdb_uses_interfaces_column,
+        multivalue_separator=config.cmdb_multivalue_separator,
     )
-    relations_path = resolve_input_cmdb_relations_path(config)
-    if relations_path is not None:
-        normalized_cmdb.relations = normalize_cmdb_relations(
-            load_cmdb_relation_rows(
-                relations_path,
-                source_id_column=config.cmdb_relation_source_column,
-                relation_type_column=config.cmdb_relation_type_column,
-                target_id_column=config.cmdb_relation_target_column,
-            ),
-            source_id_column=config.cmdb_relation_source_column,
-            relation_type_column=config.cmdb_relation_type_column,
-            target_id_column=config.cmdb_relation_target_column,
-        )
 
     graph_writer = GraphWriter()
     org_units = graph_writer.load_org_units_from_neo4j(neo4j_client)
@@ -85,7 +91,7 @@ def sync_cmdb_to_neo4j(
 
     updated_knowledge_base = update_organization_knowledge_from_cmdb(
         knowledge_base, normalized_cmdb,
-        source_path=str(resolve_input_cmdb_path(config)),
+        source_path="cmdb_sync",
         org_units=org_units, org_unit_aliases=org_unit_aliases,
     )
     owner_assignments = resolve_cmdb_owner_assignments(normalized_cmdb, org_units, org_unit_aliases)

@@ -152,7 +152,6 @@ def test_update_config_session_defaults_includes_neo4j_values() -> None:
         neo4j_user="neo4j",
         neo4j_password="secret",
         neo4j_database="bridgr-architecture",
-        cmdb_relations_filename="cmdb_relations.csv",
     )
 
     update_config_session_defaults(config)
@@ -161,7 +160,6 @@ def test_update_config_session_defaults_includes_neo4j_values() -> None:
     assert st.session_state["config_neo4j_user"] == "neo4j"
     assert st.session_state["config_neo4j_password"] == "secret"
     assert st.session_state["config_neo4j_database"] == "bridgr-architecture"
-    assert st.session_state["config_cmdb_relations_filename"] == "cmdb_relations.csv"
 
 
 def test_apply_llm_preset_updates_session_state() -> None:
@@ -547,7 +545,7 @@ def test_persist_organization_sync_syncs_all_org_units_and_refreshes_latest_run(
     monkeypatch.setattr(organization_service, "persist_org_unit_node", lambda _config, name: synced_names.append(name))
     monkeypatch.setattr(organization_service, "sync_knowledge_base_aliases", lambda _client, _kb: alias_sync_calls.append(True))
     monkeypatch.setattr(organization_service, "get_session_neo4j_client", lambda _config: object())
-    monkeypatch.setattr(organization_service, "load_cmdb_rows", lambda *_args, **_kwargs: [])
+    monkeypatch.setattr(organization_service, "load_all_cmdb_rows", lambda _config: [{"id": "cmdb-1", "name": "SAP"}])
     monkeypatch.setattr(organization_service, "persist_latest_run_refresh", lambda _config, _cmdb_rows: 3)
 
     synced_org_units, refreshed_documents = persist_organization_sync(AppConfig(neo4j_password="secret"))

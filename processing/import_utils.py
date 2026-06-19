@@ -65,6 +65,18 @@ def list_cmdb_relation_files(
     ]
 
 
+def list_cmdb_candidate_files(root_path: Path, uuid_column: str, name_column: str) -> list[Path]:
+    """Return all CSV files in root_path that have at least uuid_column and name_column.
+
+    Used for populating type-file selectors in the UI; does not filter by relation columns.
+    """
+    return [
+        path
+        for path in list_cmdb_files(root_path)
+        if _csv_has_columns(path, {uuid_column, name_column})
+    ]
+
+
 def _csv_has_columns(path: Path, required_columns: set[str]) -> bool:
     try:
         with path.open("r", encoding="utf-8", newline="") as handle:

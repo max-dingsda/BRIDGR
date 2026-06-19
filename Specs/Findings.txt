@@ -7,13 +7,10 @@
 7. Im Organisations-tab sollten die Kandidaten vor/über den zu bestätigenden/zu pflegenden Prozessverantwortlichen stehen. - erledigt
 8. nicht zugeordnete rollen können aktuell einer Organisationseinheit zugewiesen werden, aber erfolgt dies nicht, bleiben sie in der Übersicht. - erledigt
 9. gemma4:12b beantwortet faktische Fragen ohne den Graphen abzufragen (halluziniert trotz korrektem System Prompt). - erledigt
-
 10. konfidenz-Eigenschaft auf DIENT-Kanten im Chat nicht nutzbar — zurückgestellt
 r.konfidenz ist zwar in graph_schema.py dokumentiert und dem LLM bekannt, aber in der Praxis existiert im Graphen ausschließlich "stark". Zurückgestellt, weil per Designentscheid (#13, 2026-06-19) KÖNNTE_DIENEN aus dem LLM-Query-Schema ausgeschlossen bleibt — ein Prompt-Beispiel für konfidenz='schwach' wäre damit wertlos, da das LLM diese Kanten ohnehin nicht abfragen kann.
-
 11. ArchiMate-Typen nicht im Chat-System-Prompt verankert. - erledigt
 12. Transitive Impact-Analysen durch Prompt-Beispiele nicht abgedeckt. - erledigt
-
 13. Schwache Kandidaten nicht im Graphen — Chat kann Unsicherheit nicht abbilden (offen)
 Schwache Nicht-KB-Matches werden vom graph_writer gefiltert und nicht nach Neo4j geschrieben. Sie existieren nur in latest_run.json/Review-Tab. Damit kann der Chat-Layer BRIDGRs Kernfrage ("wie sicher wissen wir das?") nicht beantworten — weder für offene Kandidaten noch für schwache Matches. Dies ist kein Bug, sondern eine bewusste Designentscheidung (conservative write model).
 Ein Ausbau erfordert einen expliziten Designentscheid: Kandidaten als Pending-Nodes/-Kanten in Neo4j schreiben mit eigenem Status-Attribut. #10 ist von dieser Entscheidung abhängig.
@@ -25,54 +22,24 @@ Konsequenz für #10: bleibt zurückgestellt — ein konfidenz='schwach'-Beispiel
 Implementierung bereits vorhanden: graph_writer schreibt schwache Matches (cmdb_id vorhanden, confidence != stark) bereits als KÖNNTE_DIENEN in Neo4j. Finding war zum Zeitpunkt der Erfassung korrekt, die Implementierung erfolgte seitdem. - erledigt
 
 14. UI: einklappbare Abschnitte mit To-dos zeigen Item-Anzahl im Titel. - erledigt
-
 15. kb.json zur Löschung vorgemerkt - erledigt (Datei darf weiter existieren; kein aktives Lesen/Schreiben mehr aus Pipeline und Review-Layer)
 Ziel: in einer späteren Session vollständig entfernen, sobald sichergestellt ist, dass kein
 Code mehr darauf zugreift.
-
 16. Bestätigte KÖNNTE_DIENEN-Kandidaten — beide Teilprobleme erledigt. - erledigt
 (a) manuell_bestaetigt ist in _PERSISTENT_LINK_SOURCES (pipeline.py) — Links überleben Re-Importe auch wenn der raw_name im Dokument nicht mehr vorkommt.
 (b) Bei Bestätigung wird ein (:Alias {source_kind: 'confirmed_match'})-[:KANN_MEINEN]->(:Anwendung) angelegt, sofern raw_name ≠ matched_name. Alias-Lifecycle bei Ablehnung: Finding #22.
-
 17. graph_schema.py: Ablehnung-Node und raw_name/source aus Query-Schema entfernen - erledigt
 18. OrgEinheit-Duplikate in Neo4j durch case-sensitive MERGE - erledigt
-
-19. ArchiMate-Export: OrgEinheit→Prozess-Beziehung fehlt im Mapping (Fehlkonfiguration, offen)
-VERANTWORTET-Kanten von OrgEinheit nach Prozess landen nicht im ArchiMate-Export, weil der Key
-"OrgEinheit->Prozess" weder im export- noch im import-Abschnitt von data/archimate_mapping.json
-eingetragen ist. Der Code in archimate_export_service.py ist korrekt — er schlägt den Key nach und
-verwirft die Beziehung still, wenn kein Mapping gefunden wird.
-
-Fix: In data/archimate_mapping.json ergänzen:
-  export:  "OrgEinheit->Prozess": "Assignment"
-  import:  "OrgEinheit->Prozess": ["Assignment"]
-
-ArchiMate-Semantik: BusinessActor assigned to BusinessProcess = Verantwortung/Ownership (korrekt).
-Ohne den import-Eintrag würde beim Reimport aus Archi die Zuordnung ebenfalls nicht zurückgespielt.
-
-Zusatzbefund: OrgEinheit->Schnittstelle und OrgEinheit->Server haben bereits jetzt eine
-Import/Export-Diskrepanz (Import akzeptiert nur "Association", Export schreibt "Assignment").
-Ein BRIDGR-Export lässt sich damit nicht verlustfrei reimportieren. Beim Fix von OrgEinheit->Prozess
-sollten diese beiden Einträge mit korrigiert werden (import ebenfalls auf "Assignment" erweitern).
-- erledigt (auch _label_pair_to_relation aus hardcoded Dict in JSON-getriebenes Lookup überführt; neuer bridgr_relation-Abschnitt in archimate_mapping.json)
-
+19. ArchiMate-Export: OrgEinheit→Prozess-Beziehung fehlt im Mapping (Fehlkonfiguration, erledigt)
 20. ArchiMate-Import: Detailinformation zu übersprungenen Beziehungen fehlt - erledigt
 21. Validator-Regex in graph_schema.py nicht Unicode-fähig — KÖNNTE_DIENEN/KÖNNTE_VERANTWORTEN werden abgewiesen (Bug, erledigt)
-
 22. Alias-Lifecycle bei Ablehnung bestätigter KÖNNTE_DIENEN-Links — beim Revert einer manuell_bestaetigt-Entscheidung wird der zugehörige confirmed_match-Alias mitgelöscht (inkl. Orphan-Cleanup). - erledigt
-
 23. Batch-Bestätigung gleichartiger Matches im Review — Sortierung nach Anwendungsbezeichner, Checkboxen pro Zeile; bei gültiger Mehrfachauswahl (gleicher normalisierter raw_name + gleiche cmdb_id) löst "Bestätigen" in jeder gechecken Zeile den Batch für alle aus; bei ungültiger Auswahl rotes Banner + alle Buttons der gechecken Zeilen deaktiviert. - erledigt
-
 24. Chat: fehlende Verarbeitungsrückmeldung — User-Nachricht und Spinner erscheinen sofort im Chat-Bereich nach dem Absenden. - erledigt
-
 25. ArchiMate-Import: Kandidaten-Bestätigung — bei Bestätigung werden alle Beziehungen des Kandidat-Nodes auf den Ziel-Node übertragen (via QUERY_RELATIONSHIP_PATTERNS), archimate_id gesetzt und der Kandidat-Node DETACH DELETE. - erledigt
-
-26. aktuell besteht der CMDB Import aus 2 Dateien, eine für Entities, eine für Beziehungen zwischen Entities. Dies war für die Entwicklung hilfreich, ist jedoch unrealistisch. Realistischer ist ein CMDB Export je "Objektart" (Server, Anwendungen, Interfaces...) mit Einträgen für die jeweils verbundenen Objekte. Da dieser Wechsel komplexer ist, sollten wir zunächst ein Konzept erarbeiten  - offen
- 
+26. CMDB-Import-Format auf eine CSV-Datei pro Objektart (Anwendungen, Server, Schnittstellen) mit konfigurierbarem Mehrwert-Separator für eingebettete Beziehungsspalten umgestellt; Legacy-Zwei-Datei-Format bleibt als Fallback erhalten. - erledigt
 27. Dropdown "Manuell anlegen" im Tab Zuordnungen ist jetzt alphabetisch sortiert. - erledigt
-
 28. Manuelle Zuordnungen und Merges können rückgängig gemacht werden. - erledigt
-
 29. bei komplexen fragen, die nicht direkt auf die graph-struktur eingehen kann das LLM manchmal nicht die korrekte Cypher-query erzeugen. - erledigt
 
 30. vor einer Veröffentlichung des Projekts bedarf es einer Überarbeitung der GUI - offen

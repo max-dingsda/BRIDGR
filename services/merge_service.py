@@ -562,6 +562,87 @@ def _merge_process_relationships(neo4j_client, source_element_id: str, target_el
         WHERE elementId(source) = $source_element_id
         MATCH (target:Prozess)
         WHERE elementId(target) = $target_element_id
+        MATCH (n)-[:REALISIERT]->(source)
+        WHERE elementId(source) <> elementId(target)
+        MERGE (n)-[:REALISIERT]->(target)
+        """,
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        MATCH (n)-[:UNTERSTUETZT]->(source)
+        WHERE elementId(source) <> elementId(target)
+        MERGE (n)-[:UNTERSTUETZT]->(target)
+        """,
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        MATCH (n)-[:BENOETIGT]->(source)
+        WHERE elementId(source) <> elementId(target)
+        MERGE (n)-[:BENOETIGT]->(target)
+        """,
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        MATCH (n)-[:VERARBEITET]->(source)
+        WHERE elementId(source) <> elementId(target)
+        MERGE (n)-[:VERARBEITET]->(target)
+        """,
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        MATCH (n)-[:BETRIFFT]->(source)
+        WHERE elementId(source) <> elementId(target)
+        MERGE (n)-[:BETRIFFT]->(target)
+        """,
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        MATCH (n)-[:BEEINFLUSST]->(source)
+        WHERE elementId(source) <> elementId(target)
+        MERGE (n)-[:BEEINFLUSST]->(target)
+        """,
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        MATCH (source)-[:UNTERSTUETZT]->(n)
+        WHERE elementId(source) <> elementId(target) AND elementId(n) <> elementId(target)
+        MERGE (target)-[:UNTERSTUETZT]->(n)
+        """,
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        MATCH (source)-[:BENOETIGT]->(n)
+        WHERE elementId(source) <> elementId(target) AND elementId(n) <> elementId(target)
+        MERGE (target)-[:BENOETIGT]->(n)
+        """,
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
+        MATCH (source)-[:VERARBEITET]->(n)
+        WHERE elementId(source) <> elementId(target) AND elementId(n) <> elementId(target)
+        MERGE (target)-[:VERARBEITET]->(n)
+        """,
+        """
+        MATCH (source:Prozess)
+        WHERE elementId(source) = $source_element_id
+        MATCH (target:Prozess)
+        WHERE elementId(target) = $target_element_id
         MATCH (alias:Alias)-[:KANN_MEINEN]->(source)
         WHERE elementId(source) <> elementId(target)
         MERGE (alias)-[:KANN_MEINEN]->(target)

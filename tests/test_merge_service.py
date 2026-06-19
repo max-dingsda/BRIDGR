@@ -83,6 +83,10 @@ def test_merge_processes_transfers_relationships_and_records_decision(
     assert any("MATCH (a:Anwendung)-[r:DIENT]->(source)" in query and "MERGE (a)-[merged:DIENT]->(target)" in query for query in queries)
     assert any("MATCH (role:Rolle)-[:BETEILIGT_AN]->(source)" in query and "MERGE (role)-[:BETEILIGT_AN]->(target)" in query for query in queries)
     assert any("MATCH (successor:Prozess)-[:FOLGT_AUF]->(source)" in query and "MERGE (successor)-[:FOLGT_AUF]->(target)" in query for query in queries)
+    for rel in ("REALISIERT", "UNTERSTUETZT", "BENOETIGT", "VERARBEITET", "BETRIFFT", "BEEINFLUSST"):
+        assert any(f"(n)-[:{rel}]->(source)" in query and f"(n)-[:{rel}]->(target)" in query for query in queries), f"incoming {rel} not transferred"
+    for rel in ("UNTERSTUETZT", "BENOETIGT", "VERARBEITET"):
+        assert any(f"(source)-[:{rel}]->(n)" in query and f"(target)-[:{rel}]->(n)" in query for query in queries), f"outgoing {rel} not transferred"
     mock_write_alias.assert_called_once_with(fake_client, "Reisekostenabrechnung", target_element_id="target-1")
     payload = mock_create_manual_decision.call_args[0][2]
     assert payload["entity_type"] == "Prozess"

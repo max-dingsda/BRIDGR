@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import json
 
-from core.app_config import AppConfig, resolve_input_cmdb_path
+from core.app_config import AppConfig
 from core.constants import ALIAS_SOURCE_KIND_CONFIRMED_MATCH, ALIAS_SOURCE_KIND_MERGED_ENTITY
 from core.neo4j_utils import Neo4jExecutionError
-from processing.cmdb import CmdbLoadError, load_cmdb_rows
+from services.cmdb_service import load_all_cmdb_rows
 from services.alias_service import (
     delete_application_alias,
     delete_org_unit_alias,
@@ -403,12 +403,5 @@ def _node_match(alias: str, label: str) -> str:
 def _refresh_document_if_possible(config: AppConfig, source_path: str) -> None:
     if not source_path:
         return
-    try:
-        cmdb_rows = load_cmdb_rows(
-            resolve_input_cmdb_path(config),
-            config.cmdb_uuid_column,
-            config.cmdb_name_column,
-        )
-    except CmdbLoadError:
-        return
+    cmdb_rows = load_all_cmdb_rows(config)
     persist_single_document_refresh(config, source_path, cmdb_rows)
