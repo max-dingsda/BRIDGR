@@ -17,6 +17,7 @@ from services.archimate_import_service import (
     persist_archimate_import,
 )
 from services.runtime_service import get_session_neo4j_client
+from ui.layout import render_page_header
 from services.archimate_export_service import (
     export_graph_as_archimate,
     fetch_untyped_nodes,
@@ -45,7 +46,11 @@ _STATE_EXPORT_UNTYPED = "archimate_export_untyped_nodes"
 
 
 def render_archimate_tab() -> None:
-    st.subheader("EA-Modell")
+    render_page_header(
+        "EA-Modell",
+        "Konfigurieren Sie das ArchiMate-Mapping und führen Sie Import sowie Export des Architekturmodells kontrolliert aus.",
+        "Mapping, Import und Export",
+    )
     config_path = Path("config.json")
     try:
         config = load_config(config_path)

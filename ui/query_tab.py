@@ -7,6 +7,7 @@ import streamlit as st
 
 from core.app_config import load_config
 from services.query_service import run_query_chat_turn
+from ui.layout import render_page_header
 from services.runtime_service import (
     CHAT_MESSAGES_STATE_KEY,
     append_chat_message,
@@ -40,7 +41,11 @@ def render_query_chat_messages() -> None:
 
 
 def render_query_tab() -> None:
-    st.subheader("Kommunikation")
+    render_page_header(
+        "Kommunikation",
+        "Stellen Sie Fragen zum Wissensgraphen und erhalten Sie nachvollziehbare Antworten mit optionalen Cypher-Details.",
+        "LLM-gestützte Abfrage",
+    )
     config = load_config(Path("config.json"))
     ensure_query_chat_defaults()
 

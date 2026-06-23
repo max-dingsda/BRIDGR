@@ -23,6 +23,7 @@ from services.runtime_service import (
     apply_pending_review_scope_defaults,
     render_run_feedback,
 )
+from ui.layout import render_page_header
 from ui.ui_run_view import (
     build_document_details,
     build_document_status_rows,
@@ -272,7 +273,11 @@ def render_document_details(documents: list[dict]) -> None:
 
 
 def render_review_tab() -> None:
-    st.subheader("Zuordnungen")
+    render_page_header(
+        "Zuordnungen",
+        "Prüfen Sie offene Anwendungszuordnungen aus dem letzten Lauf und bestätigen, verwerfen oder ergänzen Sie Kandidaten gezielt.",
+        "Review und Dokumentstatus",
+    )
     config = load_config(Path("config.json"))
     apply_pending_review_scope_defaults()
     render_run_feedback(REVIEW_RUN_FEEDBACK_STATE_KEY)

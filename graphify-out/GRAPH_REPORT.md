@@ -1,4 +1,4 @@
-# Graph Report - F:\workspace\BRIDGR  (2026-06-19)
+# Graph Report - F:\workspace\BRIDGR  (2026-06-23)
 
 ## Corpus Check
 - cluster-only mode — file stats not available
@@ -9,7 +9,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8aaa1dec`
+- Built from commit: `6cc5bcec`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

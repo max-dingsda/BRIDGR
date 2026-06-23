@@ -56,6 +56,7 @@ from services.runtime_service import (
 )
 from ui.archimate_tab import render_archimate_tab
 from ui.config_tab import render_config_tab
+from ui.layout import inject_global_styles, render_app_header
 from ui.organization_tab import render_organization_tab
 from ui.query_tab import render_query_tab
 from ui.review_tab import render_review_tab
@@ -64,7 +65,8 @@ from ui.review_tab import render_review_tab
 def main() -> None:
     load_env_files()
     st.set_page_config(page_title="BRIDGR", layout="wide")
-    st.title("BRIDGR")
+    inject_global_styles()
+    render_app_header()
     tabs = st.tabs(["Kommunikation", "Zuordnungen", "Konfiguration", "Organisation", "EA-Modell"])
     config_path = Path("config.json")
 

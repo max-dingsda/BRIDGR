@@ -32,6 +32,7 @@ from services.runtime_service import (
     update_config_session_defaults,
     write_debug_log,
 )
+from ui.layout import render_page_header
 
 _OPENAI_PRESET = {
     "llm_base_url": "https://api.openai.com/v1",
@@ -309,7 +310,11 @@ def render_knowledge_base_section(config: AppConfig) -> None:
 
 
 def render_config_tab(config_path: Path) -> None:
-    st.subheader("Konfiguration")
+    render_page_header(
+        "Konfiguration",
+        "Pflegen Sie Laufzeitparameter, Importpfade sowie LLM- und Neo4j-Einstellungen für den aktuellen Workspace.",
+        "Import, Einstellungen und Wissensbasis",
+    )
     config = load_config(config_path)
     ensure_config_session_defaults(config)
     sync_config_session_defaults(config)

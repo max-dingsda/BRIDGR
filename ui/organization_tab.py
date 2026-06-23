@@ -40,10 +40,15 @@ from services.runtime_service import (
     render_run_feedback,
     set_run_feedback,
 )
+from ui.layout import render_page_header
 
 
 def render_organization_tab() -> None:
-    st.subheader("Organisation")
+    render_page_header(
+        "Organisation",
+        "Verwalten Sie Organisationseinheiten, Eigentümer, Rollen sowie manuelle Korrekturen und Konsolidierungen im Graphen.",
+        "Kandidaten, Eigentümer und Merge",
+    )
     render_run_feedback(ORGANIZATION_RUN_FEEDBACK_STATE_KEY)
     config = load_config(Path("config.json"))
     knowledge_base = load_knowledge_base()

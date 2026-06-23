@@ -235,6 +235,7 @@ prompttesting.txt
 *tmp*.*
 *.archimate
 Specs/20260618testprotokoll.md
+Specs/design
 
 # Local maintenance scripts (not for distribution)
 reset_to_delivery_state.py
