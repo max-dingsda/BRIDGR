@@ -1,7 +1,7 @@
 {
-  "llm_base_url": "https://api.cerebras.ai/v1",
-  "llm_model": "gpt-oss-120b",
-  "llm_api_key_env": "CEREBRAS_API_KEY",
+  "llm_base_url": "https://api.openai.com/v1",
+  "llm_model": "gpt-4o",
+  "llm_api_key_env": "OPENAI_API_KEY",
   "llm_context_window": 131072,
   "llm_timeout_seconds": 900,
   "neo4j_url": "neo4j://127.0.0.1:7687",

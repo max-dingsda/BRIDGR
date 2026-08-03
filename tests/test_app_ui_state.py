@@ -38,7 +38,6 @@ from app import (
     write_debug_log,
 )
 from core.app_config import AppConfig
-from processing.knowledge_base import KnowledgeBase
 from core.neo4j_utils import Neo4jConnectionError
 from skills.extract.extract_base import ApplicationReference
 from services import organization_service, query_service, runtime_service
@@ -435,16 +434,9 @@ def test_persist_org_candidate_mapping_refresh_syncs_org_unit_node_without_lates
     synced_org_units = []
     alias_sync_calls = []
 
-    monkeypatch.setattr(
-        organization_service,
-        "load_knowledge_base",
-        lambda: KnowledgeBase(
-            confirmed=[],
-            rejected=[],
-            disambiguation=[],
-            process_identity=[],
-            org_units=[],
-            org_unit_candidates=[
+    class FakeGraphWriter:
+        def load_org_unit_candidates(self, _client, status=None):
+            return [
                 {
                     "candidate_name": "People & Culture",
                     "normalized_name": "people & culture",
@@ -456,11 +448,23 @@ def test_persist_org_candidate_mapping_refresh_syncs_org_unit_node_without_lates
                     "first_seen": "2026-05-27",
                     "last_seen": "2026-05-27",
                 }
-            ],
-        ),
-    )
+            ]
+
+        def write_org_unit_alias(self, _client, candidate_name, org_unit_name):
+            return None
+
+        def get_confirmed_links_from_neo4j(self, _client):
+            return []
+
+        def load_org_units_from_neo4j(self, _client):
+            return {}
+
+        def load_org_unit_aliases_from_neo4j(self, _client):
+            return {}
+
+    monkeypatch.setattr(organization_service, "GraphWriter", FakeGraphWriter)
     monkeypatch.setattr(organization_service, "persist_org_unit_node", lambda _config, name: synced_org_units.append(name))
-    monkeypatch.setattr(organization_service, "sync_knowledge_base_aliases", lambda _client, _kb: alias_sync_calls.append(True))
+    monkeypatch.setattr(organization_service, "sync_curated_aliases", lambda _client, _confirmed, _candidates: alias_sync_calls.append(True))
     monkeypatch.setattr(organization_service, "get_session_neo4j_client", lambda _config: object())
     monkeypatch.setattr(organization_service, "resolve_runtime_output_path", lambda _path: (None, False))
     monkeypatch.setattr(organization_service, "load_latest_run", lambda _path: None)
@@ -473,26 +477,6 @@ def test_persist_org_candidate_mapping_refresh_syncs_org_unit_node_without_lates
 
 
 def test_rerun_single_document_from_artifact_applies_org_unit_candidate_mapping() -> None:
-    knowledge_base = KnowledgeBase(
-        confirmed=[],
-        rejected=[],
-        disambiguation=[],
-        process_identity=[],
-        org_units=[{"name": "QM", "created_at": "2026-05-27", "source": "manual"}],
-        org_unit_candidates=[
-            {
-                "candidate_name": "Qualitaetsmanagement",
-                "normalized_name": "qualitaetsmanagement",
-                "source_paths": ["Input/process.txt"],
-                "process_names": ["Pruefen"],
-                "role_names": [],
-                "status": "mapped",
-                "mapped_org_unit": "QM",
-                "first_seen": "2026-05-27",
-                "last_seen": "2026-05-27",
-            }
-        ],
-    )
     document = {
         "source_path": "Input/process.txt",
         "extracted_process": {
@@ -514,7 +498,7 @@ def test_rerun_single_document_from_artifact_applies_org_unit_candidate_mapping(
     }
 
     refreshed = rerun_single_document_from_artifact(
-        document, AppConfig(), [], knowledge_base,
+        document, AppConfig(), [],
         org_units={"qm": "QM"},
         org_unit_aliases={"qualitaetsmanagement": "QM"},
     )
@@ -526,24 +510,21 @@ def test_rerun_single_document_from_artifact_applies_org_unit_candidate_mapping(
 
 def test_persist_organization_sync_syncs_all_org_units_and_refreshes_latest_run(monkeypatch) -> None:
     alias_sync_calls = []
-    monkeypatch.setattr(
-        organization_service,
-        "load_knowledge_base",
-        lambda: KnowledgeBase(
-            confirmed=[],
-            rejected=[],
-            disambiguation=[],
-            process_identity=[],
-            org_units=[
-                {"name": "QM", "created_at": "2026-05-27", "source": "manual"},
-                {"name": "Sales", "created_at": "2026-05-27", "source": "manual"},
-            ],
-            org_unit_candidates=[],
-        ),
-    )
+
+    class FakeGraphWriter:
+        def load_org_units_from_neo4j(self, _client):
+            return {"qm": "QM", "sales": "Sales"}
+
+        def get_confirmed_links_from_neo4j(self, _client):
+            return []
+
+        def load_org_unit_candidates(self, _client, status=None):
+            return []
+
+    monkeypatch.setattr(organization_service, "GraphWriter", FakeGraphWriter)
     synced_names = []
     monkeypatch.setattr(organization_service, "persist_org_unit_node", lambda _config, name: synced_names.append(name))
-    monkeypatch.setattr(organization_service, "sync_knowledge_base_aliases", lambda _client, _kb: alias_sync_calls.append(True))
+    monkeypatch.setattr(organization_service, "sync_curated_aliases", lambda _client, _confirmed, _candidates: alias_sync_calls.append(True))
     monkeypatch.setattr(organization_service, "get_session_neo4j_client", lambda _config: object())
     monkeypatch.setattr(organization_service, "load_all_cmdb_rows", lambda _config: [{"id": "cmdb-1", "name": "SAP"}])
     monkeypatch.setattr(organization_service, "persist_latest_run_refresh", lambda _config, _cmdb_rows: 3)

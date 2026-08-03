@@ -34,14 +34,12 @@ def _make_config():
 
 
 @patch("services.organization_service.get_session_neo4j_client")
-@patch("services.organization_service.load_knowledge_base")
-def test_load_unassigned_roles_returns_roles_from_neo4j(mock_load_kb, mock_get_client) -> None:
+def test_load_unassigned_roles_returns_roles_from_neo4j(mock_get_client) -> None:
     fake_client = FakeNeo4jClient(rows=[
         {"rolle": "Einkäufer", "prozesse": ["Bestellabwicklung"]},
         {"rolle": "Vertrieb", "prozesse": ["Angebotserstellung", "Auftragsabwicklung"]},
     ])
     mock_get_client.return_value = fake_client
-    mock_load_kb.return_value = MagicMock(role_decisions=[])
 
     result = load_unassigned_roles(_make_config())
 
@@ -52,11 +50,9 @@ def test_load_unassigned_roles_returns_roles_from_neo4j(mock_load_kb, mock_get_c
 
 
 @patch("services.organization_service.get_session_neo4j_client")
-@patch("services.organization_service.load_knowledge_base")
-def test_load_unassigned_roles_returns_empty_list_when_none_pending(mock_load_kb, mock_get_client) -> None:
+def test_load_unassigned_roles_returns_empty_list_when_none_pending(mock_get_client) -> None:
     fake_client = FakeNeo4jClient(rows=[])
     mock_get_client.return_value = fake_client
-    mock_load_kb.return_value = MagicMock(role_decisions=[])
 
     result = load_unassigned_roles(_make_config())
 
@@ -291,24 +287,17 @@ def test_assign_role_to_org_unit_trims_org_unit_name(_mock_register, mock_get_cl
 
 
 @patch("services.organization_service.get_session_neo4j_client")
-@patch("services.organization_service.save_knowledge_base")
-@patch("services.organization_service.load_knowledge_base")
-def test_mark_role_as_role_only_persists_decision(mock_load_kb, mock_save_kb, mock_get_client) -> None:
-    mock_load_kb.return_value = MagicMock(
-        confirmed=[],
-        rejected=[],
-        disambiguation=[],
-        process_identity=[],
-        org_units=[],
-        org_unit_candidates=[],
-        role_decisions=[],
-    )
-    mock_get_client.return_value = FakeNeo4jClient()
+def test_mark_role_as_role_only_persists_decision(mock_get_client) -> None:
+    fake_client = FakeNeo4jClient()
+    mock_get_client.return_value = fake_client
 
     level, message = mark_role_as_role_only(_make_config(), "Freigeber")
 
     assert level == "success"
     assert "Freigeber" in message
-    saved_kb = mock_save_kb.call_args[0][0]
-    assert saved_kb.role_decisions[0]["normalized_name"] == "freigeber"
-    assert saved_kb.role_decisions[0]["status"] == "role_only"
+    role_only_queries = [
+        (query, params)
+        for query, params in fake_client.written
+        if "role_only" in query and params and params.get("role_name") == "Freigeber"
+    ]
+    assert len(role_only_queries) == 1

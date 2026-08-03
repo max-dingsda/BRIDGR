@@ -4,8 +4,7 @@ from dataclasses import dataclass
 
 from core.app_config import AppConfig, resolve_cmdb_type_file_paths
 from processing.cmdb import CmdbLoadError, load_cmdb_rows, load_normalized_cmdb_from_type_files
-from processing.knowledge_base import KnowledgeBase, load_knowledge_base, normalize_org_unit_name, save_knowledge_base, upsert_org_unit_candidate
-from skills.graph_writer import GraphWriter
+from skills.graph_writer import GraphWriter, normalize_org_unit_name
 
 
 @dataclass(slots=True)
@@ -22,9 +21,7 @@ def persist_cmdb_sync(config: AppConfig) -> CmdbSyncResult:
     from services.review_service import persist_latest_run_refresh
 
     neo4j_client = get_session_neo4j_client(config)
-    knowledge_base = load_knowledge_base()
-    result, updated_knowledge_base = sync_cmdb_to_neo4j(config, neo4j_client, knowledge_base)
-    save_knowledge_base(updated_knowledge_base)
+    result = sync_cmdb_to_neo4j(config, neo4j_client)
 
     cmdb_rows = load_all_cmdb_rows(config)
     refreshed_document_count = persist_latest_run_refresh(config, cmdb_rows)
@@ -72,8 +69,7 @@ def load_application_cmdb_rows(config: AppConfig) -> list[dict[str, str]]:
 def sync_cmdb_to_neo4j(
     config: AppConfig,
     neo4j_client,
-    knowledge_base: KnowledgeBase,
-) -> tuple[CmdbSyncResult, KnowledgeBase]:
+) -> CmdbSyncResult:
     normalized_cmdb = load_normalized_cmdb_from_type_files(
         resolve_cmdb_type_file_paths(config),
         id_column=config.cmdb_uuid_column,
@@ -89,74 +85,34 @@ def sync_cmdb_to_neo4j(
     org_units = graph_writer.load_org_units_from_neo4j(neo4j_client)
     org_unit_aliases = graph_writer.load_org_unit_aliases_from_neo4j(neo4j_client)
 
-    updated_knowledge_base = update_organization_knowledge_from_cmdb(
-        knowledge_base, normalized_cmdb,
+    update_organization_knowledge_from_cmdb(
+        graph_writer, neo4j_client, normalized_cmdb,
         source_path="cmdb_sync",
         org_units=org_units, org_unit_aliases=org_unit_aliases,
     )
     owner_assignments = resolve_cmdb_owner_assignments(normalized_cmdb, org_units, org_unit_aliases)
-    owner_candidates = resolve_cmdb_owner_candidates(normalized_cmdb, org_units, org_unit_aliases)
 
     graph_writer.sync_cmdb(neo4j_client, normalized_cmdb, owner_assignments=owner_assignments)
-    for entity_id, org_unit_name in owner_candidates.items():
-        graph_writer.write_candidate_ownership(neo4j_client, org_unit_name, entity_id, score=0.0)
 
-    result = CmdbSyncResult(
+    open_candidate_count = len(graph_writer.load_org_unit_candidates(neo4j_client, status="open"))
+    return CmdbSyncResult(
         entity_count=len(normalized_cmdb.entities),
         relation_count=len(normalized_cmdb.relations),
         owner_assignment_count=len(owner_assignments),
-        owner_candidate_count=len(updated_knowledge_base.org_unit_candidates),
+        owner_candidate_count=open_candidate_count,
         refreshed_document_count=0,
     )
-    return result, updated_knowledge_base
 
 
 def update_organization_knowledge_from_cmdb(
-    knowledge_base: KnowledgeBase,
+    graph_writer: GraphWriter,
+    neo4j_client,
     normalized_cmdb,
     source_path: str,
-    org_units: dict[str, str] | None = None,
-    org_unit_aliases: dict[str, str] | None = None,
-) -> KnowledgeBase:
-    """Update kb with new CMDB owner candidates not yet known to BRIDGR.
-
-    org_units and org_unit_aliases, when provided, replace the kb.json-based lookup.
-    """
-    effective_org_units = org_units if org_units is not None else {
-        normalize_org_unit_name(entry.get("name", "")): entry.get("name", "")
-        for entry in knowledge_base.org_units
-        if entry.get("name")
-    }
-    effective_aliases = org_unit_aliases if org_unit_aliases is not None else {
-        entry.get("normalized_name", ""): entry.get("mapped_org_unit", "")
-        for entry in knowledge_base.org_unit_candidates
-        if entry.get("status") == "mapped" and entry.get("mapped_org_unit")
-    }
-    updated = knowledge_base
-    for entity in normalized_cmdb.entities:
-        owner_name = " ".join((entity.owner_name or "").split())
-        if not owner_name:
-            continue
-        normalized_owner = normalize_org_unit_name(owner_name)
-        if normalized_owner in effective_org_units or normalized_owner in effective_aliases:
-            continue
-        updated = upsert_org_unit_candidate(
-            updated,
-            candidate_name=owner_name,
-            source_path=source_path,
-            process_name="",
-            role_name="",
-        )
-    return updated
-
-
-def resolve_cmdb_owner_candidates(
-    normalized_cmdb,
     org_units: dict[str, str],
     org_unit_aliases: dict[str, str],
-) -> dict[str, str]:
-    """Return {entity_id: raw_owner_name} for CMDB entities whose owner is not yet known."""
-    candidates: dict[str, str] = {}
+) -> None:
+    """Record CMDB owner strings that are not yet a known OrgEinheit as :OrgKandidat nodes."""
     for entity in normalized_cmdb.entities:
         owner_name = " ".join((entity.owner_name or "").split())
         if not owner_name:
@@ -164,8 +120,13 @@ def resolve_cmdb_owner_candidates(
         normalized_owner = normalize_org_unit_name(owner_name)
         if normalized_owner in org_units or normalized_owner in org_unit_aliases:
             continue
-        candidates[entity.entity_id] = owner_name
-    return candidates
+        graph_writer.upsert_org_unit_candidate(
+            neo4j_client,
+            candidate_name=owner_name,
+            source_path=source_path,
+            process_name="",
+            role_name="",
+        )
 
 
 def resolve_cmdb_owner_assignments(

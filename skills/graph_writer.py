@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 
 from processing.cmdb import (
     CMDB_ENTITY_TYPE_APPLICATION,
@@ -29,7 +30,7 @@ PROCESS_WRITE_ACTION_INSERTED = "inserted"
 PROCESS_WRITE_ACTION_UPDATED = "updated"
 
 
-def _normalize_for_alias(name: str) -> str:
+def normalize_org_unit_name(name: str) -> str:
     return " ".join(name.strip().casefold().split())
 
 
@@ -541,8 +542,8 @@ class GraphWriter:
                 "source": DIENT_SOURCE_CONFIRMED,
             },
         )
-        normalized_raw = _normalize_for_alias(raw_name)
-        normalized_matched = _normalize_for_alias(matched_name)
+        normalized_raw = normalize_org_unit_name(raw_name)
+        normalized_matched = normalize_org_unit_name(matched_name)
         if normalized_raw and normalized_raw != normalized_matched:
             client.execute_write(
                 """
@@ -586,65 +587,6 @@ class GraphWriter:
             {"prozess_name": prozess_name, "anwendung_name": anwendung_name},
         )
 
-    def promote_candidate_ownership(
-        self,
-        client: Neo4jClient,
-        org_unit_name: str,
-        entity_id: str,
-    ) -> None:
-        canonical = self._resolve_org_unit_canonical_name(client, org_unit_name)
-        client.execute_write(
-            """
-            MATCH (o:OrgEinheit {name: $org_unit_name})-[r:KÖNNTE_VERANTWORTEN]->(target)
-            WHERE target.id = $entity_id OR target.cmdb_id = $entity_id
-            DELETE r
-            """,
-            {"org_unit_name": canonical, "entity_id": entity_id},
-        )
-        client.execute_write(
-            """
-            MERGE (o:OrgEinheit {name: $org_unit_name})
-            MATCH (target)
-            WHERE target.id = $entity_id OR target.cmdb_id = $entity_id
-            MERGE (o)-[:VERANTWORTET]->(target)
-            """,
-            {"org_unit_name": canonical, "entity_id": entity_id},
-        )
-
-    def reject_candidate_ownership(
-        self,
-        client: Neo4jClient,
-        org_unit_name: str,
-        entity_id: str,
-    ) -> None:
-        client.execute_write(
-            """
-            MATCH (o:OrgEinheit {name: $org_unit_name})-[r:KÖNNTE_VERANTWORTEN]->(target)
-            WHERE target.id = $entity_id OR target.cmdb_id = $entity_id
-            DELETE r
-            """,
-            {"org_unit_name": org_unit_name, "entity_id": entity_id},
-        )
-
-    def write_candidate_ownership(
-        self,
-        client: Neo4jClient,
-        org_unit_name: str,
-        entity_id: str,
-        score: float,
-    ) -> None:
-        canonical = self._resolve_org_unit_canonical_name(client, org_unit_name)
-        client.execute_write(
-            """
-            MERGE (o:OrgEinheit {name: $org_unit_name})
-            MATCH (target)
-            WHERE target.id = $entity_id OR target.cmdb_id = $entity_id
-            MERGE (o)-[r:KÖNNTE_VERANTWORTEN]->(target)
-            SET r.score = $score
-            """,
-            {"org_unit_name": canonical, "entity_id": entity_id, "score": score},
-        )
-
     def get_confirmed_links_from_neo4j(self, client: Neo4jClient) -> list[dict]:
         rows = client.execute_read(
             """
@@ -680,7 +622,7 @@ class GraphWriter:
         for row in rows:
             name = (row.get("name") or "").strip()
             if name:
-                result[_normalize_for_alias(name)] = name
+                result[normalize_org_unit_name(name)] = name
         return result
 
     def load_org_unit_aliases_from_neo4j(self, client: Neo4jClient) -> dict[str, str]:
@@ -715,8 +657,8 @@ class GraphWriter:
         the raw candidate string to the canonical OrgEinheit without reading kb.json.
         No-op when candidate_name and org_unit_name normalise to the same value.
         """
-        normalized_candidate = _normalize_for_alias(candidate_name)
-        normalized_target = _normalize_for_alias(org_unit_name)
+        normalized_candidate = normalize_org_unit_name(candidate_name)
+        normalized_target = normalize_org_unit_name(org_unit_name)
         if not normalized_candidate or normalized_candidate == normalized_target:
             return
         client.execute_write(
@@ -736,6 +678,111 @@ class GraphWriter:
                 "org_unit_name": org_unit_name.strip(),
                 "source_kind": ALIAS_SOURCE_KIND_CONFIRMED_CANDIDATE,
             },
+        )
+
+    def upsert_org_unit_candidate(
+        self,
+        client: Neo4jClient,
+        candidate_name: str,
+        source_path: str = "",
+        process_name: str = "",
+        role_name: str = "",
+    ) -> None:
+        """Record an unresolved org-unit/role mention as an (:OrgKandidat) node.
+
+        MERGE by normalized_name; provenance (source_path/process_name/role_name) is
+        appended to list properties without duplicates. last_seen only advances while
+        the candidate is still open, so a decided candidate keeps its decision date.
+        """
+        cleaned_name = " ".join(candidate_name.strip().split())
+        if not cleaned_name:
+            return
+        normalized_name = normalize_org_unit_name(cleaned_name)
+        today = date.today().isoformat()
+        client.execute_write(
+            """
+            MERGE (k:OrgKandidat {normalized_name: $normalized_name})
+            ON CREATE SET k.candidate_name = $candidate_name,
+                          k.status = 'open',
+                          k.mapped_org_unit = '',
+                          k.source_paths = [],
+                          k.process_names = [],
+                          k.role_names = [],
+                          k.first_seen = $today,
+                          k.last_seen = $today
+            SET k.source_paths = CASE
+                    WHEN $source_path <> '' AND NOT $source_path IN k.source_paths
+                    THEN k.source_paths + $source_path ELSE k.source_paths END,
+                k.process_names = CASE
+                    WHEN $process_name <> '' AND NOT $process_name IN k.process_names
+                    THEN k.process_names + $process_name ELSE k.process_names END,
+                k.role_names = CASE
+                    WHEN $role_name <> '' AND NOT $role_name IN k.role_names
+                    THEN k.role_names + $role_name ELSE k.role_names END,
+                k.last_seen = CASE WHEN k.status = 'open' THEN $today ELSE k.last_seen END
+            """,
+            {
+                "normalized_name": normalized_name,
+                "candidate_name": cleaned_name,
+                "source_path": source_path,
+                "process_name": process_name,
+                "role_name": role_name,
+                "today": today,
+            },
+        )
+
+    def load_org_unit_candidates(self, client: Neo4jClient, status: str | None = None) -> list[dict]:
+        # OrgKandidat is an internal operational node (like Ablehnung) and is deliberately
+        # excluded from graph_schema.py's LLM-facing allowlist, so execute_read's schema
+        # validation would reject this query. Use the unvalidated read path instead.
+        rows = client.execute_read_unvalidated(
+            """
+            MATCH (k:OrgKandidat)
+            WHERE $status IS NULL OR k.status = $status
+            RETURN k.candidate_name AS candidate_name,
+                   k.normalized_name AS normalized_name,
+                   k.status AS status,
+                   k.mapped_org_unit AS mapped_org_unit,
+                   k.source_paths AS source_paths,
+                   k.process_names AS process_names,
+                   k.role_names AS role_names,
+                   k.first_seen AS first_seen,
+                   k.last_seen AS last_seen
+            """,
+            {"status": status},
+        )
+        return [dict(row) for row in rows]
+
+    def map_org_unit_candidate(self, client: Neo4jClient, candidate_name: str, target_org_unit: str) -> None:
+        normalized_name = normalize_org_unit_name(candidate_name)
+        if not normalized_name:
+            return
+        client.execute_write(
+            """
+            MATCH (k:OrgKandidat {normalized_name: $normalized_name})
+            SET k.status = 'mapped',
+                k.mapped_org_unit = $target_org_unit,
+                k.last_seen = $today
+            """,
+            {
+                "normalized_name": normalized_name,
+                "target_org_unit": target_org_unit.strip(),
+                "today": date.today().isoformat(),
+            },
+        )
+
+    def reject_org_unit_candidate(self, client: Neo4jClient, candidate_name: str) -> None:
+        normalized_name = normalize_org_unit_name(candidate_name)
+        if not normalized_name:
+            return
+        client.execute_write(
+            """
+            MATCH (k:OrgKandidat {normalized_name: $normalized_name})
+            SET k.status = 'rejected',
+                k.mapped_org_unit = '',
+                k.last_seen = $today
+            """,
+            {"normalized_name": normalized_name, "today": date.today().isoformat()},
         )
 
     def _resolve_org_unit_canonical_name(self, client: Neo4jClient, name: str) -> str:

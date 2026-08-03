@@ -8,7 +8,6 @@ from core.app_config import AppConfig, load_config, resolve_runtime_output_path
 from processing.cmdb import build_cmdb_option_labels, find_cmdb_row_by_label
 from services.cmdb_service import load_all_cmdb_rows, load_application_cmdb_rows
 from core.constants import DOCUMENT_STATUS_OPTIONS, MATCH_SOURCE_REJECTED
-from processing.knowledge_base import load_knowledge_base
 from processing.run_artifacts import load_last_import_context, load_latest_run
 from services.review_service import (
     confirm_review_link,
@@ -21,8 +20,10 @@ _REVIEW_COL_WIDTHS = [0.5, 2, 3, 3, 1, 1, 1, 2]
 from services.runtime_service import (
     REVIEW_RUN_FEEDBACK_STATE_KEY,
     apply_pending_review_scope_defaults,
+    get_session_neo4j_client,
     render_run_feedback,
 )
+from skills.graph_writer import GraphWriter
 from ui.layout import render_page_header
 from ui.ui_run_view import (
     build_document_details,
@@ -58,9 +59,9 @@ def render_document_status_table(documents: list[dict]) -> None:
         st.info("Keine Dokumente für den aktuellen Filter gefunden.")
 
 
-def render_review_artifact_summary(documents: list[dict]) -> None:
-    knowledge_base = load_knowledge_base()
-    summary = summarize_review_artifacts(documents, knowledge_base.org_unit_candidates)
+def render_review_artifact_summary(config: AppConfig, documents: list[dict]) -> None:
+    org_unit_candidates = GraphWriter().load_org_unit_candidates(get_session_neo4j_client(config))
+    summary = summarize_review_artifacts(documents, org_unit_candidates)
     st.markdown("**Der letzte Import hat folgendes gefunden**")
     st.markdown(f"- {summary['exact_application_matches']} eindeutige Applikationszuordnungen")
     st.markdown(f"- {summary['review_application_matches']} zu prüfende Applikationszuordnungen")
@@ -355,10 +356,10 @@ def render_review_tab() -> None:
         filtered_documents = []
     render_latest_run_summary(latest_run, filtered_documents)
     cmdb_rows = _resolve_cmdb_rows(config)
-    render_review_artifact_summary(filtered_documents)
+    render_review_artifact_summary(config, filtered_documents)
     render_document_status_table(filtered_documents)
-    knowledge_base = load_knowledge_base()
-    candidate_scope = summarize_org_candidate_scope(filtered_documents, knowledge_base.org_unit_candidates)
+    org_unit_candidates = GraphWriter().load_org_unit_candidates(get_session_neo4j_client(config))
+    candidate_scope = summarize_org_candidate_scope(filtered_documents, org_unit_candidates)
     if candidate_scope["scoped_open_candidates"]:
         st.info(
             f"Es liegen {candidate_scope['scoped_open_candidates']} offene Organisationseinheiten-Kandidat(en) "

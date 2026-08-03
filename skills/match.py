@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 import re
+from typing import TypedDict
 
 from core.constants import (
     CONFIDENCE_STRONG,
@@ -12,7 +13,20 @@ from core.constants import (
     MATCH_SOURCE_REJECTED,
     MATCH_SOURCE_UNMATCHED,
 )
-from processing.knowledge_base import ConfirmedLink, RejectedLink
+
+
+class ConfirmedLink(TypedDict):
+    prozess: str
+    anwendung_name: str
+    cmdb_id: str
+    resolved_to: str
+    quelle: str
+
+
+class RejectedLink(TypedDict):
+    prozess: str
+    anwendung_name: str
+    cmdb_id: str | None
 
 
 @dataclass(slots=True)

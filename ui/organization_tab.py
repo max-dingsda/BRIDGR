@@ -6,7 +6,6 @@ from pathlib import Path
 import streamlit as st
 
 from core.app_config import load_config
-from processing.knowledge_base import load_knowledge_base, normalize_org_unit_name
 from core.neo4j_utils import Neo4jConnectionError, Neo4jQueryError
 from services.correction_service import revert_manual_decision
 from services.decision_service import list_recent_manual_decisions
@@ -40,6 +39,7 @@ from services.runtime_service import (
     render_run_feedback,
     set_run_feedback,
 )
+from skills.graph_writer import GraphWriter, normalize_org_unit_name
 from ui.layout import render_page_header
 
 
@@ -51,32 +51,26 @@ def render_organization_tab() -> None:
     )
     render_run_feedback(ORGANIZATION_RUN_FEEDBACK_STATE_KEY)
     config = load_config(Path("config.json"))
-    knowledge_base = load_knowledge_base()
 
-    # Load org units from Neo4j as primary source (includes ArchiMate-imported units).
-    # Supplement with kb.json entries not yet synced to Neo4j.
     try:
-        neo4j_org_units = load_org_units_from_neo4j(config)
+        org_units = sorted(load_org_units_from_neo4j(config), key=lambda e: e.get("name", "").casefold())
     except Exception:
-        neo4j_org_units = []
-    neo4j_names = {e["name"].casefold() for e in neo4j_org_units}
-    kb_only = [e for e in knowledge_base.org_units if e.get("name", "").casefold() not in neo4j_names]
-    org_units = sorted(neo4j_org_units + kb_only, key=lambda e: e.get("name", "").casefold())
+        org_units = []
 
     try:
         all_processes = load_all_processes_with_owner(config)
     except Exception:
         all_processes = []
 
-    _render_org_units_section(config, knowledge_base, org_units, all_processes)
-    _render_candidates_section(config, knowledge_base, org_units)
+    _render_org_units_section(config, org_units, all_processes)
+    _render_candidates_section(config, org_units)
     _render_process_owner_candidates_section(config, org_units)
     _render_process_owner_section(config, org_units, all_processes)
     _render_unassigned_roles_section(config, org_units)
     _render_recent_decisions_section(config)
     _render_org_unit_merge_section(config, org_units)
     _render_process_merge_section(config)
-    _render_decided_candidates_section(knowledge_base)
+    _render_decided_candidates_section(config)
 
 
 def _build_role_assignment_options(org_units: list[dict], role_name: str) -> tuple[list[str], str]:
@@ -109,7 +103,7 @@ def _rerun_keep(section_key: str) -> None:
     st.rerun()
 
 
-def _render_org_units_section(config, knowledge_base, org_units, all_processes) -> None:
+def _render_org_units_section(config, org_units, all_processes) -> None:
     with st.expander("Organisationseinheiten", expanded=st.session_state.get(_SECTION_ORG_UNITS, False)):
         if not org_units:
             st.info("Noch keine Organisationseinheiten gepflegt.")
@@ -135,9 +129,6 @@ def _render_org_units_section(config, knowledge_base, org_units, all_processes) 
                 with st.container(border=True):
                     header_cols = st.columns([3, 1])
                     header_cols[0].markdown(f"**{org_unit_name}**")
-                    header_cols[0].caption(
-                        f"Quelle: {org_unit.get('source', '')} | Angelegt: {org_unit.get('created_at', '')}"
-                    )
                     with header_cols[1]:
                         manage_key = f"org-manage-toggle::{org_key}"
                         if st.button("Prozesse verwalten", key=manage_key, width="stretch"):
@@ -153,7 +144,7 @@ def _render_org_units_section(config, knowledge_base, org_units, all_processes) 
             new_org_unit_name = st.text_input("Neue Organisationseinheit")
             add_submitted = st.form_submit_button("Organisationseinheit hinzufügen")
         if add_submitted:
-            level, message = add_org_unit_entry(config, knowledge_base, new_org_unit_name)
+            level, message = add_org_unit_entry(config, new_org_unit_name)
             getattr(st, level)(message)
             _rerun_keep(_SECTION_ORG_UNITS)
 
@@ -323,12 +314,10 @@ def _render_process_owner_candidates_section(config, org_units) -> None:
                     _rerun_keep(_SECTION_PROCESS_OWNER_CANDIDATES)
 
 
-def _render_candidates_section(config, knowledge_base, org_units) -> None:
-    open_candidates = [
-        entry
-        for entry in knowledge_base.org_unit_candidates
-        if entry.get("status", "open") == "open"
-    ]
+def _render_candidates_section(config, org_units) -> None:
+    graph_writer = GraphWriter()
+    neo4j_client = get_session_neo4j_client(config)
+    open_candidates = graph_writer.load_org_unit_candidates(neo4j_client, status="open")
     with st.expander(f"Kandidaten ({len(open_candidates)})", expanded=st.session_state.get(_SECTION_CANDIDATES, False)):
         if not open_candidates:
             st.info("Aktuell liegen keine offenen Kandidaten vor.")
@@ -357,7 +346,7 @@ def _render_candidates_section(config, knowledge_base, org_units) -> None:
                     if not selected_target:
                         st.warning("Bitte zuerst eine bestehende Organisationseinheit auswählen.")
                     else:
-                        level, message = map_org_candidate(config, knowledge_base, candidate_name, selected_target)
+                        level, message = map_org_candidate(config, candidate_name, selected_target)
                         getattr(st, level)(message)
                         _rerun_keep(_SECTION_CANDIDATES)
 
@@ -367,12 +356,12 @@ def _render_candidates_section(config, knowledge_base, org_units) -> None:
                     key=f"org-candidate-new::{candidate_key}",
                 )
                 if action_columns[3].button("Übernehmen", key=f"org-candidate-accept::{candidate_key}", width="stretch"):
-                    level, message = accept_org_candidate(config, knowledge_base, candidate_name, proposed_name)
+                    level, message = accept_org_candidate(config, candidate_name, proposed_name)
                     getattr(st, level)(message)
                     _rerun_keep(_SECTION_CANDIDATES)
 
                 if action_columns[4].button("Abweisen", key=f"org-candidate-reject::{candidate_key}", width="stretch"):
-                    level, message = reject_org_candidate(knowledge_base, candidate_name)
+                    level, message = reject_org_candidate(config, candidate_name)
                     getattr(st, level)(message)
                     _rerun_keep(_SECTION_CANDIDATES)
 
@@ -434,12 +423,14 @@ def _render_unassigned_roles_section(config, org_units) -> None:
                     _rerun_keep(_SECTION_ROLES)
 
 
-def _render_decided_candidates_section(knowledge_base) -> None:
+def _render_decided_candidates_section(config) -> None:
     with st.expander("Bereits entschiedene Kandidaten", expanded=False):
+        graph_writer = GraphWriter()
+        neo4j_client = get_session_neo4j_client(config)
         decided_candidates = [
             entry
-            for entry in knowledge_base.org_unit_candidates
-            if entry.get("status", "open") != "open"
+            for status in ("mapped", "rejected")
+            for entry in graph_writer.load_org_unit_candidates(neo4j_client, status=status)
         ]
         if not decided_candidates:
             st.info("Noch keine entschiedenen Kandidaten vorhanden.")

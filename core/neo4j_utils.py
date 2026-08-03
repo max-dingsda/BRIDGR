@@ -94,6 +94,7 @@ class Neo4jClient:
             "CREATE CONSTRAINT server_id IF NOT EXISTS FOR (s:Server) REQUIRE s.id IS UNIQUE",
             "CREATE CONSTRAINT orgeinheit_name IF NOT EXISTS FOR (o:OrgEinheit) REQUIRE o.name IS UNIQUE",
             "CREATE CONSTRAINT alias_normalized_name IF NOT EXISTS FOR (a:Alias) REQUIRE a.normalized_name IS UNIQUE",
+            "CREATE CONSTRAINT org_kandidat_normalized_name IF NOT EXISTS FOR (k:OrgKandidat) REQUIRE k.normalized_name IS UNIQUE",
         ]
         for query in constraint_queries:
             self._execute(query, {})

@@ -16,8 +16,6 @@ from core.constants import (
 )
 from core.debug_utils import write_debug_log
 from processing.import_utils import list_process_files
-from processing.knowledge_base import ConfirmedLink, KnowledgeBase, load_knowledge_base
-from processing.knowledge_base import normalize_org_unit_name, save_knowledge_base, upsert_org_unit_candidate
 from core.llm_client import LlmClientConfig, OpenAICompatibleClient
 from core.neo4j_utils import Neo4jClient, Neo4jConfig, Neo4jConnectionError
 from processing.run_artifacts import (
@@ -33,8 +31,8 @@ from skills.extract.extract_bpmn import BpmnExtractor, BpmnExtractorError
 from skills.extract.extract_docx import DocxExtractor, DocxExtractorError
 from skills.extract.extract_pdf import PdfExtractor, PdfExtractorError
 from skills.extract.extract_txt import TextExtractor, TextExtractorError
-from skills.graph_writer import GraphWritePayload, GraphWriter
-from skills.match import MatchResult, match_application_candidates
+from skills.graph_writer import GraphWritePayload, GraphWriter, normalize_org_unit_name
+from skills.match import ConfirmedLink, MatchResult, match_application_candidates
 from skills.review import ReviewItem, collect_review_items
 from services.cmdb_service import sync_cmdb_to_neo4j
 
@@ -66,7 +64,6 @@ def run_pipeline(
     progress_callback: Callable[[dict], None] | None = None,
 ) -> PipelineRunResult:
     output_path, used_output_fallback = resolve_runtime_output_path(config.output_path)
-    knowledge_base = load_knowledge_base()
     cmdb_rows = load_application_cmdb_rows(config)
     import_state = load_import_state(output_path)
     previous_hashes = {document.source_path: document.file_hash for document in import_state.documents}
@@ -81,7 +78,7 @@ def run_pipeline(
     )
     graph_writer = GraphWriter()
     neo4j_client = build_neo4j_client(config)
-    _, knowledge_base = sync_cmdb_to_neo4j(config, neo4j_client, knowledge_base)
+    sync_cmdb_to_neo4j(config, neo4j_client)
     confirmed_links = graph_writer.get_confirmed_links_from_neo4j(neo4j_client)
     rejected_links = graph_writer.get_rejected_decisions_from_neo4j(neo4j_client)
     org_units = graph_writer.load_org_units_from_neo4j(neo4j_client)
@@ -136,9 +133,9 @@ def run_pipeline(
             continue
 
         extractor = build_extractor_for_path(path, llm_client)
-        document_result = run_document(path, file_hash, extractor, config, knowledge_base, cmdb_rows, graph_writer, confirmed_links, rejected_links, org_units, org_unit_aliases)
+        document_result = run_document(path, file_hash, extractor, config, cmdb_rows, graph_writer, confirmed_links, rejected_links, org_units, org_unit_aliases)
         if document_result.extracted_process is not None:
-            knowledge_base = update_organization_knowledge(knowledge_base, document_result.extracted_process)
+            update_organization_knowledge(graph_writer, neo4j_client, document_result.extracted_process)
         document_results.append(document_result)
         if document_result.graph_payload is not None:
             document_result.process_write_action = graph_writer.write_payload(neo4j_client, document_result.graph_payload)
@@ -160,7 +157,6 @@ def run_pipeline(
                 }
             )
 
-    save_knowledge_base(knowledge_base)
     run_result = PipelineRunResult(
         run_mode=config.last_run_mode,
         output_path=str(output_path),
@@ -226,7 +222,6 @@ def run_document(
     file_hash: str,
     extractor: Extractor,
     config: AppConfig,
-    knowledge_base: KnowledgeBase,
     cmdb_rows: list[dict[str, str]],
     graph_writer: GraphWriter,
     confirmed_links: list[dict] | None = None,
@@ -336,18 +331,28 @@ def apply_org_unit_mapping(
     org_unit_aliases: dict[str, str],
 ) -> ExtractedProcess:
     matched_org_units = resolve_org_units(extracted_process, org_units, org_unit_aliases)
+    filtered_candidates = [
+        candidate_name
+        for candidate_name in extracted_process.org_unit_candidates
+        if not _resolve_org_unit_name(candidate_name, org_units, org_unit_aliases)
+    ]
+    resolved_owner_candidate = _resolve_org_unit_name(
+        extracted_process.process_owner_candidate,
+        org_units,
+        org_unit_aliases,
+    )
     return ExtractedProcess(
         process_name=extracted_process.process_name,
         process_id=extracted_process.process_id,
         org_unit=matched_org_units[0] if len(matched_org_units) == 1 else "",
         roles=list(extracted_process.roles),
         org_units=matched_org_units,
-        org_unit_candidates=list(extracted_process.org_unit_candidates),
+        org_unit_candidates=filtered_candidates,
         follows_after=list(extracted_process.follows_after),
         raw_applications=list(extracted_process.raw_applications),
         applications=list(extracted_process.applications),
         source_path=extracted_process.source_path,
-        process_owner_candidate=extracted_process.process_owner_candidate,
+        process_owner_candidate=resolved_owner_candidate or extracted_process.process_owner_candidate,
     )
 
 
@@ -370,88 +375,38 @@ def resolve_org_units(
         resolved_org_units.append(matched_name)
 
     for candidate_name in extracted_process.org_unit_candidates:
-        normalized_candidate = normalize_org_unit_name(candidate_name)
-        mapped_name = org_unit_aliases.get(normalized_candidate) or org_units.get(normalized_candidate)
+        mapped_name = _resolve_org_unit_name(candidate_name, org_units, org_unit_aliases)
         if not mapped_name or mapped_name in resolved_org_units:
             continue
         resolved_org_units.append(mapped_name)
     return resolved_org_units
 
 
+def _resolve_org_unit_name(
+    raw_name: str,
+    org_units: dict[str, str],
+    org_unit_aliases: dict[str, str],
+) -> str:
+    normalized_name = normalize_org_unit_name(raw_name)
+    if not normalized_name:
+        return ""
+    return org_unit_aliases.get(normalized_name) or org_units.get(normalized_name) or ""
+
+
 def update_organization_knowledge(
-    knowledge_base: KnowledgeBase,
+    graph_writer: GraphWriter,
+    neo4j_client: Neo4jClient,
     extracted_process: ExtractedProcess,
-) -> KnowledgeBase:
-    updated = knowledge_base
+) -> None:
     primary_role = extracted_process.roles[0] if extracted_process.roles else ""
     for candidate_name in extracted_process.org_unit_candidates:
-        updated = upsert_org_unit_candidate(
-            updated,
+        graph_writer.upsert_org_unit_candidate(
+            neo4j_client,
             candidate_name=candidate_name,
             source_path=extracted_process.source_path,
             process_name=extracted_process.process_name,
             role_name=primary_role,
         )
-    return updated
-
-
-def update_organization_knowledge_from_cmdb(
-    knowledge_base: KnowledgeBase,
-    normalized_cmdb,
-    source_path: str,
-) -> KnowledgeBase:
-    updated = knowledge_base
-    known_org_units = {
-        normalize_org_unit_name(entry.get("name", "")): entry.get("name", "")
-        for entry in knowledge_base.org_units
-        if entry.get("name")
-    }
-    mapped_candidates = {
-        entry.get("normalized_name", ""): entry.get("mapped_org_unit", "")
-        for entry in knowledge_base.org_unit_candidates
-        if entry.get("status") == "mapped" and entry.get("mapped_org_unit")
-    }
-    for entity in normalized_cmdb.entities:
-        owner_name = " ".join((entity.owner_name or "").split())
-        if not owner_name:
-            continue
-        normalized_owner = normalize_org_unit_name(owner_name)
-        if normalized_owner in known_org_units or normalized_owner in mapped_candidates:
-            continue
-        updated = upsert_org_unit_candidate(
-            updated,
-            candidate_name=owner_name,
-            source_path=source_path,
-            process_name="",
-            role_name="",
-        )
-    return updated
-
-
-def resolve_cmdb_owner_assignments(
-    knowledge_base: KnowledgeBase,
-    normalized_cmdb,
-) -> dict[str, str]:
-    known_org_units = {
-        normalize_org_unit_name(entry.get("name", "")): entry.get("name", "")
-        for entry in knowledge_base.org_units
-        if entry.get("name")
-    }
-    mapped_candidates = {
-        entry.get("normalized_name", ""): entry.get("mapped_org_unit", "")
-        for entry in knowledge_base.org_unit_candidates
-        if entry.get("status") == "mapped" and entry.get("mapped_org_unit")
-    }
-    assignments: dict[str, str] = {}
-    for entity in normalized_cmdb.entities:
-        owner_name = " ".join((entity.owner_name or "").split())
-        if not owner_name:
-            continue
-        normalized_owner = normalize_org_unit_name(owner_name)
-        resolved_owner = known_org_units.get(normalized_owner) or mapped_candidates.get(normalized_owner)
-        if resolved_owner:
-            assignments[entity.entity_id] = resolved_owner
-    return assignments
 
 
 def build_neo4j_client(config: AppConfig) -> Neo4jClient:

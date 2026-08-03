@@ -3,15 +3,8 @@ from __future__ import annotations
 from dataclasses import asdict
 
 from core.app_config import AppConfig, resolve_runtime_output_path
-from services.cmdb_service import load_all_cmdb_rows
-from processing.knowledge_base import (
-    clear_knowledge_base_sections,
-    load_knowledge_base,
-    save_knowledge_base,
-)
 from processing.pipeline import apply_org_unit_mapping, build_manual_matches
 from processing.run_artifacts import load_latest_run, write_latest_run
-from services.alias_service import sync_knowledge_base_aliases
 from services.decision_service import create_manual_decision
 from services.runtime_service import get_session_neo4j_client
 from skills.extract.extract_base import ApplicationReference, ExtractedProcess
@@ -57,7 +50,6 @@ def rerun_single_document_from_artifact(
     document: dict,
     config: AppConfig,
     cmdb_rows: list[dict[str, str]],
-    knowledge_base,
     confirmed_links: list[dict] | None = None,
     rejected_links: list[dict] | None = None,
     org_units: dict[str, str] | None = None,
@@ -124,7 +116,6 @@ def persist_single_document_refresh(config: AppConfig, source_path: str, cmdb_ro
     latest_run = load_latest_run(runtime_output_path)
     if latest_run is None:
         return
-    knowledge_base = load_knowledge_base()
     graph_writer = GraphWriter()
     neo4j_client = get_session_neo4j_client(config)
     confirmed_links = graph_writer.get_confirmed_links_from_neo4j(neo4j_client)
@@ -138,7 +129,7 @@ def persist_single_document_refresh(config: AppConfig, source_path: str, cmdb_ro
             updated_documents.append(document)
             continue
         refreshed_document = rerun_single_document_from_artifact(
-            document, config, cmdb_rows, knowledge_base, confirmed_links, rejected_links,
+            document, config, cmdb_rows, confirmed_links, rejected_links,
             org_units, org_unit_aliases,
         )
         updated_documents.append(refreshed_document)
@@ -164,7 +155,6 @@ def persist_latest_run_refresh(config: AppConfig, cmdb_rows: list[dict[str, str]
     if latest_run is None:
         return 0
 
-    knowledge_base = load_knowledge_base()
     updated_documents: list[dict] = []
     graph_writer = GraphWriter()
     neo4j_client = get_session_neo4j_client(config)
@@ -176,7 +166,7 @@ def persist_latest_run_refresh(config: AppConfig, cmdb_rows: list[dict[str, str]
 
     for document in latest_run.get("documents", []):
         refreshed_document = rerun_single_document_from_artifact(
-            document, config, cmdb_rows, knowledge_base, confirmed_links, rejected_links,
+            document, config, cmdb_rows, confirmed_links, rejected_links,
             org_units, org_unit_aliases,
         )
         updated_documents.append(refreshed_document)
@@ -337,23 +327,3 @@ def save_manual_link(
     )
     persist_single_document_refresh(config, source_path, cmdb_rows)
     return f"Manueller Link fuer '{application_name}' gespeichert."
-
-
-def clear_knowledge_base_and_refresh(config: AppConfig, sections: set[str], success_message: str) -> tuple[str, str]:
-    knowledge_base = load_knowledge_base()
-    updated_kb = clear_knowledge_base_sections(knowledge_base, sections)
-    save_knowledge_base(updated_kb)
-    try:
-        sync_knowledge_base_aliases(get_session_neo4j_client(config), updated_kb)
-    except Exception as exc:
-        return "warning", f"{success_message} Die Alias-Synchronisation nach Neo4j ist fehlgeschlagen: {exc}"
-
-    cmdb_rows = load_all_cmdb_rows(config)
-    try:
-        refreshed_count = persist_latest_run_refresh(config, cmdb_rows)
-    except Exception as exc:
-        return "warning", f"{success_message} Die Aktualisierung des letzten Laufs ist fehlgeschlagen: {exc}"
-
-    if refreshed_count:
-        return "success", f"{success_message} {refreshed_count} Dokument(e) aus dem letzten Lauf wurden neu bewertet."
-    return "success", success_message

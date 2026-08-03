@@ -22,9 +22,15 @@ Konsequenz für #10: bleibt zurückgestellt — ein konfidenz='schwach'-Beispiel
 Implementierung bereits vorhanden: graph_writer schreibt schwache Matches (cmdb_id vorhanden, confidence != stark) bereits als KÖNNTE_DIENEN in Neo4j. Finding war zum Zeitpunkt der Erfassung korrekt, die Implementierung erfolgte seitdem. - erledigt
 
 14. UI: einklappbare Abschnitte mit To-dos zeigen Item-Anzahl im Titel. - erledigt
-15. kb.json zur Löschung vorgemerkt - erledigt (Datei darf weiter existieren; kein aktives Lesen/Schreiben mehr aus Pipeline und Review-Layer)
-Ziel: in einer späteren Session vollständig entfernen, sobald sichergestellt ist, dass kein
-Code mehr darauf zugreift.
+15. kb.json vollständig entfernt - erledigt
+Analyse ergab: confirmed/rejected/disambiguation/process_identity waren bereits tot (App-Links
+laufen seit längerem über Neo4j DIENT/Ablehnung). org_units und org_unit_candidates waren jedoch
+noch aktiv - insbesondere der Kandidaten-Workflow aus Prozessimport und CMDB-Sync hatte kein
+Neo4j-Äquivalent. Neuer Knotentyp (:OrgKandidat) (analog zu KÖNNTE_DIENEN/Ablehnung, aus dem
+LLM-Query-Schema ausgeschlossen) übernimmt diese Rolle vollständig; kb.json und
+processing/knowledge_base.py sind gelöscht. Bestehende lokale Kandidaten wurden per
+scripts/migrate_kb_to_neo4j.py einmalig migriert.
+
 16. Bestätigte KÖNNTE_DIENEN-Kandidaten — beide Teilprobleme erledigt. - erledigt
 (a) manuell_bestaetigt ist in _PERSISTENT_LINK_SOURCES (pipeline.py) — Links überleben Re-Importe auch wenn der raw_name im Dokument nicht mehr vorkommt.
 (b) Bei Bestätigung wird ein (:Alias {source_kind: 'confirmed_match'})-[:KANN_MEINEN]->(:Anwendung) angelegt, sofern raw_name ≠ matched_name. Alias-Lifecycle bei Ablehnung: Finding #22.
@@ -56,3 +62,7 @@ Code mehr darauf zugreift.
 34. vor einer Veröffentlichung des Projekts ist das Thema "Mehrsprachigkeit" zu diskutieren und zu entscheiden - offen
 
 35. Neo4j-Server: UnknownPropertyKeyWarning für anwendung_name durch notifications_disabled_categories=["UNRECOGNIZED"] im Driver unterdrückt. - erledigt
+
+36. CMDB-Sync konnte unsichere Owner-Kandidaten ungeprüft zu bestätigten OrgEinheit-Knoten inkl. VERANTWORTET-Kanten machen (Verstoß gegen conservative ownership handling) - erledigt
+write_candidate_ownership (graph_writer.py) schrieb MERGE (o:OrgEinheit {name: $org_unit_name}) für jeden unsicheren CMDB-Owner-String, noch bevor ein Mensch den zugehörigen Kandidaten bestätigt hatte. Beim nächsten Sync galt der Name dann als bekannt und resolve_cmdb_owner_assignments schrieb direkt VERANTWORTET, ganz ohne ManualDecision. Live-Check in Neo4j bestätigte den Effekt: 14 von 16 CMDB-Kandidaten waren bereits als "echte" OrgEinheit mit 141 VERANTWORTET-Kanten vorhanden, während die zugehörigen OrgKandidat-Einträge noch als offen geführt wurden.
+Behoben durch Entfernen von write_candidate_ownership/promote_candidate_ownership/reject_candidate_ownership sowie des dadurch überflüssigen resolve_cmdb_owner_candidates. Unsichere CMDB-Owner laufen jetzt ausschließlich über den OrgKandidat-Review-Flow (vgl. Finding #15); VERANTWORTET entsteht erst nach explizitem Mapping und einem Folge-Sync.

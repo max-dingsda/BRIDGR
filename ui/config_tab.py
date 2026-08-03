@@ -15,7 +15,6 @@ from core.llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleCli
 from core.neo4j_utils import Neo4jConnectionError, Neo4jQueryError
 from services.cmdb_service import persist_cmdb_sync
 from services.import_service import build_import_completion_message, finalize_import_artifacts
-from services.review_service import clear_knowledge_base_and_refresh
 from services.runtime_service import (
     IMPORT_RUN_FEEDBACK_STATE_KEY,
     build_neo4j_client_key,
@@ -277,43 +276,11 @@ def render_import_section(config: AppConfig) -> None:
         st.write(str(runtime_output_path))
 
 
-def render_knowledge_base_section(config: AppConfig) -> None:
-    st.caption("Hilft beim Zurücksetzen von Testentscheidungen ohne manuelles Bearbeiten von `knowledge_base/kb.json`.")
-    action_columns = st.columns(3)
-
-    if action_columns[0].button("Wissensbasis komplett leeren", key="kb-clear-all", width="stretch"):
-        level, message = clear_knowledge_base_and_refresh(
-            config,
-            sections={"confirmed", "rejected", "disambiguation", "process_identity"},
-            success_message="Die gesamte Wissensbasis wurde geleert.",
-        )
-        getattr(st, level)(message)
-        st.rerun()
-
-    if action_columns[1].button("Nur Bestätigungen leeren", key="kb-clear-confirmed", width="stretch"):
-        level, message = clear_knowledge_base_and_refresh(
-            config,
-            sections={"confirmed"},
-            success_message="Die bestätigten Einträge wurden geleert.",
-        )
-        getattr(st, level)(message)
-        st.rerun()
-
-    if action_columns[2].button("Nur Ablehnungen leeren", key="kb-clear-rejected", width="stretch"):
-        level, message = clear_knowledge_base_and_refresh(
-            config,
-            sections={"rejected"},
-            success_message="Die abgelehnten Einträge wurden geleert.",
-        )
-        getattr(st, level)(message)
-        st.rerun()
-
-
 def render_config_tab(config_path: Path) -> None:
     render_page_header(
         "Konfiguration",
         "Pflegen Sie Laufzeitparameter, Importpfade sowie LLM- und Neo4j-Einstellungen für den aktuellen Workspace.",
-        "Import, Einstellungen und Wissensbasis",
+        "Import und Einstellungen",
     )
     config = load_config(config_path)
     ensure_config_session_defaults(config)
@@ -454,6 +421,3 @@ def render_config_tab(config_path: Path) -> None:
 
         st.caption("Aktuelle Konfiguration")
         st.json(asdict(load_config(config_path)))
-
-    with st.expander("Wissensbasis", expanded=False):
-        render_knowledge_base_section(config)

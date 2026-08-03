@@ -3,11 +3,13 @@
 BRIDGR verbindet Prozessdokumentation mit CMDB-Daten, um einen EA-Wissensgraphen aufzubauen und spaeter ueber eine natuerlichsprachliche Oberflaeche abfragbar zu machen.
 
 Der aktuelle Architektur-Referenzstand fuer die Umsetzung ist:
+
 - `Specs/Bridgr_Architektur_v27.md`
 
 ## Zielbild
 
 BRIDGR soll fuer v1 bzw. den naechsten Ausbaupfad:
+
 - Prozessdokumente in BPMN, TXT, DOCX und PDF einlesen
 - formatabhaengig Text gewinnen und ueber denselben LLM-zentrierten Extraktionspfad verarbeiten
 - Anwendungsreferenzen per LLM extrahieren
@@ -55,6 +57,7 @@ erfindet keine CMDB-Eintraege und schreibt nie selbst in den Graphen.
 ## Aktueller Stand
 
 Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikalen Schnitt:
+
 - OpenAI-kompatibler LLM-Client
 - BPMN-, TXT-, DOCX- und PDF-Verarbeitung ueber einen gemeinsamen semantischen Extraktionspfad
 - BPMN-Transformer fuer sehr grosse BPMN/XML-Dateien als vorbereitender, LLM-freier Reduktionsschritt
@@ -62,7 +65,7 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - CMDB-Matching mit KB-First-Logik, mehreren Kandidaten und Fuzzy Matching
 - Neo4j-Write-Pfad fuer Prozesse, Organisationseinheiten und bestaetigte bzw. starke Anwendungslinks als `DIENT`-Kanten mit `raw_name`- und `source`-Property
 - schwache Fuzzy-Matches mit CMDB-Treffer werden als `KÖNNTE_DIENEN`-Kanten in Neo4j geschrieben und im Chat abfragbar
-- Ablehnungen werden als `(:Ablehnung)`-Knoten in Neo4j persistiert; Pipeline liest bestaetigt/abgelehnt aus Neo4j statt aus `kb.json`
+- Ablehnungen werden als `(:Ablehnung)`-Knoten in Neo4j persistiert; Pipeline liest bestaetigt/abgelehnt direkt aus Neo4j
 - Promote/Reject direkt in Neo4j: Bestaetigung loescht `KÖNNTE_DIENEN` und schreibt `DIENT`; Ablehnung erzeugt `(:Ablehnung)`-Knoten
 - normalisierte CMDB-Sicht fuer `Anwendung`, `Schnittstelle` und `Server`
 - technischer CMDB-Write-Pfad fuer `USES_INTERFACE` und `RUNS_ON`
@@ -74,8 +77,7 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - kanonisches Query-Schema in `graph_schema.py` als gemeinsame Grundlage fuer Prompting und Validierung
 - deterministische Alias-Anreicherung bei leeren Ergebnissen: Hinweise auf bekannte Alternativbegriffe werden dem LLM mitgegeben
 - benutzerverstaendliche Uebersetzung technischer Query-/Validierungsfehler im Chat statt roher Cypher- oder Treibertexte
-- persistente Knowledge Base
-- persistente Knowledge Base inklusive expliziter Rollen-Markierungen in `knowledge_base/kb.json`
+- Organisationseinheiten-Kandidaten aus Prozessimport und CMDB-Sync als `(:OrgKandidat)`-Knoten in Neo4j; Rollen-Markierungen als `role_only`-Property auf `(:Rolle)`
 - Alias-Projektion nach Neo4j fuer kuratierte Kurzformen oder Fehlbezeichnungen aus manuellen App-Mappings und Org-Mappings
 - deterministische Alias-Aufloesung im Query-Lookup, wenn direkte Namenssuche keinen Treffer liefert
 - Streamlit-UI mit 5 Tabs
@@ -95,14 +97,15 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - Merge-Precheck mit Beziehungszaehlung, Dublettenhinweis, Alias-Uebernahme und kompakter Wirkungszusammenfassung
 
 Wichtige Einordnung:
+
 - Die aktuelle Implementierung unterstuetzt BPMN, TXT, DOCX und PDF ueber einen gemeinsamen semantischen Extraktionspfad.
 - Der Chat-Layer basiert seit v0.19 auf dem LLM-als-Orchestrator-Muster; imperativische Gesprächszustandsverwaltung (Disambiguierungslogik, Fokus-Entitaet) entfaellt aus dem Code.
 
 Noch nicht umgesetzt:
+
 - vollstaendige UI-/Review-Unterstuetzung fuer alle neuen CMDB-Objekttypen
 - Unterstuetzung weiterer CMDB-Dateiformate jenseits von CSV
 - separate Read-only-DB-Identitaet fuer den Query-Layer
-- vollstaendige Loesung von `knowledge_base/kb.json` (Finding #15); kb.json ist zur Loesung vorgemerkt, existiert aber noch als Sicherheitsnetz
 - ArchiMate Views/Viewpoints im Export; selektiver Export (setzt Views voraus)
 - Node-Merge beim Bestaetigen eines ArchiMate-Fuzzy-Match-Kandidaten (Finding #25)
 
@@ -111,12 +114,11 @@ Noch nicht umgesetzt:
 ```text
 BRIDGR/
 ├── core/                   # geteilte Grundbausteine: Config, Neo4j, LLM, Schema, Konstanten
-├── processing/             # Pipeline, Import, KB, CMDB, Query-Layer, Artefakte
+├── processing/             # Pipeline, Import, CMDB, Query-Layer, Artefakte
 ├── services/               # UI-ausgeloeste Seiteneffekte und Orchestrierung
 ├── ui/                     # Streamlit-Tabmodule
 ├── skills/                 # Fachlogik fuer Extract, Match, Review, Graph
 ├── prompts/                # LLM-Prompts
-├── knowledge_base/         # persistente Review-Entscheidungen (kb.json)
 ├── data/                   # Archive, Hilfsdaten und archimate_mapping.json
 ├── Input/                  # Prozessdokumente und CMDB-Dateien des Benutzers
 ├── Output/                 # erzeugte Laufartefakte und spaetere Exportziele
@@ -129,26 +131,30 @@ BRIDGR/
 ## Input und Output
 
 Reservierte Ordner:
+
 - `Input/`: Hier legt der Benutzer zu importierende Prozessdokumente und CMDB-Dateien ab.
 - `Output/`: Hier legt BRIDGR erzeugte Artefakte ab. Aktuell sind das vor allem Laufartefakte; spaeter soll der Ordner auch fuer menschenlesbare Exporte verwendet werden.
 - `data/input_archive/`: Hierhin verschiebt BRIDGR nach erfolgreichem Import verarbeitete Prozessdateien aus der Inbox.
 
 Aktuell relevante Output-Dateien:
+
 - `Output/import_state.json`: letzter bekannter Dokumentzustand
 - `Output/latest_run.json`: letzter gespeicherter Import-/Reviewlauf fuer die UI; wird nach Prozessimporten und nach einer CMDB-Synchronisation fuer die Neubewertung bestehender Zuordnungen aktualisiert
 - `Output/debug.log`: optionale JSONL-Diagnoseausgabe bei aktiviertem Debug-Modus
 
 Entscheidungspersistenz:
+
 - Bestaetigte Anwendungslinks leben als `DIENT`-Kanten in Neo4j (mit `raw_name`- und `source`-Property).
 - Schwache Kandidaten leben als `KÖNNTE_DIENEN`-Kanten in Neo4j.
 - Ablehnungen leben als `(:Ablehnung)`-Knoten in Neo4j.
-- `knowledge_base/kb.json` ist zur Loesung vorgemerkt (Finding #15) und wird nicht mehr aktiv beschrieben oder gelesen.
+- Offene Organisationseinheiten-Kandidaten leben als `(:OrgKandidat)`-Knoten in Neo4j.
 
 ## Konfiguration
 
 Die Standardkonfiguration liegt in `config.json`.
 
 Wichtige Felder:
+
 - `llm_base_url`: OpenAI-kompatibler Endpoint
 - `llm_model`: zu verwendendes Modell
 - `llm_api_key_env`: Name der Umgebungsvariable fuer den API-Key
@@ -178,6 +184,7 @@ Wichtige Felder:
 - `debug_mode`: schreibt bei aktivierter Diagnose zusaetzliche Ereignisse nach `Output/debug.log`
 
 Hinweise zur UI:
+
 - Im Konfigurations-Tab stehen LLM-Presets fuer `OpenAI` und `Ollama` zur Verfuegung.
 - Das Feld `llm_api_key_env` bzw. `API-Schluessel (Umgebungsvariable)` erwartet den Namen
   der Umgebungsvariable, nicht den geheimen Schluesselwert selbst, zum Beispiel
@@ -218,7 +225,7 @@ aus Prozessdokumenten und natuerlichsprachliche EA-Analyse im Chat. Beide Aufgab
 von Modellen mit guter Instruction-Following-Qualitaet.
 
 | Groessenklasse | Eignung | Hinweis |
-|---|---|---|
+| --- | --- | --- |
 | ~8B | Demo / einfache Tests | Deutliche Schwaechen bei komplexer Extraktion und Analyse |
 | 12B–14B | Eingeschraenkt, stark modellabhaengig | Sorgfaeltige Evaluation vor Produktiveinsatz empfohlen |
 | 26B+ | Empfohlene Untergrenze fuer ernsthafte Nutzung | Konsistentere Ergebnisse, weniger manueller Review-Aufwand |
@@ -246,10 +253,12 @@ von Modellen mit guter Instruction-Following-Qualitaet.
 Lokale Secrets werden nicht im Code abgelegt.
 
 Unterstuetzte Pfade fuer `.env`-Dateien:
+
 - `.env`
 - `Specs/.env`
 
 Aktuell erwartet das Projekt fuer Webprovider typischerweise:
+
 - `OPENAI_API_KEY`
 - `NEO4J_URI`
 - `NEO4J_USERNAME`
@@ -259,6 +268,7 @@ Aktuell erwartet das Projekt fuer Webprovider typischerweise:
 Fuer Neo4j-Aura koennen die Zugangsdaten direkt ueber `.env` kommen. Wenn in `config.json` noch die lokalen Defaults (`bolt://localhost:7687`, `neo4j`) stehen, werden die gesetzten `NEO4J_*`-Variablen automatisch bevorzugt. Das Passwort aus `NEO4J_PASSWORD` wird in der UI verwendet, aber beim Speichern nicht stillschweigend nach `config.json` zurueckgeschrieben.
 
 Eine Vorlage liegt in:
+
 - `Specs/.env.example`
 
 ## Lokale Nutzung
@@ -274,6 +284,7 @@ python -m pip install -r requirements-dev.txt
 ```
 
 Hinweis:
+
 - Eine editable Installation ueber `python -m pip install -e .[dev]` ist fuer BRIDGR aktuell nicht noetig.
 - `streamlit` ist aktuell bewusst unter `1.57` gehalten. Die 1.57er-Linie fuehrt durch die neue Starlette-basierte Serverumstellung lokal zu Import-/Kompatibilitaetsproblemen.
 
@@ -302,6 +313,7 @@ python main.py --file Input\beispiel.txt
 ### Tab 1 - Kommunikation
 
 Aktuell verfuegbar:
+
 - Session-Chat fuer natuerlichsprachliche Fragen zur IT-Landschaft
 - LLM als Orchestrator: entscheidet eigenstaendig, ob und welche Cypher-Abfrage benoetigt wird
 - `prompt-only`-Modus: LLM gibt Cypher als Textblock aus, Code extrahiert und fuehrt aus (kompatibel mit lokalen Modellen)
@@ -318,6 +330,7 @@ Aktuell verfuegbar:
 ### Tab 2 - Zuordnungen
 
 Aktuell verfuegbar:
+
 - Review fuer den letzten Import oder eine manuell gewaehlte Teilmenge oeffnen
 - letzten gespeicherten Lauf aus `Output/latest_run.json` anzeigen
 - letzten Importkontext inklusive Archivpfad anzeigen
@@ -338,6 +351,7 @@ Aktuell verfuegbar:
 ### Tab 3 - Konfiguration
 
 Aktuell verfuegbar:
+
 - LLM-Presets fuer `OpenAI` und `Ollama`
 - LLM-Endpoint konfigurieren
 - Modellnamen setzen
@@ -359,11 +373,11 @@ Aktuell verfuegbar:
 - LLM-Erreichbarkeit und Modellverfuegbarkeit getrennt pruefen
 - Laufzeit erfolgreicher Pipeline-Laeufe direkt in der UI anzeigen
 - verarbeitete Prozessdateien nach erfolgreichem Import transparent nach `data/input_archive/<timestamp>/` verschieben
-- Wissensbasis gezielt zuruecksetzen: alle Eintraege, nur Bestaetigungen oder nur Ablehnungen leeren (inkl. Alias-Synchronisation nach Neo4j)
 
 ### Tab 4 - Organisation
 
 Aktuell verfuegbar:
+
 - bekannte Organisationseinheiten manuell pflegen
 - Abschnitte als initial eingeklappte Bereiche fuer bessere Uebersicht
 - Organisationseinheiten direkt als `:OrgEinheit` nach Neo4j synchronisieren
@@ -386,6 +400,7 @@ Aktuell verfuegbar:
 - Merge uebernimmt passende Beziehungen auf den Zielknoten, vermeidet Duplikate und fuehrt den Quellnamen als Alias auf dem Zielobjekt weiter
 
 Wichtige Einordnung:
+
 - manuell angelegte Organisationseinheiten koennen zunaechst ohne Prozessbezug im Graph existieren
 - CMDB-Owner mit sicherem 1:1-Match koennen direkt als `VERANTWORTET` auf CMDB-Objekte landen
 - unsichere CMDB-Owner werden wie andere Org-Kandidaten ueber denselben Review-Pfad behandelt
@@ -395,6 +410,7 @@ Wichtige Einordnung:
 ### Tab 5 - EA-Modell
 
 Aktuell verfuegbar:
+
 - Import-Mapping konfigurieren: eine Zeile pro ArchiMate-Typ, beliebig viele Eintraege koennen auf dasselbe BRIDGR-Label zeigen (m:1); Zeilen einzeln loeschbar, neue Eintraege hinzufuegbar
 - Export-Mapping konfigurieren: kanonischer ArchiMate-Typ pro BRIDGR-Label fuer Nodes ohne ArchiMate-Herkunft
 - Beziehungs-Mapping konfigurieren (optional): akzeptierte Importtypen und kanonischer Exporttyp pro Label-Paar
@@ -408,31 +424,37 @@ Aktuell verfuegbar:
 Der BPMN-Transformer ist ein vorbereitender Schritt fuer sehr grosse oder sehr technische BPMN/XML-Dateien.
 
 Problem:
+
 - grosse Gesamtprozessmodelle enthalten sehr viel XML-Rauschen
 - lokale Modelle laufen bei Roh-BPMN leichter in Timeouts oder liefern kein gueltiges JSON
 - fuer den Initialload in Unternehmen sind grosse BPMN-Dateien eher die Regel als die Ausnahme
 
 Loesung:
+
 - der Transformer liest die ausgewaehlte BPMN/XML-Datei ohne LLM
 - er extrahiert daraus kompakte Prozesshinweise: Prozessnamen, Lane-Bezeichner und modellnahe Anwendungsreferenzen
 - das Ergebnis wird als Textdatei unter `Input/transformed/` gespeichert
 
 Dateiname:
+
 - `<originalname>__bridgr_transform.txt`
 
 Nutzung:
+
 1. grosse BPMN/XML-Datei in den aktuellen `Input Path` legen
 2. in Tab 3 unter `Import` die gewuenschte BPMN/XML-Datei bei `BPMN fuer Transformation` auswaehlen
 3. `BPMN transformieren` ausloesen
 4. den `Input Path` auf `Input/transformed/` umstellen oder die erzeugte Datei gezielt fuer weitere Imports nutzen
 
 Ziel:
+
 - weniger Kontext fuer das LLM
 - deutlich kleinere Eingabedateien
 - stabilere Extraktion bei lokal laufenden Modellen
 - besser kontrollierbarer Initialload fuer grosse Unternehmens-BPMNs
 
 Wichtige Einordnung:
+
 - der Transformer ersetzt keine fachliche BPMN-Auswertung
 - er ist bewusst eine pragmatische Vorreduktion fuer den LLM-zentrierten Importpfad
 - Roh-BPMN und transformierte Datei koennen parallel im Projekt bestehen
@@ -440,6 +462,7 @@ Wichtige Einordnung:
 ## Debug-Modus
 
 Wenn `Debug Mode` in Tab 3 aktiviert ist:
+
 - schreibt BRIDGR Diagnoseereignisse nach `Output/debug.log`
 - Query-Fehler enthalten Frage, Fehlermeldung und den erzeugten Cypher
 - die Datei ist als JSONL aufgebaut und fuer lokale Fehlersuche gedacht
@@ -453,6 +476,7 @@ python -m pytest
 ```
 
 Der aktuelle Teststand deckt unter anderem ab:
+
 - `.env`-Loading
 - BPMN-Extraktion, Deduplizierung und XML-Fehlerfall
 - TXT-, DOCX- und PDF-Textgewinnung

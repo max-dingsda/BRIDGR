@@ -6,14 +6,19 @@ from pathlib import Path
 
 from core.app_config import load_config
 from core.env_loader import load_env_files
-from processing.knowledge_base import DEFAULT_KB_PATH, load_knowledge_base
 from processing.pipeline import build_neo4j_client
-from services.alias_service import sync_knowledge_base_aliases
+from services.alias_service import sync_curated_aliases
+from skills.graph_writer import GraphWriter
+
+DEFAULT_KB_PATH = Path("knowledge_base/kb.json")
 
 
 def build_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Migrate curated BRIDGR knowledge-base entries from kb.json into Neo4j."
+        description=(
+            "One-off migration of the retired knowledge_base/kb.json into Neo4j: "
+            "org_units become (:OrgEinheit) nodes, org_unit_candidates become (:OrgKandidat) nodes."
+        )
     )
     parser.add_argument(
         "--config",
@@ -25,7 +30,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
         "--kb-path",
         type=Path,
         default=DEFAULT_KB_PATH,
-        help="Path to the knowledge base JSON file.",
+        help="Path to the kb.json file to migrate.",
     )
     parser.add_argument(
         "--summary-only",
@@ -39,19 +44,34 @@ def main() -> int:
     load_env_files()
     args = build_argument_parser().parse_args()
     config = load_config(args.config)
-    knowledge_base = load_knowledge_base(args.kb_path)
+    kb_payload = load_kb_payload(args.kb_path)
 
-    summary = build_summary(knowledge_base)
+    org_units = list(kb_payload.get("org_units", []))
+    org_unit_candidates = list(kb_payload.get("org_unit_candidates", []))
+
     if args.summary_only:
-        print(json.dumps(summary, indent=2, ensure_ascii=False))
+        print(json.dumps(
+            {
+                "kb_path": str(args.kb_path),
+                "org_units": len([e for e in org_units if str(e.get("name", "")).strip()]),
+                "org_unit_candidates": len(org_unit_candidates),
+            },
+            indent=2,
+            ensure_ascii=False,
+        ))
         return 0
 
     neo4j_client = build_neo4j_client(config)
+    graph_writer = GraphWriter()
     try:
-        synced_org_units = sync_org_units(neo4j_client, knowledge_base.org_units)
-        synced_dient = migrate_confirmed_dient_edges(neo4j_client, knowledge_base.confirmed)
-        synced_ablehnung = migrate_rejected_decisions(neo4j_client, knowledge_base.rejected)
-        synced_aliases = sync_knowledge_base_aliases(neo4j_client, knowledge_base)
+        neo4j_client.ensure_constraints()
+        synced_org_units = sync_org_units(neo4j_client, org_units)
+        synced_candidates = sync_org_unit_candidates(neo4j_client, org_unit_candidates)
+        synced_aliases = sync_curated_aliases(
+            neo4j_client,
+            graph_writer.get_confirmed_links_from_neo4j(neo4j_client),
+            graph_writer.load_org_unit_candidates(neo4j_client),
+        )
     finally:
         neo4j_client.close()
 
@@ -60,54 +80,22 @@ def main() -> int:
         "neo4j_url": config.neo4j_url,
         "neo4j_database": config.neo4j_database,
         "synced_org_units": synced_org_units,
-        "synced_dient_edges": synced_dient,
-        "synced_ablehnung_nodes": synced_ablehnung,
+        "synced_org_unit_candidates": synced_candidates,
         "synced_aliases": synced_aliases,
-        "skipped_sections": summary["skipped_sections"],
     }
     print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0
 
 
-def build_summary(knowledge_base) -> dict:
-    manual_application_aliases = 0
-    for entry in knowledge_base.confirmed:
-        alias_name = str(entry.get("anwendung_name", "")).strip()
-        resolved_name = str(entry.get("resolved_to", "")).strip()
-        cmdb_id = str(entry.get("cmdb_id", "")).strip()
-        if alias_name and resolved_name and cmdb_id and alias_name.casefold() != resolved_name.casefold():
-            manual_application_aliases += 1
-
-    mapped_org_aliases = 0
-    for entry in knowledge_base.org_unit_candidates:
-        alias_name = str(entry.get("candidate_name", "")).strip()
-        target_name = str(entry.get("mapped_org_unit", "")).strip()
-        if (
-            entry.get("status") == "mapped"
-            and alias_name
-            and target_name
-            and alias_name.casefold() != target_name.casefold()
-        ):
-            mapped_org_aliases += 1
-
-    return {
-        "org_units": len([e for e in knowledge_base.org_units if str(e.get("name", "")).strip()]),
-        "confirmed_dient_edges": len([e for e in knowledge_base.confirmed if e.get("cmdb_id")]),
-        "rejected_ablehnung_nodes": len([e for e in knowledge_base.rejected if not e.get("cmdb_id")]),
-        "manual_application_aliases": manual_application_aliases,
-        "mapped_org_aliases": mapped_org_aliases,
-        "skipped_sections": {
-            "open_org_unit_candidates": len(
-                [e for e in knowledge_base.org_unit_candidates if e.get("status") != "mapped"]
-            ),
-            "role_decisions": len(knowledge_base.role_decisions) if hasattr(knowledge_base, "role_decisions") else 0,
-        },
-    }
+def load_kb_payload(kb_path: Path) -> dict:
+    if not kb_path.exists():
+        return {}
+    with kb_path.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
 
 
 def sync_org_units(neo4j_client, org_units: list[dict]) -> int:
     written = 0
-    neo4j_client.ensure_constraints()
     for entry in org_units:
         name = " ".join(str(entry.get("name", "")).strip().split())
         if not name:
@@ -120,58 +108,37 @@ def sync_org_units(neo4j_client, org_units: list[dict]) -> int:
     return written
 
 
-def migrate_confirmed_dient_edges(neo4j_client, confirmed: list[dict]) -> int:
-    """Set raw_name and source on existing DIENT edges from confirmed kb.json entries.
-
-    Without this migration, get_confirmed_links_from_neo4j() cannot find these
-    decisions because it filters on r.raw_name IS NOT NULL.
-    """
+def sync_org_unit_candidates(neo4j_client, org_unit_candidates: list[dict]) -> int:
+    """Migrate kb.json org_unit_candidates entries into (:OrgKandidat) nodes, preserving status."""
     written = 0
-    for entry in confirmed:
-        prozess_name = str(entry.get("prozess", "")).strip()
-        anwendung_name = str(entry.get("anwendung_name", "")).strip()
-        cmdb_id = str(entry.get("cmdb_id", "")).strip()
-        resolved_to = str(entry.get("resolved_to", anwendung_name)).strip()
-        quelle = str(entry.get("quelle", "manuell_bestaetigt")).strip()
-
-        if not prozess_name or not cmdb_id:
+    for entry in org_unit_candidates:
+        candidate_name = " ".join(str(entry.get("candidate_name", "")).strip().split())
+        normalized_name = str(entry.get("normalized_name", "")).strip() or candidate_name.casefold()
+        if not candidate_name or not normalized_name:
             continue
-
-        # MERGE the DIENT edge (creates it if missing) and set the new properties
         neo4j_client.execute_write(
             """
-            MERGE (p:Prozess {name: $prozess_name})
-            MERGE (a:Anwendung {cmdb_id: $cmdb_id})
-            ON CREATE SET a.name = $resolved_to, a.id = $cmdb_id
-            MERGE (a)-[r:DIENT]->(p)
-            SET r.konfidenz  = 'stark',
-                r.raw_name   = $raw_name,
-                r.source     = $source
+            MERGE (k:OrgKandidat {normalized_name: $normalized_name})
+            SET k.candidate_name = $candidate_name,
+                k.status = $status,
+                k.mapped_org_unit = $mapped_org_unit,
+                k.source_paths = $source_paths,
+                k.process_names = $process_names,
+                k.role_names = $role_names,
+                k.first_seen = $first_seen,
+                k.last_seen = $last_seen
             """,
             {
-                "prozess_name": prozess_name,
-                "cmdb_id": cmdb_id,
-                "resolved_to": resolved_to,
-                "raw_name": anwendung_name,
-                "source": quelle,
+                "normalized_name": normalized_name,
+                "candidate_name": candidate_name,
+                "status": str(entry.get("status", "open")),
+                "mapped_org_unit": str(entry.get("mapped_org_unit", "")),
+                "source_paths": list(entry.get("source_paths", [])),
+                "process_names": list(entry.get("process_names", [])),
+                "role_names": list(entry.get("role_names", [])),
+                "first_seen": str(entry.get("first_seen", "")),
+                "last_seen": str(entry.get("last_seen", "")),
             },
-        )
-        written += 1
-    return written
-
-
-def migrate_rejected_decisions(neo4j_client, rejected: list[dict]) -> int:
-    """Create (:Ablehnung) nodes for name-level rejections from kb.json."""
-    written = 0
-    for entry in rejected:
-        prozess_name = str(entry.get("prozess", "")).strip()
-        anwendung_name = str(entry.get("anwendung_name", "")).strip()
-        if not prozess_name or not anwendung_name or entry.get("cmdb_id"):
-            # cmdb_id-level rejections are handled by the matching loop; skip here
-            continue
-        neo4j_client.execute_write(
-            "MERGE (ab:Ablehnung {prozess_name: $prozess_name, anwendung_name: $anwendung_name})",
-            {"prozess_name": prozess_name, "anwendung_name": anwendung_name},
         )
         written += 1
     return written

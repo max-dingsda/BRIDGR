@@ -3,7 +3,6 @@ from __future__ import annotations
 from datetime import date
 
 from core.constants import ALIAS_SOURCE_KIND_MERGED_ENTITY
-from processing.knowledge_base import KnowledgeBase
 from core.neo4j_utils import Neo4jClient
 
 ALIAS_SOURCE_KIND_KNOWLEDGE_BASE = "knowledge_base"
@@ -50,7 +49,16 @@ def lookup_alias_matches(neo4j_client: Neo4jClient, alias_name: str) -> list[dic
     ]
 
 
-def sync_knowledge_base_aliases(neo4j_client: Neo4jClient, knowledge_base: KnowledgeBase) -> int:
+def sync_curated_aliases(
+    neo4j_client: Neo4jClient,
+    confirmed_links: list[dict],
+    org_unit_candidates: list[dict],
+) -> int:
+    """Rebuild the Alias projection derived from confirmed application links and mapped org candidates.
+
+    confirmed_links: from GraphWriter.get_confirmed_links_from_neo4j (Neo4j DIENT edges).
+    org_unit_candidates: from GraphWriter.load_org_unit_candidates (Neo4j OrgKandidat nodes).
+    """
     neo4j_client.ensure_constraints()
     neo4j_client.execute_write(
         """
@@ -63,7 +71,7 @@ def sync_knowledge_base_aliases(neo4j_client: Neo4jClient, knowledge_base: Knowl
     written_aliases = 0
     written_keys: set[tuple[str, str, str]] = set()
 
-    for entry in knowledge_base.confirmed:
+    for entry in confirmed_links:
         alias_name = str(entry.get("anwendung_name", "")).strip()
         resolved_name = str(entry.get("resolved_to", "")).strip()
         cmdb_id = str(entry.get("cmdb_id", "")).strip()
@@ -80,7 +88,7 @@ def sync_knowledge_base_aliases(neo4j_client: Neo4jClient, knowledge_base: Knowl
         written_keys.add(alias_key)
         written_aliases += 1
 
-    for entry in knowledge_base.org_unit_candidates:
+    for entry in org_unit_candidates:
         if entry.get("status") != "mapped":
             continue
         alias_name = str(entry.get("candidate_name", "")).strip()

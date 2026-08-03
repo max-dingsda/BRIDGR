@@ -84,9 +84,6 @@ Streamlit-UI + Chat-Layer
   enthaelt alle konfigurierbaren ArchiMate-Mappings.
 - **`Output/latest_run.json`**
   ist ein UI-Artefakt fuer Review und Transparenz, nicht die kanonische Wahrheitsquelle.
-- **`knowledge_base/kb.json`**
-  bleibt aus Kompatibilitaetsgruenden im Projekt vorhanden, ist aber kein aktiver
-  Architektur-Speicher fuer neue Entscheidungen.
 
 ---
 
@@ -209,6 +206,14 @@ Technologische Infrastruktur unterhalb der Anwendungsschicht.
 
 Persistente Ablehnungsmarke fuer eine extrahierte Bezeichnung in einem konkreten Prozess.
 Sie dient der Unterdrueckung erneuter Vorschlaege.
+
+#### OrgKandidat
+
+Interner Betriebsknoten fuer eine unaufgeloeste OrgEinheit-/Rollen-Nennung aus Prozessimport
+oder CMDB-Sync (`status`: `open`, `mapped` oder `rejected`; `mapped_org_unit` bei `mapped`).
+Ersetzt seit der vollstaendigen Ablösung von `kb.json` (Finding #15) den frueheren
+`org_unit_candidates`-Abschnitt der Wissensbasis-Datei. Wie `ManualDecision` und `Ablehnung`
+bewusst nicht Teil des Query-Schemas fuer den Chat-Layer.
 
 ### 5.2 Fachbeziehungen
 
@@ -755,7 +760,7 @@ ausserhalb des Chat-Schemas halten.
 - nur read-only Cypher
 - Validator prueft Labels, Relationen, Richtungen und Properties
 - `IST_VERBUNDEN_MIT` ist als Ausnahme ohne Labelpaarbeschraenkung erlaubt
-- interne Knoten wie `Ablehnung` und `ManualDecision` sind nicht freigegeben
+- interne Knoten wie `Ablehnung`, `ManualDecision` und `OrgKandidat` sind nicht freigegeben
 
 ### 12.4 Alias-Nutzung im Chat
 
@@ -1003,8 +1008,6 @@ Der Chat darf nur den Fachgraphen sehen. Betriebsmetadaten bleiben intern.
   aber noch nicht vollstaendig implementiert.
 - `ManualDecision` wird aktuell ohne explizite `AFFECTS`-, `CREATED_ALIAS`- oder
   `SUPERSEDES`-Kanten gespeichert; die Zuordnung erfolgt derzeit payload-basiert.
-- `kb.json` ist noch im Projekt vorhanden und wird in Teilpfaden der UI weiterhin
-  mitgefuehrt, obwohl neue Architekturentscheidungen auf Neo4j ausgerichtet sind.
 - Merge-Workflows fuer `Anwendung` sind bewusst noch nicht Teil der ersten Ausbaustufe.
 - Ein generischer Merge fuer weitere Labels ausser `OrgEinheit` und `Prozess` ist noch
   nicht Teil der aktuellen Ausbaustufe.

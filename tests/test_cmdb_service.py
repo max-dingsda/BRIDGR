@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from core.app_config import AppConfig
-from processing.knowledge_base import KnowledgeBase
 from processing.run_artifacts import load_latest_run, write_latest_run
 from services import cmdb_service, review_service, runtime_service
 
@@ -16,31 +15,18 @@ def test_persist_cmdb_sync_refreshes_latest_run_with_current_cmdb_rows(tmp_path:
     )
 
     debug_events: list[tuple[str, dict]] = []
-    knowledge_base = KnowledgeBase(
-        confirmed=[],
-        rejected=[],
-        disambiguation=[],
-        process_identity=[],
-        org_units=[],
-        org_unit_candidates=[],
-    )
 
     monkeypatch.setattr(runtime_service, "get_session_neo4j_client", lambda _config: object())
     monkeypatch.setattr(runtime_service, "write_debug_log", lambda _config, event, details: debug_events.append((event, details)))
-    monkeypatch.setattr(cmdb_service, "load_knowledge_base", lambda: knowledge_base)
-    monkeypatch.setattr(cmdb_service, "save_knowledge_base", lambda _kb: None)
     monkeypatch.setattr(
         cmdb_service,
         "sync_cmdb_to_neo4j",
-        lambda _config, _client, _kb: (
-            cmdb_service.CmdbSyncResult(
-                entity_count=1,
-                relation_count=0,
-                owner_assignment_count=0,
-                owner_candidate_count=0,
-                refreshed_document_count=0,
-            ),
-            knowledge_base,
+        lambda _config, _client: cmdb_service.CmdbSyncResult(
+            entity_count=1,
+            relation_count=0,
+            owner_assignment_count=0,
+            owner_candidate_count=0,
+            refreshed_document_count=0,
         ),
     )
 
@@ -84,13 +70,9 @@ def test_sync_cmdb_to_neo4j_uses_type_files_when_configured(tmp_path: Path, monk
         encoding="utf-8",
     )
 
-    knowledge_base = KnowledgeBase(
-        confirmed=[], rejected=[], disambiguation=[], process_identity=[],
-        org_units=[], org_unit_candidates=[],
-    )
-
     synced_entities: list = []
     synced_relations: list = []
+    upserted_candidates: list = []
 
     class FakeGraphWriter:
         def load_org_units_from_neo4j(self, _client):
@@ -103,8 +85,11 @@ def test_sync_cmdb_to_neo4j_uses_type_files_when_configured(tmp_path: Path, monk
             synced_entities.extend(normalized_cmdb.entities)
             synced_relations.extend(normalized_cmdb.relations)
 
-        def write_candidate_ownership(self, _client, org_unit_name, entity_id, score):
-            pass
+        def upsert_org_unit_candidate(self, _client, candidate_name, source_path, process_name, role_name):
+            upserted_candidates.append(candidate_name)
+
+        def load_org_unit_candidates(self, _client, status=None):
+            return [{"candidate_name": name} for name in upserted_candidates]
 
     monkeypatch.setattr(cmdb_service, "GraphWriter", FakeGraphWriter)
 
@@ -116,7 +101,7 @@ def test_sync_cmdb_to_neo4j_uses_type_files_when_configured(tmp_path: Path, monk
         cmdb_runs_on_column="runs_on",
     )
 
-    result, _ = cmdb_service.sync_cmdb_to_neo4j(config, object(), knowledge_base)
+    result = cmdb_service.sync_cmdb_to_neo4j(config, object())
 
     assert result.entity_count == 2
     assert result.relation_count == 1
@@ -174,17 +159,7 @@ def test_persist_latest_run_refresh_resolves_previously_unmatched_application(tm
         output_dir,
     )
 
-    knowledge_base = KnowledgeBase(
-        confirmed=[],
-        rejected=[],
-        disambiguation=[],
-        process_identity=[],
-        org_units=[],
-        org_unit_candidates=[],
-    )
-
     writes: list[dict] = []
-    alias_sync_calls: list[bool] = []
 
     class FakeGraphWriter:
         def build_payload(self, process, matches):
@@ -211,10 +186,8 @@ def test_persist_latest_run_refresh_resolves_previously_unmatched_application(tm
             return {}
 
     monkeypatch.setattr(review_service, "resolve_runtime_output_path", lambda _path: (output_dir, False))
-    monkeypatch.setattr(review_service, "load_knowledge_base", lambda: knowledge_base)
     monkeypatch.setattr(review_service, "get_session_neo4j_client", lambda _config: object())
     monkeypatch.setattr(review_service, "GraphWriter", FakeGraphWriter)
-    alias_sync_calls.clear()  # sync_knowledge_base_aliases no longer called from persist_latest_run_refresh
 
     refreshed_count = review_service.persist_latest_run_refresh(
         AppConfig(
@@ -235,4 +208,3 @@ def test_persist_latest_run_refresh_resolves_previously_unmatched_application(tm
     assert refreshed_document["matches"][0]["confidence"] == "stark"
     assert refreshed_document["review_items"] == []
     assert writes == [{"process_name": "Auftragsbearbeitung", "match_names": ["SAP ERP"]}]
-    assert alias_sync_calls == []  # sync_knowledge_base_aliases no longer called from persist_latest_run_refresh

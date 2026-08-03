@@ -1,10 +1,9 @@
-from processing.knowledge_base import KnowledgeBase
 from services.alias_service import (
     delete_application_alias,
     delete_org_unit_alias,
     delete_process_alias,
     lookup_alias_matches,
-    sync_knowledge_base_aliases,
+    sync_curated_aliases,
     write_merged_org_unit_alias,
     write_merged_process_alias,
 )
@@ -37,39 +36,32 @@ class RecordingNeo4jClient:
         return []
 
 
-def test_sync_knowledge_base_aliases_projects_application_and_org_aliases() -> None:
+def test_sync_curated_aliases_projects_application_and_org_aliases() -> None:
     client = RecordingNeo4jClient()
-    knowledge_base = KnowledgeBase(
-        confirmed=[
-            {
-                "prozess": "Order",
-                "anwendung_name": "SAP XY",
-                "cmdb_id": "app-1",
-                "resolved_to": "SAP BW",
-                "bestaetigt_am": "2026-05-31",
-                "quelle": "manuell_bestaetigt",
-            }
-        ],
-        rejected=[],
-        disambiguation=[],
-        process_identity=[],
-        org_units=[{"name": "Sales Department", "created_at": "2026-05-31", "source": "manual"}],
-        org_unit_candidates=[
-            {
-                "candidate_name": "Sales",
-                "normalized_name": "sales",
-                "source_paths": ["Input/process.txt"],
-                "process_names": ["Order"],
-                "role_names": [],
-                "status": "mapped",
-                "mapped_org_unit": "Sales Department",
-                "first_seen": "2026-05-31",
-                "last_seen": "2026-05-31",
-            }
-        ],
-    )
+    confirmed_links = [
+        {
+            "prozess": "Order",
+            "anwendung_name": "SAP XY",
+            "cmdb_id": "app-1",
+            "resolved_to": "SAP BW",
+            "quelle": "manuell_bestaetigt",
+        }
+    ]
+    org_unit_candidates = [
+        {
+            "candidate_name": "Sales",
+            "normalized_name": "sales",
+            "source_paths": ["Input/process.txt"],
+            "process_names": ["Order"],
+            "role_names": [],
+            "status": "mapped",
+            "mapped_org_unit": "Sales Department",
+            "first_seen": "2026-05-31",
+            "last_seen": "2026-05-31",
+        }
+    ]
 
-    written = sync_knowledge_base_aliases(client, knowledge_base)
+    written = sync_curated_aliases(client, confirmed_links, org_unit_candidates)
 
     assert written == 2
     queries = [query for query, _ in client.queries]
@@ -79,39 +71,32 @@ def test_sync_knowledge_base_aliases_projects_application_and_org_aliases() -> N
     assert any("MATCH (alias:Alias)" in query and "DELETE alias" in query for query in queries)
 
 
-def test_sync_knowledge_base_aliases_skips_identity_aliases() -> None:
+def test_sync_curated_aliases_skips_identity_aliases() -> None:
     client = RecordingNeo4jClient()
-    knowledge_base = KnowledgeBase(
-        confirmed=[
-            {
-                "prozess": "Order",
-                "anwendung_name": "SAP BW",
-                "cmdb_id": "app-1",
-                "resolved_to": "SAP BW",
-                "bestaetigt_am": "2026-05-31",
-                "quelle": "manuell_bestaetigt",
-            }
-        ],
-        rejected=[],
-        disambiguation=[],
-        process_identity=[],
-        org_units=[{"name": "Sales Department", "created_at": "2026-05-31", "source": "manual"}],
-        org_unit_candidates=[
-            {
-                "candidate_name": "Sales Department",
-                "normalized_name": "sales department",
-                "source_paths": ["Input/process.txt"],
-                "process_names": ["Order"],
-                "role_names": [],
-                "status": "mapped",
-                "mapped_org_unit": "Sales Department",
-                "first_seen": "2026-05-31",
-                "last_seen": "2026-05-31",
-            }
-        ],
-    )
+    confirmed_links = [
+        {
+            "prozess": "Order",
+            "anwendung_name": "SAP BW",
+            "cmdb_id": "app-1",
+            "resolved_to": "SAP BW",
+            "quelle": "manuell_bestaetigt",
+        }
+    ]
+    org_unit_candidates = [
+        {
+            "candidate_name": "Sales Department",
+            "normalized_name": "sales department",
+            "source_paths": ["Input/process.txt"],
+            "process_names": ["Order"],
+            "role_names": [],
+            "status": "mapped",
+            "mapped_org_unit": "Sales Department",
+            "first_seen": "2026-05-31",
+            "last_seen": "2026-05-31",
+        }
+    ]
 
-    written = sync_knowledge_base_aliases(client, knowledge_base)
+    written = sync_curated_aliases(client, confirmed_links, org_unit_candidates)
 
     assert written == 0
 

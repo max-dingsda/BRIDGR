@@ -8,11 +8,9 @@ from processing.pipeline import (
     apply_org_unit_mapping,
     build_extractor_for_path,
     list_bpmn_files,
-    resolve_cmdb_owner_assignments,
     run_document,
     run_pipeline,
     should_skip_file,
-    update_organization_knowledge_from_cmdb,
 )
 from processing.run_artifacts import LATEST_RUN_FILENAME, STATE_FILENAME
 from skills.graph_writer import GraphWriter
@@ -21,7 +19,6 @@ from skills.extract.extract_bpmn import BpmnExtractor
 from skills.extract.extract_docx import DocxExtractor
 from skills.extract.extract_pdf import PdfExtractor
 from skills.extract.extract_txt import TextExtractor
-from processing.knowledge_base import KnowledgeBase
 
 
 class FakeLlmClient:
@@ -106,14 +103,6 @@ def test_run_document_builds_matches_and_review_items(tmp_path: Path) -> None:
             cmdb_name_column="application_name",
             fuzzy_threshold=0.85,
         ),
-        knowledge_base=KnowledgeBase(
-            confirmed=[],
-            rejected=[],
-            disambiguation=[],
-            process_identity=[],
-            org_units=[],
-            org_unit_candidates=[],
-        ),
         cmdb_rows=[{"app_id": "cmdb-1", "application_name": "SAP Sales"}],
         graph_writer=GraphWriter(),
         confirmed_links=confirmed_links,
@@ -127,6 +116,33 @@ def test_run_document_builds_matches_and_review_items(tmp_path: Path) -> None:
     assert result.matches[2].source == "knowledge_base_manual"
     assert result.review_items[0].application_name == "Unbekanntes System"
     assert result.graph_payload.process.process_id == "proc_001"
+
+
+def test_apply_org_unit_mapping_resolves_alias_candidates_without_reopening_them() -> None:
+    extracted = ExtractedProcess(
+        process_name="Incident Management",
+        process_id="proc_123",
+        org_unit="",
+        roles=[],
+        org_units=[],
+        org_unit_candidates=["Controlling"],
+        follows_after=[],
+        raw_applications=[],
+        applications=[],
+        source_path="Input/incident.txt",
+        process_owner_candidate="Controlling",
+    )
+
+    result = apply_org_unit_mapping(
+        extracted,
+        org_units={"itbetrieb": "IT-Betrieb"},
+        org_unit_aliases={"controlling": "IT-Betrieb"},
+    )
+
+    assert result.org_units == ["IT-Betrieb"]
+    assert result.org_unit == "IT-Betrieb"
+    assert result.org_unit_candidates == []
+    assert result.process_owner_candidate == "IT-Betrieb"
 
 
 def test_run_document_revives_absent_manuell_bestaetigt_matches(tmp_path: Path) -> None:
@@ -146,14 +162,6 @@ def test_run_document_revives_absent_manuell_bestaetigt_matches(tmp_path: Path) 
             cmdb_uuid_column="app_id",
             cmdb_name_column="application_name",
             fuzzy_threshold=0.85,
-        ),
-        knowledge_base=KnowledgeBase(
-            confirmed=[],
-            rejected=[],
-            disambiguation=[],
-            process_identity=[],
-            org_units=[],
-            org_unit_candidates=[],
         ),
         cmdb_rows=[{"app_id": "cmdb-1", "application_name": "SAP Sales"}],
         graph_writer=GraphWriter(),
@@ -495,37 +503,7 @@ def test_apply_org_unit_mapping_uses_confirmed_candidates_for_unstructured_docum
     assert result.org_units == ["People & Culture"]
 
 
-def test_update_organization_knowledge_from_cmdb_adds_only_unresolved_owner_candidates() -> None:
-    knowledge_base = KnowledgeBase(
-        confirmed=[],
-        rejected=[],
-        disambiguation=[],
-        process_identity=[],
-        org_units=[{"name": "Team Platform", "created_at": "2026-05-28", "source": "manual"}],
-        org_unit_candidates=[],
-    )
-    normalized_cmdb = type(
-        "Normalized",
-        (),
-        {
-            "entities": [
-                type("Entity", (), {"entity_id": "srv-1", "owner_name": "Team Platform"})(),
-                type("Entity", (), {"entity_id": "srv-2", "owner_name": "Team Plattform"})(),
-            ]
-        },
-    )()
-
-    updated = update_organization_knowledge_from_cmdb(
-        knowledge_base,
-        normalized_cmdb,
-        source_path="Input/cmdb_entities.csv",
-    )
-
-    assert len(updated.org_unit_candidates) == 1
-    assert updated.org_unit_candidates[0]["candidate_name"] == "Team Plattform"
-
-
-def test_run_pipeline_persists_org_candidates_to_knowledge_base(tmp_path: Path, monkeypatch) -> None:
+def test_run_pipeline_persists_org_candidates_to_neo4j(tmp_path: Path, monkeypatch) -> None:
     input_dir = tmp_path / "Input"
     output_dir = tmp_path / "Output"
     prompts_dir = tmp_path / "prompts"
@@ -557,10 +535,14 @@ def test_run_pipeline_persists_org_candidates_to_knowledge_base(tmp_path: Path, 
             }
 
     class FakeNeo4jClient:
+        def __init__(self) -> None:
+            self.write_calls: list[tuple[str, dict]] = []
+
         def close(self) -> None:
             return None
 
         def execute_write(self, query: str, parameters=None):
+            self.write_calls.append((query, parameters or {}))
             return []
 
         def execute_read(self, query: str, parameters=None):
@@ -572,8 +554,9 @@ def test_run_pipeline_persists_org_candidates_to_knowledge_base(tmp_path: Path, 
         def ensure_constraints(self) -> None:
             return None
 
+    fake_client = FakeNeo4jClient()
     monkeypatch.setattr("processing.pipeline.OpenAICompatibleClient", TxtLlmClient)
-    monkeypatch.setattr("processing.pipeline.build_neo4j_client", lambda config: FakeNeo4jClient())
+    monkeypatch.setattr("processing.pipeline.build_neo4j_client", lambda config: fake_client)
 
     run_pipeline(
         AppConfig(
@@ -586,50 +569,9 @@ def test_run_pipeline_persists_org_candidates_to_knowledge_base(tmp_path: Path, 
         )
     )
 
-    kb_path = tmp_path / "knowledge_base" / "kb.json"
-    assert kb_path.exists(), "save_knowledge_base was not called after pipeline run"
-    import json
-    saved = json.loads(kb_path.read_text(encoding="utf-8"))
-    candidate_names = [c["candidate_name"] for c in saved.get("org_unit_candidates", [])]
-    assert "Team Einkauf" in candidate_names
-
-
-def test_resolve_cmdb_owner_assignments_returns_exact_and_mapped_matches() -> None:
-    knowledge_base = KnowledgeBase(
-        confirmed=[],
-        rejected=[],
-        disambiguation=[],
-        process_identity=[],
-        org_units=[{"name": "Team Platform", "created_at": "2026-05-28", "source": "manual"}],
-        org_unit_candidates=[
-            {
-                "candidate_name": "Team Infrastruktur",
-                "normalized_name": "team infrastruktur",
-                "source_paths": ["Input/cmdb_entities.csv"],
-                "process_names": [],
-                "role_names": [],
-                "status": "mapped",
-                "mapped_org_unit": "Team Infrastructure",
-                "first_seen": "2026-05-28",
-                "last_seen": "2026-05-28",
-            }
-        ],
-    )
-    normalized_cmdb = type(
-        "Normalized",
-        (),
-        {
-            "entities": [
-                type("Entity", (), {"entity_id": "srv-1", "owner_name": "Team Platform"})(),
-                type("Entity", (), {"entity_id": "srv-2", "owner_name": "Team Infrastruktur"})(),
-                type("Entity", (), {"entity_id": "srv-3", "owner_name": "Unknown Team"})(),
-            ]
-        },
-    )()
-
-    assignments = resolve_cmdb_owner_assignments(knowledge_base, normalized_cmdb)
-
-    assert assignments == {
-        "srv-1": "Team Platform",
-        "srv-2": "Team Infrastructure",
-    }
+    candidate_writes = [
+        parameters
+        for query, parameters in fake_client.write_calls
+        if "OrgKandidat" in query and parameters.get("candidate_name") == "Team Einkauf"
+    ]
+    assert candidate_writes, "upsert_org_unit_candidate was not called for the extracted org candidate"

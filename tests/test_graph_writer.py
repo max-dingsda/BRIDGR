@@ -23,6 +23,10 @@ class RecordingNeo4jClient:
         self.queries.append((query, parameters))
         return list(self._read_response)
 
+    def execute_read_unvalidated(self, query: str, parameters=None):
+        self.queries.append((query, parameters))
+        return list(self._read_response)
+
 
 def test_graph_writer_removes_existing_process_application_links_before_rewrite() -> None:
     writer = GraphWriter()
@@ -606,3 +610,75 @@ def test_sync_cmdb_uses_canonical_org_unit_name() -> None:
     ]
     assert len(org_unit_params) == 2  # DELETE KÖNNTE_VERANTWORTEN + MERGE VERANTWORTET
     assert all(p["org_unit_name"] == "Vertrieb" for p in org_unit_params)
+
+
+def test_upsert_org_unit_candidate_creates_open_candidate_with_provenance() -> None:
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+    writer.upsert_org_unit_candidate(
+        client,
+        candidate_name="  Team Einkauf  ",
+        source_path="Input/process.txt",
+        process_name="Bestellung anlegen",
+        role_name="Einkäufer",
+    )
+    merge_params = [params for query, params in client.queries if "MERGE (k:OrgKandidat" in query]
+    assert len(merge_params) == 1
+    assert merge_params[0]["normalized_name"] == "team einkauf"
+    assert merge_params[0]["candidate_name"] == "Team Einkauf"
+    assert merge_params[0]["source_path"] == "Input/process.txt"
+    assert merge_params[0]["process_name"] == "Bestellung anlegen"
+    assert merge_params[0]["role_name"] == "Einkäufer"
+
+
+def test_upsert_org_unit_candidate_skips_blank_names() -> None:
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+    writer.upsert_org_unit_candidate(client, candidate_name="   ")
+    assert client.queries == []
+
+
+def test_load_org_unit_candidates_uses_unvalidated_read_path() -> None:
+    """OrgKandidat is excluded from graph_schema.py, so execute_read would reject this query."""
+    class ReadPathClient(RecordingNeo4jClient):
+        def execute_read(self, query: str, parameters=None):
+            raise AssertionError("validated read path must not be used for OrgKandidat lookup")
+
+    client = ReadPathClient(read_response=[
+        {
+            "candidate_name": "Team Einkauf",
+            "normalized_name": "team einkauf",
+            "status": "open",
+            "mapped_org_unit": "",
+            "source_paths": ["Input/process.txt"],
+            "process_names": ["Bestellung anlegen"],
+            "role_names": [],
+            "first_seen": "2026-08-01",
+            "last_seen": "2026-08-01",
+        }
+    ])
+    writer = GraphWriter()
+
+    result = writer.load_org_unit_candidates(client, status="open")
+
+    assert result[0]["candidate_name"] == "Team Einkauf"
+    assert client.queries[0][1] == {"status": "open"}
+
+
+def test_map_org_unit_candidate_sets_status_and_target() -> None:
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+    writer.map_org_unit_candidate(client, "Team Einkauf", "Einkauf")
+    set_params = [params for query, params in client.queries if "k.status = 'mapped'" in query]
+    assert len(set_params) == 1
+    assert set_params[0]["normalized_name"] == "team einkauf"
+    assert set_params[0]["target_org_unit"] == "Einkauf"
+
+
+def test_reject_org_unit_candidate_sets_status_rejected() -> None:
+    writer = GraphWriter()
+    client = RecordingNeo4jClient()
+    writer.reject_org_unit_candidate(client, "Team Einkauf")
+    set_params = [params for query, params in client.queries if "k.status = 'rejected'" in query]
+    assert len(set_params) == 1
+    assert set_params[0]["normalized_name"] == "team einkauf"
