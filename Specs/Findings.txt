@@ -7,11 +7,11 @@
 7. Im Organisations-tab sollten die Kandidaten vor/über den zu bestätigenden/zu pflegenden Prozessverantwortlichen stehen. - erledigt
 8. nicht zugeordnete rollen können aktuell einer Organisationseinheit zugewiesen werden, aber erfolgt dies nicht, bleiben sie in der Übersicht. - erledigt
 9. gemma4:12b beantwortet faktische Fragen ohne den Graphen abzufragen (halluziniert trotz korrektem System Prompt). - erledigt
-10. konfidenz-Eigenschaft auf DIENT-Kanten im Chat nicht nutzbar — zurückgestellt
-r.konfidenz ist zwar in graph_schema.py dokumentiert und dem LLM bekannt, aber in der Praxis existiert im Graphen ausschließlich "stark". Zurückgestellt, weil per Designentscheid (#13, 2026-06-19) KÖNNTE_DIENEN aus dem LLM-Query-Schema ausgeschlossen bleibt — ein Prompt-Beispiel für konfidenz='schwach' wäre damit wertlos, da das LLM diese Kanten ohnehin nicht abfragen kann.
+10. konfidenz-Eigenschaft auf DIENT-Kanten im Chat nicht nutzbar - erledigt (obsolet, 2026-08-03)
+Ursprünglich zurückgestellt, weil KÖNNTE_DIENEN als aus dem LLM-Query-Schema ausgeschlossen galt. Diese Prämisse ist überholt (siehe #13): Unsicherheit wird über KÖNNTE_DIENEN ausgedrückt, das im Query-Schema und im Chat-Prompt freigegeben ist (inkl. Beispielquery und Kennzeichnungsregel). Ein konfidenz='schwach'-Beispiel auf DIENT ist damit gegenstandslos — auf DIENT existiert praktisch nur 'stark', schwache Matches leben als KÖNNTE_DIENEN-Kanten.
 11. ArchiMate-Typen nicht im Chat-System-Prompt verankert. - erledigt
 12. Transitive Impact-Analysen durch Prompt-Beispiele nicht abgedeckt. - erledigt
-13. Schwache Kandidaten nicht im Graphen — Chat kann Unsicherheit nicht abbilden (offen)
+13. Schwache Kandidaten nicht im Graphen — Chat kann Unsicherheit nicht abbilden - erledigt (2026-08-03)
 Schwache Nicht-KB-Matches werden vom graph_writer gefiltert und nicht nach Neo4j geschrieben. Sie existieren nur in latest_run.json/Review-Tab. Damit kann der Chat-Layer BRIDGRs Kernfrage ("wie sicher wissen wir das?") nicht beantworten — weder für offene Kandidaten noch für schwache Matches. Dies ist kein Bug, sondern eine bewusste Designentscheidung (conservative write model).
 Ein Ausbau erfordert einen expliziten Designentscheid: Kandidaten als Pending-Nodes/-Kanten in Neo4j schreiben mit eigenem Status-Attribut. #10 ist von dieser Entscheidung abhängig.
 
@@ -20,6 +20,7 @@ bleiben aber aus dem LLM-Query-Schema ausgeschlossen. Das LLM antwortet weiterhi
 Begründung: schwammige "könnte sein"-Antworten des LLM sind im Unternehmenskontext schlechter als eine ehrliche Datenlücke.
 Konsequenz für #10: bleibt zurückgestellt — ein konfidenz='schwach'-Beispiel im Chat-Prompt ergibt keinen Sinn solange KÖNNTE_DIENEN für das LLM unsichtbar ist.
 Implementierung bereits vorhanden: graph_writer schreibt schwache Matches (cmdb_id vorhanden, confidence != stark) bereits als KÖNNTE_DIENEN in Neo4j. Finding war zum Zeitpunkt der Erfassung korrekt, die Implementierung erfolgte seitdem. - erledigt
+Abschluss (2026-08-03): Der Designentscheid Variante A wurde in einer späteren Session faktisch revidiert und der LLM-first-Weg vollständig umgesetzt, ohne dass dieses Finding nachgezogen wurde: KÖNNTE_DIENEN ist in graph_schema.py freigegeben (Validator akzeptiert es seit dem Unicode-Fix aus #21), und chat_system.md enthält sowohl die Kennzeichnungsregel ("möglicher Kandidat" / "nicht bestätigt", nie als Fakt) als auch eine Beispielquery. Der Chat kann Unsicherheit damit abbilden. Ausgeschlossen bleiben bewusst reine Betriebszustands-Knoten (OrgKandidat, Ablehnung, ManualDecision) — Workflow-Daten, kein EA-Wissen. KÖNNTE_VERANTWORTEN wurde im Zuge von #36 aus Schema, Prompt und Architektur-Doku entfernt, da es keinen Schreibpfad mehr gibt.
 
 14. UI: einklappbare Abschnitte mit To-dos zeigen Item-Anzahl im Titel. - erledigt
 15. kb.json vollständig entfernt - erledigt

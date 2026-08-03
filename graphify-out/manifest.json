@@ -210,8 +210,8 @@
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\Specs\\Findings.txt": {
-    "mtime": 1785756381.6445682,
-    "ast_hash": "4496fc86d509d643886d4a57c3488232",
+    "mtime": 1785758402.5156965,
+    "ast_hash": "4452f6b2a3e34b885ce14d667a22a994",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\.vscode\\settings.json": {
@@ -325,8 +325,8 @@
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\prompts\\chat_system.md": {
-    "mtime": 1781695749.8970938,
-    "ast_hash": "6b4e13dfc37b0300d3a5c01acb74c9cc",
+    "mtime": 1785758308.7055173,
+    "ast_hash": "e9ff041be133a671268a60784ec0cf41",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\services\\archimate_export_service.py": {
@@ -400,8 +400,8 @@
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\core\\graph_schema.py": {
-    "mtime": 1781682602.3376756,
-    "ast_hash": "c56e062d77df2111dd0469b248ad888e",
+    "mtime": 1785758292.90962,
+    "ast_hash": "1d986e648fbd9c1bd6a404fe20e166e1",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\core\\llm_client.py": {
@@ -540,8 +540,8 @@
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\tests\\test_graph_schema.py": {
-    "mtime": 1781699945.4141629,
-    "ast_hash": "70cf67b0d34e0b702fcea4b025006394",
+    "mtime": 1785758327.550923,
+    "ast_hash": "91d6445f69ee7ec9205952af02a87d6f",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\scripts\\generate_nordstern_archimate.py": {
@@ -600,8 +600,8 @@
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\Specs\\Bridgr_Architektur_v28.md": {
-    "mtime": 1785749168.4208424,
-    "ast_hash": "f4e443311023ebf6e26abac867e9c4ce",
+    "mtime": 1785758368.9140773,
+    "ast_hash": "9e95dc31198cf8074d6749aedc199f49",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\Specs\\FachlReview_Gemini.md": {

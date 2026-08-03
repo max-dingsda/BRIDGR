@@ -99,10 +99,12 @@ def test_validator_accepts_könnte_dienen() -> None:
     )
 
 
-def test_validator_accepts_könnte_verantworten() -> None:
-    validate_query_schema(
-        "MATCH (o:OrgEinheit)-[:KÖNNTE_VERANTWORTEN]->(a:Anwendung) RETURN o.name, a.name"
-    )
+def test_validator_rejects_könnte_verantworten() -> None:
+    # KÖNNTE_VERANTWORTEN has no write path since finding #36 — removed from the query schema.
+    with pytest.raises(ValueError, match="unknown relationship type"):
+        validate_query_schema(
+            "MATCH (o:OrgEinheit)-[:KÖNNTE_VERANTWORTEN]->(a:Anwendung) RETURN o.name, a.name"
+        )
 
 
 def test_validator_rejects_unknown_relationship_type() -> None:

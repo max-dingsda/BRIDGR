@@ -6,7 +6,7 @@ import re
 
 
 # Unicode-aware identifier: starts with letter/underscore, followed by word chars.
-# Necessary because BRIDGR relationship types contain umlauts (KÖNNTE_DIENEN, KÖNNTE_VERANTWORTEN).
+# Necessary because BRIDGR relationship types contain umlauts (KÖNNTE_DIENEN).
 _IDENT = r"[^\W\d]\w*"
 
 
@@ -51,10 +51,6 @@ QUERY_RELATIONSHIP_PATTERNS: tuple[RelationshipPattern, ...] = (
     RelationshipPattern("RUNS_ON", "Anwendung", "Server"),
     RelationshipPattern("RUNS_ON", "Schnittstelle", "Server"),
     RelationshipPattern("KÖNNTE_DIENEN", "Anwendung", "Prozess", ("score",)),
-    RelationshipPattern("KÖNNTE_VERANTWORTEN", "OrgEinheit", "Anwendung", ("score",)),
-    RelationshipPattern("KÖNNTE_VERANTWORTEN", "OrgEinheit", "Schnittstelle", ("score",)),
-    RelationshipPattern("KÖNNTE_VERANTWORTEN", "OrgEinheit", "Server", ("score",)),
-    RelationshipPattern("KÖNNTE_VERANTWORTEN", "OrgEinheit", "Prozess", ("score",)),
     RelationshipPattern("KANN_MEINEN", "Alias", "Anwendung", ("source_kind",)),
     RelationshipPattern("KANN_MEINEN", "Alias", "OrgEinheit", ("source_kind",)),
     RelationshipPattern("BETRIFFT", "Risiko", "Anwendung"),

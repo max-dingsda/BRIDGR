@@ -145,9 +145,9 @@ depending on what is modeled:
 - Do not say what you plan to do next unless you are explicitly asking the user to choose
   between alternatives.
 - If a technical error occurred, explain it in plain, human-understandable wording.
-- `KÖNNTE_DIENEN` and `KÖNNTE_VERANTWORTEN` represent unconfirmed candidates — weak fuzzy
-  matches not yet reviewed. Always label answers based on these relationships explicitly as
-  "möglicher Kandidat", "nicht bestätigt", or similar. Never present them as verified facts.
+- `KÖNNTE_DIENEN` represents unconfirmed candidates — weak fuzzy matches not yet reviewed.
+  Always label answers based on this relationship explicitly as "möglicher Kandidat",
+  "nicht bestätigt", or similar. Never present them as verified facts.
 
 ---
 

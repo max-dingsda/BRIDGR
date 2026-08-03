@@ -34,7 +34,7 @@ LLM-Extraktion
         |
         v
 Matching gegen CMDB
-  1. Knowledge Base  — kuratierte Entscheidungen, deterministisch
+  1. Kuratierte Entscheidungen (Neo4j) — bestaetigte Links, deterministisch
   2. Fuzzy Matching  — Score-basiert, Schwellwert konfigurierbar
   3. kein Match      — offen, zur manuellen Klaerung
         |
@@ -62,7 +62,7 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - BPMN-, TXT-, DOCX- und PDF-Verarbeitung ueber einen gemeinsamen semantischen Extraktionspfad
 - BPMN-Transformer fuer sehr grosse BPMN/XML-Dateien als vorbereitender, LLM-freier Reduktionsschritt
 - Rohsicht und deduplizierte Arbeitssicht fuer extrahierte Anwendungen
-- CMDB-Matching mit KB-First-Logik, mehreren Kandidaten und Fuzzy Matching
+- CMDB-Matching mit Vorrang kuratierter Entscheidungen aus Neo4j, mehreren Kandidaten und Fuzzy Matching
 - Neo4j-Write-Pfad fuer Prozesse, Organisationseinheiten und bestaetigte bzw. starke Anwendungslinks als `DIENT`-Kanten mit `raw_name`- und `source`-Property
 - schwache Fuzzy-Matches mit CMDB-Treffer werden als `KÖNNTE_DIENEN`-Kanten in Neo4j geschrieben und im Chat abfragbar
 - Ablehnungen werden als `(:Ablehnung)`-Knoten in Neo4j persistiert; Pipeline liest bestaetigt/abgelehnt direkt aus Neo4j

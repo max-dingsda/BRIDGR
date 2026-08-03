@@ -223,7 +223,6 @@ bewusst nicht Teil des Query-Schemas fuer den Chat-Layer.
 (:Rolle)-[:BETEILIGT_AN]->(:Prozess)
 (:OrgEinheit)-[:KANN_EINNEHMEN]->(:Rolle)
 (:OrgEinheit)-[:VERANTWORTET]->(:Prozess|:Anwendung|:Schnittstelle|:Server|:Infrastruktur)
-(:OrgEinheit)-[:KÖNNTE_VERANTWORTEN]->(:Prozess|:Anwendung|:Schnittstelle|:Server)
 (:Prozess)-[:FOLGT_AUF]->(:Prozess)
 (:Anwendung)-[:USES_INTERFACE]->(:Schnittstelle)
 (:Anwendung|:Schnittstelle)-[:RUNS_ON]->(:Server)
@@ -247,7 +246,7 @@ bewusst nicht Teil des Query-Schemas fuer den Chat-Layer.
 - `source`
 - `raw_name`
 
-#### Auf `:KÖNNTE_DIENEN` und `:KÖNNTE_VERANTWORTEN`
+#### Auf `:KÖNNTE_DIENEN`
 
 - `score`
 
@@ -328,7 +327,8 @@ Jedes Prozessdokument durchlaeuft diese Kette:
 - `stark`
   bestaetigt oder sicher gematcht, wird als `DIENT` bzw. `VERANTWORTET` geschrieben
 - `schwach`
-  Kandidat mit Review-Bedarf, wird als `KÖNNTE_DIENEN` oder `KÖNNTE_VERANTWORTEN` geschrieben
+  Anwendungskandidat mit Review-Bedarf, wird als `KÖNNTE_DIENEN` geschrieben; unsichere
+  CMDB-Owner werden als `OrgKandidat` gefuehrt (kein direkter Kanten-Schreibpfad)
 - `offen`
   kein Match, nur Review-Artefakt
 
@@ -775,7 +775,7 @@ Alias-Knoten unterstuetzen:
 Der Chat darf bestaetigte Fakten und unbestaetigte Kandidaten unterscheiden:
 
 - `DIENT` / `VERANTWORTET` = bestaetigte Fakten
-- `KÖNNTE_DIENEN` / `KÖNNTE_VERANTWORTEN` = nicht bestaetigte Kandidaten
+- `KÖNNTE_DIENEN` = nicht bestaetigte Kandidaten
 
 Entscheidungsmetadaten selbst sind kein Chat-Gegenstand.
 

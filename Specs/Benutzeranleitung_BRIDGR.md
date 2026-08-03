@@ -295,11 +295,10 @@ Nutzen Sie diesen Tab immer nach einem Import, wenn BRIDGR nicht sicher genug wa
 
 Dieser Tab ist für Setup, Import und technische Prüfungen zentral.
 
-Er enthält drei Bereiche:
+Er enthält zwei Bereiche:
 
 - `Import`
 - `Einstellungen`
-- `Wissensbasis`
 
 ### 8.1 Bereich `Import`
 
@@ -459,18 +458,6 @@ Prüft die Verbindung zum LLM und die Modellverfügbarkeit.
 #### Bereich `Aktuelle Konfiguration`
 
 Zeigt die derzeit wirksame Konfiguration als JSON an.
-
-### 8.3 Bereich `Wissensbasis`
-
-Dieser Bereich dient administrativen Rücksetzfunktionen.
-
-Buttons:
-
-- `Wissensbasis komplett leeren`
-- `Nur Bestätigungen leeren`
-- `Nur Ablehnungen leeren`
-
-Verwenden Sie diese Funktionen nur bewusst, da dadurch bereits getroffene Entscheidungen entfernt werden.
 
 ---
 
