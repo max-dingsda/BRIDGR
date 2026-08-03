@@ -89,6 +89,8 @@ streamlit run app.py
 
 Danach öffnet sich die Oberfläche im Browser.
 
+Im App-Header oben rechts befindet sich ein optionaler Darkmode-Umschalter. Die Wahl gilt nur für die laufende Sitzung und wird bei einem Neustart der Anwendung zurückgesetzt.
+
 Falls BRIDGR lokal noch nicht lauffähig ist, müssen vorher die Abhängigkeiten installiert werden, zum Beispiel:
 
 ```powershell
@@ -103,7 +105,7 @@ python -m pip install -r requirements-dev.txt
 
 ### 4.2 Grundkonfiguration in BRIDGR
 
-Öffnen Sie den Tab `Konfiguration` und bearbeiten Sie dort zunächst den Bereich `Einstellungen`.
+Öffnen Sie den Tab `Konfiguration` (ganz rechts) und pflegen Sie dort die technischen Einstellungen.
 
 Empfohlene Reihenfolge:
 
@@ -129,11 +131,11 @@ Wenn sehr große BPMN/XML-Dateien verwendet werden, empfiehlt es sich, diese vor
 
 Auch wenn die Tabs in anderer Reihenfolge angezeigt werden, ist der typische Ablauf:
 
-1. `Konfiguration`: technische Einstellungen prüfen und Import vorbereiten
-2. `Konfiguration > Import`: Prozessdateien importieren und CMDB synchronisieren
+1. `Konfiguration`: technische Einstellungen prüfen
+2. `Import`: Prozessdateien importieren und CMDB synchronisieren
 3. `Zuordnungen`: offene Anwendungszuordnungen prüfen
 4. `Organisation`: Organisationskandidaten, Prozesseigentümer und Rollen klären
-5. `Organisation`: letzte manuelle Änderungen bei Bedarf zurücknehmen und Dubletten von Organisationseinheiten konsolidieren
+5. `Zuordnungen > Datenpflege`: letzte manuelle Änderungen bei Bedarf zurücknehmen und Prozess-Dubletten konsolidieren; Dubletten von Organisationseinheiten konsolidieren Sie im Tab `Organisation`
 6. `EA-Modell`: optional ArchiMate-Mapping pflegen sowie ArchiMate importieren/exportieren
 7. `Kommunikation`: Fragen an den aufgebauten Wissensgraphen stellen
 
@@ -189,118 +191,9 @@ Erscheint bei tabellarischen Treffern und exportiert das sichtbare Ergebnis als 
 
 ---
 
-## 7. Tab `Zuordnungen`
+## 7. Tab `Import`
 
-### 7.1 Zweck
-
-Hier prüfen Sie offene oder unsichere Anwendungszuordnungen aus dem letzten Importlauf. Es wird in diesem Tab kein neuer Import gestartet.
-
-### 7.2 Abschnitt `Umfang`
-
-#### Radio-Option `Nur letzter Import`
-
-Zeigt nur Dateien aus dem zuletzt importierten Lauf an.
-
-#### Radio-Option `Dateien manuell wählen`
-
-Erlaubt die gezielte Auswahl einzelner Dateien aus bereits vorhandenen Laufartefakten.
-
-Wichtige Konsequenz:
-
-Wenn Sie hier zum Beispiel nur 1 von 10 Dateien auswählen, bezieht sich die Anzeige in diesem Tab nur noch auf diese ausgewählte Datei beziehungsweise Dateimenge. Sie blenden damit die übrigen Dateien nur aus; deren Review-Fälle werden dadurch weder gelöscht noch automatisch entschieden. Offene Zuordnungen der nicht ausgewählten Dateien bleiben also weiterhin bestehen und müssen später separat geprüft werden.
-
-#### Feld `Dateien für Überprüfung`
-
-Multiselect für die manuelle Auswahl der Prozessdateien, die geprüft werden sollen.
-
-### 7.3 Feld `Statusfilter`
-
-Filtert die angezeigten Dokumente nach Status. So können Sie sich zum Beispiel nur problematische oder offene Fälle anzeigen lassen.
-
-### 7.4 Bereich `Dokumentstatus`
-
-Tabellarische Übersicht über die Dokumente im aktuellen Filter.
-
-Typische Informationen:
-
-- Dateistatus
-- erkannte Prozesse
-- Fehlerfälle
-
-### 7.5 Bereich `Offene Zuordnungen`
-
-#### Sortierung
-
-Über den Sortierungsschalter oberhalb der Tabelle können Sie die Einträge wahlweise **nach Prozess** (Standard) oder **nach Anwendungsbezeichner** sortieren. Die Sortierung nach Anwendungsbezeichner erleichtert das Erkennen von Fällen, bei denen derselbe Begriff in mehreren Prozessen auftaucht und auf dieselbe CMDB-Anwendung verweist.
-
-Hier sehen Sie pro Review-Fall:
-
-- Checkbox (für Mehrfachauswahl)
-- `Prozess`
-- `Anwendung im Prozess`
-- `Anwendung in der CMDB`
-- `Bewertung`
-
-Zu jedem Fall gibt es folgende Aktionen:
-
-#### Button `Bestätigen`
-
-Übernimmt die vorgeschlagene Zuordnung als korrekt.
-
-**Batch-Bestätigung:** Wenn Sie mehrere Zeilen per Checkbox markieren und alle markierten Einträge denselben Anwendungsbezeichner (normalisiert) und dasselbe CMDB-Ziel haben, bestätigt ein Klick auf `Bestätigen` in einer der markierten Zeilen alle markierten Einträge auf einmal. Zeilen ohne Markierung sind davon nicht betroffen.
-
-Bei ungültiger Mehrfachauswahl (unterschiedliche Bezeichner oder unterschiedliche CMDB-Ziele) werden alle Aktionsbuttons der markierten Zeilen deaktiviert und ein rotes Banner erklärt den Grund. Nicht markierte Zeilen bleiben weiterhin einzeln bedienbar.
-
-#### Button `Ablehnen`
-
-Lehnt die vorgeschlagene Zuordnung ab.
-
-#### Popover `Manuell anlegen`
-
-Öffnet eine manuelle Auswahl mit alphabetisch sortierter CMDB-Liste.
-
-Darin enthalten:
-
-- Feld `CMDB-Ziel`: alphabetisch sortierte Auswahl eines CMDB-Eintrags
-- Button `Speichern`: speichert die manuell gewählte Zuordnung
-
-### 7.6 Bereich `Dokumentdetails`
-
-Zeigt pro Dokument technische und fachliche Details.
-
-Enthalten sein können:
-
-- Prozessname
-- Prozess-ID
-- erkannte Organisationseinheit
-- Vorgängerprozess
-- Dateihash
-- Review-Items
-
-#### Expander `Technische Details`
-
-Zeigt Rohdaten aus der Extraktion:
-
-- Rohanwendungen
-- Anwendungen
-- Zuordnungen
-
-### 7.7 Wann Sie diesen Tab nutzen sollten
-
-Nutzen Sie diesen Tab immer nach einem Import, wenn BRIDGR nicht sicher genug war, eine Anwendungszuordnung automatisch freizugeben.
-
----
-
-## 8. Tab `Konfiguration`
-
-Dieser Tab ist für Setup, Import und technische Prüfungen zentral.
-
-Er enthält zwei Bereiche:
-
-- `Import`
-- `Einstellungen`
-
-### 8.1 Bereich `Import`
+Hier starten Sie den Prozessimport nach Neo4j und die CMDB-Synchronisation.
 
 #### Feld `Importmodus`
 
@@ -349,115 +242,174 @@ Zusätzlich wird der letzte gespeicherte Lauf in `Output/latest_run.json` mit de
 
 Zeigen Probleme in der CSV-Struktur an, zum Beispiel fehlende Spalten oder unvollständige Zeilen.
 
-### 8.2 Bereich `Einstellungen`
+---
 
-#### Abschnitt `Pfade auswählen`
+## 8. Tab `Zuordnungen`
 
-Buttons:
+### 8.1 Zweck
 
-- `Eingabe-Ordner wählen`
-- `Ausgabe-Ordner wählen`
+Hier prüfen Sie offene oder unsichere Anwendungszuordnungen aus dem letzten Importlauf. Es wird in diesem Tab kein neuer Import gestartet.
 
-Diese Buttons öffnen Dateiauswahl- oder Ordnerdialoge.
+### 8.2 Abschnitt `Umfang`
 
-#### Abschnitt `LLM`
+#### Radio-Option `Nur letzter Import`
 
-Zusätzliche Hilfe:
+Zeigt nur Dateien aus dem zuletzt importierten Lauf an.
 
-- Über die Preset-Buttons `OpenAI` und `Ollama` können typische Standardwerte direkt vorbelegt werden.
-- Das Feld `API-Schlüssel (Umgebungsvariable)` erwartet den Namen der Umgebungsvariable mit dem Schlüssel, nicht den geheimen Schlüsselwert selbst. Für OpenAI ist typischerweise `OPENAI_API_KEY` gemeint.
+#### Radio-Option `Dateien manuell wählen`
+
+Erlaubt die gezielte Auswahl einzelner Dateien aus bereits vorhandenen Laufartefakten.
+
+Wichtige Konsequenz:
+
+Wenn Sie hier zum Beispiel nur 1 von 10 Dateien auswählen, bezieht sich die Anzeige in diesem Tab nur noch auf diese ausgewählte Datei beziehungsweise Dateimenge. Sie blenden damit die übrigen Dateien nur aus; deren Review-Fälle werden dadurch weder gelöscht noch automatisch entschieden. Offene Zuordnungen der nicht ausgewählten Dateien bleiben also weiterhin bestehen und müssen später separat geprüft werden.
+
+#### Feld `Dateien für Überprüfung`
+
+Multiselect für die manuelle Auswahl der Prozessdateien, die geprüft werden sollen.
+
+### 8.3 Feld `Statusfilter`
+
+Filtert die angezeigten Dokumente nach Status. So können Sie sich zum Beispiel nur problematische oder offene Fälle anzeigen lassen.
+
+### 8.4 Bereich `Dokumentstatus`
+
+Tabellarische Übersicht über die Dokumente im aktuellen Filter.
+
+Typische Informationen:
+
+- Dateistatus
+- erkannte Prozesse
+- Fehlerfälle
+
+### 8.5 Bereich `Offene Zuordnungen`
+
+#### Sortierung
+
+Über den Sortierungsschalter oberhalb der Tabelle können Sie die Einträge wahlweise **nach Prozess** (Standard) oder **nach Anwendungsbezeichner** sortieren. Die Sortierung nach Anwendungsbezeichner erleichtert das Erkennen von Fällen, bei denen derselbe Begriff in mehreren Prozessen auftaucht und auf dieselbe CMDB-Anwendung verweist.
+
+Hier sehen Sie pro Review-Fall:
+
+- Checkbox (für Mehrfachauswahl)
+- `Prozess`
+- `Anwendung im Prozess`
+- `Anwendung in der CMDB`
+- `Bewertung`
+
+Zu jedem Fall gibt es folgende Aktionen:
+
+#### Button `Bestätigen`
+
+Übernimmt die vorgeschlagene Zuordnung als korrekt.
+
+**Batch-Bestätigung:** Wenn Sie mehrere Zeilen per Checkbox markieren und alle markierten Einträge denselben Anwendungsbezeichner (normalisiert) und dasselbe CMDB-Ziel haben, bestätigt ein Klick auf `Bestätigen` in einer der markierten Zeilen alle markierten Einträge auf einmal. Zeilen ohne Markierung sind davon nicht betroffen.
+
+Bei ungültiger Mehrfachauswahl (unterschiedliche Bezeichner oder unterschiedliche CMDB-Ziele) werden alle Aktionsbuttons der markierten Zeilen deaktiviert und ein rotes Banner erklärt den Grund. Nicht markierte Zeilen bleiben weiterhin einzeln bedienbar.
+
+#### Button `Ablehnen`
+
+Lehnt die vorgeschlagene Zuordnung ab.
+
+#### Popover `Manuell anlegen`
+
+Öffnet eine manuelle Auswahl mit alphabetisch sortierter CMDB-Liste.
+
+Darin enthalten:
+
+- Feld `CMDB-Ziel`: alphabetisch sortierte Auswahl eines CMDB-Eintrags
+- Button `Speichern`: speichert die manuell gewählte Zuordnung
+
+### 8.6 Bereich `Dokumentdetails`
+
+Zeigt pro Dokument technische und fachliche Details.
+
+Enthalten sein können:
+
+- Prozessname
+- Prozess-ID
+- erkannte Organisationseinheit
+- Vorgängerprozess
+- Dateihash
+- Review-Items
+
+#### Expander `Technische Details`
+
+Zeigt Rohdaten aus der Extraktion:
+
+- Rohanwendungen
+- Anwendungen
+- Zuordnungen
+
+### 8.7 Wann Sie diesen Tab nutzen sollten
+
+Nutzen Sie diesen Tab immer nach einem Import, wenn BRIDGR nicht sicher genug war, eine Anwendungszuordnung automatisch freizugeben.
+
+### 8.8 Bereich `Datenpflege`
+
+Am Ende des Tabs bündelt der Bereich `Datenpflege` zwei tabübergreifende Pflegefunktionen:
+die Konsolidierung von Prozess-Dubletten und die Rücknahme manueller Änderungen.
+
+### 8.9 Abschnitt `Prozesse konsolidieren`
+
+Dieser Bereich dient zum Zusammenführen fachlicher Prozess-Dubletten.
+
+Typischer Anwendungsfall:
+
+- derselbe Prozess wurde aus unterschiedlichen Quellen mit leicht abweichendem Namen importiert
+- ein Prozess liegt einmal als Text-/BPMN-Import und einmal aus einem anderen Modell vor
 
 Felder:
 
-- `LLM-Endpunkt`: URL des OpenAI-kompatiblen LLM-Dienstes
-- `LLM-Modell`: Name des verwendeten Modells
-- `API-Schlüssel (Umgebungsvariable)`: Name der Umgebungsvariable mit dem API-Key
-- `Kontextfenster`: Anzahl von Kontextnachrichten für den Chat
-- `LLM-Timeout (Sekunden)`: maximale Wartezeit auf LLM-Antworten
-- `Chat-Modus`: Auswahl zwischen `prompt-only` und `tool-use`
+- `Prozess-Quelle`: der aufzulösende Prozess
+- `Prozess-Ziel`: der Prozess, der bestehen bleiben soll
 
-Hinweis zu `Chat-Modus`:
+Vor dem eigentlichen Merge zeigt BRIDGR auch hier einen Precheck mit Beziehungshinweisen,
+Dublettenprüfung und einer kompakten Wirkungszusammenfassung.
 
-- `prompt-only` ist der kompatiblere Fallback für einfache oder lokale Modelle.
-- `tool-use` nutzt formales Function Calling und setzt Backend-Unterstützung voraus.
+#### Button `Prozess-Merge ausführen`
 
-#### Abschnitt `Neo4j`
+Führt den ausgewählten Quellprozess in den Zielprozess über.
 
-Felder:
+Dabei geschieht:
 
-- `Neo4j-URL`
-- `Neo4j-Benutzer`
-- `Neo4j-Passwort`
-- `Neo4j-Datenbank`
+- Anwendungsbeziehungen, Rollenbeteiligungen, Eigentümerbeziehungen und Prozessfolgekanten werden auf das Ziel übertragen
+- bereits vorhandene gleichartige Beziehungen werden nicht doppelt erzeugt
+- der Name der Quelle wird als Alias des Zielprozesses weitergeführt
 
-Diese Felder steuern die Verbindung zur Graphdatenbank.
+Wichtig:
 
-#### Abschnitt `Datei-Pfade`
+- Ein Prozess-Merge kann über `Letzte manuelle Änderungen` wieder zurückgenommen werden.
 
-Felder:
+### 8.10 Abschnitt `Letzte manuelle Änderungen`
 
-- `Eingabepfad`
-- `Ausgabepfad`
+Hier sehen Sie die zuletzt ausgeführten manuellen Entscheidungen mit fachlichem Kontext.
 
-#### Abschnitt `CMDB-Spaltenmapping — Beziehungsspalten (Typ-Datei-Format)`
+Typische Inhalte:
 
-Konfiguriert, welche Spalten in der Anwendungsdatei die Beziehungen zu Servern und Schnittstellen enthalten:
+- Art der Änderung
+- Zeitpunkt
+- betroffener Prozess, betroffene Anwendung oder Organisationseinheit
+- bei Prozesseigentümern der Prozessname und der zugewiesene Eigentümer
 
-- `Spalte 'läuft auf'` — Spaltennamen für Server-IDs (Standard: `runs_on`)
-- `Spalte 'nutzt Schnittstellen'` — Spaltennamen für Schnittstellen-IDs (Standard: `uses_interfaces`)
-- `Mehrwert-Trennzeichen` — Trennzeichen bei mehreren Ziel-IDs in einer Zelle (Standard: `|`)
+Wichtig:
 
-#### Abschnitt `CMDB-Spaltenmapping — Entities`
+- Ältere Entscheidungen können noch technische Kennungen enthalten, wenn sie vor der UI-Erweiterung angelegt wurden.
+- Neuere Prozesseigentümer-Zuordnungen werden mit einem menschenlesbaren Prozessnamen angezeigt.
 
-Felder:
+#### Button `Zurücknehmen`
 
-- `ID-Spalte`
-- `Namensspalte`
-- `Typ-Spalte`
-- `Servertyp-Spalte`
-- `Eigentümer-Spalte`
+Macht eine unterstützte manuelle Entscheidung rückgängig.
 
-Diese Felder müssen zu den Spaltennamen Ihrer CMDB-CSV-Dateien passen.
+Aktuell unterstützt:
 
-Hinweis zum Dateiformat: BRIDGR erkennt das Trennzeichen der CSV-Dateien automatisch. Sowohl Komma (`,`) als auch Semikolon (`;`) werden unterstützt.
+- manuell angelegte Anwendungszuordnung
+- bestätigter Anwendungskandidat
+- manuelle Prozesseigentümer-Zuordnung
+- manuelle Rollenzuordnung
 
-#### Abschnitt `CMDB-Spaltenmapping — Relationen (Legacy-Format)`
-
-Gilt nur, wenn noch das ältere Zwei-Dateien-Format verwendet wird.
-
-Felder:
-
-- `Quell-ID-Spalte`
-- `Relationstyp-Spalte`
-- `Ziel-ID-Spalte`
-
-#### Abschnitt `Import & Matching`
-
-Felder:
-
-- `Fuzzy-Schwellenwert`: bestimmt, wie tolerant BRIDGR bei unscharfen Namensähnlichkeiten ist
-- `Standard-Importmodus`: Vorgabewert für `full` oder `partial`
-- `Debug-Modus`: schreibt zusätzliche Diagnosedaten
-
-#### Button `Konfiguration speichern`
-
-Speichert alle Änderungen in der Konfiguration.
-
-#### Button `Neo4j-Verbindung neu prüfen`
-
-Prüft, ob die Graphdatenbank mit den aktuellen Angaben erreichbar ist.
-
-#### Button `Modelle aktualisieren`
-
-Fragt die am LLM-Endpunkt verfügbaren Modelle ab.
-
-#### Button `LLM-Verbindung neu prüfen`
-
-Prüft die Verbindung zum LLM und die Modellverfügbarkeit.
-
-#### Bereich `Aktuelle Konfiguration`
-
-Zeigt die derzeit wirksame Konfiguration als JSON an.
+Der Rücknahmevorgang erzeugt selbst wieder einen internen Nachweis im System.
+Auch Merge-Entscheidungen können in der aktuellen Version über diese Liste zurückgenommen werden.
+Rücknahmen gelten dabei fachlich als abgeschlossen und erscheinen nicht mehr als neue aktive manuelle Entscheidung.
 
 ---
 
@@ -585,38 +537,7 @@ Typische Spalten:
 - Gemappt auf
 - Zuletzt gesehen
 
-### 9.8 Abschnitt `Letzte manuelle Änderungen`
-
-Hier sehen Sie die zuletzt ausgeführten manuellen Entscheidungen mit fachlichem Kontext.
-
-Typische Inhalte:
-
-- Art der Änderung
-- Zeitpunkt
-- betroffener Prozess, betroffene Anwendung oder Organisationseinheit
-- bei Prozesseigentümern der Prozessname und der zugewiesene Eigentümer
-
-Wichtig:
-
-- Ältere Entscheidungen können noch technische Kennungen enthalten, wenn sie vor der UI-Erweiterung angelegt wurden.
-- Neuere Prozesseigentümer-Zuordnungen werden mit einem menschenlesbaren Prozessnamen angezeigt.
-
-#### Button `Zurücknehmen`
-
-Macht eine unterstützte manuelle Entscheidung rückgängig.
-
-Aktuell unterstützt:
-
-- manuell angelegte Anwendungszuordnung
-- bestätigter Anwendungskandidat
-- manuelle Prozesseigentümer-Zuordnung
-- manuelle Rollenzuordnung
-
-Der Rücknahmevorgang erzeugt selbst wieder einen internen Nachweis im System.
-Auch Merge-Entscheidungen können in der aktuellen Version über diese Liste zurückgenommen werden.
-Rücknahmen gelten dabei fachlich als abgeschlossen und erscheinen nicht mehr als neue aktive manuelle Entscheidung.
-
-### 9.9 Abschnitt `Organisationseinheiten konsolidieren`
+### 9.8 Abschnitt `Organisationseinheiten konsolidieren`
 
 Dieser Bereich dient zum Zusammenführen fachlicher Dubletten bei Organisationseinheiten.
 
@@ -650,38 +571,7 @@ Dabei geschieht:
 
 Wichtig:
 
-- Diese Funktion gilt aktuell nur für Organisationseinheiten.
-
-### 9.10 Abschnitt `Prozesse konsolidieren`
-
-Dieser Bereich dient zum Zusammenführen fachlicher Prozess-Dubletten.
-
-Typischer Anwendungsfall:
-
-- derselbe Prozess wurde aus unterschiedlichen Quellen mit leicht abweichendem Namen importiert
-- ein Prozess liegt einmal als Text-/BPMN-Import und einmal aus einem anderen Modell vor
-
-Felder:
-
-- `Prozess-Quelle`: der aufzulösende Prozess
-- `Prozess-Ziel`: der Prozess, der bestehen bleiben soll
-
-Vor dem eigentlichen Merge zeigt BRIDGR auch hier einen Precheck mit Beziehungshinweisen,
-Dublettenprüfung und einer kompakten Wirkungszusammenfassung.
-
-#### Button `Prozess-Merge ausführen`
-
-Führt den ausgewählten Quellprozess in den Zielprozess über.
-
-Dabei geschieht:
-
-- Anwendungsbeziehungen, Rollenbeteiligungen, Eigentümerbeziehungen und Prozessfolgekanten werden auf das Ziel übertragen
-- bereits vorhandene gleichartige Beziehungen werden nicht doppelt erzeugt
-- der Name der Quelle wird als Alias des Zielprozesses weitergeführt
-
-Wichtig:
-
-- Ein Prozess-Merge kann über `Letzte manuelle Änderungen` wieder zurückgenommen werden.
+- Diese Funktion gilt nur für Organisationseinheiten. Prozess-Dubletten konsolidieren Sie im Tab `Zuordnungen` im Bereich `Datenpflege`.
 
 ---
 
@@ -767,13 +657,128 @@ Wichtig:
 
 ---
 
-## 11. Typische Nutzungsszenarien
+## 11. Tab `Konfiguration`
 
-### 11.1 Erster Import
+Dieser Tab bündelt alle technischen Einstellungen. Der Prozessimport selbst wird im Tab `Import` gestartet.
+
+
+#### Abschnitt `Pfade auswählen`
+
+Buttons:
+
+- `Eingabe-Ordner wählen`
+- `Ausgabe-Ordner wählen`
+
+Diese Buttons öffnen Dateiauswahl- oder Ordnerdialoge.
+
+#### Abschnitt `LLM`
+
+Zusätzliche Hilfe:
+
+- Über die Preset-Buttons `OpenAI` und `Ollama` können typische Standardwerte direkt vorbelegt werden.
+- Das Feld `API-Schlüssel (Umgebungsvariable)` erwartet den Namen der Umgebungsvariable mit dem Schlüssel, nicht den geheimen Schlüsselwert selbst. Für OpenAI ist typischerweise `OPENAI_API_KEY` gemeint.
+
+Felder:
+
+- `LLM-Endpunkt`: URL des OpenAI-kompatiblen LLM-Dienstes
+- `LLM-Modell`: Name des verwendeten Modells
+- `API-Schlüssel (Umgebungsvariable)`: Name der Umgebungsvariable mit dem API-Key
+- `Kontextfenster`: Anzahl von Kontextnachrichten für den Chat
+- `LLM-Timeout (Sekunden)`: maximale Wartezeit auf LLM-Antworten
+- `Chat-Modus`: Auswahl zwischen `prompt-only` und `tool-use`
+
+Hinweis zu `Chat-Modus`:
+
+- `prompt-only` ist der kompatiblere Fallback für einfache oder lokale Modelle.
+- `tool-use` nutzt formales Function Calling und setzt Backend-Unterstützung voraus.
+
+#### Abschnitt `Neo4j`
+
+Felder:
+
+- `Neo4j-URL`
+- `Neo4j-Benutzer`
+- `Neo4j-Passwort`
+- `Neo4j-Datenbank`
+
+Diese Felder steuern die Verbindung zur Graphdatenbank.
+
+#### Abschnitt `Datei-Pfade`
+
+Felder:
+
+- `Eingabepfad`
+- `Ausgabepfad`
+
+#### Abschnitt `CMDB-Spaltenmapping — Beziehungsspalten (Typ-Datei-Format)`
+
+Konfiguriert, welche Spalten in der Anwendungsdatei die Beziehungen zu Servern und Schnittstellen enthalten:
+
+- `Spalte 'läuft auf'` — Spaltennamen für Server-IDs (Standard: `runs_on`)
+- `Spalte 'nutzt Schnittstellen'` — Spaltennamen für Schnittstellen-IDs (Standard: `uses_interfaces`)
+- `Mehrwert-Trennzeichen` — Trennzeichen bei mehreren Ziel-IDs in einer Zelle (Standard: `|`)
+
+#### Abschnitt `CMDB-Spaltenmapping — Entities`
+
+Felder:
+
+- `ID-Spalte`
+- `Namensspalte`
+- `Typ-Spalte`
+- `Servertyp-Spalte`
+- `Eigentümer-Spalte`
+
+Diese Felder müssen zu den Spaltennamen Ihrer CMDB-CSV-Dateien passen.
+
+Hinweis zum Dateiformat: BRIDGR erkennt das Trennzeichen der CSV-Dateien automatisch. Sowohl Komma (`,`) als auch Semikolon (`;`) werden unterstützt.
+
+#### Abschnitt `CMDB-Spaltenmapping — Relationen (Legacy-Format)`
+
+Gilt nur, wenn noch das ältere Zwei-Dateien-Format verwendet wird.
+
+Felder:
+
+- `Quell-ID-Spalte`
+- `Relationstyp-Spalte`
+- `Ziel-ID-Spalte`
+
+#### Abschnitt `Import & Matching`
+
+Felder:
+
+- `Fuzzy-Schwellenwert`: bestimmt, wie tolerant BRIDGR bei unscharfen Namensähnlichkeiten ist
+- `Standard-Importmodus`: Vorgabewert für `full` oder `partial`
+- `Debug-Modus`: schreibt zusätzliche Diagnosedaten
+
+#### Button `Konfiguration speichern`
+
+Speichert alle Änderungen in der Konfiguration.
+
+#### Button `Neo4j-Verbindung neu prüfen`
+
+Prüft, ob die Graphdatenbank mit den aktuellen Angaben erreichbar ist.
+
+#### Button `Modelle aktualisieren`
+
+Fragt die am LLM-Endpunkt verfügbaren Modelle ab.
+
+#### Button `LLM-Verbindung neu prüfen`
+
+Prüft die Verbindung zum LLM und die Modellverfügbarkeit.
+
+#### Bereich `Aktuelle Konfiguration`
+
+Zeigt die derzeit wirksame Konfiguration als JSON an.
+
+---
+
+## 12. Typische Nutzungsszenarien
+
+### 12.1 Erster Import
 
 1. Im Tab `Konfiguration` LLM und Neo4j einrichten
 2. Prozessdateien und CMDB-Dateien (Anwendungen, Server, Schnittstellen) in `Input/` ablegen
-3. Im Bereich `Import` die CMDB-Typ-Dateien den Objektarten zuweisen und mit `Typ-Dateien übernehmen` speichern
+3. Im Tab `Import` die CMDB-Typ-Dateien den Objektarten zuweisen und mit `Typ-Dateien übernehmen` speichern
 4. Falls nötig `CMDB nach Neo4j synchronisieren`
 5. `Pipeline starten`
 6. Danach `Zuordnungen` und `Organisation` prüfen
@@ -781,15 +786,15 @@ Wichtig:
 Hinweis:
 Wenn Sie eine CMDB nachträglich erweitern oder korrigieren, kann Schritt 4 bereits ausreichen, um bestehende offene Zuordnungen aus dem letzten Lauf neu bewerten zu lassen. Ein erneuter Prozessimport ist dafür nicht zwingend erforderlich.
 
-### 11.2 Offene Zuordnungen bereinigen
+### 12.2 Offene Zuordnungen bereinigen
 
 1. Tab `Zuordnungen` öffnen
 2. Umfang und Statusfilter setzen
 3. offene Fälle bestätigen, ablehnen oder manuell anlegen
 4. anschließend Tab `Organisation` öffnen und offene Organisationsfragen klären
-5. bei Bedarf letzte manuelle Änderungen prüfen oder Organisationseinheiten konsolidieren
+5. bei Bedarf im Bereich `Datenpflege` des Tabs `Zuordnungen` letzte manuelle Änderungen prüfen oder Prozesse konsolidieren; Organisationseinheiten konsolidieren Sie im Tab `Organisation`
 
-### 11.3 Fragen an den Graph stellen
+### 12.3 Fragen an den Graph stellen
 
 1. Sicherstellen, dass bereits Daten importiert wurden
 2. Tab `Kommunikation` öffnen
@@ -798,7 +803,7 @@ Wenn Sie eine CMDB nachträglich erweitern oder korrigieren, kann Schritt 4 bere
 
 ---
 
-## 12. Häufige Probleme
+## 13. Häufige Probleme
 
 ### Keine Chat-Antwort möglich
 
@@ -827,14 +832,14 @@ Mögliche Ursachen:
 
 ---
 
-## 13. Kurzfassung für neue Benutzer
+## 14. Kurzfassung für neue Benutzer
 
 Wenn Sie BRIDGR zum ersten Mal verwenden, reicht meist dieser Ablauf:
 
 1. `Konfiguration` öffnen
 2. LLM und Neo4j eintragen
 3. Dateien in `Input/` legen
-4. im Bereich `Import` die Pipeline starten
+4. im Tab `Import` die Pipeline starten
 5. offene Fälle in `Zuordnungen` prüfen
 6. Zuständigkeiten in `Organisation` klären
 7. im Tab `Kommunikation` Fragen an den Graphen stellen

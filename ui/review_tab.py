@@ -24,6 +24,7 @@ from services.runtime_service import (
     render_run_feedback,
 )
 from skills.graph_writer import GraphWriter
+from ui.curation_sections import render_process_merge_section, render_recent_decisions_section
 from ui.layout import render_page_header
 from ui.ui_run_view import (
     build_document_details,
@@ -239,8 +240,12 @@ def render_review_items_table(documents: list[dict], config: AppConfig, cmdb_row
 
 
 def render_document_details(documents: list[dict]) -> None:
-    st.markdown("**Dokumentdetails**")
     details = build_document_details(documents)
+    with st.expander(f"Dokumentdetails ({len(details)})", expanded=False):
+        _render_document_detail_entries(details)
+
+
+def _render_document_detail_entries(details: list[dict]) -> None:
     if not details:
         st.info("Keine Detaildaten für den aktuellen Filter vorhanden.")
         return
@@ -276,8 +281,8 @@ def render_document_details(documents: list[dict]) -> None:
 def render_review_tab() -> None:
     render_page_header(
         "Zuordnungen",
-        "Prüfen Sie offene Anwendungszuordnungen aus dem letzten Lauf und bestätigen, verwerfen oder ergänzen Sie Kandidaten gezielt.",
-        "Review und Dokumentstatus",
+        "Prüfen Sie offene Anwendungszuordnungen aus dem letzten Lauf, konsolidieren Sie Prozesse und nehmen Sie manuelle Änderungen zurück.",
+        "Review, Dokumentstatus und Datenpflege",
     )
     config = load_config(Path("config.json"))
     apply_pending_review_scope_defaults()
@@ -304,9 +309,10 @@ def render_review_tab() -> None:
         if review_scope == "Nur letzter Import":
             if last_import_labels:
                 st.caption(f"{len(last_import_labels)} Datei(en) aus dem letzten Import stehen zur Verfügung.")
-                st.dataframe([{"Datei": label} for label in last_import_labels], width="stretch")
-                if last_import_archive_path:
-                    st.caption(f"Archivpfad des letzten Imports: `{last_import_archive_path}`")
+                with st.expander("Dateien anzeigen", expanded=False):
+                    st.dataframe([{"Datei": label} for label in last_import_labels], width="stretch")
+                    if last_import_archive_path:
+                        st.caption(f"Archivpfad des letzten Imports: `{last_import_archive_path}`")
                 selected_review_source_paths = list(last_import_source_paths)
             else:
                 st.info("Es liegt noch keine gespeicherte Auswahl aus dem letzten Import vor.")
@@ -337,6 +343,7 @@ def render_review_tab() -> None:
         if used_output_fallback:
             st.warning(f"Der konfigurierte Ausgabepfad ist nicht beschreibbar. Laufartefakte werden nach `{runtime_output_path}` umgeleitet.")
         st.info("Noch kein gespeicherter Pipeline-Lauf vorhanden.")
+        _render_curation_sections(config)
         return
 
     if latest_run.get("used_output_fallback"):
@@ -375,3 +382,10 @@ def render_review_tab() -> None:
     render_duplicate_application_warnings(filtered_documents)
     render_review_items_table(filtered_documents, config, cmdb_rows)
     render_document_details(filtered_documents)
+    _render_curation_sections(config)
+
+
+def _render_curation_sections(config: AppConfig) -> None:
+    st.markdown("#### Datenpflege")
+    render_process_merge_section(config, REVIEW_RUN_FEEDBACK_STATE_KEY)
+    render_recent_decisions_section(config, REVIEW_RUN_FEEDBACK_STATE_KEY)

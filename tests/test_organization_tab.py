@@ -1,10 +1,10 @@
 from types import SimpleNamespace
 
-from ui.organization_tab import (
-    _build_role_assignment_options,
+from ui.curation_sections import (
     _describe_manual_decision,
     _describe_manual_decision_context,
 )
+from ui.organization_tab import _build_role_assignment_options
 
 
 def test_build_role_assignment_options_excludes_exact_matching_org_unit() -> None:

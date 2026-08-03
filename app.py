@@ -56,7 +56,8 @@ from services.runtime_service import (
 )
 from ui.archimate_tab import render_archimate_tab
 from ui.config_tab import render_config_tab
-from ui.layout import inject_global_styles, render_app_header
+from ui.import_tab import render_import_tab
+from ui.layout import get_dark_mode_preference, inject_global_styles, render_app_header
 from ui.organization_tab import render_organization_tab
 from ui.query_tab import render_query_tab
 from ui.review_tab import render_review_tab
@@ -65,21 +66,23 @@ from ui.review_tab import render_review_tab
 def main() -> None:
     load_env_files()
     st.set_page_config(page_title="BRIDGR", layout="wide")
-    inject_global_styles()
+    inject_global_styles(get_dark_mode_preference())
     render_app_header()
-    tabs = st.tabs(["Kommunikation", "Zuordnungen", "Konfiguration", "Organisation", "EA-Modell"])
+    tabs = st.tabs(["Kommunikation", "Import", "Zuordnungen", "Organisation", "EA-Modell", "Konfiguration"])
     config_path = Path("config.json")
 
     with tabs[0]:
         render_query_tab()
     with tabs[1]:
-        render_review_tab()
+        render_import_tab(config_path)
     with tabs[2]:
-        render_config_tab(config_path)
+        render_review_tab()
     with tabs[3]:
         render_organization_tab()
     with tabs[4]:
         render_archimate_tab()
+    with tabs[5]:
+        render_config_tab(config_path)
 
 
 if __name__ == "__main__":

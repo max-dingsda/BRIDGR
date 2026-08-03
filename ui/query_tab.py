@@ -52,7 +52,7 @@ def render_query_tab() -> None:
     if not config.llm_model:
         st.info(
             "Startpunkt: Konfigurieren Sie zuerst LLM und Neo4j im Tab **Konfiguration**, "
-            "starten Sie dann einen Import — und stellen Sie hier Fragen zur IT-Landschaft."
+            "starten Sie dann einen Lauf im Tab **Import** — und stellen Sie hier Fragen zur IT-Landschaft."
         )
 
     action_column, _ = st.columns([1, 5])

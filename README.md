@@ -80,7 +80,8 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - Organisationseinheiten-Kandidaten aus Prozessimport und CMDB-Sync als `(:OrgKandidat)`-Knoten in Neo4j; Rollen-Markierungen als `role_only`-Property auf `(:Rolle)`
 - Alias-Projektion nach Neo4j fuer kuratierte Kurzformen oder Fehlbezeichnungen aus manuellen App-Mappings und Org-Mappings
 - deterministische Alias-Aufloesung im Query-Lookup, wenn direkte Namenssuche keinen Treffer liefert
-- Streamlit-UI mit 5 Tabs
+- Streamlit-UI mit 6 Tabs (`Kommunikation`, `Import`, `Zuordnungen`, `Organisation`, `EA-Modell`, `Konfiguration`)
+- BRIDGR-Wordmark im App-Header sowie optionaler Darkmode-Umschalter (pro Sitzung gemerkt)
 - persistente Laufartefakte in `Output/`
 - optionales `debug.log` fuer Query-/LLM-Diagnose im Output-Ordner
 - aktionsfaehige Review-Liste fuer `Bestaetigen`, `Ablehnen` und `manuellen Link anlegen`
@@ -327,7 +328,19 @@ Aktuell verfuegbar:
 - generierten Cypher als technische Details anzeigen
 - sofortiges visuelles Feedback nach Fragenabsendung: Nutzerfrage und Verarbeitungs-Spinner erscheinen direkt im Chat-Bereich
 
-### Tab 2 - Zuordnungen
+### Tab 2 - Import
+
+Aktuell verfuegbar:
+
+- Prozessdateien in BPMN, XML, TXT, DOCX und PDF importieren
+- Importmodus `full` oder `partial` direkt beim Starten des Imports waehlen
+- einzelne BPMN/XML-Dateien vor dem eigentlichen Import in kompakte Transform-Dateien ueberfuehren
+- aktive CMDB-Typ-Dateien innerhalb des Input-Ordners waehlen
+- CMDB nach Neo4j synchronisieren und dabei den letzten gespeicherten Lauf gegen die aktuelle CMDB neu bewerten
+- Laufzeit erfolgreicher Pipeline-Laeufe direkt in der UI anzeigen
+- verarbeitete Prozessdateien nach erfolgreichem Import transparent nach `data/input_archive/<timestamp>/` verschieben
+
+### Tab 3 - Zuordnungen
 
 Aktuell verfuegbar:
 
@@ -347,32 +360,9 @@ Aktuell verfuegbar:
 - Bestaetigung im Review loescht `KÖNNTE_DIENEN` und schreibt `DIENT` direkt in Neo4j (kein Dokument-Re-Run als Traeger)
 - Ablehnungen im Review erzeugen `(:Ablehnung)`-Knoten in Neo4j; der naechste Import ueberspringt abgelehnte Bezeichnungen
 - nach einer CMDB-Synchronisation koennen bisher offene oder schwache Faelle des letzten Laufs automatisch verschwinden, wenn die aktualisierte CMDB jetzt einen starken Match liefert
-
-### Tab 3 - Konfiguration
-
-Aktuell verfuegbar:
-
-- LLM-Presets fuer `OpenAI` und `Ollama`
-- LLM-Endpoint konfigurieren
-- Modellnamen setzen
-- API-Key-Umgebungsvariable setzen
-- LLM-Timeout konfigurieren
-- Neo4j-URL, User, Passwort und optionalen Datenbanknamen setzen
-- gemeinsamen Input- und Output-Pfad setzen
-- aktive CMDB-Datei innerhalb des Input-Ordners waehlen
-- CMDB-Feldmapping fuer das erweiterte Entities-/Relations-Modell setzen
-- CMDB nach Neo4j synchronisieren und dabei den letzten gespeicherten Lauf gegen die aktuelle CMDB neu bewerten
-- Prozessdateien in BPMN, XML, TXT, DOCX und PDF importieren
-- einzelne BPMN/XML-Dateien vor dem eigentlichen Import in kompakte Transform-Dateien ueberfuehren
-- Fuzzy-Threshold setzen
-- Debug-Modus aktivieren
-- Chat-Modus `prompt-only` oder `tool-use` waehlen
-- Importmodus `full` oder `partial` direkt beim Starten des Imports waehlen
-- Modellliste ueber `/v1/models` abrufen
-- Neo4j-Erreichbarkeit anhand der aktuell wirksamen Konfiguration pruefen
-- LLM-Erreichbarkeit und Modellverfuegbarkeit getrennt pruefen
-- Laufzeit erfolgreicher Pipeline-Laeufe direkt in der UI anzeigen
-- verarbeitete Prozessdateien nach erfolgreichem Import transparent nach `data/input_archive/<timestamp>/` verschieben
+- Bereich `Datenpflege` mit `Prozesse konsolidieren` fuer den Merge fachlicher Prozess-Dubletten
+- Bereich `Datenpflege` mit `Letzte manuelle Aenderungen` und ruecknehmbaren Entscheidungen fuer sichere Faelle
+- menschenlesbare Kontexte in der Aenderungshistorie, z.B. Prozessname und Eigentuemer statt nur technischer IDs
 
 ### Tab 4 - Organisation
 
@@ -393,10 +383,8 @@ Aktuell verfuegbar:
 - neu bestaetigte oder neu angelegte Organisationseinheiten nach dem UI-Rerun sofort in den folgenden Auswahllisten verfuegbar machen
 - gemappte Kandidaten als `(:Alias)-[:KANN_MEINEN]->(:OrgEinheit)` nach Neo4j projizieren
 - bei gemappten oder uebernommenen Kandidaten betroffene Prozesse im letzten Lauf gezielt neu bewerten und `VERANTWORTET`-Beziehungen in Neo4j nachziehen
-- Bereich `Letzte manuelle Aenderungen` mit ruecknehmbaren Entscheidungen fuer sichere Faelle
-- menschenlesbare Kontexte in der Aenderungshistorie, z.B. Prozessname und Eigentuemer statt nur technischer IDs
+- Abschnitte gruppiert in `Offene Aufgaben`, `Verwaltung` und `Historie`
 - Bereich `Organisationseinheiten konsolidieren` fuer den Merge fachlicher Dubletten
-- Bereich `Prozesse konsolidieren` fuer den Merge fachlicher Prozess-Dubletten
 - Merge uebernimmt passende Beziehungen auf den Zielknoten, vermeidet Duplikate und fuehrt den Quellnamen als Alias auf dem Zielobjekt weiter
 
 Wichtige Einordnung:
@@ -418,6 +406,25 @@ Aktuell verfuegbar:
 - Graphen als ArchiMate Exchange Format 3.x exportieren (vollstaendiger Graph, keine Views/Viewpoints)
 - Export-Precheck: vor dem Export werden Nodes ohne archimate_type angezeigt (nach Label gruppiert), vorgeschlagene Typen koennen per Gruppe oder individuell pro Node bestaetigt oder geaendert werden; Bestaetigung schreibt ausschliesslich archimate_type (Attribut-Eigentuemer-Prinzip)
 - Roundtrip-Konsistenz: ArchiMate-importierte Nodes behalten ihren originalen archimate_type beim Export
+
+### Tab 6 - Konfiguration
+
+Aktuell verfuegbar:
+
+- LLM-Presets fuer `OpenAI` und `Ollama`
+- LLM-Endpoint konfigurieren
+- Modellnamen setzen
+- API-Key-Umgebungsvariable setzen
+- LLM-Timeout konfigurieren
+- Neo4j-URL, User, Passwort und optionalen Datenbanknamen setzen
+- gemeinsamen Input- und Output-Pfad setzen
+- CMDB-Feldmapping fuer das erweiterte Entities-/Relations-Modell setzen
+- Fuzzy-Threshold setzen
+- Debug-Modus aktivieren
+- Chat-Modus `prompt-only` oder `tool-use` waehlen
+- Modellliste ueber `/v1/models` abrufen
+- Neo4j-Erreichbarkeit anhand der aktuell wirksamen Konfiguration pruefen
+- LLM-Erreichbarkeit und Modellverfuegbarkeit getrennt pruefen
 
 ## BPMN-Transformer fuer grosse Modelle
 
@@ -442,7 +449,7 @@ Dateiname:
 Nutzung:
 
 1. grosse BPMN/XML-Datei in den aktuellen `Input Path` legen
-2. in Tab 3 unter `Import` die gewuenschte BPMN/XML-Datei bei `BPMN fuer Transformation` auswaehlen
+2. im Tab `Import` die gewuenschte BPMN/XML-Datei bei `BPMN fuer Transformation` auswaehlen
 3. `BPMN transformieren` ausloesen
 4. den `Input Path` auf `Input/transformed/` umstellen oder die erzeugte Datei gezielt fuer weitere Imports nutzen
 
@@ -461,7 +468,7 @@ Wichtige Einordnung:
 
 ## Debug-Modus
 
-Wenn `Debug Mode` in Tab 3 aktiviert ist:
+Wenn `Debug Mode` im Tab `Konfiguration` aktiviert ist:
 
 - schreibt BRIDGR Diagnoseereignisse nach `Output/debug.log`
 - Query-Fehler enthalten Frage, Fehlermeldung und den erzeugten Cypher

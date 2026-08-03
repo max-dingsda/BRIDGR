@@ -120,7 +120,7 @@ CMDB-Synchronisation und ArchiMate-Import/-Export werden separat ausgeloest.
 | Bereich | In Scope | Out of Scope |
 | --- | --- | --- |
 | Eingabeformate | BPMN, TXT, DOCX, PDF, CSV-CMDB (pro Objektart), ArchiMate 3.0/3.1 | weitere Office-/CMDB-Formate |
-| UI | Streamlit mit 5 Tabs | eigenstaendige CLI-Review |
+| UI | Streamlit mit 6 Tabs (Kommunikation, Import, Zuordnungen, Organisation, EA-Modell, Konfiguration) | eigenstaendige CLI-Review |
 | Chat | LLM-Orchestrierung mit Tool-Use und Prompt-Only-Fallback | Agenten-Orchestrierung |
 | Graph | Neo4j als Fach- und Entscheidungsgraph | alternatives Graph-Backend |
 | Review | manuelle Zuordnung, Ablehnung, Ruecknahme, Merge | externes Ticketing |
