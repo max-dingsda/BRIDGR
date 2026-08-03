@@ -91,6 +91,15 @@ Danach öffnet sich die Oberfläche im Browser.
 
 Im App-Header oben rechts befindet sich ein optionaler Darkmode-Umschalter. Die Wahl gilt nur für die laufende Sitzung und wird bei einem Neustart der Anwendung zurückgesetzt.
 
+Daneben befindet sich ein Rollen-Dropdown (`Benutzer`, `Experte`, `Architekt`, `Konfigurator`). Es blendet je nach gewählter Rolle nur die dafür relevanten Tabs ein und dient ausschließlich der Übersichtlichkeit — es ist keine Zugriffskontrolle, jede Rolle ist jederzeit frei wählbar. Wie beim Darkmode-Umschalter gilt die Wahl nur für die laufende Sitzung.
+
+- `Benutzer` (Standard beim Start): nur `Kommunikation`
+- `Experte`: `Kommunikation`, `Import`, `Zuordnungen`, `Organisation`
+- `Architekt`: wie `Experte`, zusätzlich `EA-Modell`
+- `Konfigurator`: `Kommunikation`, `Konfiguration`
+
+Wenn Sie in dieser Anleitung Schritte in einem Tab vermissen, prüfen Sie zuerst, ob die aktuell gewählte Rolle diesen Tab überhaupt anzeigt.
+
 Falls BRIDGR lokal noch nicht lauffähig ist, müssen vorher die Abhängigkeiten installiert werden, zum Beispiel:
 
 ```powershell
@@ -195,50 +204,50 @@ Erscheint bei tabellarischen Treffern und exportiert das sichtbare Ergebnis als 
 
 Hier starten Sie den Prozessimport nach Neo4j und die CMDB-Synchronisation.
 
-#### Feld `Importmodus`
+### Feld `Importmodus`
 
 Werte:
 
 - `full`: verarbeitet alle Prozessdateien im Eingabepfad
 - `partial`: verarbeitet nur die explizit ausgewählten Dateien
 
-#### Feld `Dateien für Teilimport`
+### Feld `Dateien für Teilimport`
 
 Erscheint nur im Modus `partial`. Hier wählen Sie die Prozessdateien aus, die importiert werden sollen.
 
-#### Feld `BPMN für Transformation`
+### Feld `BPMN für Transformation`
 
 Auswahl großer BPMN/XML-Dateien, die vor dem eigentlichen Import reduziert werden sollen.
 
-#### Button `BPMN transformieren`
+### Button `BPMN transformieren`
 
 Erzeugt aus den gewählten BPMN/XML-Dateien kompaktere Transform-Dateien. Das ist hilfreich bei sehr großen oder komplexen BPMN-Modellen.
 
-#### Button `Pipeline starten`
+### Button `Pipeline starten`
 
 Startet den eigentlichen Prozessimport nach Neo4j.
 
 Dabei werden Prozessdateien analysiert, mit der CMDB abgeglichen und Ergebnisse als Laufartefakte gespeichert.
 
-#### Tabelle `Aktueller Eingabepfad`
+### Tabelle `Aktueller Eingabepfad`
 
 Zeigt die aktuell gefundenen Prozessdateien im Eingabepfad.
 
-#### Felder `Anwendungen`, `Server`, `Schnittstellen`
+### Felder `Anwendungen`, `Server`, `Schnittstellen`
 
 Weisen jeder CMDB-Objektart eine CSV-Datei aus dem Eingabeordner zu. Beziehungen (z. B. welcher Server eine Anwendung hostet) sind als Spalten in der Anwendungsdatei enthalten und werden beim Synchronisieren automatisch eingelesen.
 
-#### Button `Typ-Dateien übernehmen`
+### Button `Typ-Dateien übernehmen`
 
 Speichert die aktuell gewählten Typ-Dateien als aktive Konfiguration.
 
-#### Button `CMDB nach Neo4j synchronisieren`
+### Button `CMDB nach Neo4j synchronisieren`
 
 Überträgt die ausgewählten CMDB-Daten nach Neo4j.
 
 Zusätzlich wird der letzte gespeicherte Lauf in `Output/latest_run.json` mit der aktuellen CMDB neu bewertet. Dadurch können offene oder schwache Zuordnungen im Tab `Zuordnungen` automatisch verschwinden, wenn die aktualisierte CMDB jetzt einen starken Treffer liefert.
 
-#### Tabellen zu `CMDB-...Strukturfehler`
+### Tabellen zu `CMDB-...Strukturfehler`
 
 Zeigen Probleme in der CSV-Struktur an, zum Beispiel fehlende Spalten oder unvollständige Zeilen.
 
@@ -661,8 +670,7 @@ Wichtig:
 
 Dieser Tab bündelt alle technischen Einstellungen. Der Prozessimport selbst wird im Tab `Import` gestartet.
 
-
-#### Abschnitt `Pfade auswählen`
+### Abschnitt `Pfade auswählen`
 
 Buttons:
 
@@ -671,7 +679,7 @@ Buttons:
 
 Diese Buttons öffnen Dateiauswahl- oder Ordnerdialoge.
 
-#### Abschnitt `LLM`
+### Abschnitt `LLM`
 
 Zusätzliche Hilfe:
 
@@ -692,7 +700,7 @@ Hinweis zu `Chat-Modus`:
 - `prompt-only` ist der kompatiblere Fallback für einfache oder lokale Modelle.
 - `tool-use` nutzt formales Function Calling und setzt Backend-Unterstützung voraus.
 
-#### Abschnitt `Neo4j`
+### Abschnitt `Neo4j`
 
 Felder:
 
@@ -703,7 +711,7 @@ Felder:
 
 Diese Felder steuern die Verbindung zur Graphdatenbank.
 
-#### Abschnitt `Datei-Pfade`
+### Abschnitt `Datei-Pfade`
 
 Felder:
 
@@ -718,7 +726,7 @@ Konfiguriert, welche Spalten in der Anwendungsdatei die Beziehungen zu Servern u
 - `Spalte 'nutzt Schnittstellen'` — Spaltennamen für Schnittstellen-IDs (Standard: `uses_interfaces`)
 - `Mehrwert-Trennzeichen` — Trennzeichen bei mehreren Ziel-IDs in einer Zelle (Standard: `|`)
 
-#### Abschnitt `CMDB-Spaltenmapping — Entities`
+### Abschnitt `CMDB-Spaltenmapping — Entities`
 
 Felder:
 

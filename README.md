@@ -4,7 +4,7 @@ BRIDGR verbindet Prozessdokumentation mit CMDB-Daten, um einen EA-Wissensgraphen
 
 Der aktuelle Architektur-Referenzstand fuer die Umsetzung ist:
 
-- `Specs/Bridgr_Architektur_v27.md`
+- `Specs/Bridgr_Architektur_v28.md`
 
 ## Zielbild
 
@@ -82,6 +82,7 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - deterministische Alias-Aufloesung im Query-Lookup, wenn direkte Namenssuche keinen Treffer liefert
 - Streamlit-UI mit 6 Tabs (`Kommunikation`, `Import`, `Zuordnungen`, `Organisation`, `EA-Modell`, `Konfiguration`)
 - BRIDGR-Wordmark im App-Header sowie optionaler Darkmode-Umschalter (pro Sitzung gemerkt)
+- Rollen-Dropdown im App-Header (`Benutzer`, `Experte`, `Architekt`, `Konfigurator`) blendet sichtbare Tabs zur Komplexitaetsreduktion ein/aus (pro Sitzung gemerkt, keine Zugriffskontrolle)
 - persistente Laufartefakte in `Output/`
 - optionales `debug.log` fuer Query-/LLM-Diagnose im Output-Ordner
 - aktionsfaehige Review-Liste fuer `Bestaetigen`, `Ablehnen` und `manuellen Link anlegen`

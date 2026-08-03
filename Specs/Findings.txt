@@ -55,7 +55,14 @@ scripts/migrate_kb_to_neo4j.py einmalig migriert.
 -> Sind alle Bereiche auf dem logischen/intutiv vermuteten Tab?
 Umsetzung (Entscheid Michel: Variante B, 6 Tabs): Der Import-Bereich (Pipeline, BPMN-Transformation, CMDB-Sync) wurde aus dem Konfiguration-Tab in einen eigenen Tab "Import" extrahiert (ui/import_tab.py); Konfiguration enthält nur noch Einstellungen und steht am Ende der Tab-Reihe. Neue Reihenfolge: Kommunikation | Import | Zuordnungen | Organisation | EA-Modell | Konfiguration. "Prozesse konsolidieren" und "Letzte manuelle Änderungen" (Undo) sind vom Organisation-Tab in den Bereich "Datenpflege" des Zuordnungen-Tabs umgezogen (geteiltes Modul ui/curation_sections.py); der Organisation-Tab gruppiert seine Abschnitte jetzt in "Offene Aufgaben", "Verwaltung" und "Historie". Der v1-Scope in CONTEXT.md und Architektur v28 wurde von 5 auf 6 Tabs aktualisiert; README und Benutzeranleitung sind nachgezogen.
 
-31. vor einer Veröffentlichung des Projekts ist die Einführung eines Rollenkonzepts zu diskutieren - offen
+31. vor einer Veröffentlichung des Projekts ist die Einführung eines Rollenkonzepts zu diskutieren - erledigt (2026-08-03)
+Klargestellt (Michel): kein Auth-/AD-Rollenkonzept, sondern eine reine Komplexitätsreduktion für den Benutzer per Rollen-Dropdown.
+Umgesetzt als sitzungsgebundener Rollenfilter (analog Darkmode-Toggle aus #33), im App-Header neben dem Darkmode-Toggle platziert (ui/layout.py, get_active_role/ROLE_TAB_MAP/render_app_header). Vier Rollen steuern die sichtbare Tab-Teilmenge:
+- Benutzer: Kommunikation (Default beim Start)
+- Experte: Kommunikation, Import, Zuordnungen, Organisation
+- Architekt: Experte + EA-Modell
+- Konfigurator: Kommunikation, Konfiguration
+app.py baut `st.tabs()` dynamisch aus der zur aktiven Rolle gehörenden Teilmenge (ROLE_TAB_MAP), Reihenfolge bleibt kanonisch. Ausdrücklich keine Zugriffskontrolle: kein Server-seitiger Enforcement, jede Rolle bleibt jederzeit wechselbar, Zustand lebt nur in `st.session_state` und wird beim Neustart zurückgesetzt (bewusste PoC-Entscheidung, gleiches Muster wie Darkmode). Eine echte AD-angebundene Zugriffssteuerung bleibt explizit zukünftiger Scope.
 
 32. vor einer Veröffentlichung des Projekts ist eines der Logos einzubinden ( Specs\img ) - erledigt (2026-08-03)
 Der App-Header (ui/layout.py, render_app_header) zeigt jetzt das transparente BRIDGR-Wordmark (Schriftzug inkl. Tagline) anstelle des kreisförmigen "B"-Platzhalters; die separate Text-Duplizierung von Titel/Subtitle entfällt. Asset liegt unter ui/assets/bridgr_logo_dark.png (aus dem BRIDGR-designer-Skill übernommen, für den dunklen Header-Hintergrund verkleinert/optimiert) und wird base64-inline eingebettet (kein zusätzlicher Static-File-Mount nötig).
@@ -63,7 +70,8 @@ Der App-Header (ui/layout.py, render_app_header) zeigt jetzt das transparente BR
 33. vor einer Veröffentlichung des Projekts ist ein optionaler Darkmode einzuführen - erledigt (2026-08-03)
 Umgesetzt als sitzungsgebundener Umschalter (st.toggle) rechts im App-Header. `inject_global_styles(dark_mode)` generiert das gesamte `--bridgr-*`-Custom-Property-Set aus einem Light- oder Dark-Token-Dict; alle bestehenden Selektoren referenzierten bereits diese Variablen, sodass Karten, Tabs, Metrics, Expander, Alerts etc. automatisch mitziehen. Zusätzliche Overrides für native, bisher ungestylte Streamlit-Widgets (Text-/Number-/Select-Inputs, Popover, Fileuploader) nur im Dark-Modus aktiv. Der Zustand lebt ausschließlich in `st.session_state` (bewusste PoC-Entscheidung, siehe Rückfrage an Michel: kein neues `AppConfig`-Feld) und wird bei Neustart der App zurückgesetzt. `.streamlit/config.toml` setzt `primaryColor` auf das Marken-Cyan, damit native Widgetfarben (Toggle, Checkbox, Radio) zum Akzent passen.
 
-34. vor einer Veröffentlichung des Projekts ist das Thema "Mehrsprachigkeit" zu diskutieren und zu entscheiden - offen
+34. vor einer Veröffentlichung des Projekts ist das Thema "Mehrsprachigkeit" zu diskutieren und zu entscheiden - erledigt (2026-08-03)
+Scope-Entscheid Michel: für v1 bleibt die UI bewusst German-only (PoC-Pragmatismus), keine i18n-Grundlage wird aufgebaut. Betrifft nur natürlichsprachliche UI-Texte; Code, Bezeichner und Kommentare sind ohnehin Englisch (siehe CLAUDE.md-Vorgabe des Workspace). Kein Implementierungsaufwand in dieser Session. Bei Bedarf für eine spätere Version ist dies erneut als offener Punkt aufzunehmen.
 
 35. Neo4j-Server: UnknownPropertyKeyWarning für anwendung_name durch notifications_disabled_categories=["UNRECOGNIZED"] im Driver unterdrückt. - erledigt
 

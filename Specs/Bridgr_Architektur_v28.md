@@ -1,6 +1,6 @@
 # Bridgr
 
-**EA-Wissensgraph mit Entscheidungs- und Konsolidierungsschicht** | Stand: Juni 2026 | v0.28
+**EA-Wissensgraph mit Entscheidungs- und Konsolidierungsschicht** | Stand: August 2026 | v0.28
 
 ---
 
@@ -1018,4 +1018,4 @@ Der Chat darf nur den Fachgraphen sehen. Betriebsmetadaten bleiben intern.
 
 ---
 
-*BRIDGR | Architektur v0.28 | Stand Juni 2026*
+BRIDGR | Architektur v0.28 | Stand August 2026

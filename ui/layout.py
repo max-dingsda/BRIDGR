@@ -6,6 +6,23 @@ from pathlib import Path
 import streamlit as st
 
 DARK_MODE_STATE_KEY = "bridgr_dark_mode"
+ROLE_STATE_KEY = "bridgr_active_role"
+
+# Complexity-reduction only: this is a session-bound view filter, not an access
+# control mechanism. Every tab is reachable simply by switching roles; nothing
+# server-side enforces the restriction. A real AD-backed role concept is future
+# scope (Findings.txt #31).
+ALL_TABS = ("Kommunikation", "Import", "Zuordnungen", "Organisation", "EA-Modell", "Konfiguration")
+
+ROLE_TAB_MAP: dict[str, tuple[str, ...]] = {
+    "Benutzer": ("Kommunikation",),
+    "Experte": ("Kommunikation", "Import", "Zuordnungen", "Organisation"),
+    "Architekt": ("Kommunikation", "Import", "Zuordnungen", "Organisation", "EA-Modell"),
+    "Konfigurator": ("Kommunikation", "Konfiguration"),
+}
+
+ROLE_OPTIONS = tuple(ROLE_TAB_MAP.keys())
+DEFAULT_ROLE = "Benutzer"
 
 _ASSETS_DIR = Path(__file__).resolve().parent / "assets"
 _LOGO_PATH = _ASSETS_DIR / "bridgr_logo_dark.png"
@@ -239,7 +256,7 @@ def _build_theme_stylesheet(dark_mode: bool) -> str:
             align-items: center;
             justify-content: space-between;
             gap: 1.5rem;
-            padding-right: 12rem;
+            padding-right: 17rem;
             min-height: 38px;
         }}
 
@@ -258,11 +275,39 @@ def _build_theme_stylesheet(dark_mode: bool) -> str:
             white-space: nowrap;
         }}
 
-        .st-key-bridgr-dark-toggle {{
+        .st-key-bridgr-header-controls {{
             position: absolute;
             top: 50%;
             right: 1.25rem;
             transform: translateY(-50%);
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center;
+            gap: 0.75rem;
+            width: fit-content;
+        }}
+
+        .st-key-bridgr-header-controls > [data-testid="stLayoutWrapper"] {{
+            width: fit-content !important;
+            flex: 0 0 auto !important;
+        }}
+
+        .st-key-bridgr-role-select {{
+            width: 150px;
+        }}
+
+        .st-key-bridgr-role-select div[data-testid="stSelectbox"] label {{
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.82rem;
+        }}
+
+        .st-key-bridgr-role-select div[data-baseweb="select"] > div {{
+            background: rgba(255, 255, 255, 0.14) !important;
+            border: 1px solid rgba(255, 255, 255, 0.32) !important;
+            color: white !important;
+        }}
+
+        .st-key-bridgr-dark-toggle {{
             width: fit-content;
             background: rgba(255, 255, 255, 0.14);
             border: 1px solid rgba(255, 255, 255, 0.32);
@@ -350,6 +395,19 @@ def get_dark_mode_preference() -> bool:
     return bool(st.session_state[DARK_MODE_STATE_KEY])
 
 
+def get_active_role() -> str:
+    """Read the session-scoped role filter, seeding it to the default role on first use.
+
+    This only narrows which tabs are rendered; it is not an access control layer.
+    """
+    st.session_state.setdefault(ROLE_STATE_KEY, DEFAULT_ROLE)
+    return str(st.session_state[ROLE_STATE_KEY])
+
+
+def get_visible_tabs(role: str) -> tuple[str, ...]:
+    return ROLE_TAB_MAP.get(role, ALL_TABS)
+
+
 def render_app_header() -> None:
     with st.container(key="bridgr-app-header"):
         st.markdown(
@@ -361,8 +419,16 @@ def render_app_header() -> None:
             """,
             unsafe_allow_html=True,
         )
-        with st.container(key="bridgr-dark-toggle"):
-            st.toggle("Dark", key=DARK_MODE_STATE_KEY)
+        with st.container(key="bridgr-header-controls"):
+            with st.container(key="bridgr-role-select"):
+                st.selectbox(
+                    "Rolle",
+                    options=ROLE_OPTIONS,
+                    key=ROLE_STATE_KEY,
+                    label_visibility="collapsed",
+                )
+            with st.container(key="bridgr-dark-toggle"):
+                st.toggle("Dark", key=DARK_MODE_STATE_KEY)
 
 
 def render_page_header(title: str, subtitle: str, meta: str | None = None) -> None:

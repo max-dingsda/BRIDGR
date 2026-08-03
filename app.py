@@ -57,7 +57,7 @@ from services.runtime_service import (
 from ui.archimate_tab import render_archimate_tab
 from ui.config_tab import render_config_tab
 from ui.import_tab import render_import_tab
-from ui.layout import get_dark_mode_preference, inject_global_styles, render_app_header
+from ui.layout import get_active_role, get_dark_mode_preference, get_visible_tabs, inject_global_styles, render_app_header
 from ui.organization_tab import render_organization_tab
 from ui.query_tab import render_query_tab
 from ui.review_tab import render_review_tab
@@ -68,21 +68,22 @@ def main() -> None:
     st.set_page_config(page_title="BRIDGR", layout="wide")
     inject_global_styles(get_dark_mode_preference())
     render_app_header()
-    tabs = st.tabs(["Kommunikation", "Import", "Zuordnungen", "Organisation", "EA-Modell", "Konfiguration"])
     config_path = Path("config.json")
 
-    with tabs[0]:
-        render_query_tab()
-    with tabs[1]:
-        render_import_tab(config_path)
-    with tabs[2]:
-        render_review_tab()
-    with tabs[3]:
-        render_organization_tab()
-    with tabs[4]:
-        render_archimate_tab()
-    with tabs[5]:
-        render_config_tab(config_path)
+    tab_renderers = {
+        "Kommunikation": render_query_tab,
+        "Import": lambda: render_import_tab(config_path),
+        "Zuordnungen": render_review_tab,
+        "Organisation": render_organization_tab,
+        "EA-Modell": render_archimate_tab,
+        "Konfiguration": lambda: render_config_tab(config_path),
+    }
+
+    visible_tab_names = get_visible_tabs(get_active_role())
+    tabs = st.tabs(visible_tab_names)
+    for tab, tab_name in zip(tabs, visible_tab_names):
+        with tab:
+            tab_renderers[tab_name]()
 
 
 if __name__ == "__main__":
