@@ -6,32 +6,32 @@
 
 ## 1. Ziel
 
-BRIDGR fuehrt Prozessdokumentation, CMDB-Exporte und ArchiMate-Modelle in einem
-gemeinsamen Enterprise-Architecture-Wissensgraphen zusammen und macht diesen ueber
-eine natuerlichsprachliche Web-Oberflaeche auswertbar.
+BRIDGR führt Prozessdokumentation, CMDB-Exporte und ArchiMate-Modelle in einem
+gemeinsamen Enterprise-Architecture-Wissensgraphen zusammen und macht diesen über
+eine natürlichsprachliche Web-Oberfläche auswertbar.
 
 Kernfrage:
-Welche IT-Bausteine unterstuetzen welche Geschaeftsprozesse und wie sicher wissen wir das?
+Welche IT-Bausteine unterstützen welche Geschäftsprozesse und wie sicher wissen wir das?
 
 ### 1.1 Visionsziel: vollwertiger EA-Chatbot
 
 Der Tab `Kommunikation` ist kein reiner Query-Editor, sondern ein vollwertiger
-Unternehmens-Architektur-Chatbot. Benutzer stellen Fragen in natuerlicher Sprache zu
-Prozessen, Anwendungen, Verantwortlichkeiten, Risiken, Zielen und Abhaengigkeiten.
+Unternehmens-Architektur-Chatbot. Benutzer stellen Fragen in natürlicher Sprache zu
+Prozessen, Anwendungen, Verantwortlichkeiten, Risiken, Zielen und Abhängigkeiten.
 BRIDGR beantwortet diese Fragen auf Basis des Wissensgraphen, nicht aus allgemeinem
 Weltwissen.
 
-Dieses Visionsziel ist der Massstab fuer alle Designentscheidungen im Abfrage-Layer.
+Dieses Visionsziel ist der Massstab für alle Designentscheidungen im Abfrage-Layer.
 
 ### 1.2 Architekturleitlinien
 
-- Neo4j ist die kanonische Laufzeitquelle fuer den EA-Graphen und fuer persistierte
+- Neo4j ist die kanonische Laufzeitquelle für den EA-Graphen und für persistierte
   Entscheidungen.
 - Der Importpfad bleibt sequentiell, nachvollziehbar und idempotent.
 - Fachgraph, Review-/Korrekturlogik und UI-Orchestrierung bleiben sauber getrennt.
 - Unsichere Informationen werden explizit als unsicher modelliert oder als offene
-  Review-Faelle behandelt.
-- Manuelle Korrekturen muessen gezielt rueckabwickelbar sein.
+  Review-Fälle behandelt.
+- Manuelle Korrekturen müssen gezielt rückabwickelbar sein.
 
 ---
 
@@ -41,20 +41,20 @@ BRIDGR besteht aus vier logisch getrennten Schichten:
 
 1. **Import- und Extraktionsschicht**
    Prozessdokumente, CMDB-Dateien und ArchiMate-Dateien werden gelesen, analysiert und
-   in strukturierte Zwischenobjekte ueberfuehrt.
+   in strukturierte Zwischenobjekte überführt.
 
 2. **Schreib- und Konsolidierungsschicht**
-   Der `GraphWriter` und zugehoerige Services schreiben den Fachgraphen in Neo4j,
-   fuehren Identitaetsaufloesung durch und pflegen persistente Review-Entscheidungen.
+   Der `GraphWriter` und zugehörige Services schreiben den Fachgraphen in Neo4j,
+   führen Identitätsauflösung durch und pflegen persistente Review-Entscheidungen.
 
 3. **Entscheidungs- und Korrekturschicht**
-   Benutzerentscheidungen wie Bestaetigung, Ablehnung, manuelle Zuordnung, Ruecknahme
+   Benutzerentscheidungen wie Bestätigung, Ablehnung, manuelle Zuordnung, Rücknahme
    und Dubletten-Merge werden als separate Betriebsmetadaten modelliert, damit sie
-   nachvollziehbar und selektiv rueckgaengig gemacht werden koennen.
+   nachvollziehbar und selektiv rückgängig gemacht werden können.
 
 4. **Abfrage- und UI-Schicht**
-   Streamlit rendert die Arbeitsoberflaeche. Ein LLM fungiert im Chat als Orchestrator
-   fuer read-only Cypher-Abfragen auf den Fachgraphen.
+   Streamlit rendert die Arbeitsoberfläche. Ein LLM fungiert im Chat als Orchestrator
+   für read-only Cypher-Abfragen auf den Fachgraphen.
 
 ### 2.1 Hauptdatenfluss
 
@@ -77,13 +77,13 @@ Streamlit-UI + Chat-Layer
 ### 2.2 Kanonische Quellen
 
 - **Neo4j-Fachgraph**
-  enthaelt fachliche Objekte und Beziehungen, die fuer Analyse, Chat und Export relevant sind.
+  enthält fachliche Objekte und Beziehungen, die für Analyse, Chat und Export relevant sind.
 - **Neo4j-Entscheidungsgraph**
-  enthaelt betriebliche Korrektur- und Auditobjekte fuer manuelle Entscheidungen.
+  enthält betriebliche Korrektur- und Auditobjekte für manuelle Entscheidungen.
 - **`archimate_mapping.json`**
-  enthaelt alle konfigurierbaren ArchiMate-Mappings.
+  enthält alle konfigurierbaren ArchiMate-Mappings.
 - **`Output/latest_run.json`**
-  ist ein UI-Artefakt fuer Review und Transparenz, nicht die kanonische Wahrheitsquelle.
+  ist ein UI-Artefakt für Review und Transparenz, nicht die kanonische Wahrheitsquelle.
 
 ---
 
@@ -98,7 +98,7 @@ Streamlit-UI + Chat-Layer
 
 ### 3.2 Inbox-Prinzip
 
-`Input/` ist die Arbeits-Inbox fuer neue Dateien. Verarbeitete Prozessdateien bleiben
+`Input/` ist die Arbeits-Inbox für neue Dateien. Verarbeitete Prozessdateien bleiben
 nicht dauerhaft dort liegen.
 
 ### 3.3 Archivierung
@@ -109,9 +109,9 @@ Verarbeitete Prozessdateien werden nach erfolgreichem Lauf nach
 ### 3.4 Laufmodi
 
 - `full`: alle Prozessdateien in `Input/`
-- `partial`: nur explizit ausgewaehlte Dateien
+- `partial`: nur explizit ausgewählte Dateien
 
-CMDB-Synchronisation und ArchiMate-Import/-Export werden separat ausgeloest.
+CMDB-Synchronisation und ArchiMate-Import/-Export werden separat ausgelöst.
 
 ---
 
@@ -120,32 +120,32 @@ CMDB-Synchronisation und ArchiMate-Import/-Export werden separat ausgeloest.
 | Bereich | In Scope | Out of Scope |
 | --- | --- | --- |
 | Eingabeformate | BPMN, TXT, DOCX, PDF, CSV-CMDB (pro Objektart), ArchiMate 3.0/3.1 | weitere Office-/CMDB-Formate |
-| UI | Streamlit mit 6 Tabs (Kommunikation, Import, Zuordnungen, Organisation, EA-Modell, Konfiguration) | eigenstaendige CLI-Review |
+| UI | Streamlit mit 6 Tabs (Kommunikation, Import, Zuordnungen, Organisation, EA-Modell, Konfiguration) | eigenständige CLI-Review |
 | Chat | LLM-Orchestrierung mit Tool-Use und Prompt-Only-Fallback | Agenten-Orchestrierung |
 | Graph | Neo4j als Fach- und Entscheidungsgraph | alternatives Graph-Backend |
-| Review | manuelle Zuordnung, Ablehnung, Ruecknahme, Merge | externes Ticketing |
+| Review | manuelle Zuordnung, Ablehnung, Rücknahme, Merge | externes Ticketing |
 | ArchiMate | Import, Export, Mapping-Konfiguration, Kandidaten-Review | Views/Viewpoints |
-| Konsolidierung | Merge fuer `OrgEinheit` und `Prozess`, spaeter erweiterbar | generischer Merge beliebiger Labels |
+| Konsolidierung | Merge für `OrgEinheit` und `Prozess`, später erweiterbar | generischer Merge beliebiger Labels |
 
 ---
 
-## 5. Domaenenmodell
+## 5. Domänenmodell
 
 ### 5.1 Fachknoten
 
 #### Prozess
 
-Geschaeftsprozess aus Prozessdokumenten oder ArchiMate. Fachliche Primaeridentitaet aus
-`prozess_id`, sofern vorhanden. Zusaetzlich kann `archimate_id` existieren.
+Geschäftsprozess aus Prozessdokumenten oder ArchiMate. Fachliche Primäridentität aus
+`prozess_id`, sofern vorhanden. Zusätzlich kann `archimate_id` existieren.
 
 #### Anwendung
 
-CMDB-Anwendung oder ArchiMate-Anwendungsobjekt. Fachliche Primaeridentitaet ist `cmdb_id`,
+CMDB-Anwendung oder ArchiMate-Anwendungsobjekt. Fachliche Primäridentität ist `cmdb_id`,
 falls vorhanden.
 
 #### Schnittstelle
 
-Separat gefuehrter Integrations- oder Uebergabepunkt.
+Separat geführter Integrations- oder Übergabepunkt.
 
 #### Server
 
@@ -153,8 +153,8 @@ Physischer oder virtueller Infrastrukturknoten mit `server_type`.
 
 #### OrgEinheit
 
-Reale organisatorische Einheit. Entsteht durch manuelle Pflege, bestaetigte Kandidaten,
-CMDB-Owner-Aufloesung oder ArchiMate-Import.
+Reale organisatorische Einheit. Entsteht durch manuelle Pflege, bestätigte Kandidaten,
+CMDB-Owner-Auflösung oder ArchiMate-Import.
 
 #### Rolle
 
@@ -163,16 +163,16 @@ OrgEinheit und impliziert keine Verantwortung.
 
 #### Alias
 
-Deterministische alternative Bezeichnung fuer `Anwendung` oder `OrgEinheit`. Dient der
-Identitaetsaufloesung in Pipeline und Chat.
+Deterministische alternative Bezeichnung für `Anwendung` oder `OrgEinheit`. Dient der
+Identitätsauflösung in Pipeline und Chat.
 
 #### Stakeholder
 
 Interessengruppe oder Partei aus dem Motivation-Layer.
 
-#### Faehigkeit
+#### Fähigkeit
 
-Strategische oder operative Faehigkeit.
+Strategische oder operative Fähigkeit.
 
 #### Ressource
 
@@ -204,16 +204,16 @@ Technologische Infrastruktur unterhalb der Anwendungsschicht.
 
 #### Ablehnung
 
-Persistente Ablehnungsmarke fuer eine extrahierte Bezeichnung in einem konkreten Prozess.
-Sie dient der Unterdrueckung erneuter Vorschlaege.
+Persistente Ablehnungsmarke für eine extrahierte Bezeichnung in einem konkreten Prozess.
+Sie dient der Unterdrückung erneuter Vorschläge.
 
 #### OrgKandidat
 
-Interner Betriebsknoten fuer eine unaufgeloeste OrgEinheit-/Rollen-Nennung aus Prozessimport
+Interner Betriebsknoten für eine unaufgelöste OrgEinheit-/Rollen-Nennung aus Prozessimport
 oder CMDB-Sync (`status`: `open`, `mapped` oder `rejected`; `mapped_org_unit` bei `mapped`).
-Ersetzt seit der vollstaendigen Ablösung von `kb.json` (Finding #15) den frueheren
+Ersetzt seit der vollständigigen Ablösung von `kb.json` (Finding #15) den früheren
 `org_unit_candidates`-Abschnitt der Wissensbasis-Datei. Wie `ManualDecision` und `Ablehnung`
-bewusst nicht Teil des Query-Schemas fuer den Chat-Layer.
+bewusst nicht Teil des Query-Schemas für den Chat-Layer.
 
 ### 5.2 Fachbeziehungen
 
@@ -291,11 +291,11 @@ bridgr/
 - `skills/graph_writer.py`
   kapselt den fachlichen Schreibzugriff auf Neo4j
 - `services/review_service.py`
-  kapselt Review-Aktionen fuer Anwendungszuordnungen
+  kapselt Review-Aktionen für Anwendungszuordnungen
 - `services/organization_service.py`
   kapselt Org-, Owner- und Rollenpflege
 - `services/query_service.py`
-  baut den dynamischen Chat-Systemprompt und fuehrt den Dialogturn aus
+  baut den dynamischen Chat-Systemprompt und führt den Dialogturn aus
 - `services/archimate_import_service.py` / `services/archimate_export_service.py`
   kapseln ArchiMate-Import und -Export
 
@@ -305,38 +305,38 @@ bridgr/
 
 ### 7.1 Prozessdokumente
 
-Jedes Prozessdokument durchlaeuft diese Kette:
+Jedes Prozessdokument durchläuft diese Kette:
 
 1. Dateityp-spezifische Textgewinnung
 2. LLM-Extraktion oder BPMN-strukturelle Extraktion
-3. Matching gegen CMDB und bestaetigte Entscheidungen
+3. Matching gegen CMDB und bestätigte Entscheidungen
 4. Erzeugung von Review-Artefakten
 5. Aufbau eines `GraphWritePayload`
 6. Schreiben nach Neo4j
 
 ### 7.2 Matching-Reihenfolge
 
-1. bestaetigte Entscheidungen aus Neo4j
+1. bestätigte Entscheidungen aus Neo4j
 2. abgelehnte Entscheidungen aus Neo4j
-3. Alias-Aufloesung
+3. Alias-Auflösung
 4. Fuzzy Matching
-5. offen / manuelle Klaerung
+5. offen / manuelle Klärung
 
 ### 7.3 Konfidenzmodell
 
 - `stark`
-  bestaetigt oder sicher gematcht, wird als `DIENT` bzw. `VERANTWORTET` geschrieben
+  bestätigt oder sicher gematcht, wird als `DIENT` bzw. `VERANTWORTET` geschrieben
 - `schwach`
   Anwendungskandidat mit Review-Bedarf, wird als `KÖNNTE_DIENEN` geschrieben; unsichere
-  CMDB-Owner werden als `OrgKandidat` gefuehrt (kein direkter Kanten-Schreibpfad)
+  CMDB-Owner werden als `OrgKandidat` geführt (kein direkter Kanten-Schreibpfad)
 - `offen`
   kein Match, nur Review-Artefakt
 
 ### 7.4 Re-Import-Verhalten
 
 - fachliche Importkanten werden pro Prozess bzw. pro CMDB-Sync deterministisch aktualisiert
-- persistente manuelle Entscheidungen muessen ueber Re-Importe hinweg erhalten bleiben
-- bestaetigte oder manuell angelegte Zuordnungen duerfen nicht durch bloesses
+- persistente manuelle Entscheidungen müssen über Re-Importe hinweg erhalten bleiben
+- bestätigte oder manuell angelegte Zuordnungen dürfen nicht durch blösses
   Verschwinden eines Rohbegriffs im Quelldokument verloren gehen
 
 ### 7.5 CMDB-Import-Format
@@ -345,13 +345,13 @@ Jedes Prozessdokument durchlaeuft diese Kette:
 
 CMDB-Daten werden als eine CSV-Datei pro Objektart eingelesen:
 
-- eine Datei fuer Anwendungen
-- eine Datei fuer Server
-- eine Datei fuer Schnittstellen
+- eine Datei für Anwendungen
+- eine Datei für Server
+- eine Datei für Schnittstellen
 
-Jede Datei enthaelt nur Eintraege eines einzigen Typs. Die Zuordnung von Dateinamen zu
+Jede Datei enthält nur Einträge eines einzigen Typs. Die Zuordnung von Dateinamen zu
 Objektarten wird explizit in `config.json` unter `cmdb_type_files` konfiguriert.
-Fehlt ein Eintrag fuer einen Typ, wird dieser Typ beim Sync uebersprungen.
+Fehlt ein Eintrag für einen Typ, wird dieser Typ beim Sync übersprungen.
 
 Beispielkonfiguration:
 
@@ -367,7 +367,7 @@ Beispielkonfiguration:
 
 Beziehungen zwischen Objekten werden als Spalten in der Quelldatei des Quellobjekts
 abgelegt. Mehrere Ziel-IDs werden durch den konfigurierten Mehrwert-Trennzeichen getrennt
-(Standard: `|`, konfigurierbar ueber `cmdb_multivalue_separator` in `config.json`).
+(Standard: `|`, konfigurierbar über `cmdb_multivalue_separator` in `config.json`).
 
 In der Anwendungsdatei stehen typischerweise:
 
@@ -385,9 +385,9 @@ APP-001;SAP S/4HANA FI;Buchhaltung;SRV-001;IF-001|IF-015
 
 #### 7.5.3 Gemeinsame Pflichtspalten
 
-Alle Typ-Dateien teilen dieselben konfigurierbaren Spaltennamen fuer ID, Name und
+Alle Typ-Dateien teilen dieselben konfigurierbaren Spaltennamen für ID, Name und
 Besitzer (`cmdb_uuid_column`, `cmdb_name_column`, `cmdb_owner_name_column`). Nur
-Serverdateien verwenden zusaetzlich `cmdb_server_type_column`.
+Serverdateien verwenden zusätzlich `cmdb_server_type_column`.
 
 #### 7.5.4 Internes Datenmodell
 
@@ -396,28 +396,28 @@ Der Loader erzeugt aus allen Typ-Dateien gemeinsam ein `NormalizedCmdb`-Objekt m
 - `entities`: Liste aller `CmdbEntity`-Objekte aller Typen
 - `relations`: Liste aller `CmdbRelation`-Objekte aus den Beziehungsspalten
 
-Der `GraphWriter` bleibt unveraendert und kennt nur das `NormalizedCmdb`-Interface.
+Der `GraphWriter` bleibt unverändert und kennt nur das `NormalizedCmdb`-Interface.
 
-#### 7.5.5 Rueckwaertskompatibilitaet
+#### 7.5.5 Rückwärtskompatibilität
 
-Ist `cmdb_type_files` in `config.json` leer oder nicht gesetzt, faellt BRIDGR auf das
-Legacy-Format zurueck:
+Ist `cmdb_type_files` in `config.json` leer oder nicht gesetzt, fällt BRIDGR auf das
+Legacy-Format zurück:
 
-- eine gemischte Entities-Datei (konfiguriert ueber `cmdb_filename`) mit einer `entity_type`-Spalte
-- eine optionale separate Relationsdatei (konfiguriert ueber `cmdb_relations_filename`)
+- eine gemischte Entities-Datei (konfiguriert über `cmdb_filename`) mit einer `entity_type`-Spalte
+- eine optionale separate Relationsdatei (konfiguriert über `cmdb_relations_filename`)
 
-Das Legacy-Format ist weiterhin voll funktionsfaehig, aber als Entwicklungsformat
+Das Legacy-Format ist weiterhin voll funktionsfähig, aber als Entwicklungsformat
 eingestuft. Produktive CMDB-Anbindungen sollen das Typ-Datei-Format verwenden.
 
 ---
 
 ## 8. Matching, Review und Persistenz
 
-### 8.1 Bestaetigen eines schwachen Anwendungskandidaten
+### 8.1 Bestätigen eines schwachen Anwendungskandidaten
 
-Beim Bestaetigen einer `KÖNNTE_DIENEN`-Kante:
+Beim Bestätigen einer `KÖNNTE_DIENEN`-Kante:
 
-1. wird die schwache Kante geloescht
+1. wird die schwache Kante gelöscht
 2. wird eine starke `DIENT`-Kante geschrieben
 3. wird `raw_name` auf der `DIENT`-Kante gesetzt
 4. wird bei abweichendem Begriff ein `Alias` auf die Anwendung geschrieben
@@ -427,23 +427,23 @@ Beim Bestaetigen einer `KÖNNTE_DIENEN`-Kante:
 
 Beim Ablehnen:
 
-1. wird die `KÖNNTE_DIENEN`-Kante geloescht
+1. wird die `KÖNNTE_DIENEN`-Kante gelöscht
 2. wird ein `(:Ablehnung)`-Knoten geschrieben
-3. wird der Begriff bei naechsten Laeufen nicht erneut vorgeschlagen
+3. wird der Begriff bei nächsten Läufen nicht erneut vorgeschlagen
 
 ### 8.3 Manuelle Zuordnung einer Anwendung
 
 Bei manueller Zuordnung im Review-Tab:
 
 1. wird direkt eine starke `DIENT`-Kante geschrieben
-2. bleibt die Entscheidung ueber Re-Importe hinweg persistent
-3. muss die Entscheidung spaeter gezielt ruecknehmbar sein
+2. bleibt die Entscheidung über Re-Importe hinweg persistent
+3. muss die Entscheidung später gezielt rücknehmbar sein
 
 ### 8.4 Owner- und Rollenzuordnungen
 
-- `VERANTWORTET` fuer Prozesse und CMDB-Ziele wird nur explizit oder ueber exakte
-  Owner-Aufloesung geschrieben
-- `KANN_EINNEHMEN` entsteht nur ueber Benutzeraktion
+- `VERANTWORTET` für Prozesse und CMDB-Ziele wird nur explizit oder über exakte
+  Owner-Auflösung geschrieben
+- `KANN_EINNEHMEN` entsteht nur über Benutzeraktion
 
 ---
 
@@ -451,40 +451,40 @@ Bei manueller Zuordnung im Review-Tab:
 
 ### 9.1 Rolle
 
-`GraphWriter` ist die einzige fachliche Schreibkomponente fuer Neo4j. Er:
+`GraphWriter` ist die einzige fachliche Schreibkomponente für Neo4j. Er:
 
-- normalisiert Identitaeten
+- normalisiert Identitäten
 - schreibt Prozess-, CMDB- und Review-Kanten
 - kapselt Promote-/Reject-Operationen
-- laedt persistente Entscheidungen fuer Re-Importe
-- fuehrt begrenzte Cross-Source-Identitaetsaufloesung durch
+- laedt persistente Entscheidungen für Re-Importe
+- führt begrenzte Cross-Source-Identitätsauflösung durch
 
 ### 9.2 Idempotenz
 
-Alle regulaeren Schreibpfade sind auf wiederholte Ausfuehrung ausgelegt:
+Alle regulären Schreibpfade sind auf wiederholte Ausführung ausgelegt:
 
-- `MERGE` fuer Knoten und stabile Fachbeziehungen
-- prozessbezogene Loeschung und Wiederaufbau fuer volatile Importkanten
-- Erhalt persistenter manueller Entscheidungen ueber Wiedereinpielen
+- `MERGE` für Knoten und stabile Fachbeziehungen
+- prozessbezogene Löschung und Wiederaufbau für volatile Importkanten
+- Erhalt persistenter manueller Entscheidungen über Wiedereinpielen
 
-### 9.3 Cross-Source-Identitaetsaufloesung
+### 9.3 Cross-Source-Identitätsauflösung
 
 Bereits heute existieren gezielte Anreicherungen statt blindem Duplikatbau:
 
 - BPMN-/Dokumentprozess auf vorhandenen Prozess ohne `prozess_id`
 - CMDB-Anwendung auf vorhandene ArchiMate-Anwendung ohne `cmdb_id`
-- case-insensitive Kanonisierung fuer `OrgEinheit`
+- case-insensitive Kanonisierung für `OrgEinheit`
 
 ### 9.4 Grenzen des aktuellen Writers
 
 Der aktuelle Writer schreibt Fachgraph und Teilentscheidungen, hat aber noch keine
-vollstaendige Korrekturschicht fuer:
+vollständigige Korrekturschicht für:
 
 - Undo manueller Entscheidungen
 - Merge von Dubletten mit Auditspur
-- Alias-Lifecycle bei Ruecknahmen
+- Alias-Lifecycle bei Rücknahmen
 
-Diese Faehigkeiten werden in Abschnitt 10 spezifiziert.
+Diese Fähigkeiten werden in Abschnitt 10 spezifiziert.
 
 ---
 
@@ -492,16 +492,16 @@ Diese Faehigkeiten werden in Abschnitt 10 spezifiziert.
 
 ### 10.1 Ziel
 
-Benutzer muessen manuelle Eingriffe nachvollziehbar, selektiv und sicher rueckgaengig
-machen koennen. Gleichzeitig muessen fachliche Dubletten aus unterschiedlichen Quellen
+Benutzer müssen manuelle Eingriffe nachvollziehbar, selektiv und sicher rückgängig
+machen können. Gleichzeitig müssen fachliche Dubletten aus unterschiedlichen Quellen
 gezielt konsolidierbar sein.
 
 ### 10.2 Grundprinzip
 
 Der Fachgraph bleibt vom Entscheidungsgraph getrennt.
 
-- Der **Fachgraph** enthaelt Objekte wie `Prozess`, `Anwendung`, `OrgEinheit`, `Alias`.
-- Der **Entscheidungsgraph** enthaelt Betriebsmetadaten fuer manuelle Eingriffe.
+- Der **Fachgraph** enthält Objekte wie `Prozess`, `Anwendung`, `OrgEinheit`, `Alias`.
+- Der **Entscheidungsgraph** enthält Betriebsmetadaten für manuelle Eingriffe.
 
 ### 10.3 Entscheidungsknoten
 
@@ -529,14 +529,14 @@ Optionale Attribute:
 
 `ManualDecision` wird als isolierter Knoten ohne Kanten zu den betroffenen Fachobjekten
 persistiert. Die Zuordnung betroffener Objekte (Prozess, Anwendung, OrgEinheit, Rolle usw.)
-erfolgt ausschliesslich ueber das Feld `payload_json`, das die relevanten IDs und Namen
-als JSON-String enthaelt.
+erfolgt ausschliesslich über das Feld `payload_json`, das die relevanten IDs und Namen
+als JSON-String enthält.
 
-Ruecknahmen (`decision_revert`) referenzieren die urspruengliche Entscheidung ebenfalls
-ueber `supersedes_decision_id` im Payload, nicht ueber eine Graph-Kante.
+Rücknahmen (`decision_revert`) referenzieren die ursprüngliche Entscheidung ebenfalls
+über `supersedes_decision_id` im Payload, nicht über eine Graph-Kante.
 
 Die Rücknahme-Logik parst das Payload im Speicher und setzt ad-hoc-Cypher-Statements ab,
-um die urspruenglichen Graphaenderungen rueckgaengig zu machen.
+um die ursprünglichen Graphänderungen rückgängig zu machen.
 
 ### 10.4a Zukunftsperspektive: Explizite Betriebsrelationen
 
@@ -551,9 +551,9 @@ Architektonisch vorgesehen, aber derzeit nicht implementiert sind explizite Kant
 (:ManualDecision)-[:SUPERSEDES]->(:ManualDecision)
 ```
 
-Diese Kanten wuerden rein betriebliche Metadaten abbilden und keine fachlichen EA-Beziehungen
-darstellen. Eine Migration dorthin ist moeglich, sobald die Payload-Variante nicht mehr
-ausreicht (z. B. fuer komplexe Auditing-Anforderungen).
+Diese Kanten würden rein betriebliche Metadaten abbilden und keine fachlichen EA-Beziehungen
+darstellen. Eine Migration dorthin ist möglich, sobald die Payload-Variante nicht mehr
+ausreicht (z. B. für komplexe Auditing-Anforderungen).
 
 ### 10.5 Entscheidungstypen
 
@@ -569,14 +569,14 @@ Geplante `decision_type`-Werte:
 
 ### 10.6 Sichtbarkeit im Chat-Layer
 
-`ManualDecision` und zugehoerige betriebliche Relationen sind **nicht Teil des
+`ManualDecision` und zugehörige betriebliche Relationen sind **nicht Teil des
 freigegebenen Query-Schemas**.
 
 Konsequenzen:
 
 - `core/graph_schema.py` bleibt allowlist-basiert
 - `build_query_schema_reference()` nimmt `ManualDecision` nicht auf
-- der dynamisch erzeugte Systemprompt erwaehnt diese Knoten nicht
+- der dynamisch erzeugte Systemprompt erwähnt diese Knoten nicht
 - das LLM kann den Entscheidungsgraph weder absichtlich noch versehentlich abfragen
 
 Der Chat beantwortet nur fachliche Fragen auf Basis des Fachgraphen.
@@ -584,53 +584,53 @@ Der Chat beantwortet nur fachliche Fragen auf Basis des Fachgraphen.
 ### 10.7 Undo manueller Entscheidungen
 
 Jede manuelle Aktion mit fachlicher Wirkung erzeugt genau einen `ManualDecision`-Knoten.
-Eine Ruecknahme:
+Eine Rücknahme:
 
-1. referenziert die urspruengliche Entscheidung
-2. entfernt nur die konkret von dieser Entscheidung verursachten Graphaenderungen
-3. aktualisiert abhaengige UI-Artefakte gezielt
+1. referenziert die ursprüngliche Entscheidung
+2. entfernt nur die konkret von dieser Entscheidung verursachten Graphänderungen
+3. aktualisiert abhängige UI-Artefakte gezielt
 4. hinterlaesst selbst wieder eine persistente Auditspur
 
 Aktueller Umsetzungsstand:
 
-- Ruecknahme ist fuer `manual_link`, `confirmed_candidate_link`,
+- Rücknahme ist für `manual_link`, `confirmed_candidate_link`,
   `manual_process_owner_assignment` und `manual_role_assignment` implementiert.
-- Die Ruecknahme arbeitet aktuell payload-basiert und setzt den urspruenglichen
+- Die Rücknahme arbeitet aktuell payload-basiert und setzt den ursprünglichen
   Entscheidungsknoten auf `status = reverted`.
-- Zusaetzlich wird eine neue `ManualDecision` vom Typ `decision_revert` geschrieben.
-- Der Ruecknahme-Eintrag dient als Auditspur und wird selbst nicht als neue aktive
+- Zusätzlich wird eine neue `ManualDecision` vom Typ `decision_revert` geschrieben.
+- Der Rücknahme-Eintrag dient als Auditspur und wird selbst nicht als neue aktive
   Fachentscheidung behandelt.
 
-### 10.8 Ruecknahmesichere Faelle
+### 10.8 Rücknahmesichere Fälle
 
-In Scope fuer die erste Ausbaustufe:
+In Scope für die erste Ausbaustufe:
 
 - manueller `DIENT`-Link
-- bestaetigter `KÖNNTE_DIENEN`-Link
+- bestätigter `KÖNNTE_DIENEN`-Link
 - manuelle Prozess-Owner-Zuordnung
 - manuelle Rollenzuordnung
 
 ### 10.9 Abgrenzung zu globaler Wiederherstellung
 
 Das selektive Undo bleibt auf die Wirkungen einzelner manueller Entscheidungen
-beschraenkt. Die globale Wiederherstellung des Gesamtzustands ist eine getrennte
-Sicherungsfunktion gemaess Kapitel 12 und wird nicht ueber `ManualDecision`
+beschränkt. Die globale Wiederherstellung des Gesamtzustands ist eine getrennte
+Sicherungsfunktion gemäß Kapitel 12 und wird nicht über `ManualDecision`
 modelliert.
 
 ---
 
-## 11. Konsolidierungsschicht fuer Dubletten
+## 11. Konsolidierungsschicht für Dubletten
 
 ### 11.1 Ziel
 
-BRIDGR muss fachliche Dubletten zusammenfuehren koennen, auch wenn kein manueller Fehler
+BRIDGR muss fachliche Dubletten zusammenführen können, auch wenn kein manueller Fehler
 den Zustand verursacht hat.
 
-Typische Faelle:
+Typische Fälle:
 
 - `OrgEinheit`: unterschiedliche Schreibweisen oder manuell falsch angelegte Einheiten
 - `Prozess`: identischer Prozess aus TXT und BPMN unter leicht abweichenden Namen
-- spaeter optional `Anwendung`
+- später optional `Anwendung`
 
 ### 11.2 Mergebare Labels
 
@@ -644,74 +644,74 @@ Erste Ausbaustufe:
 Ein Merge soll:
 
 1. einen Quellknoten in einen Zielknoten konsolidieren
-2. alle relevanten Beziehungen auf den Zielknoten uebertragen
+2. alle relevanten Beziehungen auf den Zielknoten übertragen
 3. doppelte Beziehungen vermeiden
 4. die Quellbezeichnung als Alias auf dem Ziel bewahren
-5. den Quellknoten loeschen
+5. den Quellknoten löschen
 6. den Merge als `ManualDecision` dokumentieren
 
 ### 11.4 Alias-Fortschreibung
 
 Bei jedem Merge gilt:
 
-- Die Quellbezeichnung wird als Alias des Zielknotens weitergefuehrt, sofern sie nach
+- Die Quellbezeichnung wird als Alias des Zielknotens weitergeführt, sofern sie nach
   Normalisierung nicht identisch mit dem Zielnamen ist.
-- Dadurch bleibt der Begriff aus den Quelldokumenten fuer spaetere Re-Importe und
-  Chat-Aufloesung erhalten.
+- Dadurch bleibt der Begriff aus den Quelldokumenten für spätere Re-Importe und
+  Chat-Auflösung erhalten.
 
-Ohne diese Alias-Fortschreibung wuerde derselbe Rohbegriff beim naechsten Import erneut
-zu einer Dublette fuehren.
+Ohne diese Alias-Fortschreibung würde derselbe Rohbegriff beim nächsten Import erneut
+zu einer Dublette führen.
 
-### 11.5 Beziehungsuebernahme
+### 11.5 Beziehungsübernahme
 
 Beim Merge werden eingehende und ausgehende Beziehungen des Quellknotens auf den Zielknoten
-umgehaengt, soweit der Typ fuer das betroffene Label fachlich erlaubt ist.
+umgehängt, soweit der Typ für das betroffene Label fachlich erlaubt ist.
 
 ### 11.6 Beziehungsdeduplizierung
 
-Beziehungsuebernahme ist niemals blind.
+Beziehungsübernahme ist niemals blind.
 
 Regel:
 
 - Wenn am Ziel bereits eine gleichartige Beziehung mit identischem Gegenspieler und
   identischer Richtung existiert, wird keine zweite Kante erzeugt.
 - Falls beide Beziehungen Properties tragen, gilt eine konfliktarme Konsolidierungsregel:
-  - bestaetigte/starke Information gewinnt vor schwacher
+  - bestätigte/starke Information gewinnt vor schwacher
   - vorhandene IDs und ArchiMate-Metadaten bleiben erhalten
   - redundante Duplikate werden verworfen
 
 ### 11.7 Merge von `OrgEinheit`
 
-Zu beruecksichtigende Fachbeziehungen:
+Zu berücksichtigende Fachbeziehungen:
 
 - ausgehend: `VERANTWORTET`, `KANN_EINNEHMEN`, `IST_VERBUNDEN_MIT`
-- eingehend ueber Alias: `(:Alias)-[:KANN_MEINEN]->(:OrgEinheit)`
+- eingehend über Alias: `(:Alias)-[:KANN_MEINEN]->(:OrgEinheit)`
 - betriebliche Metadaten aus `ManualDecision`
 
 Aktueller Umsetzungsstand:
 
-- Der Backend-Merge fuer `OrgEinheit` ist implementiert.
-- Kantenuebernahme erfolgt derzeit fuer `VERANTWORTET`, `KANN_EINNEHMEN`,
+- Der Backend-Merge für `OrgEinheit` ist implementiert.
+- Kantenübernahme erfolgt derzeit für `VERANTWORTET`, `KANN_EINNEHMEN`,
   ausgehendes `IST_VERBUNDEN_MIT` sowie bestehende eingehende Alias-Kanten.
-- Die Deduplizierung erfolgt aktuell ueber `MERGE` auf den Zielkanten.
-- Eine weitergehende Property-Konsolidierung ist fuer diese erste Ausbaustufe noch
+- Die Deduplizierung erfolgt aktuell über `MERGE` auf den Zielkanten.
+- Eine weitergehende Property-Konsolidierung ist für diese erste Ausbaustufe noch
   nicht erforderlich und daher noch nicht separat implementiert.
 
 ### 11.8 Merge von `Prozess`
 
-Zu beruecksichtigende Fachbeziehungen:
+Zu berücksichtigende Fachbeziehungen:
 
 - eingehend: `DIENT`, `KÖNNTE_DIENEN`, `BETEILIGT_AN`, `VERANTWORTET`, `REALISIERT`,
   `UNTERSTUETZT`, `BENOETIGT`, `VERARBEITET`, `BETRIFFT`, `BEEINFLUSST`
 - ausgehend: `FOLGT_AUF`, `UNTERSTUETZT`, `BENOETIGT`, `VERARBEITET`
-- zusaetzliche Konsolidierung von `prozess_id`, `archimate_id`, `archimate_type`
+- zusätzliche Konsolidierung von `prozess_id`, `archimate_id`, `archimate_type`
 
 Aktueller Umsetzungsstand:
 
-- Der Backend-Merge fuer `Prozess` ist implementiert.
+- Der Backend-Merge für `Prozess` ist implementiert.
 - Bestehende gleichartige Beziehungen am Ziel werden nicht doppelt angelegt.
-- Der Quellname wird als Alias des Zielprozesses weitergefuehrt.
-- Die Ruecknahme arbeitet snapshot-basiert ueber die im Merge-Payload gespeicherten
+- Der Quellname wird als Alias des Zielprozesses weitergeführt.
+- Die Rücknahme arbeitet snapshot-basiert über die im Merge-Payload gespeicherten
   Knoten- und Beziehungshinweise.
 
 ### 11.9 Merge-Precheck
@@ -722,19 +722,19 @@ Vor jedem Merge zeigt die UI:
 - Quellenhinweise
 - Anzahl eingehender/ausgehender Beziehungen
 - potentielle Konflikte
-- Alias, der entstehen wuerde
+- Alias, der entstehen würde
 
-Erst danach darf der Merge explizit bestaetigt werden.
+Erst danach darf der Merge explizit bestätigt werden.
 
 Aktueller Umsetzungsstand:
 
-- Im UI existieren Merge-Bereiche fuer `OrgEinheit` und `Prozess`.
+- Im UI existieren Merge-Bereiche für `OrgEinheit` und `Prozess`.
 - Der Precheck zeigt bereits Quell-/Zielobjekt, Anzahl ein- und ausgehender Kanten,
-  Dubletten am Ziel, Alias-Uebernahme sowie erkannte Property-Konflikte.
-- Zusaetzlich wird eine kompakte Wirkungszusammenfassung angezeigt
-  (zu uebertragende Kanten, nicht doppelt anzulegende Kanten, Verhalten bei Konflikten).
-- Weitere Verfeinerungen der Visualisierung sind moeglich, aber keine funktionale
-  Voraussetzung mehr fuer die erste Ausbaustufe.
+  Dubletten am Ziel, Alias-Übernahme sowie erkannte Property-Konflikte.
+- Zusätzlich wird eine kompakte Wirkungszusammenfassung angezeigt
+  (zu übertragende Kanten, nicht doppelt anzulegende Kanten, Verhalten bei Konflikten).
+- Weitere Verfeinerungen der Visualisierung sind möglich, aber keine funktionale
+  Voraussetzung mehr für die erste Ausbaustufe.
 
 ---
 
@@ -742,19 +742,19 @@ Aktueller Umsetzungsstand:
 
 ### 12.1 Ziel
 
-Vor jeder schreibenden, fachlich relevanten Operation muss ein vollstaendiger,
+Vor jeder schreibenden, fachlich relevanten Operation muss ein vollständigiger,
 wiederherstellbarer Stand des BRIDGR-Graphen vorliegen. Damit sind fehlerhafte
 Importe, fehlerhafte CMDB-Importe und unerwartete Merge-Effekte auch dann
-rueckgaengig zu machen, wenn sie nicht von einer einzelnen `ManualDecision`
+rückgängig zu machen, wenn sie nicht von einer einzelnen `ManualDecision`
 abgedeckt sind.
 
 Snapshots sind ein v1-Sicherheitsnetz. Sie ersetzen weder das gezielte Undo
 manueller Entscheidungen noch die Idempotenz der Importlogik.
 
-### 12.2 Ausloeser und Sperrregel
+### 12.2 Auslöser und Sperrregel
 
 Ein Snapshot wird unmittelbar vor der ersten Graph-Schreiboperation automatisch
-erstellt fuer:
+erstellt für:
 
 - Prozessimport (`run_pipeline`), einschliesslich des darin enthaltenen
   CMDB-Abgleichs
@@ -762,86 +762,86 @@ erstellt fuer:
 - Merge von `OrgEinheit` oder `Prozess`
 
 Ein fehlgeschlagener oder nicht verifizierbarer Snapshot ist ein harter Gate:
-Die ausloesende Schreiboperation wird nicht gestartet und die UI zeigt einen
-verstaendlichen Fehler mit dem technischen Detail im Debug-Log an. Reine
+Die auslösende Schreiboperation wird nicht gestartet und die UI zeigt einen
+verständlichen Fehler mit dem technischen Detail im Debug-Log an. Reine
 Chat-Abfragen, Prechecks, Review-Listen und gezieltes Undo erzeugen keinen
 Snapshot.
 
 ### 12.3 Logisches Snapshot-Format
 
 Ein Snapshot ist ein anwendungsverwalteter, logischer Export und keine
-abhaengige Neo4j-Server- oder Dateisystem-Sicherung. Er enthaelt in einem
+abhängige Neo4j-Server- oder Dateisystem-Sicherung. Er enthält in einem
 konsistenten Lesezustand:
 
 - alle fachlichen Knoten und Beziehungen
 - interne Betriebsmetadaten (`ManualDecision`, `Ablehnung`, `OrgKandidat` und
   Alias-Projektionen)
 - Knotenlabels, Properties, Beziehungstypen und Beziehungsproperties
-- eine Manifestdatei mit Snapshot-ID, Zeitpunkt, Ausloeser, Operation,
-  Graph-Objektzaehlern, Quell-/Konfigurationshinweisen und Integritaetspruefsumme
+- eine Manifestdatei mit Snapshot-ID, Zeitpunkt, Auslöser, Operation,
+  Graph-Objektzählern, Quell-/Konfigurationshinweisen und Integritätsprüfsumme
 
-Beziehungsendpunkte werden ueber fachlich stabile Schluessel beziehungsweise die
-im Snapshot enthaltene interne Knotenzuordnung referenziert; fluechtige Neo4j-
+Beziehungsendpunkte werden über fachlich stabile Schlüssel beziehungsweise die
+im Snapshot enthaltene interne Knotenzuordnung referenziert; flüchtige Neo4j-
 Element-IDs sind kein Restore-Vertrag. Zugangsdaten, LLM-Geheimnisse und die
 Eingabedateien selbst werden nicht im Snapshot gespeichert.
 
-### 12.4 Ablage, Aufbewahrung und Integritaet
+### 12.4 Ablage, Aufbewahrung und Integrität
 
 Snapshots liegen unter dem aktiven Laufzeit-Ausgabepfad,
 `<output_path>/snapshots/<snapshot-id>/`, und bestehen mindestens aus dem
-Graph-Export und dem Manifest. Erst nach erfolgreicher Vollstaendigkeits- und
-Pruefsummenpruefung gilt ein Snapshot als verwendbar.
+Graph-Export und dem Manifest. Erst nach erfolgreicher Vollständigigkeits- und
+Prüfsummenprüfung gilt ein Snapshot als verwendbar.
 
-Die Anzahl aufbewahrter, gueltiger Snapshots ist ueber
-`snapshot_retention_count` konfigurierbar und betraegt standardmaessig `10`.
+Die Anzahl aufbewahrter, gültiger Snapshots ist über
+`snapshot_retention_count` konfigurierbar und beträgt standardmäßig `10`.
 Altere Snapshots werden erst nach erfolgreicher Erstellung eines neuen,
-verifizierten Snapshots entfernt. Ein fehlgeschlagener Snapshot veraendert den
+verifizierten Snapshots entfernt. Ein fehlgeschlagener Snapshot verändert den
 vorhandenen Bestand nicht.
 
 ### 12.5 Wiederherstellung
 
-Die Wiederherstellung ist im Tab `Konfiguration` verfuegbar. Die UI zeigt vor
-der expliziten Bestaetigung mindestens Snapshot-ID, Zeitpunkt, Ausloeser und
-Objektzaehler an.
+Die Wiederherstellung ist im Tab `Konfiguration` verfügbar. Die UI zeigt vor
+der expliziten Bestätigung mindestens Snapshot-ID, Zeitpunkt, Auslöser und
+Objektzähler an.
 
 Wiederherstellung ist nur bei explizit konfigurierter, dedizierter
 BRIDGR-Neo4j-Datenbank erlaubt. Sie ersetzt deren gesamten Inhalt; fremde
-Anwendungsdaten duerfen daher nicht in dieser Datenbank liegen.
+Anwendungsdaten dürfen daher nicht in dieser Datenbank liegen.
 
 Der Ablauf lautet:
 
 1. aktuellen Zustand als Snapshot vor der Wiederherstellung sichern
-2. Ziel-Snapshot gegen Manifest und Pruefsumme validieren
-3. den BRIDGR-Graphen atomar auf den Snapshot-Zustand zuruecksetzen
-4. das Ergebnis anhand der im Manifest gespeicherten Objektzaehler verifizieren
+2. Ziel-Snapshot gegen Manifest und Prüfsumme validieren
+3. den BRIDGR-Graphen atomar auf den Snapshot-Zustand zurücksetzen
+4. das Ergebnis anhand der im Manifest gespeicherten Objektzähler verifizieren
 5. die Wiederherstellung als interne Betriebsoperation protokollieren
 
-Schlaegt die Wiederherstellung fehl, bleibt der unmittelbar zuvor erzeugte
-Pre-Restore-Snapshot verfuegbar. Snapshot-Operationen sind weder ueber den
+Schlägt die Wiederherstellung fehl, bleibt der unmittelbar zuvor erzeugte
+Pre-Restore-Snapshot verfügbar. Snapshot-Operationen sind weder über den
 Chat sichtbar noch Teil des freigegebenen Query-Schemas.
 
 ### 12.6 UI und Nachvollziehbarkeit
 
 Der Konfigurations-Tab zeigt die letzten Snapshots mit Status, Zeitstempel,
-Ausloeser, Objektzaehlern und verfuegbarem Speicherort. Nutzer koennen nur
+Auslöser, Objektzählern und verfügbarem Speicherort. Nutzer können nur
 validierte Snapshots wiederherstellen. Jede Erstellung, Bereinigung und
 Wiederherstellung wird mit ausreichendem Kontext im Debug-Log protokolliert.
 
 ### 12.7 Nicht-Ziele
 
-- Kein Ersatz fuer reguläre Infrastruktur-Backups von Neo4j oder des Hostsystems
+- Kein Ersatz für reguläre Infrastruktur-Backups von Neo4j oder des Hostsystems
 - Keine Wiederherstellung externer Quelldateien, LLM-Konfiguration oder Secrets
 - Keine teilweise Wiederherstellung einzelner Fachobjekte in v1
-- Keine automatische Wiederherstellung ohne explizite Nutzerbestaetigung
+- Keine automatische Wiederherstellung ohne explizite Nutzerbestätigung
 
 ### 12.8 Implementierungsstand
 
 Die Sicherungs- und Wiederherstellungsschicht ist implementiert in
 `services/snapshot_service.py`. Sie verwendet `Neo4jClient.execute_write_batch()`
-fuer die transaktionale Wiederherstellung, schreibt den logischen Export unter
+für die transaktionale Wiederherstellung, schreibt den logischen Export unter
 `<output_path>/snapshots/` und wird in Pipeline, explizitem CMDB-Sync und Merge
 als harter Gate aufgerufen. Der Konfigurations-Tab zeigt valide und invalide
-Snapshots an und erlaubt nur nach Bestaetigung die Wiederherstellung.
+Snapshots an und erlaubt nur nach Bestätigung die Wiederherstellung.
 
 ---
 
@@ -849,7 +849,7 @@ Snapshots an und erlaubt nur nach Bestaetigung die Wiederherstellung.
 
 ### 13.1 Architekturprinzip
 
-Der LLM ist Orchestrator fuer fachliche Graphabfragen. Er erzeugt read-only Cypher auf
+Der LLM ist Orchestrator für fachliche Graphabfragen. Er erzeugt read-only Cypher auf
 Basis eines dynamisch zusammengesetzten, aber allowlist-basierten Schemas.
 
 ### 13.2 Dynamischer Systemprompt
@@ -868,24 +868,24 @@ ausserhalb des Chat-Schemas halten.
 ### 13.3 Query-Sicherheit
 
 - nur read-only Cypher
-- Validator prueft Labels, Relationen, Richtungen und Properties
-- `IST_VERBUNDEN_MIT` ist als Ausnahme ohne Labelpaarbeschraenkung erlaubt
+- Validator prüft Labels, Relationen, Richtungen und Properties
+- `IST_VERBUNDEN_MIT` ist als Ausnahme ohne Labelpaarbeschränkung erlaubt
 - interne Knoten wie `Ablehnung`, `ManualDecision` und `OrgKandidat` sind nicht freigegeben
 
 ### 13.4 Alias-Nutzung im Chat
 
-Alias-Knoten unterstuetzen:
+Alias-Knoten unterstützen:
 
-- deterministische Aufloesung alternativer Begriffe
-- Rueckgriff bei leeren Treffern
+- deterministische Auflösung alternativer Begriffe
+- Rückgriff bei leeren Treffern
 - Robustheit gegen unterschiedliche Schreibweisen und Merge-Folgen
 
 ### 13.5 Unsicherheit im Chat
 
-Der Chat darf bestaetigte Fakten und unbestaetigte Kandidaten unterscheiden:
+Der Chat darf bestätigte Fakten und unbestätigte Kandidaten unterscheiden:
 
-- `DIENT` / `VERANTWORTET` = bestaetigte Fakten
-- `KÖNNTE_DIENEN` = nicht bestaetigte Kandidaten
+- `DIENT` / `VERANTWORTET` = bestätigte Fakten
+- `KÖNNTE_DIENEN` = nicht bestätigte Kandidaten
 
 Entscheidungsmetadaten selbst sind kein Chat-Gegenstand.
 
@@ -897,45 +897,51 @@ Entscheidungsmetadaten selbst sind kein Chat-Gegenstand.
 
 - Chat mit Verlauf
 - LLM-Orchestrierung
-- technische Fehleruebersetzung in Klartext
+- technische Fehlerübersetzung in Klartext
 
-### 14.2 Tab `Zuordnungen`
+### 14.2 Tab `Import`
+
+- Prozessimport aus der Inbox `Input/` im Modus `full` oder `partial`
+- optionale BPMN-Transformation vor dem Import
+- CMDB-Synchronisation nach Neo4j
+- Archivierung verarbeiteter Prozessdateien
+
+### 14.3 Tab `Zuordnungen`
 
 - Review offener und schwacher Anwendungszuordnungen
-- Bestaetigen, Ablehnen, manuelle Zuordnung
-- Ruecknahme zuletzt getroffener Entscheidungen ist in der aktuellen Ausbaustufe noch
-  nicht im Tab `Zuordnungen`, sondern zentral im Tab `Organisation` umgesetzt
+- Bestätigen, Ablehnen, manuelle Zuordnung
+- Rücknahme zuletzt getroffener manueller Entscheidungen
+- Merge-Verwaltung für `Prozess`
 
-### 14.3 Tab `Konfiguration`
+### 14.4 Tab `Konfiguration`
 
 - Pfade
 - CMDB-Typ-Dateien-Mapping (`cmdb_type_files`): eine Datei pro Objektart
 - CMDB-Spaltenmapping (ID, Name, Besitzer, Servertyp, Beziehungsspalten)
-- Mehrwert-Trennzeichen fuer CMDB-Beziehungsspalten (`cmdb_multivalue_separator`)
+- Mehrwert-Trennzeichen für CMDB-Beziehungsspalten (`cmdb_multivalue_separator`)
 - Import-/Matching-Einstellungen
 - LLM- und Neo4j-Konfiguration
 - Sicherungsverwaltung: validierte Snapshots anzeigen und Wiederherstellung
-  nach expliziter Bestaetigung ausloesen
+  nach expliziter Bestätigung auslösen
 
-### 14.4 Tab `Organisation`
+### 14.5 Tab `Organisation`
 
 - Pflege von OrgEinheiten
 - Kandidaten-Mapping
 - Prozess-Owner-Zuordnung
 - Rollenzuordnung
-- zentrale Ruecknahme manueller Entscheidungen
-- Merge-Verwaltung fuer `OrgEinheit` und `Prozess`
+- Merge-Verwaltung für `OrgEinheit`
 
-### 14.5 Tab `EA-Modell`
+### 14.6 Tab `EA-Modell`
 
 - ArchiMate-Mapping
 - ArchiMate-Import
 - ArchiMate-Export
 - Review offener ArchiMate-Kandidaten
 
-### 14.6 Zukuenftige UI-Erweiterungen fuer Korrekturschicht
+### 14.7 Korrekturschicht
 
-Zusaetzliche Bedienbereiche:
+Zusätzliche Bedienbereiche:
 
 - `Letzte manuelle Änderungen`
 - `Entscheidung zurücknehmen`
@@ -945,10 +951,11 @@ Zusaetzliche Bedienbereiche:
 Aktueller Umsetzungsstand:
 
 - `Letzte manuelle Änderungen` und `Entscheidung zurücknehmen` sind im
-  Organisation-Tab bereits vorhanden.
-- `Objekte konsolidieren` ist fuer `OrgEinheit` und `Prozess` vorhanden.
+  Tab `Zuordnungen` vorhanden.
+- `Objekte konsolidieren` ist für `Prozess` im Tab `Zuordnungen` und für
+  `OrgEinheit` im Tab `Organisation` vorhanden.
 - Der Merge-Precheck zeigt bereits fachlich relevante Wirkungen und Konflikte.
-- Offen bleiben nur moegliche spaetere UX-Verfeinerungen oder die Erweiterung auf
+- Offen bleiben nur mögliche spätere UX-Verfeinerungen oder die Erweiterung auf
   weitere Objektarten.
 
 ---
@@ -957,7 +964,7 @@ Aktueller Umsetzungsstand:
 
 ### 15.1 `config.json`
 
-Zentrale Laufzeitkonfiguration fuer:
+Zentrale Laufzeitkonfiguration für:
 
 - Pfade
 - LLM
@@ -966,18 +973,18 @@ Zentrale Laufzeitkonfiguration fuer:
 - CMDB-Konfiguration:
   - `cmdb_type_files`: Mapping von Objektart (`application`, `server`, `interface`) auf Dateinamen
   - `cmdb_uuid_column`, `cmdb_name_column`, `cmdb_owner_name_column`, `cmdb_server_type_column`: gemeinsame Spalten aller Typ-Dateien
-  - `cmdb_runs_on_column`: Spaltenname fuer Server-IDs in der Anwendungsdatei (Standard: `runs_on`)
-  - `cmdb_uses_interfaces_column`: Spaltenname fuer Schnittstellen-IDs in der Anwendungsdatei (Standard: `uses_interfaces`)
-  - `cmdb_multivalue_separator`: Trennzeichen fuer Mehrfachwerte (Standard: `|`)
-  - `cmdb_filename`, `cmdb_relations_filename`: Legacy-Felder fuer das Zwei-Dateien-Format, werden ignoriert wenn `cmdb_type_files` gesetzt ist
+  - `cmdb_runs_on_column`: Spaltenname für Server-IDs in der Anwendungsdatei (Standard: `runs_on`)
+  - `cmdb_uses_interfaces_column`: Spaltenname für Schnittstellen-IDs in der Anwendungsdatei (Standard: `uses_interfaces`)
+  - `cmdb_multivalue_separator`: Trennzeichen für Mehrfachwerte (Standard: `|`)
+  - `cmdb_filename`, `cmdb_relations_filename`: Legacy-Felder für das Zwei-Dateien-Format, werden ignoriert wenn `cmdb_type_files` gesetzt ist
 - Chat-Modus
 - Sicherung:
-  - `snapshot_retention_count`: Anzahl gueltiger, anwendungsverwalteter
+  - `snapshot_retention_count`: Anzahl gültiger, anwendungsverwalteter
     Graph-Snapshots, die aufbewahrt werden (Standard: `10`)
 
 ### 15.2 `archimate_mapping.json`
 
-Enthaelt:
+Enthält:
 
 - `elements.import`
 - `elements.ignore`
@@ -999,24 +1006,24 @@ Organisationsspezifisches Mapping-Wissen gehoert in JSON-Konfiguration, nicht in
 
 Der Import:
 
-- erkennt 3.0 und 3.1 automatisch ueber den Root-Namespace
-- mappt Elementtypen ueber `archimate_mapping.json`
-- fuehrt exakte Identitaetsanreicherung oder Fuzzy-Kandidatenbildung durch
+- erkennt 3.0 und 3.1 automatisch über den Root-Namespace
+- mappt Elementtypen über `archimate_mapping.json`
+- führt exakte Identitätsanreicherung oder Fuzzy-Kandidatenbildung durch
 - schreibt Relationen nur bei konfiguriertem `bridgr_relation`
-- protokolliert uebersprungene Typen und Relationen
+- protokolliert übersprungene Typen und Relationen
 
 ### 16.2 Export
 
 Der Export:
 
-- exportiert den vollstaendigen BRIDGR-Graphen
-- verwendet fuer importierte Knoten/Relationen deren originale ArchiMate-Typen
-- verwendet fuer BRIDGR-native Knoten/Relationen die konfigurierten kanonischen Typen
-- fuehrt vor Export einen Typ-Precheck fuer untypisierte Knoten durch
+- exportiert den vollständigigen BRIDGR-Graphen
+- verwendet für importierte Knoten/Relationen deren originale ArchiMate-Typen
+- verwendet für BRIDGR-native Knoten/Relationen die konfigurierten kanonischen Typen
+- führt vor Export einen Typ-Precheck für untypisierte Knoten durch
 
 ### 16.3 ArchiMate und Konsolidierung
 
-Merge- und Alias-Entscheidungen muessen so gestaltet sein, dass:
+Merge- und Alias-Entscheidungen müssen so gestaltet sein, dass:
 
 - ArchiMate-Importe keine bereits konsolidierten Fachobjekte wieder aufspalten
 - Quellbezeichnungen als Alias erhalten bleiben
@@ -1028,7 +1035,7 @@ Merge- und Alias-Entscheidungen muessen so gestaltet sein, dass:
 
 ### 17.1 Komponentendiagramm
 
-Zeigt die logischen Komponenten und ihre Abhaengigkeiten.
+Zeigt die logischen Komponenten und ihre Abhängigkeiten.
 
 ![BRIDGR Komponentendiagramm](BRIDGR_Komponentendiagramm.png)
 
@@ -1041,11 +1048,11 @@ Verarbeitung & Skills sowie Services und ArchiMate-Integration.
 
 ### 17.3 Sequenzdiagramme
 
-Zeigt die wichtigsten Ablaeufe als Sequenzdiagramme.
+Zeigt die wichtigsten Abläufe als Sequenzdiagramme.
 
 ![Sequenz 1 – Dokument-Import-Pipeline](BRIDGR_Sequenzdiagramme_001.png)
 
-![Sequenz 2 – Natuerlichsprachige Graph-Abfrage](BRIDGR_Sequenzdiagramme_002.png)
+![Sequenz 2 – Natürlichsprachige Graph-Abfrage](BRIDGR_Sequenzdiagramme_002.png)
 
 ![Sequenz 3 – CMDB-Synchronisation](BRIDGR_Sequenzdiagramme_003.png)
 
@@ -1057,11 +1064,11 @@ Zeigt die wichtigsten Ablaeufe als Sequenzdiagramme.
 
 ### 18.1 Nachvollziehbarkeit
 
-Alle manuellen Eingriffe muessen auditierbar sein.
+Alle manuellen Eingriffe müssen auditierbar sein.
 
 ### 18.2 Idempotenz
 
-Wiederholte Importe duerfen keine unkontrollierten Duplikate erzeugen.
+Wiederholte Importe dürfen keine unkontrollierten Duplikate erzeugen.
 
 ### 18.3 Geringe Seiteneffekte
 
@@ -1073,80 +1080,80 @@ Der Chat darf nur den Fachgraphen sehen. Betriebsmetadaten bleiben intern.
 
 ### 18.5 Wiederherstellbarkeit
 
-Jede v1-Schreiboperation, die einen globalen Graphzustand veraendern kann,
-benoetigt vor ihrem Beginn einen validierten Snapshot. Der Snapshot darf keine
-Secrets enthalten und eine Wiederherstellung muss vor Ausfuehrung explizit
-bestaetigt werden.
+Jede v1-Schreiboperation, die einen globalen Graphzustand verändern kann,
+benötigt vor ihrem Beginn einen validierten Snapshot. Der Snapshot darf keine
+Secrets enthalten und eine Wiederherstellung muss vor Ausführung explizit
+bestätigt werden.
 
 ---
 
 ## 19. Akzeptanzkriterien
 
-1. Korrekte Informationen aus den Quelldaten koennen ueber die Weboberflaeche abgefragt werden.
-2. Mappings sind ueber die Weboberflaeche pflegbar.
-3. Informationen zu Prozessen, Anwendungen, Schnittstellen, Servern, Zielen und Risiken koennen abgerufen werden.
-4. Die Pipeline laeuft stabil durch einen vollstaendigen Importzyklus.
+1. Korrekte Informationen aus den Quelldaten können über die Weboberfläche abgefragt werden.
+2. Mappings sind über die Weboberfläche pflegbar.
+3. Informationen zu Prozessen, Anwendungen, Schnittstellen, Servern, Zielen und Risiken können abgerufen werden.
+4. Die Pipeline läuft stabil durch einen vollständigigen Importzyklus.
 5. TXT, DOCX und PDF folgen demselben semantischen Extraktionsschema.
-6. Grosse BPMN/XML-Dateien koennen ueber den Transformationspfad verarbeitet werden.
+6. Grosse BPMN/XML-Dateien können über den Transformationspfad verarbeitet werden.
 7. `Input/` bleibt nach erfolgreichem Lauf frei von verarbeiteten Prozessdateien.
 8. Verarbeitete Prozessdateien werden nachvollziehbar archiviert.
-9. Der Chat-Layer fragt Fakten ueber die IT-Landschaft nur nach vorheriger Graphabfrage ab.
-10. Schwache Kandidaten werden im Graphen explizit als unbestaetigt modelliert.
-11. Ablehnungen fuer Anwendungsbezeichnungen werden in Neo4j persistiert.
-12. Bestaetigte und manuelle Anwendungslinks ueberleben Re-Importe.
+9. Der Chat-Layer fragt Fakten über die IT-Landschaft nur nach vorheriger Graphabfrage ab.
+10. Schwache Kandidaten werden im Graphen explizit als unbestätigt modelliert.
+11. Ablehnungen für Anwendungsbezeichnungen werden in Neo4j persistiert.
+12. Bestätigte und manuelle Anwendungslinks überleben Re-Importe.
 13. OrgEinheiten werden case-insensitiv kanonisiert.
 14. `ManualDecision` wird nicht in das freigegebene Query-Schema aufgenommen.
 15. Undo einer manuellen Zuordnung entfernt nur die konkret von dieser Entscheidung erzeugten Effekte.
-16. Ein Merge von `OrgEinheit` fuehrt den Quellnamen als Alias des Zielobjekts weiter.
+16. Ein Merge von `OrgEinheit` führt den Quellnamen als Alias des Zielobjekts weiter.
 17. Ein Merge von `Prozess` kann Dubletten aus unterschiedlichen Quellen konsolidieren.
 18. Beim Merge werden gleichartige Beziehungen nicht doppelt angelegt.
-19. Der Merge ist nur nach Precheck und expliziter Benutzerbestaetigung ausfuehrbar.
-20. ArchiMate-Import und -Export bleiben trotz Korrekturschicht funktionsfaehig.
-21. CMDB-Daten koennen als eine CSV-Datei pro Objektart importiert werden, mit Beziehungen als Multi-Value-Spalten.
-22. Das CMDB-Mehrwert-Trennzeichen ist fuer gaengige CMDB-Export-Formate konfigurierbar.
-23. Das bisherige Zwei-Dateien-Format bleibt als Legacy-Pfad funktionsfaehig.
+19. Der Merge ist nur nach Precheck und expliziter Benutzerbestätigung ausführbar.
+20. ArchiMate-Import und -Export bleiben trotz Korrekturschicht funktionsfähig.
+21. CMDB-Daten können als eine CSV-Datei pro Objektart importiert werden, mit Beziehungen als Multi-Value-Spalten.
+22. Das CMDB-Mehrwert-Trennzeichen ist für gängige CMDB-Export-Formate konfigurierbar.
+23. Das bisherige Zwei-Dateien-Format bleibt als Legacy-Pfad funktionsfähig.
 24. Vor Prozessimport, expliziter CMDB-Synchronisation und Merge wird ein
-    vollstaendiger, validierter Snapshot erstellt.
-25. Bei fehlgeschlagener Snapshot-Erstellung wird die ausloesende Schreiboperation
-    nicht ausgefuehrt und ein nachvollziehbarer Fehler angezeigt.
+    vollständigiger, validierter Snapshot erstellt.
+25. Bei fehlgeschlagener Snapshot-Erstellung wird die auslösende Schreiboperation
+    nicht ausgeführt und ein nachvollziehbarer Fehler angezeigt.
 26. Ein Snapshot beinhaltet Fachgraph und interne Betriebsmetadaten, aber keine
     Zugangsdaten oder Secrets.
 27. Die Wiederherstellung eines validierten Snapshots stellt den gespeicherten
-    BRIDGR-Graphzustand wieder her und wird anhand der Objektzaehler verifiziert.
+    BRIDGR-Graphzustand wieder her und wird anhand der Objektzähler verifiziert.
 28. Vor jeder Wiederherstellung wird ein Pre-Restore-Snapshot erzeugt; die
-    Wiederherstellung erfordert eine explizite Benutzerbestaetigung.
+    Wiederherstellung erfordert eine explizite Benutzerbestätigung.
 
 ---
 
 ## 20. Getroffene Architekturentscheidungen
 
-| Entscheidung | Gewaehlt | Verworfen | Begruendung |
+| Entscheidung | Gewählt | Verworfen | Begründung |
 | --- | --- | --- | --- |
-| Kanonischer Fachspeicher | Neo4j | Dateibasierte Wahrheitsquelle | Query-, Review- und Chat-Faehigkeit |
-| Persistenz manueller Korrekturen | interner Entscheidungsgraph in Neo4j | globale Snapshots als Ersatz fuer Undo | selektive Ruecknahme einzelner Entscheidungen bleibt schnell und fachlich praezise |
-| Sicherung vor globalen Schreiboperationen | anwendungsverwaltete logische Graph-Snapshots | ausschliesslich manuelle Neo4j-Backups | Wiederherstellbarkeit ist direkt im BRIDGR-Workflow verfuegbar, ohne Server-Administration vorauszusetzen |
+| Kanonischer Fachspeicher | Neo4j | Dateibasierte Wahrheitsquelle | Query-, Review- und Chat-Fähigkeit |
+| Persistenz manueller Korrekturen | interner Entscheidungsgraph in Neo4j | globale Snapshots als Ersatz für Undo | selektive Rücknahme einzelner Entscheidungen bleibt schnell und fachlich präzise |
+| Sicherung vor globalen Schreiboperationen | anwendungsverwaltete logische Graph-Snapshots | ausschliesslich manuelle Neo4j-Backups | Wiederherstellbarkeit ist direkt im BRIDGR-Workflow verfügbar, ohne Server-Administration vorauszusetzen |
 | Sichtbarkeit der Korrekturschicht im Chat | verborgen | im Query-Schema freigeben | trennt Fachdialog von Betriebsmetadaten |
 | Merge-Strategie | labelspezifisch (`OrgEinheit`, `Prozess`) | generischer Merge beliebiger Nodes | geringeres Risiko, fachlich kontrollierbar |
 | Alias-Fortschreibung nach Merge | verpflichtend | Quellname verwerfen | verhindert Wiederauftreten derselben Dublette beim Re-Import |
-| Deduplizierung beim Merge | vor jeder Kantenanlage pruefen | blindes Umhaengen | verhindert, dass der Merge selbst neuen Muell erzeugt |
-| Fachgraph vs. Entscheidungsgraph | getrennt | ein gemeinsamer ueberladener Graph | klarere Verantwortlichkeiten und sicherer Chat-Layer |
-| CMDB-Import-Format | eine CSV-Datei pro Objektart mit Beziehungsspalten | gemischte Entities-Datei + separate Relationsdatei | entspricht realen CMDB-Export-Strukturen (z. B. ServiceNow, Jira Asset Management); konfigurierbarer Mehrwert-Separator unterstuetzt gaengige Formate |
+| Deduplizierung beim Merge | vor jeder Kantenanlage prüfen | blindes Umhängen | verhindert, dass der Merge selbst neuen Müll erzeugt |
+| Fachgraph vs. Entscheidungsgraph | getrennt | ein gemeinsamer überladener Graph | klarere Verantwortlichkeiten und sicherer Chat-Layer |
+| CMDB-Import-Format | eine CSV-Datei pro Objektart mit Beziehungsspalten | gemischte Entities-Datei + separate Relationsdatei | entspricht realen CMDB-Export-Strukturen (z. B. ServiceNow, Jira Asset Management); konfigurierbarer Mehrwert-Separator unterstützt gängige Formate |
 
 ---
 
-## 21. Bekannte Einschraenkungen
+## 21. Bekannte Einschränkungen
 
 - Die beschriebene Entscheidungs- und Korrekturschicht ist architektonisch festgelegt,
-  aber noch nicht vollstaendig implementiert.
+  aber noch nicht vollständigig implementiert.
 - `ManualDecision` wird aktuell ohne explizite `AFFECTS`-, `CREATED_ALIAS`- oder
   `SUPERSEDES`-Kanten gespeichert; die Zuordnung erfolgt derzeit payload-basiert.
-- Merge-Workflows fuer `Anwendung` sind bewusst noch nicht Teil der ersten Ausbaustufe.
-- Ein generischer Merge fuer weitere Labels ausser `OrgEinheit` und `Prozess` ist noch
+- Merge-Workflows für `Anwendung` sind bewusst noch nicht Teil der ersten Ausbaustufe.
+- Ein generischer Merge für weitere Labels ausser `OrgEinheit` und `Prozess` ist noch
   nicht Teil der aktuellen Ausbaustufe.
-- UML-Diagramme im Repository koennen dem beschriebenen Stand voraus- oder hinterherlaufen
+- UML-Diagramme im Repository können dem beschriebenen Stand voraus- oder hinterherlaufen
   und sind vor Aktualisierung nicht die kanonische Referenz.
 - Das Legacy-CMDB-Format (gemischte Entities-Datei + separate Relationsdatei) bleibt
-  funktionsfaehig, ist aber fuer produktive CMDB-Anbindungen nicht das Zielformat.
+  funktionsfähig, ist aber für produktive CMDB-Anbindungen nicht das Zielformat.
 
 ---
 

@@ -1,8 +1,8 @@
-# Annahmen fuer das Nordstern-Archimate-Modell
+# Annahmen für das Nordstern-Archimate-Modell
 
-Dieses Dokument haelt die bei der Modellgenerierung getroffenen Annahmen fest.
+Dieses Dokument hält die bei der Modellgenerierung getroffenen Annahmen fest.
 
-- Die Dateien `nordstern_archimate_3_1.xml` und `nordstern_archimate_archi_compatible_3_0.xml` beschreiben dasselbe Modell; sie unterscheiden sich nur im ArchiMate-Namespace fuer Standard- versus Tool-Kompatibilitaet.
+- Die Dateien `nordstern_archimate_3_1.xml` und `nordstern_archimate_archi_compatible_3_0.xml` beschreiben dasselbe Modell; sie unterscheiden sich nur im ArchiMate-Namespace für Standard- versus Tool-Kompatibilität.
 - Application 'SAP PP' was modeled as a standalone ApplicationComponent because no CMDB entity matched it.
 - BusinessActor elements represent organizational units from process owners, departments, and CMDB owner fields.
 - CMDB relation RUNS_ON is represented as Realization from ApplicationComponent to Node.
