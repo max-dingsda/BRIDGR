@@ -1,0 +1,52 @@
+@startuml BRIDGR_Komponentendiagramm
+!theme plain
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+package "Externe Quellen" {
+  [Prozessdokumente] as ProcessDocs
+  [CMDB-Dateien] as CMDBFiles
+  [ArchiMate-Datei] as ArchiMateFile
+  cloud "LLM" as LLM
+}
+
+package "BRIDGR" {
+  [Streamlit UI] as UI
+  component "Import-Service und Pipeline\nservices/runtime_service.py\nprocessing/pipeline.py" as Import
+  component "CMDB-Service\nservices/cmdb_service.py" as Cmdb
+  component "Extraktoren und Matching\nskills/extract, skills/match.py" as Extract
+  component "Graph Writer\nskills/graph_writer.py" as Writer
+  component "Review, Organisation, Merge, Undo\nservices/*_service.py" as Curation
+  component "Chat-Service\nservices/query_service.py" as Query
+  component "ArchiMate Import/Export\nservices/archimate_*_service.py" as ArchiMate
+  database "Neo4j\nFachgraph und interne Betriebsmetadaten" as Neo4j
+  artifact "Output/latest_run.json\nund Importstatus" as RunArtifacts
+}
+
+UI --> Import : Prozessimport starten
+UI --> Cmdb : CMDB synchronisieren
+UI --> Curation : Review, Organisation, Merge, Undo
+UI --> Query : Frage stellen
+UI --> ArchiMate : Import oder Export
+ProcessDocs --> Import
+CMDBFiles --> Cmdb
+ArchiMateFile --> ArchiMate
+Import --> Extract
+Extract --> LLM : strukturierte Extraktion
+Import --> Cmdb : CMDB vor Prozessimport abgleichen
+Import --> Writer : bestätigte und Kandidaten-Mappings
+Cmdb --> Writer : CMDB-Objekte und Beziehungen
+Writer --> Neo4j : Fachknoten und Kanten
+Curation --> Neo4j : kuratierte Änderungen und ManualDecision
+Curation --> RunArtifacts : Review-Artefakte aktualisieren
+Import --> RunArtifacts : Lauf- und Review-Artefakte schreiben
+Query --> LLM : Orchestrierung
+Query --> Neo4j : ausschließlich lesend
+ArchiMate --> Neo4j : Import schreibt, Export liest
+
+note right of Neo4j
+  ManualDecision, Ablehnung und OrgKandidat sind
+  interne Betriebsmetadaten und nicht Teil
+  des freigegebenen Chat-Schemas.
+end note
+@enduml

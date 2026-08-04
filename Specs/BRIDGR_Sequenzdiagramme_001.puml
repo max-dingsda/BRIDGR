@@ -1,0 +1,29 @@
+@startuml BRIDGR_Sequenzdiagramme_001
+!theme plain
+actor "Benutzer" as User
+participant "Streamlit UI (Import)" as UI
+participant "Runtime-Service" as Runtime
+participant "Pipeline" as Pipeline
+participant "CMDB-Service" as Cmdb
+participant "LLM / Extraktor" as Extractor
+participant "GraphWriter" as Writer
+database "Neo4j" as Neo4j
+participant "Run-Artefakte" as Artifacts
+
+User -> UI : Import starten
+UI -> Runtime : run_pipeline_with_live_feedback()
+Runtime -> Pipeline : run_pipeline()
+activate Pipeline
+Pipeline -> Cmdb : sync_cmdb_to_neo4j()
+Cmdb -> Writer : sync_cmdb()
+Writer -> Neo4j : CMDB-Knoten und Kanten MERGE
+Pipeline -> Extractor : Dokument extrahieren
+Extractor --> Pipeline : ExtractedProcess
+Pipeline -> Pipeline : Matching und ReviewItems erzeugen
+Pipeline -> Writer : build_payload() und write_payload()
+Writer -> Neo4j : Prozess, Rollen und Anwendungsbeziehungen MERGE
+Pipeline -> Artifacts : latest_run und Importstatus schreiben
+deactivate Pipeline
+Runtime --> UI : PipelineRunResult
+UI --> User : Importergebnis anzeigen
+@enduml

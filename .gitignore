@@ -244,3 +244,4 @@ reset_to_delivery_state.py
 # Claude Code internal session data
 .claude/
 
+Specs/CODEX_DIAGRAM_REVIEW.md

@@ -1,0 +1,49 @@
+@startuml BRIDGR_Sequenzdiagramme_002
+!theme plain
+
+actor "Benutzer" as User
+participant "Streamlit UI (Kommunikation Tab)" as UI
+participant "QueryService (services/query_service.py)" as QueryService
+participant "LLM (Orchestrator)" as LLM
+database "Neo4j (Fachgraph)" as Neo4j
+
+User -> UI : Stellt Frage (natürliche Sprache)
+UI -> QueryService : run_query_chat_turn(question)
+
+activate QueryService
+QueryService -> QueryService : _build_chat_system_prompt()
+QueryService -> LLM : generate_chat() / generate_with_tools() (System Prompt + Historie + Frage)
+activate LLM
+LLM --> QueryService : Cypher Query (oder Tool Call)
+deactivate LLM
+
+alt Direkte Antwort ohne Graphabfrage
+  QueryService -> QueryService : Antwort übernehmen
+else Prompt-Only oder Tool-Use mit Graphabfrage
+  alt Prompt-Only Mode
+    QueryService -> QueryService : _extract_cypher_from_response()
+  else Tool-Use Mode
+    loop Bis zu 5 Tool-Aufrufe
+      QueryService -> QueryService : Tool Call parsen
+      QueryService -> Neo4j : execute_read(Cypher Query)
+      Neo4j --> QueryService : Query Result (JSON)
+    end
+  end
+  alt Ungültige Query im Prompt-Only Mode
+    QueryService -> LLM : Fehlerfeedback; korrigierte Query anfordern
+  end
+  alt Ergebnis leer
+    QueryService -> QueryService : _collect_alias_hints()
+    QueryService -> Neo4j : lookup_alias_matches()
+    Neo4j --> QueryService : Alias-Treffer
+  end
+  QueryService -> LLM : Ergebnis und ggf. Alias-Hinweise
+  activate LLM
+  LLM --> QueryService : Antwort (natürliche Sprache)
+  deactivate LLM
+end
+deactivate QueryService
+
+QueryService -> UI : Zeigt Antwort an
+UI --> User : Antwort (natürliche Sprache)
+@enduml

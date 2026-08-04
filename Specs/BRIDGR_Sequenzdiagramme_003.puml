@@ -1,0 +1,23 @@
+@startuml BRIDGR_Sequenzdiagramme_003
+!theme plain
+actor "Benutzer" as User
+participant "Streamlit UI (Import)" as UI
+participant "CMDB-Service" as Cmdb
+participant "GraphWriter" as Writer
+database "Neo4j" as Neo4j
+participant "Review-Service" as Review
+participant "Run-Artefakte" as Artifacts
+
+User -> UI : "CMDB nach Neo4j synchronisieren"
+UI -> Cmdb : persist_cmdb_sync()
+activate Cmdb
+Cmdb -> Cmdb : CSV-Dateien laden und normalisieren
+Cmdb -> Cmdb : OrgKandidaten und Owner-Zuordnungen bestimmen
+Cmdb -> Writer : offene OrgKandidaten persistieren
+Cmdb -> Writer : sync_cmdb()
+Writer -> Neo4j : Objekte, Beziehungen und Owner MERGE
+Cmdb -> Review : persist_latest_run_refresh()
+Review -> Artifacts : Review-Artefakte neu bewerten
+deactivate Cmdb
+UI --> User : Synchronisationsergebnis anzeigen
+@enduml

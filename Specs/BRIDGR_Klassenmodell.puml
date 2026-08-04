@@ -1,0 +1,154 @@
+@startuml BRIDGR_Klassenmodell
+!theme plain
+
+package "core" {
+  class AppConfig {
+    +llm_base_url: str
+    +llm_model: str
+    +llm_api_key_env: str
+    +llm_timeout_seconds: int
+    +neo4j_url: str
+    +neo4j_user: str
+    +neo4j_password: str
+    +neo4j_database: str
+    +fuzzy_threshold: float
+    +cmdb_type_files: dict
+    +cmdb_multivalue_separator: str
+    +input_path: str
+    +output_path: str
+    +chat_mode: str
+  }
+  class Neo4jConfig
+  class Neo4jClient {
+    +execute_read(query, parameters): list
+    +execute_read_unvalidated(query, parameters): list
+    +execute_write(query, parameters): list
+    +ensure_constraints()
+    +close()
+  }
+  class LlmClientConfig
+  class OpenAICompatibleClient {
+    +generate_json(system_prompt, user_prompt): dict
+    +generate_chat(messages): str
+    +generate_with_tools(messages, tools): tuple
+  }
+}
+
+package "processing and skills" {
+  class ExtractedProcess {
+    +process_name: str
+    +process_id: str
+    +roles: list
+    +applications: list
+    +raw_applications: list
+    +follows_after: list
+    +org_unit_candidates: list
+    +process_owner_candidate: str
+    +source_path: str
+  }
+  class CmdbEntity
+  class CmdbRelation
+  class NormalizedCmdb
+  class MatchResult
+  class ReviewItem
+  class GraphWritePayload {
+    +process: ExtractedProcess
+    +matches: list
+  }
+  class DocumentRunResult
+  class PipelineRunResult
+  class GraphWriter {
+    +build_payload(process, matches): GraphWritePayload
+    +write_payload(client, payload): str
+    +sync_cmdb(client, normalized_cmdb, owner_assignments)
+    +upsert_org_unit_candidate(...)
+  }
+  class Pipeline <<module>> {
+    +run_pipeline(config, input_paths, progress_callback): PipelineRunResult
+    +run_document(...): DocumentRunResult
+  }
+}
+
+package "services" {
+  class CmdbService <<module>> {
+    +persist_cmdb_sync(config): CmdbSyncResult
+    +sync_cmdb_to_neo4j(config, client): CmdbSyncResult
+  }
+  class ReviewService <<module>> {
+    +confirm_review_link(...)
+    +reject_review_link(...)
+    +save_manual_link(...)
+    +persist_latest_run_refresh(...)
+  }
+  class OrganizationService <<module>> {
+    +persist_organization_sync(config)
+    +map_org_candidate(...)
+    +set_process_owner(...)
+  }
+  class MergeService <<module>> {
+    +merge_org_units(...)
+    +merge_processes(...)
+  }
+  class CorrectionService <<module>> {
+    +revert_manual_decision(...)
+  }
+  class QueryService <<module>> {
+    +run_query_chat_turn(question, config)
+  }
+  class AliasService <<module>> {
+    +lookup_alias_matches(client, alias_name): list
+    +sync_curated_aliases(...)
+  }
+  class DecisionService <<module>> {
+    +create_manual_decision(...): ManualDecision
+    +get_manual_decision(...): ManualDecision
+  }
+  class ManualDecision
+  class MergePreview
+  class ArchiMateImportService <<module>> {
+    +persist_archimate_import(config, source_path): ArchiMateImportResult
+  }
+  class ArchiMateExportService <<module>> {
+    +export_graph_as_archimate(config, mapping): ArchiMateExportResult
+  }
+  class ArchiMateElement
+  class ArchiMateRelation
+  class ArchiMateImportResult
+  class ArchiMateExportResult
+}
+
+AppConfig --> Neo4jConfig : configures
+AppConfig --> LlmClientConfig : configures
+Neo4jClient --> Neo4jConfig
+OpenAICompatibleClient --> LlmClientConfig
+Pipeline ..> CmdbService
+Pipeline ..> GraphWriter
+Pipeline ..> OpenAICompatibleClient
+GraphWriter --> GraphWritePayload
+GraphWritePayload --> ExtractedProcess
+GraphWritePayload --> MatchResult
+CmdbService ..> GraphWriter
+ReviewService ..> GraphWriter
+ReviewService ..> DecisionService
+OrganizationService ..> GraphWriter
+OrganizationService ..> AliasService
+OrganizationService ..> DecisionService
+MergeService ..> AliasService
+MergeService ..> DecisionService
+MergeService --> MergePreview
+CorrectionService ..> AliasService
+CorrectionService ..> DecisionService
+QueryService ..> Neo4jClient
+QueryService ..> OpenAICompatibleClient
+QueryService ..> AliasService
+DecisionService --> ManualDecision
+ArchiMateImportService ..> GraphWriter
+ArchiMateImportService --> ArchiMateImportResult
+ArchiMateExportService --> ArchiMateExportResult
+
+note bottom
+  Klassen ohne <<module>> sind konkrete Dataclasses oder Klassen.
+  Service- und Pipeline-Funktionen sind in BRIDGR modulbasiert,
+  nicht Methoden instanziierter Serviceklassen.
+end note
+@enduml

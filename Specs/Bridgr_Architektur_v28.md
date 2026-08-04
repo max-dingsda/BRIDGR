@@ -919,9 +919,8 @@ Zeigt die logischen Komponenten und ihre Abhaengigkeiten.
 
 ### 16.2 Klassenmodell
 
-Zeigt alle Klassen mit Attributen und Methoden, gegliedert nach den Packages Konfiguration, CMDB-Datenmodell,
-Wissensbasis, Extraktion & Verarbeitung, Matching & Review, Pipeline & Artefakte, Infrastruktur, Fehlerbehandlung,
-Services, ArchiMate-Integration und UI-Komponenten.
+Zeigt die zentralen konkreten Klassen und die modulbasierten Funktionsgrenzen, gegliedert nach Konfiguration,
+Verarbeitung & Skills sowie Services und ArchiMate-Integration.
 
 ![BRIDGR Klassenmodell](BRIDGR_Klassenmodell.png)
 
@@ -935,7 +934,7 @@ Zeigt die wichtigsten Ablaeufe als Sequenzdiagramme.
 
 ![Sequenz 3 – CMDB-Synchronisation](BRIDGR_Sequenzdiagramme_003.png)
 
-![Sequenz 4 – Review, Merge und Undo](BRIDGR_Sequenzdiagramme.png)
+![Sequenz 4 – Review, Merge und Undo](BRIDGR_Sequenzdiagramme_004.png)
 
 ---
 

@@ -1,0 +1,46 @@
+@startuml BRIDGR_Sequenzdiagramme_004
+!theme plain
+actor "Benutzer" as User
+participant "Streamlit UI" as UI
+participant "Review-Service" as Review
+participant "Merge-Service" as Merge
+participant "Correction-Service" as Correction
+participant "Alias- und Decision-Service" as Decisions
+database "Neo4j" as Neo4j
+participant "Run-Artefakte" as Artifacts
+
+group Review einer Anwendungszuordnung
+  User -> UI : Kandidat bestätigen, ablehnen oder manuell verknüpfen
+  alt Kandidat bestätigen
+    UI -> Review : confirm_review_link()
+    Review -> Neo4j : KÖNNTE_DIENEN durch DIENT ersetzen
+    Review -> Decisions : ManualDecision und Alias-Projektion pflegen
+  else Kandidat ablehnen
+    UI -> Review : reject_review_link()
+    Review -> Neo4j : KÖNNTE_DIENEN löschen und Ablehnung speichern
+  else Manuell verknüpfen
+    UI -> Review : save_manual_link()
+    Review -> Neo4j : DIENT schreiben
+    Review -> Decisions : ManualDecision und Alias-Projektion pflegen
+  end
+  Review -> Artifacts : latest_run aktualisieren
+  UI --> User : Ergebnis anzeigen
+end
+
+group Merge von OrgEinheit oder Prozess
+  User -> UI : Quelle, Ziel und Precheck bestätigen
+  UI -> Merge : merge_org_units() oder merge_processes()
+  Merge -> Neo4j : Beziehungen dedupliziert übertragen und Quelle löschen
+  Merge -> Decisions : Quellname als Alias und entity_merge speichern
+  UI --> User : Merge-Ergebnis anzeigen
+end
+
+group Undo einer manuellen Entscheidung
+  User -> UI : Entscheidung zurücknehmen
+  UI -> Correction : revert_manual_decision()
+  Correction -> Decisions : gespeicherte Entscheidung laden
+  Correction -> Neo4j : nur die protokollierten Effekte zurücknehmen
+  Correction -> Decisions : Original als reverted markieren; decision_revert schreiben
+  UI --> User : Ergebnis anzeigen
+end
+@enduml
