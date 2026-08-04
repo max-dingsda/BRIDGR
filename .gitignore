@@ -240,6 +240,10 @@ REACT_prototype/
 
 # Local maintenance scripts (not for distribution)
 reset_to_delivery_state.py
+scripts/inspect_placeholder_processes.py
+scripts/verify_ownerless_processes.py
+scripts/migrate_kb_to_neo4j.py
+scripts/migrate_kb_to_neo4j.cypher
 
 # Claude Code internal session data
 .claude/
@@ -263,3 +267,4 @@ Specs/technReview.md
 testresult*.txt
 .codex/
 *.bak
+Specs/CODEX_README_REVIEW.md
