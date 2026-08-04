@@ -244,5 +244,22 @@ reset_to_delivery_state.py
 # Claude Code internal session data
 .claude/
 
+# individual user settings
+
+config.json
 Specs/CODEX_DIAGRAM_REVIEW.md
 Specs/CODEX_SNAPSHOT_REVIEW.md
+Output/snapshots/
+Output/import_state.json
+Output/last_import_selection.json
+Output/latest_run.json
+Specs/Bridgr_Architektur_v27.md
+Specs/Bridgr_Architektur_v28.md
+Specs/FachlReview_Gemini.md
+Specs/Findings.txt
+Specs/independent_expectations.md
+Specs/LESSONS_LEARNED.md
+Specs/technReview.md
+testresult*.txt
+.codex/
+*.bak

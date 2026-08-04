@@ -1,3 +1,0 @@
-Backend returned invalid JSON: Unterminated string starting at: line 1 column 53305 (char 53304)
-Raw response (first 500 chars):
-{"nodes":[{"id":"AGENTS_md","label":"BRIDGR Agent Instructions","file_type":"document","source_file":"AGENTS.md","source_location":null,"source_url":null,"captured_at":null,"author":null,"contributor":null},{"id":"CLAUDE_md","label":"Bridgr - Project Context for Claude","file_type":"document","source_file":"CLAUDE.md","source_location":null,"source_url":null,"captured_at":null,"author":null,"contributor":null},{"id":"README_md","label":"BRIDGR","file_type":"document","source_file":"README.md","s
