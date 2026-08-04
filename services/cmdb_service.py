@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from core.app_config import AppConfig, resolve_cmdb_type_file_paths
 from processing.cmdb import CmdbLoadError, load_cmdb_rows, load_normalized_cmdb_from_type_files
 from skills.graph_writer import GraphWriter, normalize_org_unit_name
+from services.snapshot_service import create_snapshot
 
 
 @dataclass(slots=True)
@@ -21,6 +22,12 @@ def persist_cmdb_sync(config: AppConfig) -> CmdbSyncResult:
     from services.review_service import persist_latest_run_refresh
 
     neo4j_client = get_session_neo4j_client(config)
+    create_snapshot(
+        config,
+        neo4j_client,
+        trigger="cmdb_sync",
+        operation="explicit_cmdb_sync",
+    )
     result = sync_cmdb_to_neo4j(config, neo4j_client)
 
     cmdb_rows = load_all_cmdb_rows(config)

@@ -4,7 +4,7 @@ BRIDGR verbindet Prozessdokumentation mit CMDB-Daten, um einen EA-Wissensgraphen
 
 Der aktuelle Architektur-Referenzstand fuer die Umsetzung ist:
 
-- `Specs/Bridgr_Architektur_v28.md`
+- `Specs/Bridgr_Architektur_v29.md`
 
 ## Zielbild
 
@@ -97,6 +97,12 @@ Das Projekt ist noch im Aufbau, hat aber bereits einen funktionierenden vertikal
 - Ruecknahme-Logik fuer manuelle Entscheidungen inklusive Merge-Ruecknahme
 - Konsolidierung von Organisationseinheiten und Prozessen per Merge inklusive Alias-Fortfuehrung des Quellnamens auf den Zielknoten
 - Merge-Precheck mit Beziehungszaehlung, Dublettenhinweis, Alias-Uebernahme und kompakter Wirkungszusammenfassung
+- automatische, validierte Graph-Snapshots vor Prozessimport, expliziter CMDB-Synchronisation und Merge
+- Wiederherstellung validierter Snapshots im Tab `Konfiguration` mit Pre-Restore-Snapshot und expliziter Bestaetigung
+
+Hinweis zur Wiederherstellung: Sie ersetzt den gesamten Inhalt der konfigurierten
+Neo4j-Datenbank. Verwenden Sie dafür ausschließlich eine dedizierte BRIDGR-Datenbank
+und konfigurieren Sie deren Namen über `neo4j_database`.
 
 Wichtige Einordnung:
 
@@ -184,6 +190,7 @@ Wichtige Felder:
 - `last_run_mode`: Standardlaufmodus fuer den Import (`full` oder `partial`)
 - `chat_mode`: Chat-Betriebsmodus (`prompt-only` oder `tool-use`); Default: `prompt-only`
 - `debug_mode`: schreibt bei aktivierter Diagnose zusaetzliche Ereignisse nach `Output/debug.log`
+- `snapshot_retention_count`: Anzahl gueltiger Graph-Snapshots unter `Output/snapshots/`, die nach erfolgreichen Schreiboperationen aufbewahrt werden (Standard: `10`)
 
 Hinweise zur UI:
 
@@ -426,6 +433,7 @@ Aktuell verfuegbar:
 - Modellliste ueber `/v1/models` abrufen
 - Neo4j-Erreichbarkeit anhand der aktuell wirksamen Konfiguration pruefen
 - LLM-Erreichbarkeit und Modellverfuegbarkeit getrennt pruefen
+- letzte validierte Snapshots anzeigen und einen Snapshot nach expliziter Bestaetigung wiederherstellen
 
 ## BPMN-Transformer fuer grosse Modelle
 

@@ -13,12 +13,14 @@ from services.runtime_service import (
     build_neo4j_client_key,
     ensure_config_session_defaults,
     get_llm_status,
+    get_session_neo4j_client,
     get_neo4j_connection_status,
     reset_session_neo4j_client,
     sync_config_session_defaults,
     update_config_session_defaults,
     write_debug_log,
 )
+from services.snapshot_service import SnapshotError, list_snapshots, restore_snapshot
 from ui.layout import render_page_header
 
 _OPENAI_PRESET = {
@@ -58,6 +60,10 @@ def render_path_picker_controls() -> None:
 
 
 def render_config_tab(config_path: Path) -> None:
+    if st.session_state.pop("snapshot_restore_reset_pending", False):
+        st.session_state["snapshot_restore_confirmed"] = False
+    restore_feedback = st.session_state.pop("snapshot_restore_feedback", None)
+
     render_page_header(
         "Konfiguration",
         "Pflegen Sie Laufzeitparameter, Pfade sowie LLM- und Neo4j-Einstellungen für den aktuellen Workspace.",
@@ -128,6 +134,13 @@ def render_config_tab(config_path: Path) -> None:
         fuzzy_threshold = st.number_input("Fuzzy-Schwellenwert", min_value=0.0, max_value=1.0, value=float(config.fuzzy_threshold), step=0.01)
         last_run_mode = st.selectbox("Standard-Importmodus", ["full", "partial"], index=["full", "partial"].index(normalize_run_mode(config.last_run_mode)))
         debug_mode = st.checkbox("Debug-Modus", value=config.debug_mode)
+        snapshot_retention_count = st.number_input(
+            "Aufbewahrung Snapshots",
+            min_value=1,
+            max_value=100,
+            value=int(config.snapshot_retention_count),
+            help="Anzahl gültiger Graph-Snapshots, die nach erfolgreichen Schreiboperationen erhalten bleibt.",
+        )
 
         submitted = st.form_submit_button("Konfiguration speichern")
 
@@ -157,6 +170,7 @@ def render_config_tab(config_path: Path) -> None:
             last_run_mode=last_run_mode,
             chat_mode=chat_mode,
             debug_mode=debug_mode,
+            snapshot_retention_count=int(snapshot_retention_count),
         )
         save_config(updated_config, config_path)
         if build_neo4j_client_key(updated_config) != previous_client_key:
@@ -195,6 +209,63 @@ def render_config_tab(config_path: Path) -> None:
         st.warning(llm_status_message)
     else:
         st.error(llm_status_message)
+
+    st.divider()
+    st.markdown("#### Sicherung und Wiederherstellung")
+    if restore_feedback:
+        st.success(restore_feedback)
+    snapshots = list_snapshots(load_config(config_path))
+    if snapshots:
+        st.dataframe(
+            [
+                {
+                    "Snapshot": snapshot.snapshot_id,
+                    "Zeitpunkt": snapshot.created_at,
+                    "Auslöser": snapshot.trigger,
+                    "Operation": snapshot.operation,
+                    "Knoten": snapshot.node_count,
+                    "Beziehungen": snapshot.relationship_count,
+                    "Status": "gültig" if snapshot.valid else f"ungültig: {snapshot.error}",
+                }
+                for snapshot in snapshots
+            ],
+            width="stretch",
+            hide_index=True,
+        )
+        valid_snapshots = [snapshot for snapshot in snapshots if snapshot.valid]
+        if valid_snapshots:
+            st.warning(
+                "Die Wiederherstellung ersetzt den gesamten Inhalt der konfigurierten Neo4j-Datenbank. "
+                "Verwenden Sie dafür ausschließlich eine dedizierte BRIDGR-Datenbank."
+            )
+            selected_snapshot_id = st.selectbox(
+                "Snapshot für Wiederherstellung",
+                [snapshot.snapshot_id for snapshot in valid_snapshots],
+            )
+            restore_confirmed = st.checkbox(
+                "Ich bestätige die Wiederherstellung des vollständigen BRIDGR-Graphen.",
+                key="snapshot_restore_confirmed",
+            )
+            if st.button("Snapshot wiederherstellen", type="primary", disabled=not restore_confirmed):
+                active_config = load_config(config_path)
+                try:
+                    restored = restore_snapshot(
+                        active_config,
+                        get_session_neo4j_client(active_config),
+                        selected_snapshot_id,
+                    )
+                except SnapshotError as exc:
+                    st.error(f"Wiederherstellung fehlgeschlagen: {exc}")
+                else:
+                    st.session_state["snapshot_restore_feedback"] = (
+                        f"Snapshot {restored.snapshot_id} wurde erfolgreich wiederhergestellt "
+                        f"({restored.node_count} Knoten, {restored.relationship_count} Beziehungen). "
+                        "Vor der Wiederherstellung wurde ein Sicherheits-Snapshot des bisherigen Zustands angelegt."
+                    )
+                    st.session_state["snapshot_restore_reset_pending"] = True
+                    st.rerun()
+    else:
+        st.info("Noch keine Snapshots vorhanden. Sie werden vor Import, CMDB-Synchronisation und Merge automatisch erstellt.")
 
     st.caption("Aktuelle Konfiguration")
     st.json(asdict(load_config(config_path)))

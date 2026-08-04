@@ -35,6 +35,7 @@ from skills.graph_writer import GraphWritePayload, GraphWriter, normalize_org_un
 from skills.match import ConfirmedLink, MatchResult, match_application_candidates
 from skills.review import ReviewItem, collect_review_items
 from services.cmdb_service import sync_cmdb_to_neo4j
+from services.snapshot_service import create_snapshot
 
 
 @dataclass(slots=True)
@@ -78,6 +79,12 @@ def run_pipeline(
     )
     graph_writer = GraphWriter()
     neo4j_client = build_neo4j_client(config)
+    create_snapshot(
+        config,
+        neo4j_client,
+        trigger="pipeline",
+        operation="process_import",
+    )
     sync_cmdb_to_neo4j(config, neo4j_client)
     confirmed_links = graph_writer.get_confirmed_links_from_neo4j(neo4j_client)
     rejected_links = graph_writer.get_rejected_decisions_from_neo4j(neo4j_client)

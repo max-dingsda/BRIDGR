@@ -18,6 +18,12 @@ def test_persist_cmdb_sync_refreshes_latest_run_with_current_cmdb_rows(tmp_path:
 
     monkeypatch.setattr(runtime_service, "get_session_neo4j_client", lambda _config: object())
     monkeypatch.setattr(runtime_service, "write_debug_log", lambda _config, event, details: debug_events.append((event, details)))
+    snapshot_calls: list[tuple[str, str]] = []
+    monkeypatch.setattr(
+        cmdb_service,
+        "create_snapshot",
+        lambda _config, _client, *, trigger, operation: snapshot_calls.append((trigger, operation)),
+    )
     monkeypatch.setattr(
         cmdb_service,
         "sync_cmdb_to_neo4j",
@@ -48,6 +54,7 @@ def test_persist_cmdb_sync_refreshes_latest_run_with_current_cmdb_rows(tmp_path:
     )
 
     assert result.refreshed_document_count == 4
+    assert snapshot_calls == [("cmdb_sync", "explicit_cmdb_sync")]
     assert refreshed_rows == [{"app_id": "cmdb-1", "application_name": "SAP ERP", "entity_type": "application"}]
     assert len(debug_events) == 1
     event_name, event_details = debug_events[0]

@@ -40,6 +40,7 @@ class AppConfig:
     last_run_mode: str = "partial"
     chat_mode: str = "prompt-only"
     debug_mode: bool = False
+    snapshot_retention_count: int = 10
 
 
 def load_config(path: Path | None = None) -> AppConfig:

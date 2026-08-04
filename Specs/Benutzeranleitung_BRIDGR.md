@@ -228,6 +228,8 @@ Erzeugt aus den gewählten BPMN/XML-Dateien kompaktere Transform-Dateien. Das is
 Startet den eigentlichen Prozessimport nach Neo4j.
 
 Dabei werden Prozessdateien analysiert, mit der CMDB abgeglichen und Ergebnisse als Laufartefakte gespeichert.
+Vor der ersten Änderung erstellt BRIDGR automatisch einen validierten Snapshot des gesamten
+Wissensgraphen. Falls das nicht gelingt, wird der Import nicht gestartet.
 
 ### Tabelle `Aktueller Eingabepfad`
 
@@ -246,6 +248,7 @@ Speichert die aktuell gewählten Typ-Dateien als aktive Konfiguration.
 Überträgt die ausgewählten CMDB-Daten nach Neo4j.
 
 Zusätzlich wird der letzte gespeicherte Lauf in `Output/latest_run.json` mit der aktuellen CMDB neu bewertet. Dadurch können offene oder schwache Zuordnungen im Tab `Zuordnungen` automatisch verschwinden, wenn die aktualisierte CMDB jetzt einen starken Treffer liefert.
+Auch vor dieser Synchronisation erstellt BRIDGR automatisch einen validierten Graph-Snapshot.
 
 ### Tabellen zu `CMDB-...Strukturfehler`
 
@@ -757,6 +760,22 @@ Felder:
 - `Fuzzy-Schwellenwert`: bestimmt, wie tolerant BRIDGR bei unscharfen Namensähnlichkeiten ist
 - `Standard-Importmodus`: Vorgabewert für `full` oder `partial`
 - `Debug-Modus`: schreibt zusätzliche Diagnosedaten
+
+#### Abschnitt `Sicherung und Wiederherstellung`
+
+- `Aufbewahrung Snapshots`: Anzahl der gültigen Graph-Snapshots, die BRIDGR behält
+  (Standard: `10`). Ein Snapshot wird vor Prozessimport, CMDB-Synchronisation und Merge
+  automatisch erstellt.
+- Die Tabelle zeigt Zeitpunkt, Auslöser, Operation sowie Anzahl der gesicherten Knoten und
+  Beziehungen. Ungültige Snapshots können nicht wiederhergestellt werden.
+- Für eine Wiederherstellung wählen Sie einen gültigen Snapshot, bestätigen die vollständige
+  Wiederherstellung des BRIDGR-Graphen und klicken `Snapshot wiederherstellen`.
+
+Vor der Wiederherstellung erstellt BRIDGR zusätzlich einen Pre-Restore-Snapshot. Dadurch kann
+auch eine versehentlich gewählte Wiederherstellung wieder zurückgenommen werden.
+Die Wiederherstellung ersetzt den gesamten Inhalt der konfigurierten Neo4j-Datenbank;
+verwenden Sie dafür ausschließlich eine dedizierte BRIDGR-Datenbank und tragen Sie deren
+Namen im Feld `Neo4j-Datenbank` ein.
 
 #### Button `Konfiguration speichern`
 

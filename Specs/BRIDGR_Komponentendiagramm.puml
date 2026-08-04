@@ -17,6 +17,7 @@ package "BRIDGR" {
   component "Extraktoren und Matching\nskills/extract, skills/match.py" as Extract
   component "Graph Writer\nskills/graph_writer.py" as Writer
   component "Review, Organisation, Merge, Undo\nservices/*_service.py" as Curation
+  component "Snapshot-Service\nservices/snapshot_service.py" as Snapshot
   component "Chat-Service\nservices/query_service.py" as Query
   component "ArchiMate Import/Export\nservices/archimate_*_service.py" as ArchiMate
   database "Neo4j\nFachgraph und interne Betriebsmetadaten" as Neo4j
@@ -34,10 +35,14 @@ ArchiMateFile --> ArchiMate
 Import --> Extract
 Extract --> LLM : strukturierte Extraktion
 Import --> Cmdb : CMDB vor Prozessimport abgleichen
+Import --> Snapshot : Snapshot vor Schreiboperation
 Import --> Writer : bestätigte und Kandidaten-Mappings
+Cmdb --> Snapshot : Snapshot vor Schreiboperation
 Cmdb --> Writer : CMDB-Objekte und Beziehungen
 Writer --> Neo4j : Fachknoten und Kanten
 Curation --> Neo4j : kuratierte Änderungen und ManualDecision
+Curation --> Snapshot : Snapshot vor Merge
+Snapshot --> Neo4j : Graph exportieren oder wiederherstellen
 Curation --> RunArtifacts : Review-Artefakte aktualisieren
 Import --> RunArtifacts : Lauf- und Review-Artefakte schreiben
 Query --> LLM : Orchestrierung

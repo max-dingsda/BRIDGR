@@ -32,12 +32,13 @@ def test_is_legacy_input_path_handles_windows_and_posix_spellings() -> None:
     assert is_legacy_input_path("Input") is False
 
 
-def test_save_config_persists_debug_mode(tmp_path: Path) -> None:
+def test_save_config_persists_debug_mode_and_snapshot_retention(tmp_path: Path) -> None:
     config_path = tmp_path / "config.json"
 
-    save_config(AppConfig(debug_mode=True), config_path)
+    save_config(AppConfig(debug_mode=True, snapshot_retention_count=7), config_path)
 
     assert '"debug_mode": true' in config_path.read_text(encoding="utf-8")
+    assert '"snapshot_retention_count": 7' in config_path.read_text(encoding="utf-8")
 
 
 def test_normalize_run_mode_maps_legacy_values() -> None:

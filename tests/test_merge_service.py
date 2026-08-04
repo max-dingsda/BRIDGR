@@ -35,13 +35,15 @@ def _make_config():
 @patch("services.merge_service.create_manual_decision")
 @patch("services.merge_service.write_merged_org_unit_alias")
 @patch("services.merge_service.get_session_neo4j_client")
+@patch("services.merge_service.create_snapshot")
 def test_merge_org_units_transfers_relationships_and_records_decision(
-    mock_get_client, mock_write_alias, mock_create_manual_decision
+    mock_create_snapshot, mock_get_client, mock_write_alias, mock_create_manual_decision
 ) -> None:
     fake_client = FakeNeo4jClient()
     mock_get_client.return_value = fake_client
+    config = _make_config()
 
-    level, message = merge_org_units(_make_config(), "Team IT Plattforms", "Plattform IT")
+    level, message = merge_org_units(config, "Team IT Plattforms", "Plattform IT")
 
     assert level == "success"
     assert "überführt" in message
@@ -54,6 +56,7 @@ def test_merge_org_units_transfers_relationships_and_records_decision(
     payload = mock_create_manual_decision.call_args[0][2]
     assert payload["entity_type"] == "OrgEinheit"
     assert "merge_preview" in payload
+    mock_create_snapshot.assert_called_once_with(config, fake_client, trigger="merge", operation="merge_org_unit")
 
 
 @patch("services.merge_service.get_session_neo4j_client")
@@ -69,13 +72,15 @@ def test_merge_org_units_rejects_identical_names_case_insensitive(mock_get_clien
 @patch("services.merge_service.create_manual_decision")
 @patch("services.merge_service.write_merged_process_alias")
 @patch("services.merge_service.get_session_neo4j_client")
+@patch("services.merge_service.create_snapshot")
 def test_merge_processes_transfers_relationships_and_records_decision(
-    mock_get_client, mock_write_alias, mock_create_manual_decision
+    mock_create_snapshot, mock_get_client, mock_write_alias, mock_create_manual_decision
 ) -> None:
     fake_client = FakeNeo4jClient()
     mock_get_client.return_value = fake_client
+    config = _make_config()
 
-    level, message = merge_processes(_make_config(), "source-1", "target-1")
+    level, message = merge_processes(config, "source-1", "target-1")
 
     assert level == "success"
     assert "überführt" in message
@@ -92,6 +97,7 @@ def test_merge_processes_transfers_relationships_and_records_decision(
     assert payload["entity_type"] == "Prozess"
     assert payload["source_ref"] == "source-1"
     assert "merge_preview" in payload
+    mock_create_snapshot.assert_called_once_with(config, fake_client, trigger="merge", operation="merge_process")
 
 
 @patch("services.merge_service.get_session_neo4j_client")

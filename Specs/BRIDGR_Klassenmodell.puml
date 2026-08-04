@@ -92,6 +92,12 @@ package "services" {
   class CorrectionService <<module>> {
     +revert_manual_decision(...)
   }
+  class SnapshotService <<module>> {
+    +create_snapshot(config, client, trigger, operation): SnapshotInfo
+    +list_snapshots(config): list
+    +restore_snapshot(config, client, snapshot_id): SnapshotInfo
+  }
+  class SnapshotInfo
   class QueryService <<module>> {
     +run_query_chat_turn(question, config)
   }
@@ -138,6 +144,8 @@ MergeService ..> DecisionService
 MergeService --> MergePreview
 CorrectionService ..> AliasService
 CorrectionService ..> DecisionService
+SnapshotService ..> Neo4jClient
+SnapshotService --> SnapshotInfo
 QueryService ..> Neo4jClient
 QueryService ..> OpenAICompatibleClient
 QueryService ..> AliasService

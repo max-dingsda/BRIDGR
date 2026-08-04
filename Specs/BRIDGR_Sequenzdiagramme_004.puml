@@ -5,6 +5,7 @@ participant "Streamlit UI" as UI
 participant "Review-Service" as Review
 participant "Merge-Service" as Merge
 participant "Correction-Service" as Correction
+participant "Snapshot-Service" as Snapshot
 participant "Alias- und Decision-Service" as Decisions
 database "Neo4j" as Neo4j
 participant "Run-Artefakte" as Artifacts
@@ -30,6 +31,8 @@ end
 group Merge von OrgEinheit oder Prozess
   User -> UI : Quelle, Ziel und Precheck bestätigen
   UI -> Merge : merge_org_units() oder merge_processes()
+  Merge -> Snapshot : create_snapshot(entity_merge)
+  Snapshot -> Neo4j : gesamten Graphen lesen und validieren
   Merge -> Neo4j : Beziehungen dedupliziert übertragen und Quelle löschen
   Merge -> Decisions : Quellname als Alias und entity_merge speichern
   UI --> User : Merge-Ergebnis anzeigen
@@ -42,5 +45,14 @@ group Undo einer manuellen Entscheidung
   Correction -> Neo4j : nur die protokollierten Effekte zurücknehmen
   Correction -> Decisions : Original als reverted markieren; decision_revert schreiben
   UI --> User : Ergebnis anzeigen
+end
+
+group Wiederherstellung eines Graph-Snapshots
+  User -> UI : gültigen Snapshot wählen und Wiederherstellung bestätigen
+  UI -> Snapshot : restore_snapshot()
+  Snapshot -> Neo4j : Pre-Restore-Snapshot erstellen
+  Snapshot -> Neo4j : Graphzustand in einer Transaktion wiederherstellen
+  Snapshot -> Neo4j : Objektzähler verifizieren
+  UI --> User : Wiederherstellungsergebnis anzeigen
 end
 @enduml

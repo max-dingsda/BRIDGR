@@ -1,7 +1,7 @@
 {
   "F:\\workspace\\BRIDGR\\app.py": {
-    "mtime": 1785764063.7855673,
-    "ast_hash": "934a588b1c9fee245654f3ba69257f1f",
+    "mtime": 1785780472.8553808,
+    "ast_hash": "ed5121b5dc275629da669e51778be563",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\config.json": {
@@ -75,8 +75,8 @@
     "semantic_hash": "178dccde0e615102bdd79e065ae7ec34"
   },
   "F:\\workspace\\BRIDGR\\tests\\test_app_config.py": {
-    "mtime": 1780666739.5588148,
-    "ast_hash": "3ac88d02bf99648fdeeac4496a99f48b",
+    "mtime": 1785834828.224019,
+    "ast_hash": "a903d9f9d4bbb2b605ef61826cf41301",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\tests\\test_app_config_env.py": {
@@ -175,8 +175,8 @@
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\README.md": {
-    "mtime": 1785764172.915562,
-    "ast_hash": "0cb885681e8ab91471c9428683046ee5",
+    "mtime": 1785835582.821075,
+    "ast_hash": "5582eaee5037889d55d140ecf6e4ad06",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\requirements-dev.txt": {
@@ -210,8 +210,8 @@
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\Specs\\Findings.txt": {
-    "mtime": 1785764487.9181128,
-    "ast_hash": "0b77df9685d6284318bd43f7df006863",
+    "mtime": 1785781330.3908334,
+    "ast_hash": "d2ba2769e5a3d851d34ab7781f106451",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\.vscode\\settings.json": {
@@ -245,8 +245,8 @@
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\ui\\config_tab.py": {
-    "mtime": 1785763649.966673,
-    "ast_hash": "42c43a214a03720be235718003b72476",
+    "mtime": 1785837435.4323866,
+    "ast_hash": "a45d1696f632d758e88cd132b84b56a2",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\ui\\organization_tab.py": {
@@ -289,24 +289,14 @@
     "ast_hash": "95e1b5954e686d2a006f5f684c71bd70",
     "semantic_hash": ""
   },
-  "F:\\workspace\\BRIDGR\\.tmp_pytest\\test_list_cmdb_files_returns_c0\\notes.txt": {
-    "mtime": 1780220151.8126903,
-    "ast_hash": "92eb5ffee6ae2fec3ad71c777531578f",
-    "semantic_hash": ""
-  },
-  "F:\\workspace\\BRIDGR\\.tmp_pytest\\test_list_process_files_return0\\c.txt": {
-    "mtime": 1780220151.8007135,
-    "ast_hash": "4a8a08f09d37b73795649038408b5f33",
-    "semantic_hash": ""
-  },
   "F:\\workspace\\BRIDGR\\services\\cmdb_service.py": {
-    "mtime": 1785756225.4619255,
-    "ast_hash": "ed5710e0b084e6378762d4d6429ab25b",
+    "mtime": 1785834783.6162138,
+    "ast_hash": "edd233aee027e3b6a07fbc0d4f467881",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\tests\\test_cmdb_service.py": {
-    "mtime": 1785756258.5691018,
-    "ast_hash": "a0d9618d9737e9667926ab1d4458280f",
+    "mtime": 1785834884.4477222,
+    "ast_hash": "7a635a08dd0a33beb826ed86185e5964",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\services\\alias_service.py": {
@@ -360,18 +350,18 @@
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\Output\\import_state.json": {
-    "mtime": 1783063132.612857,
+    "mtime": 1785837116.0339806,
     "ast_hash": "0424457f9d8df5ceaf7965c194bf17d1",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\Output\\last_import_selection.json": {
-    "mtime": 1783063132.8085842,
-    "ast_hash": "b9223a3f99c4f5ae397ca82b74e07fb2",
+    "mtime": 1785837116.1763914,
+    "ast_hash": "040ead572a24b0a5ee5f7109c5bcb70e",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\Output\\latest_run.json": {
-    "mtime": 1785750225.0928922,
-    "ast_hash": "1eccd5b08851c9209d4cd9a04f5f330e",
+    "mtime": 1785837116.2219203,
+    "ast_hash": "ee8c7a10389c26fa20c1920d29b304e6",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\core\\__init__.py": {
@@ -380,8 +370,8 @@
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\core\\app_config.py": {
-    "mtime": 1781876137.4624367,
-    "ast_hash": "1105d1dd23fdb46bbf111bf46acc3aee",
+    "mtime": 1785834730.2650836,
+    "ast_hash": "8f57fd5380360304b29d94476475826b",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\core\\constants.py": {
@@ -410,8 +400,8 @@
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\core\\neo4j_utils.py": {
-    "mtime": 1785748236.801769,
-    "ast_hash": "eca3ba565d28e99be9643026a7394430",
+    "mtime": 1785834731.5070052,
+    "ast_hash": "1e737f1c44509b42e115035bcf975781",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\data\\archimate_mapping.json": {
@@ -445,8 +435,8 @@
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\processing\\pipeline.py": {
-    "mtime": 1785748343.956999,
-    "ast_hash": "9826d85d949c068ac003ab539a838ce7",
+    "mtime": 1785834781.9436665,
+    "ast_hash": "ab9321285bc3431d6afae4aa7a160723",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\processing\\query_layer.py": {
@@ -475,38 +465,38 @@
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\Specs\\Benutzeranleitung_BRIDGR.md": {
-    "mtime": 1785764374.1506433,
-    "ast_hash": "5aeb278e2e10306d52ae4134c0eba93e",
+    "mtime": 1785835584.1015103,
+    "ast_hash": "cddd3e05abc7c96f1d4d12a2b037a5c1",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\Specs\\BRIDGR_Klassenmodell.png": {
-    "mtime": 1781790510.2191837,
-    "ast_hash": "22ba99d5d40739ebf4c4a63da276bec4",
+    "mtime": 1785835657.8617404,
+    "ast_hash": "5f954be18be2c12b5235a613c94edd90",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\Specs\\BRIDGR_Komponentendiagramm.png": {
-    "mtime": 1781790564.7865508,
-    "ast_hash": "da8ae5f589bd95e6b290a331efa3feb5",
+    "mtime": 1785835657.8097432,
+    "ast_hash": "28f8f8958f26bf2ac4be78364ed8729f",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\Specs\\BRIDGR_Sequenzdiagramme.png": {
-    "mtime": 1781790593.5050578,
-    "ast_hash": "c2c673063a3ea630e71d479561bc19a9",
+    "mtime": 1785832137.2339041,
+    "ast_hash": "7bc1bc3f521760acb96fe06992ebede9",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\Specs\\BRIDGR_Sequenzdiagramme_001.png": {
-    "mtime": 1781790593.9406836,
-    "ast_hash": "9fa09a34d3f04764695420d1c8d6a674",
+    "mtime": 1785835657.8087428,
+    "ast_hash": "055cca51f6663db9e713603f887c7b78",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\Specs\\BRIDGR_Sequenzdiagramme_002.png": {
-    "mtime": 1781790594.1942637,
-    "ast_hash": "81ec96139e4cee1ea0f9f4f2a802d24c",
+    "mtime": 1785835657.811744,
+    "ast_hash": "23c0e38bb35caa049888be8ad7dbde24",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\Specs\\BRIDGR_Sequenzdiagramme_003.png": {
-    "mtime": 1781790594.5021255,
-    "ast_hash": "6293c92d3653031d2c0e8fb9a55acf60",
+    "mtime": 1785835657.7987397,
+    "ast_hash": "4c4ce57ee576f96cbd53b6cd866e8592",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\testresult.txt": {
@@ -560,8 +550,8 @@
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\services\\merge_service.py": {
-    "mtime": 1781875623.342096,
-    "ast_hash": "18f549f6c82f6d79d4fd14ffe32568bc",
+    "mtime": 1785834785.1619465,
+    "ast_hash": "18087aa60ef1664d927cdd970a5709f0",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\tests\\test_correction_service.py": {
@@ -580,8 +570,8 @@
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\tests\\test_merge_service.py": {
-    "mtime": 1781875665.9895153,
-    "ast_hash": "fd67c5383110a14b48aefdf70bd5db58",
+    "mtime": 1785834882.8173594,
+    "ast_hash": "8173f1420bd7390755c283e967b1cac5",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\tests\\test_review_service.py": {
@@ -590,8 +580,8 @@
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\ui\\layout.py": {
-    "mtime": 1782239282.368741,
-    "ast_hash": "c740baf5ab4d164d9203c18fafbff539",
+    "mtime": 1785781072.420956,
+    "ast_hash": "ae19da3922717958d7fd03e60795733d",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\Specs\\Bridgr_Architektur_v27.md": {
@@ -600,8 +590,8 @@
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\Specs\\Bridgr_Architektur_v28.md": {
-    "mtime": 1785764194.7915125,
-    "ast_hash": "3ddb69537ce42a621f2c63d9610ac2b6",
+    "mtime": 1785833250.6421852,
+    "ast_hash": "c9725b9cfbfaa941b472e67425747f3d",
     "semantic_hash": ""
   },
   "F:\\workspace\\BRIDGR\\Specs\\FachlReview_Gemini.md": {
@@ -917,6 +907,41 @@
   "F:\\workspace\\BRIDGR\\ui\\import_tab.py": {
     "mtime": 1785769145.2279496,
     "ast_hash": "e6f59e8eace88a362f05f423fdefd27b",
+    "semantic_hash": ""
+  },
+  "F:\\workspace\\BRIDGR\\services\\snapshot_service.py": {
+    "mtime": 1785835611.7610273,
+    "ast_hash": "4fd014f5f3f4b4a01ee73b8ec30d3b08",
+    "semantic_hash": ""
+  },
+  "F:\\workspace\\BRIDGR\\tests\\test_layout_roles.py": {
+    "mtime": 1785780481.2457917,
+    "ast_hash": "c5a7b44fc4212e6f36165b9620179c9e",
+    "semantic_hash": ""
+  },
+  "F:\\workspace\\BRIDGR\\tests\\test_snapshot_service.py": {
+    "mtime": 1785835613.0255406,
+    "ast_hash": "6c059e16aa9dd47125989ff54744a88f",
+    "semantic_hash": ""
+  },
+  "F:\\workspace\\BRIDGR\\Specs\\Bridgr_Architektur_v29.md": {
+    "mtime": 1785835581.3700645,
+    "ast_hash": "d3145eca32cc5058af8dbdeac6b0e9af",
+    "semantic_hash": ""
+  },
+  "F:\\workspace\\BRIDGR\\Specs\\BRIDGR_Sequenzdiagramme_004.png": {
+    "mtime": 1785835657.8297446,
+    "ast_hash": "099b2e12f2299a7b35076aed9cf1ea41",
+    "semantic_hash": ""
+  },
+  "F:\\workspace\\BRIDGR\\ui\\assets\\bridgr_logo_dark.png": {
+    "mtime": 1785779076.3421457,
+    "ast_hash": "ce38891b8213b37f25397604bdd1b017",
+    "semantic_hash": ""
+  },
+  "F:\\workspace\\BRIDGR\\Specs\\CODEX_SNAPSHOT_REVIEW.md": {
+    "mtime": 1785835896.9767754,
+    "ast_hash": "6de32bbb262dad0adf0dd1d73103fac6",
     "semantic_hash": ""
   }
 }

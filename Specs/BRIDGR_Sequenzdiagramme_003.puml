@@ -3,6 +3,7 @@
 actor "Benutzer" as User
 participant "Streamlit UI (Import)" as UI
 participant "CMDB-Service" as Cmdb
+participant "Snapshot-Service" as Snapshot
 participant "GraphWriter" as Writer
 database "Neo4j" as Neo4j
 participant "Review-Service" as Review
@@ -11,6 +12,8 @@ participant "Run-Artefakte" as Artifacts
 User -> UI : "CMDB nach Neo4j synchronisieren"
 UI -> Cmdb : persist_cmdb_sync()
 activate Cmdb
+Cmdb -> Snapshot : create_snapshot(explicit_cmdb_sync)
+Snapshot -> Neo4j : gesamten Graphen lesen und validieren
 Cmdb -> Cmdb : CSV-Dateien laden und normalisieren
 Cmdb -> Cmdb : OrgKandidaten und Owner-Zuordnungen bestimmen
 Cmdb -> Writer : offene OrgKandidaten persistieren

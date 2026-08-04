@@ -5,6 +5,7 @@ participant "Streamlit UI (Import)" as UI
 participant "Runtime-Service" as Runtime
 participant "Pipeline" as Pipeline
 participant "CMDB-Service" as Cmdb
+participant "Snapshot-Service" as Snapshot
 participant "LLM / Extraktor" as Extractor
 participant "GraphWriter" as Writer
 database "Neo4j" as Neo4j
@@ -14,6 +15,8 @@ User -> UI : Import starten
 UI -> Runtime : run_pipeline_with_live_feedback()
 Runtime -> Pipeline : run_pipeline()
 activate Pipeline
+Pipeline -> Snapshot : create_snapshot(process_import)
+Snapshot -> Neo4j : gesamten Graphen lesen und validieren
 Pipeline -> Cmdb : sync_cmdb_to_neo4j()
 Cmdb -> Writer : sync_cmdb()
 Writer -> Neo4j : CMDB-Knoten und Kanten MERGE

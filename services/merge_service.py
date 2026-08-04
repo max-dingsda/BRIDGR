@@ -6,6 +6,7 @@ from typing import Any
 from services.alias_service import write_merged_org_unit_alias, write_merged_process_alias
 from services.decision_service import create_manual_decision
 from services.runtime_service import get_session_neo4j_client
+from services.snapshot_service import SnapshotError, create_snapshot
 
 
 @dataclass(frozen=True, slots=True)
@@ -34,6 +35,15 @@ def merge_org_units(config, source_name: str, target_name: str) -> tuple[str, st
         return "error", "Quelle und Ziel dürfen nicht identisch sein."
 
     neo4j_client = get_session_neo4j_client(config)
+    try:
+        create_snapshot(
+            config,
+            neo4j_client,
+            trigger="merge",
+            operation="merge_org_unit",
+        )
+    except SnapshotError as exc:
+        return "error", f"Merge wurde nicht gestartet: {exc}"
     preview = _collect_org_unit_preview(neo4j_client, cleaned_source, cleaned_target)
     _merge_org_unit_relationships(neo4j_client, cleaned_source, cleaned_target)
     write_merged_org_unit_alias(neo4j_client, cleaned_source, cleaned_target)
@@ -106,6 +116,15 @@ def merge_processes(config, source_element_id: str, target_element_id: str) -> t
         return "error", "Quelle und Ziel dürfen nicht identisch sein."
 
     neo4j_client = get_session_neo4j_client(config)
+    try:
+        create_snapshot(
+            config,
+            neo4j_client,
+            trigger="merge",
+            operation="merge_process",
+        )
+    except SnapshotError as exc:
+        return "error", f"Merge wurde nicht gestartet: {exc}"
     preview = _collect_process_preview(neo4j_client, source_ref, target_ref)
     if preview.source_name.casefold() == preview.target_name.casefold() and preview.source_properties.get("prozess_id", "").strip() == preview.source_properties.get("prozess_id", "").strip():
         # same element ids are already blocked above; this only keeps messages stable for near-identical selections

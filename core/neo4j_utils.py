@@ -79,6 +79,21 @@ class Neo4jClient:
     def execute_write(self, query: str, parameters: dict[str, Any] | None = None) -> list[dict[str, Any]]:
         return self._execute(query, parameters)
 
+    def execute_write_batch(self, statements: list[tuple[str, dict[str, Any]]]) -> list[list[dict[str, Any]]]:
+        """Execute all write statements in one Neo4j transaction."""
+        try:
+            session_kwargs = {"database": self._database} if self._database else {}
+            with self._driver.session(**session_kwargs) as session:
+                with session.begin_transaction() as transaction:
+                    results = [
+                        [record.data() for record in transaction.run(query, parameters)]
+                        for query, parameters in statements
+                    ]
+                    transaction.commit()
+                    return results
+        except Exception as exc:
+            raise _translate_neo4j_exception(exc) from exc
+
     def execute_read(self, query: str, parameters: dict[str, Any] | None = None) -> list[dict[str, Any]]:
         validate_read_only_cypher(query)
         return self._execute(query, parameters)
