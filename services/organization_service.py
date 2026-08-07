@@ -19,10 +19,10 @@ from skills.graph_writer import GraphWriter, normalize_org_unit_name
 
 
 def load_org_units_from_neo4j(config: AppConfig) -> list[dict]:
-    """Return all OrgEinheit nodes from Neo4j as list of {name} dicts, sorted by name."""
+    """Return all OrgUnit nodes from Neo4j as list of {name} dicts, sorted by name."""
     neo4j_client = get_session_neo4j_client(config)
     rows = neo4j_client.execute_read(
-        "MATCH (o:OrgEinheit) WHERE o.name IS NOT NULL RETURN o.name AS name ORDER BY toLower(o.name)",
+        "MATCH (o:OrgUnit) WHERE o.name IS NOT NULL RETURN o.name AS name ORDER BY toLower(o.name)",
         {},
     )
     return [{"name": row["name"]} for row in rows]
@@ -36,7 +36,7 @@ def persist_org_unit_node(config: AppConfig, org_unit_name: str) -> None:
     neo4j_client = get_session_neo4j_client(config)
     rows = neo4j_client.execute_write(
         """
-        MERGE (o:OrgEinheit {name: $org_unit_name})
+        MERGE (o:OrgUnit {name: $org_unit_name})
         RETURN o.name AS name
         """,
         {"org_unit_name": cleaned_name},
@@ -192,7 +192,7 @@ def map_org_candidate(config: AppConfig, candidate_name: str, target_name: str) 
     GraphWriter().map_org_unit_candidate(get_session_neo4j_client(config), candidate_name, target_name)
     refreshed_count = persist_org_candidate_mapping_refresh(config, candidate_name)
     if refreshed_count:
-        return "success", f"Kandidat wurde gemappt und {refreshed_count} betroffene Prozesse im Graph aktualisiert."
+        return "success", f"Kandidat wurde gemappt und {refreshed_count} betroffene Processe im Graph aktualisiert."
     return "success", "Kandidat wurde gemappt."
 
 
@@ -201,7 +201,7 @@ def accept_org_candidate(config: AppConfig, candidate_name: str, proposed_name: 
     GraphWriter().map_org_unit_candidate(get_session_neo4j_client(config), candidate_name, resolved_name)
     refreshed_count = persist_org_candidate_mapping_refresh(config, candidate_name)
     if refreshed_count:
-        return "success", f"Kandidat wurde als neue Organisationseinheit uebernommen und {refreshed_count} betroffene Prozesse im Graph aktualisiert."
+        return "success", f"Kandidat wurde als neue Organisationseinheit uebernommen und {refreshed_count} betroffene Processe im Graph aktualisiert."
     return "success", "Kandidat wurde als neue Organisationseinheit uebernommen."
 
 
@@ -214,15 +214,15 @@ def load_all_processes_with_owner(config: AppConfig) -> list[dict]:
     neo4j_client = get_session_neo4j_client(config)
     rows = neo4j_client.execute_write(
         """
-        MATCH (p:Prozess)
+        MATCH (p:Process)
         WHERE p.placeholder IS NULL OR p.placeholder = false
-        OPTIONAL MATCH (o:OrgEinheit)-[:VERANTWORTET]->(p)
-        RETURN p.prozess_id AS prozess_id, p.name AS prozess, o.name AS eigentuemer
+        OPTIONAL MATCH (o:OrgUnit)-[:RESPONSIBLE_FOR]->(p)
+        RETURN p.process_id AS process_id, p.name AS prozess, o.name AS eigentuemer
         ORDER BY p.name
         """
     )
     return [
-        {"prozess_id": row["prozess_id"], "prozess": row["prozess"], "eigentuemer": row["eigentuemer"]}
+        {"process_id": row["process_id"], "process": row["process"], "owner": row["owner"]}
         for row in rows
     ]
 
@@ -264,12 +264,16 @@ def load_process_owner_candidates(config: AppConfig) -> list[dict]:
         return []
 
     neo4j_client = get_session_neo4j_client(config)
-    owned_process_ids: set[str] = {
-        row["prozess_id"]
-        for row in neo4j_client.execute_write(
-            "MATCH (:OrgEinheit)-[:VERANTWORTET]->(p:Prozess) RETURN p.prozess_id AS prozess_id"
-        )
-        if row.get("prozess_id")
+    process_rows = neo4j_client.execute_write(
+        "MATCH (p:Process) "
+        "OPTIONAL MATCH (:OrgUnit)-[r:RESPONSIBLE_FOR]->(p) "
+        "RETURN p.process_id AS process_id, count(r) AS owner_count"
+    )
+    graph_process_ids = {row["process_id"] for row in process_rows if row.get("process_id")}
+    owned_process_ids = {
+        row["process_id"]
+        for row in process_rows
+        if row.get("process_id") and int(row.get("owner_count", 0)) > 0
     }
 
     candidates: list[dict] = []
@@ -282,6 +286,8 @@ def load_process_owner_candidates(config: AppConfig) -> list[dict]:
         if status in ("accepted", "rejected"):
             continue
         process_id = extracted.get("process_id", "")
+        if process_id not in graph_process_ids:
+            continue
         if process_id in owned_process_ids:
             continue
         candidates.append({
@@ -327,18 +333,18 @@ def load_unassigned_roles(config: AppConfig) -> list[dict]:
     neo4j_client = get_session_neo4j_client(config)
     rows = neo4j_client.execute_write(
         """
-        MATCH (r:Rolle)-[:BETEILIGT_AN]->(p:Prozess)
-        WHERE NOT (:OrgEinheit)-[:KANN_EINNEHMEN]->(r)
-          AND NOT EXISTS { MATCH (o:OrgEinheit) WHERE toLower(o.name) = toLower(r.name) }
+        MATCH (r:Role)-[:PARTICIPATES_IN]->(p:Process)
+        WHERE NOT (:OrgUnit)-[:CAN_ASSUME]->(r)
+          AND NOT EXISTS { MATCH (o:OrgUnit) WHERE toLower(o.name) = toLower(r.name) }
           AND (r.role_only IS NULL OR r.role_only = false)
         RETURN r.name AS rolle, collect(p.name) AS prozesse
         ORDER BY r.name
         """
     )
     return [
-        {"rolle": row["rolle"], "prozesse": row["prozesse"]}
+        {"role": row["role"], "processes": row["processes"]}
         for row in rows
-        if row.get("rolle")
+        if row.get("role")
     ]
 
 
@@ -357,10 +363,10 @@ def assign_role_to_org_unit(config: AppConfig, role_name: str, org_unit_name: st
             "org_unit_name": cleaned_org_unit,
         },
     )
-    return "success", f"Rolle \"{role_name}\" wurde \"{cleaned_org_unit}\" zugeordnet."
+    return "success", f"Role \"{role_name}\" wurde \"{cleaned_org_unit}\" zugeordnet."
 
 
 def mark_role_as_role_only(config: AppConfig, role_name: str) -> tuple[str, str]:
     neo4j_client = get_session_neo4j_client(config)
     GraphWriter().write_role_only_decision(neo4j_client, role_name)
-    return "success", f"Rolle \"{role_name}\" wurde als reine Rolle markiert."
+    return "success", f"Role \"{role_name}\" wurde als reine Role markiert."

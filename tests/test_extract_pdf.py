@@ -9,12 +9,12 @@ from skills.extract.extract_pdf import PdfExtractor, PdfExtractorError
 class FakeLlmClient:
     def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
         return {
-            "prozess": "Incident Management",
-            "prozess_id": "",
-            "org_einheit": "Support",
-            "folgt_auf": [],
-            "anwendungen": [
-                {"name": "Mail System", "konfidenz": "schwach"},
+            "process": "Incident Management",
+            "process_id": "",
+            "org_unit": "Support",
+            "follows_after": [],
+            "applications": [
+                {"name": "Mail System", "confidence": "schwach"},
             ],
         }
 
@@ -89,13 +89,13 @@ def test_pdf_extractor_splits_comma_separated_roles_and_org_candidates(tmp_path:
     class CombinedLlmClient:
         def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
             return {
-                "prozess": "Rechnungsstellung",
-                "prozess_id": "",
-                "rolle": "Buchhaltung, Auftragsbearbeitung",
-                "prozess_eigentuemer": "",
-                "org_einheit_kandidaten": ["Buchhaltung, Controlling"],
-                "folgt_auf": [],
-                "anwendungen": [],
+                "process": "Rechnungsstellung",
+                "process_id": "",
+                "role": "Buchhaltung, Auftragsbearbeitung",
+                "process_owner": "",
+                "org_unit_candidates": ["Buchhaltung, Controlling"],
+                "follows_after": [],
+                "applications": [],
             }
 
     fake_pypdf_module = types.ModuleType("pypdf")

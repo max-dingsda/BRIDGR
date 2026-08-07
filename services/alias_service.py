@@ -18,20 +18,20 @@ def lookup_alias_matches(neo4j_client: Neo4jClient, alias_name: str) -> list[dic
         return []
     rows = neo4j_client.execute_read_unvalidated(
         """
-        MATCH (alias:Alias {normalized_name: $normalized_name})-[:KANN_MEINEN]->(target)
+        MATCH (alias:Alias {normalized_name: $normalized_name})-[:MAY_REFER_TO]->(target)
         WITH alias, target,
              CASE
-                 WHEN target:Prozess THEN 'Prozess'
-                 WHEN target:Anwendung THEN 'Anwendung'
-                 WHEN target:Schnittstelle THEN 'Schnittstelle'
+                 WHEN target:Process THEN 'Process'
+                 WHEN target:Application THEN 'Application'
+                 WHEN target:Interface THEN 'Interface'
                  WHEN target:Server THEN 'Server'
-                 WHEN target:OrgEinheit THEN 'OrgEinheit'
+                 WHEN target:OrgUnit THEN 'OrgUnit'
                  ELSE ''
              END AS entity_type
         WHERE entity_type <> ''
         RETURN entity_type,
                coalesce(target.name, '') AS entity_name,
-               coalesce(target.cmdb_id, target.prozess_id, target.id, '') AS entity_id,
+               coalesce(target.cmdb_id, target.process_id, target.id, '') AS entity_id,
                alias.name AS alias_name
         ORDER BY entity_type, entity_name, entity_id
         """,
@@ -56,13 +56,13 @@ def sync_curated_aliases(
 ) -> int:
     """Rebuild the Alias projection derived from confirmed application links and mapped org candidates.
 
-    confirmed_links: from GraphWriter.get_confirmed_links_from_neo4j (Neo4j DIENT edges).
-    org_unit_candidates: from GraphWriter.load_org_unit_candidates (Neo4j OrgKandidat nodes).
+    confirmed_links: from GraphWriter.get_confirmed_links_from_neo4j (Neo4j SERVES edges).
+    org_unit_candidates: from GraphWriter.load_org_unit_candidates (Neo4j OrgCandidate nodes).
     """
     neo4j_client.ensure_constraints()
     neo4j_client.execute_write(
         """
-        MATCH (:Alias)-[r:KANN_MEINEN]->()
+        MATCH (:Alias)-[r:MAY_REFER_TO]->()
         WHERE r.source_kind = $source_kind
         DELETE r
         """,
@@ -76,7 +76,7 @@ def sync_curated_aliases(
         resolved_name = str(entry.get("resolved_to", "")).strip()
         cmdb_id = str(entry.get("cmdb_id", "")).strip()
         alias_key = (
-            "Anwendung",
+            "Application",
             normalize_alias_name(alias_name),
             cmdb_id,
         )
@@ -94,7 +94,7 @@ def sync_curated_aliases(
         alias_name = str(entry.get("candidate_name", "")).strip()
         target_name = str(entry.get("mapped_org_unit", "")).strip()
         alias_key = (
-            "OrgEinheit",
+            "OrgUnit",
             normalize_alias_name(alias_name),
             normalize_alias_name(target_name),
         )
@@ -109,7 +109,7 @@ def sync_curated_aliases(
     neo4j_client.execute_write(
         """
         MATCH (alias:Alias)
-        WHERE NOT (alias)-[:KANN_MEINEN]->()
+        WHERE NOT (alias)-[:MAY_REFER_TO]->()
         DELETE alias
         """
     )
@@ -147,12 +147,12 @@ def _merge_application_alias(
     _merge_alias_node(neo4j_client, alias_name)
     neo4j_client.execute_write(
         """
-        MERGE (application:Anwendung {cmdb_id: $cmdb_id})
+        MERGE (application:Application {cmdb_id: $cmdb_id})
         SET application.id = $cmdb_id,
             application.name = coalesce(application.name, $resolved_name)
         WITH application
         MATCH (alias:Alias {normalized_name: $normalized_name})
-        MERGE (alias)-[r:KANN_MEINEN]->(application)
+        MERGE (alias)-[r:MAY_REFER_TO]->(application)
         SET r.source_kind = $source_kind
         """,
         {
@@ -187,10 +187,10 @@ def _merge_org_unit_alias_with_source_kind(
     _merge_alias_node(neo4j_client, alias_name)
     neo4j_client.execute_write(
         """
-        MERGE (org_unit:OrgEinheit {name: $target_name})
+        MERGE (org_unit:OrgUnit {name: $target_name})
         WITH org_unit
         MATCH (alias:Alias {normalized_name: $normalized_name})
-        MERGE (alias)-[r:KANN_MEINEN]->(org_unit)
+        MERGE (alias)-[r:MAY_REFER_TO]->(org_unit)
         SET r.source_kind = $source_kind
         """,
         {
@@ -227,11 +227,11 @@ def write_merged_process_alias(
     _merge_alias_node(neo4j_client, source_name)
     neo4j_client.execute_write(
         """
-        MATCH (process:Prozess)
+        MATCH (process:Process)
         WHERE elementId(process) = $target_element_id
         WITH process
         MATCH (alias:Alias {normalized_name: $normalized_name})
-        MERGE (alias)-[r:KANN_MEINEN]->(process)
+        MERGE (alias)-[r:MAY_REFER_TO]->(process)
         SET r.source_kind = $source_kind
         """,
         {
@@ -254,7 +254,7 @@ def delete_application_alias(
         return
     neo4j_client.execute_write(
         """
-        MATCH (alias:Alias {normalized_name: $normalized_name})-[r:KANN_MEINEN]->(application:Anwendung {cmdb_id: $cmdb_id})
+        MATCH (alias:Alias {normalized_name: $normalized_name})-[r:MAY_REFER_TO]->(application:Application {cmdb_id: $cmdb_id})
         WHERE r.source_kind = $source_kind
         DELETE r
         """,
@@ -267,7 +267,7 @@ def delete_application_alias(
     neo4j_client.execute_write(
         """
         MATCH (alias:Alias {normalized_name: $normalized_name})
-        WHERE NOT (alias)-[:KANN_MEINEN]->()
+        WHERE NOT (alias)-[:MAY_REFER_TO]->()
         DELETE alias
         """,
         {"normalized_name": normalized_name},
@@ -284,7 +284,7 @@ def delete_org_unit_alias(
     _delete_alias_relation(
         neo4j_client,
         """
-        MATCH (alias:Alias {normalized_name: $normalized_name})-[r:KANN_MEINEN]->(target:OrgEinheit {name: $target_name})
+        MATCH (alias:Alias {normalized_name: $normalized_name})-[r:MAY_REFER_TO]->(target:OrgUnit {name: $target_name})
         WHERE r.source_kind = $source_kind
         DELETE r
         """,
@@ -306,7 +306,7 @@ def delete_process_alias(
     _delete_alias_relation(
         neo4j_client,
         """
-        MATCH (alias:Alias {normalized_name: $normalized_name})-[r:KANN_MEINEN]->(target:Prozess)
+        MATCH (alias:Alias {normalized_name: $normalized_name})-[r:MAY_REFER_TO]->(target:Process)
         WHERE elementId(target) = $target_element_id
           AND r.source_kind = $source_kind
         DELETE r
@@ -327,7 +327,7 @@ def _delete_alias_relation(neo4j_client: Neo4jClient, query: str, parameters: di
     neo4j_client.execute_write(
         """
         MATCH (alias:Alias {normalized_name: $normalized_name})
-        WHERE NOT (alias)-[:KANN_MEINEN]->()
+        WHERE NOT (alias)-[:MAY_REFER_TO]->()
         DELETE alias
         """,
         {"normalized_name": normalized_name},

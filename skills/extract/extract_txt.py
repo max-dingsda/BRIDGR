@@ -26,7 +26,7 @@ class TextExtractor:
         payload = self._generate_json_with_required_keys(
             system_prompt=prompt,
             user_prompt=document_text,
-            required_keys={"prozess", "rolle", "prozess_eigentuemer", "org_einheit_kandidaten", "anwendungen"},
+            required_keys={"process", "role", "process_owner", "org_unit_candidates", "applications"},
         )
         return self._to_domain_model(payload, source_path, document_text)
 
@@ -41,23 +41,23 @@ class TextExtractor:
             raw_applications = [
                 ApplicationReference(
                     name=item["name"],
-                    confidence=item["konfidenz"],
+                    confidence=item["confidence"],
                 )
-                for item in payload["anwendungen"]
+                for item in payload["applications"]
             ]
-            applications = self._bpmn_normalizer._deduplicate_applications(payload["anwendungen"])
+            applications = self._bpmn_normalizer._deduplicate_applications(payload["applications"])
             process_id = self._resolve_process_id(payload, source_path, document_text)
             roles = self._resolve_roles(payload, document_text)
             org_unit_candidates = self._resolve_org_unit_candidates(payload, document_text)
             process_owner_candidate = self._resolve_process_owner_candidate(payload, document_text)
             return ExtractedProcess(
-                process_name=payload["prozess"],
+                process_name=payload["process"],
                 process_id=process_id,
                 org_unit="",
                 roles=roles,
                 org_units=[],
                 org_unit_candidates=org_unit_candidates,
-                follows_after=list(payload.get("folgt_auf", [])),
+                follows_after=list(payload.get("follows_after", [])),
                 raw_applications=raw_applications,
                 applications=applications,
                 source_path=str(source_path),
@@ -73,7 +73,7 @@ class TextExtractor:
         source_process_id = self._extract_process_id_from_document_text(document_text)
         if source_process_id:
             return source_process_id
-        return str(payload.get("prozess_id") or source_path.stem)
+        return str(payload.get("process_id") or source_path.stem)
 
     def _extract_process_id_from_document_text(self, document_text: str) -> str:
         match = re.search(r"(?mi)^\s*Process ID:\s*(\S+)\s*$", document_text)
@@ -88,7 +88,7 @@ class TextExtractor:
         if self._is_bpmn_transform_text(document_text):
             return []
 
-        role_value = str(payload.get("rolle") or payload.get("org_einheit") or "").strip()
+        role_value = str(payload.get("role") or payload.get("org_unit") or "").strip()
         if not role_value:
             return []
         return self._split_multi_value_names([role_value])
@@ -96,14 +96,14 @@ class TextExtractor:
     def _resolve_process_owner_candidate(self, payload: dict, document_text: str) -> str:
         if self._is_bpmn_transform_text(document_text):
             return ""
-        raw = str(payload.get("prozess_eigentuemer") or "").strip()
+        raw = str(payload.get("process_owner") or "").strip()
         return " ".join(raw.split()) if raw else ""
 
     def _resolve_org_unit_candidates(self, payload: dict, document_text: str) -> list[str]:
         if self._is_bpmn_transform_text(document_text):
             return []
 
-        raw_candidates = payload.get("org_einheit_kandidaten", [])
+        raw_candidates = payload.get("org_unit_candidates", [])
         if not isinstance(raw_candidates, list):
             return []
 

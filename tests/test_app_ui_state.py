@@ -302,6 +302,7 @@ def test_get_neo4j_connection_status_returns_cached_result(monkeypatch) -> None:
         config.neo4j_user,
         config.neo4j_password,
         config.neo4j_database,
+        "de",
     )
 
 
@@ -352,7 +353,18 @@ def test_get_llm_status_returns_cached_result(monkeypatch) -> None:
         config.llm_model,
         config.llm_api_key_env,
         config.llm_timeout_seconds,
+        "de",
     )
+
+
+def test_status_cache_is_localized_after_language_switch() -> None:
+    st.session_state.clear()
+    config = AppConfig()
+
+    assert get_neo4j_connection_status(config) == (False, "Neo4j-Verbindung nicht pruefbar: Passwort fehlt.")
+
+    st.session_state["bridgr_locale"] = "en"
+    assert get_neo4j_connection_status(config) == (False, "Neo4j connection cannot be checked: password is missing.")
 
 
 def test_get_llm_status_reports_missing_model() -> None:
@@ -405,11 +417,11 @@ def test_get_llm_status_reports_endpoint_error(monkeypatch) -> None:
 def test_write_debug_log_creates_jsonl_entry(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr(runtime_service, "resolve_runtime_output_path", lambda _path: (tmp_path, False))
 
-    write_debug_log(AppConfig(debug_mode=True), "query_error", {"question": "Welche Prozesse gibt es?"})
+    write_debug_log(AppConfig(debug_mode=True), "query_error", {"question": "Welche Processe gibt es?"})
 
     log_content = (tmp_path / "debug.log").read_text(encoding="utf-8")
     assert '"event": "query_error"' in log_content
-    assert '"question": "Welche Prozesse gibt es?"' in log_content
+    assert '"question": "Welche Processe gibt es?"' in log_content
 
 
 def test_persist_org_unit_node_merges_org_unit_node(monkeypatch) -> None:
@@ -425,7 +437,7 @@ def test_persist_org_unit_node_merges_org_unit_node(monkeypatch) -> None:
 
     persist_org_unit_node(AppConfig(neo4j_password="secret"), "  People   &  Culture  ")
 
-    assert "MERGE (o:OrgEinheit {name: $org_unit_name})" in captured["query"]
+    assert "MERGE (o:OrgUnit {name: $org_unit_name})" in captured["query"]
     assert "RETURN o.name AS name" in captured["query"]
     assert captured["parameters"] == {"org_unit_name": "People & Culture"}
 
@@ -554,7 +566,7 @@ def test_run_query_chat_turn_logs_error_on_connection_failure(tmp_path, monkeypa
     monkeypatch.setattr(query_service, "get_session_neo4j_client", lambda _config: object())
     monkeypatch.setattr(query_service, "LlmClientError", RuntimeError)
 
-    run_query_chat_turn("Wie viele Prozesse gibt es?", AppConfig(debug_mode=True, neo4j_password="secret", llm_model="qwen"))
+    run_query_chat_turn("Wie viele Processe gibt es?", AppConfig(debug_mode=True, neo4j_password="secret", llm_model="qwen"))
 
     log_content = (tmp_path / "debug.log").read_text(encoding="utf-8")
     assert '"event": "query_error"' in log_content

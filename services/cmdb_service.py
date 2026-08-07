@@ -119,7 +119,7 @@ def update_organization_knowledge_from_cmdb(
     org_units: dict[str, str],
     org_unit_aliases: dict[str, str],
 ) -> None:
-    """Record CMDB owner strings that are not yet a known OrgEinheit as :OrgKandidat nodes."""
+    """Record CMDB owner strings that are not yet a known OrgUnit as :OrgCandidate nodes."""
     for entity in normalized_cmdb.entities:
         owner_name = " ".join((entity.owner_name or "").split())
         if not owner_name:

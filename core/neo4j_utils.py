@@ -103,13 +103,13 @@ class Neo4jClient:
 
     def ensure_constraints(self) -> None:
         constraint_queries = [
-            "CREATE CONSTRAINT prozess_id IF NOT EXISTS FOR (p:Prozess) REQUIRE p.prozess_id IS UNIQUE",
-            "CREATE CONSTRAINT anwendung_id IF NOT EXISTS FOR (a:Anwendung) REQUIRE a.cmdb_id IS UNIQUE",
-            "CREATE CONSTRAINT schnittstelle_id IF NOT EXISTS FOR (i:Schnittstelle) REQUIRE i.id IS UNIQUE",
+            "CREATE CONSTRAINT process_id IF NOT EXISTS FOR (p:Process) REQUIRE p.process_id IS UNIQUE",
+            "CREATE CONSTRAINT anwendung_id IF NOT EXISTS FOR (a:Application) REQUIRE a.cmdb_id IS UNIQUE",
+            "CREATE CONSTRAINT schnittstelle_id IF NOT EXISTS FOR (i:Interface) REQUIRE i.id IS UNIQUE",
             "CREATE CONSTRAINT server_id IF NOT EXISTS FOR (s:Server) REQUIRE s.id IS UNIQUE",
-            "CREATE CONSTRAINT orgeinheit_name IF NOT EXISTS FOR (o:OrgEinheit) REQUIRE o.name IS UNIQUE",
+            "CREATE CONSTRAINT orgeinheit_name IF NOT EXISTS FOR (o:OrgUnit) REQUIRE o.name IS UNIQUE",
             "CREATE CONSTRAINT alias_normalized_name IF NOT EXISTS FOR (a:Alias) REQUIRE a.normalized_name IS UNIQUE",
-            "CREATE CONSTRAINT org_kandidat_normalized_name IF NOT EXISTS FOR (k:OrgKandidat) REQUIRE k.normalized_name IS UNIQUE",
+            "CREATE CONSTRAINT org_kandidat_normalized_name IF NOT EXISTS FOR (k:OrgCandidate) REQUIRE k.normalized_name IS UNIQUE",
         ]
         for query in constraint_queries:
             self._execute(query, {})

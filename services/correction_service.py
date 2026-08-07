@@ -73,7 +73,7 @@ def _revert_manual_link(config: AppConfig, neo4j_client, payload: dict) -> str:
     source_path = str(payload.get("source_path", ""))
     neo4j_client.execute_write(
         """
-        MATCH (a:Anwendung {cmdb_id: $cmdb_id})-[r:DIENT]->(p:Prozess {prozess_id: $process_id})
+        MATCH (a:Application {cmdb_id: $cmdb_id})-[r:SERVES]->(p:Process {process_id: $process_id})
         WHERE r.source = 'manueller_link' AND r.raw_name = $raw_name
         DELETE r
         """,
@@ -95,7 +95,7 @@ def _revert_confirmed_candidate_link(config: AppConfig, neo4j_client, payload: d
     source_path = str(payload.get("source_path", ""))
     neo4j_client.execute_write(
         """
-        MATCH (a:Anwendung {cmdb_id: $cmdb_id})-[r:DIENT]->(p:Prozess {prozess_id: $process_id})
+        MATCH (a:Application {cmdb_id: $cmdb_id})-[r:SERVES]->(p:Process {process_id: $process_id})
         WHERE r.source = 'manuell_bestaetigt' AND r.raw_name = $raw_name
         DELETE r
         """,
@@ -121,7 +121,7 @@ def _revert_process_owner_assignment(config: AppConfig, neo4j_client, payload: d
     org_unit_name = str(payload.get("org_unit_name", ""))
     neo4j_client.execute_write(
         """
-        MATCH (o:OrgEinheit {name: $org_unit_name})-[r:VERANTWORTET]->(p:Prozess {prozess_id: $process_id})
+        MATCH (o:OrgUnit {name: $org_unit_name})-[r:RESPONSIBLE_FOR]->(p:Process {process_id: $process_id})
         DELETE r
         """,
         {
@@ -129,7 +129,7 @@ def _revert_process_owner_assignment(config: AppConfig, neo4j_client, payload: d
             "process_id": process_id,
         },
     )
-    return f"Eigentümer-Zuordnung fuer Prozess '{process_id}' wurde entfernt."
+    return f"Eigentümer-Zuordnung fuer Process '{process_id}' wurde entfernt."
 
 
 def _revert_role_assignment(config: AppConfig, neo4j_client, payload: dict) -> str:
@@ -137,7 +137,7 @@ def _revert_role_assignment(config: AppConfig, neo4j_client, payload: dict) -> s
     org_unit_name = str(payload.get("org_unit_name", ""))
     neo4j_client.execute_write(
         """
-        MATCH (o:OrgEinheit {name: $org_unit_name})-[r:KANN_EINNEHMEN]->(role:Rolle {name: $role_name})
+        MATCH (o:OrgUnit {name: $org_unit_name})-[r:CAN_ASSUME]->(role:Role {name: $role_name})
         DELETE r
         """,
         {
@@ -145,15 +145,15 @@ def _revert_role_assignment(config: AppConfig, neo4j_client, payload: dict) -> s
             "role_name": role_name,
         },
     )
-    return f"Rollenzuordnung '{role_name}' -> '{org_unit_name}' wurde entfernt."
+    return f"Rolenzuordnung '{role_name}' -> '{org_unit_name}' wurde entfernt."
 
 
 def _revert_entity_merge(config: AppConfig, neo4j_client, payload: dict) -> str:
     merge_preview = payload.get("merge_preview") or {}
     entity_type = str(payload.get("entity_type", "")).strip()
-    if entity_type == "OrgEinheit":
+    if entity_type == "OrgUnit":
         return _revert_org_unit_merge(neo4j_client, payload, merge_preview)
-    if entity_type == "Prozess":
+    if entity_type == "Process":
         return _revert_process_merge(neo4j_client, payload, merge_preview)
     raise ValueError(f"Nicht unterstützter Merge-Typ: {entity_type}")
 
@@ -167,7 +167,7 @@ def _revert_org_unit_merge(neo4j_client, payload: dict, merge_preview: dict) -> 
 
     neo4j_client.execute_write(
         """
-        MERGE (source:OrgEinheit {name: $source_name})
+        MERGE (source:OrgUnit {name: $source_name})
         SET source += $source_properties
         """,
         {
@@ -181,7 +181,7 @@ def _revert_org_unit_merge(neo4j_client, payload: dict, merge_preview: dict) -> 
         source_ref=source_name,
         target_ref=target_name,
         merge_preview=merge_preview,
-        entity_type="OrgEinheit",
+        entity_type="OrgUnit",
     )
     delete_org_unit_alias(
         neo4j_client,
@@ -197,34 +197,34 @@ def _revert_process_merge(neo4j_client, payload: dict, merge_preview: dict) -> s
     target_ref = str(payload.get("target_ref", "")).strip()
     source_properties = dict(merge_preview.get("source_properties") or {})
     target_properties = dict(merge_preview.get("target_properties") or {})
-    process_id = str(source_properties.get("prozess_id", "")).strip()
-    target_process_id = str(target_properties.get("prozess_id", "")).strip()
+    process_id = str(source_properties.get("process_id", "")).strip()
+    target_process_id = str(target_properties.get("process_id", "")).strip()
     if not target_ref or not source_name:
         raise ValueError("Merge-Payload ist unvollständig.")
 
     if target_process_id:
         neo4j_client.execute_write(
             """
-            MATCH (target:Prozess)
+            MATCH (target:Process)
             WHERE elementId(target) = $target_ref
-            SET target.prozess_id = $target_process_id
+            SET target.process_id = $target_process_id
             """,
             {"target_ref": target_ref, "target_process_id": target_process_id},
         )
     else:
         neo4j_client.execute_write(
             """
-            MATCH (target:Prozess)
+            MATCH (target:Process)
             WHERE elementId(target) = $target_ref
-            REMOVE target.prozess_id
+            REMOVE target.process_id
             """,
             {"target_ref": target_ref},
         )
 
     restored_rows = neo4j_client.execute_read_unvalidated(
         """
-        MATCH (source:Prozess)
-        WHERE ($process_id <> '' AND coalesce(source.prozess_id, '') = $process_id)
+        MATCH (source:Process)
+        WHERE ($process_id <> '' AND coalesce(source.process_id, '') = $process_id)
            OR ($process_id = '' AND source.name = $source_name)
         RETURN elementId(source) AS element_id
         ORDER BY elementId(source) DESC
@@ -239,7 +239,7 @@ def _revert_process_merge(neo4j_client, payload: dict, merge_preview: dict) -> s
         source_ref = str(restored_rows[0].get("element_id", "")).strip()
         neo4j_client.execute_write(
             """
-            MATCH (source:Prozess)
+            MATCH (source:Process)
             WHERE elementId(source) = $source_ref
             SET source += $source_properties
             """,
@@ -251,7 +251,7 @@ def _revert_process_merge(neo4j_client, payload: dict, merge_preview: dict) -> s
     else:
         neo4j_client.execute_write(
             """
-            CREATE (source:Prozess)
+            CREATE (source:Process)
             SET source += $source_properties
             RETURN elementId(source) AS element_id
             """,
@@ -260,8 +260,8 @@ def _revert_process_merge(neo4j_client, payload: dict, merge_preview: dict) -> s
 
         restored_rows = neo4j_client.execute_read_unvalidated(
             """
-            MATCH (source:Prozess)
-            WHERE ($process_id <> '' AND coalesce(source.prozess_id, '') = $process_id)
+            MATCH (source:Process)
+            WHERE ($process_id <> '' AND coalesce(source.process_id, '') = $process_id)
                OR ($process_id = '' AND source.name = $source_name)
             RETURN elementId(source) AS element_id
             ORDER BY elementId(source) DESC
@@ -281,7 +281,7 @@ def _revert_process_merge(neo4j_client, payload: dict, merge_preview: dict) -> s
         source_ref=source_ref,
         target_ref=target_ref,
         merge_preview=merge_preview,
-        entity_type="Prozess",
+        entity_type="Process",
     )
     delete_process_alias(
         neo4j_client,
@@ -289,7 +289,7 @@ def _revert_process_merge(neo4j_client, payload: dict, merge_preview: dict) -> s
         target_element_id=target_ref,
         source_kind=ALIAS_SOURCE_KIND_MERGED_ENTITY,
     )
-    return f"Merge für Prozess '{source_name}' wurde zurückgenommen."
+    return f"Merge für Process '{source_name}' wurde zurückgenommen."
 
 
 def _restore_snapshot_relationships(
@@ -366,31 +366,31 @@ def _delete_relationship(neo4j_client, entity_type: str, source_ref: str, rel_ty
 
 def _node_match(alias: str, label: str) -> str:
     parameter = "$source_ref" if alias == "source" else "$other_ref"
-    if label == "OrgEinheit":
-        return f"MATCH ({alias}:OrgEinheit {{name: {parameter}}})"
-    if label in {"Anforderung", "Faehigkeit", "Kontext", "Ressource", "Risiko", "Stakeholder", "Ziel"}:
+    if label == "OrgUnit":
+        return f"MATCH ({alias}:OrgUnit {{name: {parameter}}})"
+    if label in {"Requirement", "Capability", "Context", "Resource", "Risk", "Stakeholder", "Goal"}:
         return f"MATCH ({alias}:{label} {{name: {parameter}}})"
-    if label == "Prozess":
+    if label == "Process":
         return (
-            f"MATCH ({alias}:Prozess) "
+            f"MATCH ({alias}:Process) "
             f"WHERE elementId({alias}) = {parameter} "
-            f"   OR coalesce({alias}.prozess_id, '') = {parameter} "
+            f"   OR coalesce({alias}.process_id, '') = {parameter} "
             f"   OR coalesce({alias}.name, '') = {parameter}"
         )
-    if label == "Anwendung":
+    if label == "Application":
         return (
-            f"MATCH ({alias}:Anwendung) "
+            f"MATCH ({alias}:Application) "
             f"WHERE coalesce({alias}.cmdb_id, '') = {parameter} "
             f"   OR coalesce({alias}.name, '') = {parameter}"
         )
-    if label in {"Schnittstelle", "Server", "Infrastruktur"}:
+    if label in {"Interface", "Server", "Infrastructure"}:
         return (
             f"MATCH ({alias}:{label}) "
             f"WHERE coalesce({alias}.id, '') = {parameter} "
             f"   OR coalesce({alias}.name, '') = {parameter}"
         )
-    if label == "Rolle":
-        return f"MATCH ({alias}:Rolle {{name: {parameter}}})"
+    if label == "Role":
+        return f"MATCH ({alias}:Role {{name: {parameter}}})"
     if label == "Alias":
         return (
             f"MATCH ({alias}:Alias) "

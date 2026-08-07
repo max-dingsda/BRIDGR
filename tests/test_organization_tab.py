@@ -62,9 +62,9 @@ def test_describe_manual_decision_context_for_process_owner_assignment() -> None
 def test_describe_manual_decision_context_for_entity_merge() -> None:
     decision = SimpleNamespace(
         decision_type="entity_merge",
-        payload_json='{"entity_type":"OrgEinheit","source_name":"Controlling","target_name":"Buchhaltung"}',
+        payload_json='{"entity_type":"OrgUnit","source_name":"Controlling","target_name":"Buchhaltung"}',
     )
 
     result = _describe_manual_decision_context(decision)
 
-    assert result == "Typ: OrgEinheit | Quelle: Controlling | Ziel: Buchhaltung"
+    assert result == "Typ: OrgUnit | Quelle: Controlling | Ziel: Buchhaltung"

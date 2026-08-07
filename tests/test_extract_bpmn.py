@@ -8,12 +8,12 @@ from skills.extract.extract_bpmn import BpmnExtractor, BpmnExtractorError
 class FakeLlmClient:
     def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
         return {
-            "prozess": "Auftragsabwicklung",
-            "prozess_id": "proc_001",
-            "rollen": ["Vertrieb", "Einkauf"],
-            "folgt_auf": ["Angebotserstellung"],
-            "anwendungen": [
-                {"name": "SAP SD", "konfidenz": "stark"},
+            "process": "Auftragsabwicklung",
+            "process_id": "proc_001",
+            "roles": ["Vertrieb", "Einkauf"],
+            "follows_after": ["Angebotserstellung"],
+            "applications": [
+                {"name": "SAP SD", "confidence": "stark"},
             ],
         }
 
@@ -45,11 +45,11 @@ def test_bpmn_extractor_returns_empty_roles_when_no_lanes(tmp_path: Path) -> Non
     class NoLanesClient:
         def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
             return {
-                "prozess": "Einfacher Prozess",
-                "prozess_id": "proc_002",
-                "rollen": [],
-                "folgt_auf": [],
-                "anwendungen": [],
+                "process": "Einfacher Process",
+                "process_id": "proc_002",
+                "roles": [],
+                "follows_after": [],
+                "applications": [],
             }
 
     extractor = BpmnExtractor(prompt_path=prompt_path, llm_client=NoLanesClient())
@@ -67,11 +67,11 @@ def test_bpmn_extractor_deduplicates_roles(tmp_path: Path) -> None:
     class DuplicateRolesClient:
         def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
             return {
-                "prozess": "Prozess mit Duplikaten",
-                "prozess_id": "proc_003",
-                "rollen": ["Sales Team", "sales team", "Einkauf"],
-                "folgt_auf": [],
-                "anwendungen": [],
+                "process": "Process mit Duplikaten",
+                "process_id": "proc_003",
+                "roles": ["Sales Team", "sales team", "Einkauf"],
+                "follows_after": [],
+                "applications": [],
             }
 
     extractor = BpmnExtractor(prompt_path=prompt_path, llm_client=DuplicateRolesClient())
@@ -95,14 +95,14 @@ def test_bpmn_extractor_rejects_invalid_xml(tmp_path: Path) -> None:
 class DuplicateApplicationLlmClient:
     def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
         return {
-            "prozess": "Incident Management",
-            "prozess_id": "WFP-1-1",
-            "rollen": ["Support"],
-            "folgt_auf": [],
-            "anwendungen": [
-                {"name": "Product Backlog Interface (com.camunda.examples.incidentmanagement.ProductBacklog)", "konfidenz": "stark"},
-                {"name": "ProductBacklog (com.camunda.examples.incidentmanagement.ProductBacklog)", "konfidenz": "stark"},
-                {"name": "sendMailToIssueReporterOperation", "konfidenz": "schwach"},
+            "process": "Incident Management",
+            "process_id": "WFP-1-1",
+            "roles": ["Support"],
+            "follows_after": [],
+            "applications": [
+                {"name": "Product Backlog Interface (com.camunda.examples.incidentmanagement.ProductBacklog)", "confidence": "stark"},
+                {"name": "ProductBacklog (com.camunda.examples.incidentmanagement.ProductBacklog)", "confidence": "stark"},
+                {"name": "sendMailToIssueReporterOperation", "confidence": "schwach"},
             ],
         }
 

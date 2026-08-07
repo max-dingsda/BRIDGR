@@ -19,6 +19,7 @@ SNAPSHOT_GRAPH_FILENAME = "graph.json"
 SNAPSHOT_MANIFEST_FILENAME = "manifest.json"
 RESTORE_LABEL = "__BridgrSnapshotRestore"
 RESTORE_REFERENCE_PROPERTY = "__bridgr_snapshot_ref"
+GRAPH_SCHEMA_VERSION = 2
 
 
 class SnapshotError(RuntimeError):
@@ -86,6 +87,7 @@ def create_snapshot(
         temporary_path.mkdir(parents=False, exist_ok=False)
         (temporary_path / SNAPSHOT_GRAPH_FILENAME).write_bytes(graph_bytes)
         manifest = {
+            "graph_schema_version": GRAPH_SCHEMA_VERSION,
             "snapshot_id": snapshot_id,
             "created_at": created_at,
             "trigger": trigger,
@@ -210,6 +212,12 @@ def _validate_snapshot_directory(snapshot_path: Path) -> SnapshotInfo:
     fallback = SnapshotInfo(snapshot_path.name, "", "", "", 0, 0, False, "Manifest fehlt oder ist ungültig.")
     try:
         manifest = json.loads((snapshot_path / SNAPSHOT_MANIFEST_FILENAME).read_text(encoding="utf-8"))
+        if manifest.get("graph_schema_version") != GRAPH_SCHEMA_VERSION:
+            return SnapshotInfo(
+                str(manifest.get("snapshot_id", snapshot_path.name)), "", "", "", 0, 0, False,
+                f"Snapshot uses graph schema version {manifest.get('graph_schema_version', 'unknown')}; "
+                f"BRIDGR requires version {GRAPH_SCHEMA_VERSION}.",
+            )
         graph_path = snapshot_path / str(manifest.get("graph_filename", ""))
         graph_bytes = graph_path.read_bytes()
         if sha256(graph_bytes).hexdigest() != manifest.get("graph_sha256"):

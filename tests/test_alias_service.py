@@ -40,7 +40,7 @@ def test_sync_curated_aliases_projects_application_and_org_aliases() -> None:
     client = RecordingNeo4jClient()
     confirmed_links = [
         {
-            "prozess": "Order",
+            "process": "Order",
             "anwendung_name": "SAP XY",
             "cmdb_id": "app-1",
             "resolved_to": "SAP BW",
@@ -65,9 +65,9 @@ def test_sync_curated_aliases_projects_application_and_org_aliases() -> None:
 
     assert written == 2
     queries = [query for query, _ in client.queries]
-    assert any("MATCH (:Alias)-[r:KANN_MEINEN]->()" in query for query in queries)
-    assert any("MERGE (application:Anwendung {cmdb_id: $cmdb_id})" in query for query in queries)
-    assert any("MERGE (org_unit:OrgEinheit {name: $target_name})" in query for query in queries)
+    assert any("MATCH (:Alias)-[r:MAY_REFER_TO]->()" in query for query in queries)
+    assert any("MERGE (application:Application {cmdb_id: $cmdb_id})" in query for query in queries)
+    assert any("MERGE (org_unit:OrgUnit {name: $target_name})" in query for query in queries)
     assert any("MATCH (alias:Alias)" in query and "DELETE alias" in query for query in queries)
 
 
@@ -75,7 +75,7 @@ def test_sync_curated_aliases_skips_identity_aliases() -> None:
     client = RecordingNeo4jClient()
     confirmed_links = [
         {
-            "prozess": "Order",
+            "process": "Order",
             "anwendung_name": "SAP BW",
             "cmdb_id": "app-1",
             "resolved_to": "SAP BW",
@@ -106,7 +106,7 @@ def test_lookup_alias_matches_returns_supported_target_rows() -> None:
         responses=[
             [
                 {
-                    "entity_type": "OrgEinheit",
+                    "entity_type": "OrgUnit",
                     "entity_name": "Sales Department",
                     "entity_id": "",
                     "alias_name": "Sales",
@@ -119,7 +119,7 @@ def test_lookup_alias_matches_returns_supported_target_rows() -> None:
 
     assert rows == [
         {
-            "entity_type": "OrgEinheit",
+            "entity_type": "OrgUnit",
             "entity_name": "Sales Department",
             "entity_id": "",
             "alias_name": "Sales",
@@ -138,7 +138,7 @@ def test_lookup_alias_matches_uses_unvalidated_read_path() -> None:
         responses=[
             [
                 {
-                    "entity_type": "OrgEinheit",
+                    "entity_type": "OrgUnit",
                     "entity_name": "IT Infrastructure",
                     "entity_id": "",
                     "alias_name": "Team Platform",
@@ -158,8 +158,8 @@ def test_delete_application_alias_removes_relation_and_orphan_alias_cleanup() ->
     delete_application_alias(client, "SAP CRM", "app-1", source_kind="confirmed_match")
 
     queries = [query for query, _ in client.queries]
-    assert any("MATCH (alias:Alias {normalized_name: $normalized_name})-[r:KANN_MEINEN]->(application:Anwendung {cmdb_id: $cmdb_id})" in query for query in queries)
-    assert any("WHERE NOT (alias)-[:KANN_MEINEN]->()" in query for query in queries)
+    assert any("MATCH (alias:Alias {normalized_name: $normalized_name})-[r:MAY_REFER_TO]->(application:Application {cmdb_id: $cmdb_id})" in query for query in queries)
+    assert any("WHERE NOT (alias)-[:MAY_REFER_TO]->()" in query for query in queries)
 
 
 def test_write_merged_org_unit_alias_writes_alias_for_source_name() -> None:
@@ -169,7 +169,7 @@ def test_write_merged_org_unit_alias_writes_alias_for_source_name() -> None:
 
     queries = [query for query, _ in client.queries]
     assert any("MERGE (alias:Alias {normalized_name: $normalized_name})" in query for query in queries)
-    assert any("MERGE (alias)-[r:KANN_MEINEN]->(org_unit)" in query for query in queries)
+    assert any("MERGE (alias)-[r:MAY_REFER_TO]->(org_unit)" in query for query in queries)
     params = [params for _, params in client.queries if params and params.get("target_name") == "Plattform IT"][0]
     assert params["source_kind"] == "merged_entity"
 
@@ -181,7 +181,7 @@ def test_write_merged_process_alias_writes_alias_for_source_name() -> None:
 
     queries = [query for query, _ in client.queries]
     assert any("MERGE (alias:Alias {normalized_name: $normalized_name})" in query for query in queries)
-    assert any("MATCH (process:Prozess)" in query and "elementId(process) = $target_element_id" in query for query in queries)
+    assert any("MATCH (process:Process)" in query and "elementId(process) = $target_element_id" in query for query in queries)
 
 
 def test_delete_org_unit_alias_removes_relation_and_orphan_alias_cleanup() -> None:
@@ -190,8 +190,8 @@ def test_delete_org_unit_alias_removes_relation_and_orphan_alias_cleanup() -> No
     delete_org_unit_alias(client, "Controlling", "Buchhaltung", source_kind="merged_entity")
 
     queries = [query for query, _ in client.queries]
-    assert any("(target:OrgEinheit {name: $target_name})" in query for query in queries)
-    assert any("WHERE NOT (alias)-[:KANN_MEINEN]->()" in query for query in queries)
+    assert any("(target:OrgUnit {name: $target_name})" in query for query in queries)
+    assert any("WHERE NOT (alias)-[:MAY_REFER_TO]->()" in query for query in queries)
 
 
 def test_delete_process_alias_removes_relation_and_orphan_alias_cleanup() -> None:
@@ -201,4 +201,4 @@ def test_delete_process_alias_removes_relation_and_orphan_alias_cleanup() -> Non
 
     queries = [query for query, _ in client.queries]
     assert any("elementId(target) = $target_element_id" in query for query in queries)
-    assert any("WHERE NOT (alias)-[:KANN_MEINEN]->()" in query for query in queries)
+    assert any("WHERE NOT (alias)-[:MAY_REFER_TO]->()" in query for query in queries)

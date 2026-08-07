@@ -145,14 +145,14 @@ def test_build_review_rows_flattens_review_items() -> None:
 
     assert len(rows) == 2
     assert rows[0]["source_path"] == "Input/a.bpmn"
-    assert rows[0]["prozess"] == "Auftragsabwicklung"
+    assert rows[0]["process"] == "Auftragsabwicklung"
     assert rows[0]["anwendung_im_prozess"] == "Legacy Tool"
     assert rows[0]["anwendung_in_cmdb"] == "Legacy Suite"
     assert rows[0]["confidence"] == "schwach"
     assert rows[0]["quelle"] == "fuzzy"
     assert rows[0]["cmdb_id"] == "cmdb-2"
     assert rows[1]["source_path"] == "Input/a.bpmn"
-    assert rows[1]["prozess"] == "Auftragsabwicklung"
+    assert rows[1]["process"] == "Auftragsabwicklung"
     assert rows[1]["anwendung_im_prozess"] == "Unknown Tool"
     assert rows[1]["anwendung_in_cmdb"] == "-"
     assert rows[1]["confidence"] == "schwach"
@@ -224,7 +224,7 @@ def test_build_duplicate_application_warnings_detects_variant_spellings() -> Non
 
     assert warnings == [
         {
-            "prozess": "Auftragsabwicklung",
+            "process": "Auftragsabwicklung",
             "normalisiert": "product backlog",
             "varianten": [
                 "ProductBacklog (com.camunda.examples.incidentmanagement.ProductBacklog)",

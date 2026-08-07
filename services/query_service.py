@@ -5,6 +5,7 @@ import re
 from typing import Callable
 
 from core.app_config import AppConfig, resolve_project_path
+from core.i18n import normalize_locale
 from core.graph_schema import build_archimate_mapping_reference, build_query_schema_reference
 from core.llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleClient
 from core.neo4j_utils import Neo4jConnectionError, Neo4jQueryError, QueryValidationError
@@ -20,6 +21,24 @@ import streamlit as st
 MAX_HISTORY_MESSAGES = 20
 MAX_CYPHER_RETRIES = 2
 MAX_TOOL_CALLS_PER_TURN = 5
+
+_RESPONSE_POLISH_PROMPT = """You are the final copy editor for an enterprise architecture assistant.
+Return a complete rewritten version of the answer in the language of the user's most recent
+natural-language message.
+
+Hard requirements:
+- Correct spelling, grammar, inflection, punctuation, and terminology throughout.
+- Use one language consistently for ordinary prose and generic enterprise-architecture
+  concepts. Correct accidental code-switched fragments and malformed localized terms.
+- Preserve the supplied protected business-object names and identifiers exactly. Also preserve
+  established business slang or industry jargon when intentionally used (for example, a
+  standard term such as "Single Point of Failure"). Do not treat malformed or mixed-language
+  standard terms as protected jargon.
+- Preserve every fact, number, identifier, genuine proper name, uncertainty marker, and
+  Markdown structure. Do not add, omit, or reinterpret information.
+- Do not mention Cypher, schemas, databases, internal labels, or this editing instruction.
+
+Return only the polished answer."""
 
 _EXECUTE_CYPHER_TOOL_SCHEMA: dict = {
     "type": "function",
@@ -85,7 +104,7 @@ _TOOL_USE_QUERY_PROTOCOL = (
 )
 
 
-def run_query_chat_turn(question: str, config: AppConfig) -> None:
+def run_query_chat_turn(question: str, config: AppConfig, response_locale: str | None = None) -> None:
     cypher_query = ""
     rows: list[dict] = []
     try:
@@ -100,7 +119,7 @@ def run_query_chat_turn(question: str, config: AppConfig) -> None:
         )
         neo4j_client = get_session_neo4j_client(config)
 
-        system_prompt = _build_chat_system_prompt(config)
+        system_prompt = _build_chat_system_prompt(config, response_locale)
         all_messages = st.session_state.get(CHAT_MESSAGES_STATE_KEY, [])
         # Exclude the last message: query_tab already appended the current user question
         # before calling this function; we add it explicitly below to avoid duplication.
@@ -114,12 +133,18 @@ def run_query_chat_turn(question: str, config: AppConfig) -> None:
         if config.chat_mode == "tool-use":
             log_fn = lambda event, details: write_debug_log(config, event, details)
             final_response, cypher_query, rows = _run_tool_use_turn(
-                turn_messages, llm_client, neo4j_client, log_fn
+                turn_messages, llm_client, neo4j_client, log_fn, response_locale
             )
         else:
             final_response, cypher_query, rows = _run_prompt_only_turn(
-                turn_messages, llm_client, neo4j_client
+                turn_messages, llm_client, neo4j_client, response_locale
             )
+        final_response = _polish_response_language(
+            llm_client,
+            question,
+            final_response,
+            _collect_protected_names(rows),
+        )
 
     except (LlmClientError, Neo4jConnectionError, Neo4jQueryError, QueryValidationError) as exc:
         write_debug_log(
@@ -127,16 +152,79 @@ def run_query_chat_turn(question: str, config: AppConfig) -> None:
             "query_error",
             {"question": question, "cypher_query": cypher_query, "error": str(exc)},
         )
-        append_chat_message("assistant", _translate_error_for_user(exc), cypher_query=cypher_query)
+        append_chat_message(
+            "assistant",
+            _translate_error_for_user(exc, response_locale or config.ui_locale),
+            cypher_query=cypher_query,
+        )
         return
 
     append_chat_message("assistant", final_response.strip(), cypher_query=cypher_query, rows=rows)
+
+
+def _polish_response_language(
+    llm_client: OpenAICompatibleClient,
+    question: str,
+    answer: str,
+    protected_names: list[str] | None = None,
+) -> str:
+    """Run a constrained second pass that improves language without changing facts."""
+    if not answer.strip():
+        return answer
+    messages = [
+        {"role": "system", "content": _RESPONSE_POLISH_PROMPT},
+        {
+            "role": "user",
+            "content": (
+                f"User message (determines the target language):\n{question}\n\n"
+                "Protected business-object names and identifiers "
+                f"(preserve exactly):\n{json.dumps(protected_names or [], ensure_ascii=False)}\n\n"
+                f"Answer to polish:\n{answer}"
+            ),
+        },
+    ]
+    try:
+        polished = llm_client.generate_chat(messages).strip()
+    except LlmClientError:
+        return answer
+    return polished or answer
+
+
+def _collect_protected_names(rows: list[dict]) -> list[str]:
+    """Return distinct string values from query results that must not be translated."""
+    schema_terms = {
+        "application",
+        "process",
+        "interface",
+        "server",
+        "orgunit",
+        "role",
+        "capability",
+        "goal",
+        "dataobject",
+        "resource",
+        "infrastructure",
+        "risk",
+    }
+    names: list[str] = []
+    seen: set[str] = set()
+    for row in rows:
+        for value in row.values():
+            if not isinstance(value, str):
+                continue
+            name = value.strip()
+            if not name or name.casefold() in schema_terms or name in seen:
+                continue
+            names.append(name)
+            seen.add(name)
+    return names
 
 
 def _run_prompt_only_turn(
     turn_messages: list[dict],
     llm_client: OpenAICompatibleClient,
     neo4j_client,
+    response_locale: str | None = None,
 ) -> tuple[str, str, list[dict]]:
     response = llm_client.generate_chat(turn_messages)
     cypher_query = _extract_cypher_from_response(response)
@@ -166,7 +254,7 @@ def _run_prompt_only_turn(
     if not rows:
         alias_hints = _collect_alias_hints(cypher_query, neo4j_client)
 
-    result_message = _format_query_result(rows, alias_hints)
+    result_message = _format_query_result(rows, alias_hints, response_locale)
     turn_messages.append({"role": "user", "content": result_message})
     final_response = llm_client.generate_chat(turn_messages)
     return final_response, cypher_query, rows
@@ -177,6 +265,7 @@ def _run_tool_use_turn(
     llm_client: OpenAICompatibleClient,
     neo4j_client,
     log_fn: Callable[[str, dict], None] | None = None,
+    response_locale: str | None = None,
 ) -> tuple[str, str, list[dict]]:
     cypher_query = ""
     rows: list[dict] = []
@@ -240,7 +329,7 @@ def _run_tool_use_turn(
             try:
                 rows = neo4j_client.execute_read(cypher_query)
                 alias_hints = _collect_alias_hints(cypher_query, neo4j_client) if not rows else []
-                result = _format_query_result(rows, alias_hints)
+                result = _format_query_result(rows, alias_hints, response_locale)
             except (QueryValidationError, Neo4jQueryError) as exc:
                 result = json.dumps({"error": str(exc)[:300]}, ensure_ascii=False)
                 rows = []
@@ -256,12 +345,13 @@ def _run_tool_use_turn(
     return content or "", cypher_query, rows
 
 
-def _build_chat_system_prompt(config: AppConfig) -> str:
+def _build_chat_system_prompt(config: AppConfig, response_locale: str | None = None) -> str:
     template = resolve_project_path("prompts/chat_system.md").read_text(encoding="utf-8")
     protocol = _TOOL_USE_QUERY_PROTOCOL if config.chat_mode == "tool-use" else _PROMPT_ONLY_QUERY_PROTOCOL
     return (
         template
         .replace("{GRAPH_QUERY_PROTOCOL}", protocol)
+        .replace("{RESPONSE_LANGUAGE}", "the language of the user's most recent message")
         .replace("{ARCHIMATE_MAPPING}", build_archimate_mapping_reference())
         .replace("{GRAPH_SCHEMA_REFERENCE}", build_query_schema_reference())
     )
@@ -298,7 +388,14 @@ def _collect_alias_hints(cypher_query: str, neo4j_client) -> list[str]:
     return hints
 
 
-def _format_query_result(rows: list[dict], alias_hints: list[str]) -> str:
+def _format_query_result(rows: list[dict], alias_hints: list[str], response_locale: str | None = None) -> str:
+    if normalize_locale(response_locale) == "en":
+        if rows:
+            return f"[QUERY_RESULT]\n{json.dumps(rows, ensure_ascii=False, indent=2)}"
+        if alias_hints:
+            hints_text = "\n".join(f"- {hint}" for hint in alias_hints)
+            return f"[QUERY_RESULT]\nNo matches.\n\nPossible alternative terms in the knowledge graph:\n{hints_text}"
+        return "[QUERY_RESULT]\nNo matches."
     if rows:
         return f"[ABFRAGEERGEBNIS]\n{json.dumps(rows, ensure_ascii=False, indent=2)}"
     if alias_hints:
@@ -310,7 +407,17 @@ def _format_query_result(rows: list[dict], alias_hints: list[str]) -> str:
     return "[ABFRAGEERGEBNIS]\nKeine Treffer."
 
 
-def _translate_error_for_user(exc: Exception) -> str:
+def _translate_error_for_user(exc: Exception, response_locale: str | None = None) -> str:
+    if normalize_locale(response_locale) == "en":
+        if isinstance(exc, QueryValidationError):
+            return "I could not derive a valid read-only query from your question yet. Please phrase it more specifically."
+        if isinstance(exc, Neo4jQueryError):
+            return "I could not evaluate the question correctly against the current knowledge graph."
+        if isinstance(exc, Neo4jConnectionError):
+            return "I cannot reach the knowledge graph right now. Please check the Neo4j connection in Configuration."
+        if isinstance(exc, LlmClientError):
+            return "I could not process the question reliably right now. Please try again or phrase it more specifically."
+        return "The request could not be processed right now."
     if isinstance(exc, QueryValidationError):
         normalized = str(exc).casefold()
         if "multiple statements" in normalized:

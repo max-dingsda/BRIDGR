@@ -10,9 +10,9 @@ MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL = "knowledge_base_manual"
 MATCH_SOURCE_REJECTED = "rejected"
 MATCH_SOURCE_UNMATCHED = "unmatched"
 
-DIENT_SOURCE_STRONG = "strong"
-DIENT_SOURCE_CONFIRMED = "manuell_bestaetigt"
-DIENT_SOURCE_MANUAL = "manueller_link"
+SERVES_SOURCE_STRONG = "strong"
+SERVES_SOURCE_CONFIRMED = "manuell_bestaetigt"
+SERVES_SOURCE_MANUAL = "manueller_link"
 
 ALIAS_SOURCE_KIND_CONFIRMED_MATCH = "confirmed_match"
 ALIAS_SOURCE_KIND_CONFIRMED_CANDIDATE = "confirmed_candidate"

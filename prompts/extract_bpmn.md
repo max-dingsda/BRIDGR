@@ -2,12 +2,12 @@ You extract structured process information from BPMN XML.
 
 Return valid JSON with exactly this schema:
 {
-  "prozess": "string",
-  "prozess_id": "string",
-  "rollen": ["string"],
-  "folgt_auf": ["string"],
-  "anwendungen": [
-    { "name": "string", "konfidenz": "stark|schwach" }
+  "process": "string",
+  "process_id": "string",
+  "roles": ["string"],
+  "follows_after": ["string"],
+  "applications": [
+    { "name": "string", "confidence": "stark|schwach" }
   ]
 }
 
@@ -21,7 +21,7 @@ Rules:
 - If the BPMN contains both a business-facing modeled name and a technical implementation string for the same application, prefer the modeled name and do not return both variants.
 - Do not create separate application entries just because the same application appears in multiple technical notations.
 - Use "stark" for explicit references and "schwach" for implicit references.
-- If no application is referenced, return an empty "anwendungen" array.
+- If no application is referenced, return an empty "applications" array.
 
 Examples:
 - Good application name: `Product Backlog Interface`

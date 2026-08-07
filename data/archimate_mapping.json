@@ -8,52 +8,52 @@
   "fuzzy_match_threshold": 0.85,
   "elements": {
     "import": {
-      "ApplicationCollaboration": "Anwendung",
-      "ApplicationComponent": "Anwendung",
-      "ApplicationEvent": "Prozess",
-      "ApplicationFunction": "Anwendung",
-      "ApplicationInteraction": "Prozess",
-      "ApplicationInterface": "Schnittstelle",
-      "ApplicationProcess": "Anwendung",
-      "Artifact": "Datenobjekt",
-      "Assessment": "Kontext",
-      "BusinessActor": "OrgEinheit",
-      "BusinessCollaboration": "Prozess",
-      "BusinessEvent": "Prozess",
-      "BusinessFunction": "Prozess",
-      "BusinessInteraction": "Prozess",
-      "BusinessObject": "Datenobjekt",
-      "BusinessProcess": "Prozess",
-      "BusinessRole": "Rolle",
-      "BusinessService": "Prozess",
-      "Capability": "Faehigkeit",
-      "CommunicationNetwork": "Infrastruktur",
-      "Constraint": "Anforderung",
-      "CourseOfAction": "Prozess",
-      "DataObject": "Datenobjekt",
+      "ApplicationCollaboration": "Application",
+      "ApplicationComponent": "Application",
+      "ApplicationEvent": "Process",
+      "ApplicationFunction": "Application",
+      "ApplicationInteraction": "Process",
+      "ApplicationInterface": "Interface",
+      "ApplicationProcess": "Application",
+      "Artifact": "DataObject",
+      "Assessment": "Context",
+      "BusinessActor": "OrgUnit",
+      "BusinessCollaboration": "Process",
+      "BusinessEvent": "Process",
+      "BusinessFunction": "Process",
+      "BusinessInteraction": "Process",
+      "BusinessObject": "DataObject",
+      "BusinessProcess": "Process",
+      "BusinessRole": "Role",
+      "BusinessService": "Process",
+      "Capability": "Capability",
+      "CommunicationNetwork": "Infrastructure",
+      "Constraint": "Requirement",
+      "CourseOfAction": "Process",
+      "DataObject": "DataObject",
       "Device": "Server",
-      "Driver": "Kontext",
-      "Goal": "Ziel",
-      "Meaning": "Ziel",
-      "Node": "Infrastruktur",
-      "Outcome": "Ziel",
-      "Path": "Infrastruktur",
-      "Principle": "Anforderung",
-      "Representation": "Datenobjekt",
-      "Requirement": "Anforderung",
-      "Resource": "Ressource",
-      "Risk": "Risiko",
+      "Driver": "Context",
+      "Goal": "Goal",
+      "Meaning": "Goal",
+      "Node": "Infrastructure",
+      "Outcome": "Goal",
+      "Path": "Infrastructure",
+      "Principle": "Requirement",
+      "Representation": "DataObject",
+      "Requirement": "Requirement",
+      "Resource": "Resource",
+      "Risk": "Risk",
       "Stakeholder": "Stakeholder",
-      "SystemSoftware": "Infrastruktur",
-      "TechnologyCollaboration": "Infrastruktur",
-      "TechnologyEvent": "Infrastruktur",
-      "TechnologyFunction": "Infrastruktur",
-      "TechnologyInteraction": "Infrastruktur",
-      "TechnologyInterface": "Schnittstelle",
-      "TechnologyProcess": "Infrastruktur",
-      "TechnologyService": "Infrastruktur",
-      "Value": "Ziel",
-      "ValueStream": "Prozess"
+      "SystemSoftware": "Infrastructure",
+      "TechnologyCollaboration": "Infrastructure",
+      "TechnologyEvent": "Infrastructure",
+      "TechnologyFunction": "Infrastructure",
+      "TechnologyInteraction": "Infrastructure",
+      "TechnologyInterface": "Interface",
+      "TechnologyProcess": "Infrastructure",
+      "TechnologyService": "Infrastructure",
+      "Value": "Goal",
+      "ValueStream": "Process"
     },
     "ignore": [
       "AndJunction",
@@ -70,291 +70,291 @@
       "WorkPackage"
     ],
     "export": {
-      "Anforderung": "Requirement",
-      "Anwendung": "ApplicationComponent",
-      "Datenobjekt": "DataObject",
-      "Faehigkeit": "Capability",
-      "Infrastruktur": "SystemSoftware",
-      "Kontext": "Driver",
-      "OrgEinheit": "BusinessActor",
-      "Prozess": "BusinessProcess",
-      "Ressource": "Resource",
-      "Risiko": "Risk",
-      "Rolle": "BusinessRole",
-      "Schnittstelle": "ApplicationInterface",
+      "Requirement": "Requirement",
+      "Application": "ApplicationComponent",
+      "DataObject": "DataObject",
+      "Capability": "Capability",
+      "Infrastructure": "SystemSoftware",
+      "Context": "Driver",
+      "OrgUnit": "BusinessActor",
+      "Process": "BusinessProcess",
+      "Resource": "Resource",
+      "Risk": "Risk",
+      "Role": "BusinessRole",
+      "Interface": "ApplicationInterface",
       "Server": "Device",
       "Stakeholder": "Stakeholder",
-      "Ziel": "Goal"
+      "Goal": "Goal"
     }
   },
   "relationships": {
     "import": {
-      "Anforderung->Anwendung": [
+      "Requirement->Application": [
         "Influence",
         "Association"
       ],
-      "Anforderung->Prozess": [
+      "Requirement->Process": [
         "Influence",
         "Association"
       ],
-      "Anforderung->Schnittstelle": [
+      "Requirement->Interface": [
         "Influence",
         "Association"
       ],
-      "Anforderung->Server": [
+      "Requirement->Server": [
         "Influence",
         "Association"
       ],
-      "Anforderung->Ziel": [
+      "Requirement->Goal": [
         "Realization",
         "Association"
       ],
-      "Anwendung->Datenobjekt": [
+      "Application->DataObject": [
         "Access",
         "Association"
       ],
-      "Anwendung->Infrastruktur": [
+      "Application->Infrastructure": [
         "Realization",
         "Assignment"
       ],
-      "Anwendung->Prozess": [
+      "Application->Process": [
         "Serving",
         "Realization"
       ],
-      "Anwendung->Ressource": [
+      "Application->Resource": [
         "Association",
         "Assignment"
       ],
-      "Anwendung->Risiko": [
+      "Application->Risk": [
         "Influence",
         "Association"
       ],
-      "Anwendung->Schnittstelle": [
+      "Application->Interface": [
         "Composition",
         "Aggregation"
       ],
-      "Anwendung->Server": [
+      "Application->Server": [
         "Realization",
         "Assignment"
       ],
-      "Anwendung->Ziel": [
+      "Application->Goal": [
         "Influence",
         "Association",
         "Realization"
       ],
-      "Faehigkeit->Anforderung": [
+      "Capability->Requirement": [
         "Realization",
         "Serving"
       ],
-      "Faehigkeit->Anwendung": [
+      "Capability->Application": [
         "Realization",
         "Serving"
       ],
-      "Faehigkeit->Prozess": [
+      "Capability->Process": [
         "Realization",
         "Serving"
       ],
-      "Faehigkeit->Risiko": [
+      "Capability->Risk": [
         "Influence",
         "Association"
       ],
-      "Faehigkeit->Ziel": [
+      "Capability->Goal": [
         "Realization",
         "Serving"
       ],
-      "Kontext->Anforderung": [
+      "Context->Requirement": [
         "Influence",
         "Association"
       ],
-      "Kontext->Ziel": [
+      "Context->Goal": [
         "Influence",
         "Association"
       ],
-      "OrgEinheit->Anforderung": [
+      "OrgUnit->Requirement": [
         "Association"
       ],
-      "OrgEinheit->Anwendung": [
+      "OrgUnit->Application": [
         "Association",
         "Assignment"
       ],
-      "OrgEinheit->Prozess": [
+      "OrgUnit->Process": [
         "Assignment"
       ],
-      "OrgEinheit->Rolle": [
+      "OrgUnit->Role": [
         "Assignment"
       ],
-      "OrgEinheit->Schnittstelle": [
+      "OrgUnit->Interface": [
         "Association",
         "Assignment"
       ],
-      "OrgEinheit->Server": [
+      "OrgUnit->Server": [
         "Association",
         "Assignment"
       ],
-      "Prozess->Datenobjekt": [
+      "Process->DataObject": [
         "Access",
         "Association"
       ],
-      "Prozess->Prozess": [
+      "Process->Process": [
         "Triggering",
         "Flow"
       ],
-      "Prozess->Ressource": [
+      "Process->Resource": [
         "Association",
         "Assignment"
       ],
-      "Prozess->Ziel": [
+      "Process->Goal": [
         "Influence",
         "Association",
         "Realization"
       ],
-      "Risiko->Anwendung": [
+      "Risk->Application": [
         "Association",
         "Influence"
       ],
-      "Risiko->Prozess": [
+      "Risk->Process": [
         "Association",
         "Influence"
       ],
-      "Risiko->Schnittstelle": [
+      "Risk->Interface": [
         "Association",
         "Influence"
       ],
-      "Risiko->Server": [
+      "Risk->Server": [
         "Association",
         "Influence"
       ],
-      "Rolle->Prozess": [
+      "Role->Process": [
         "Assignment"
       ],
-      "Schnittstelle->Server": [
+      "Interface->Server": [
         "Realization"
       ],
-      "Stakeholder->Anforderung": [
+      "Stakeholder->Requirement": [
         "Association"
       ],
-      "Stakeholder->Anwendung": [
+      "Stakeholder->Application": [
         "Association"
       ],
-      "Stakeholder->Prozess": [
+      "Stakeholder->Process": [
         "Association"
       ],
-      "Stakeholder->Ziel": [
+      "Stakeholder->Goal": [
         "Association"
       ],
-      "OrgEinheit->Infrastruktur": [
+      "OrgUnit->Infrastructure": [
         "Association",
         "Assignment"
       ],
-      "Stakeholder->Kontext": [
+      "Stakeholder->Context": [
         "Association"
       ],
-      "Anforderung->Anforderung": [
+      "Requirement->Requirement": [
         "Influence",
         "Association"
       ],
-      "Prozess->Faehigkeit": [
+      "Process->Capability": [
         "Serving",
         "Realization"
       ],
-      "Anwendung->Faehigkeit": [
+      "Application->Capability": [
         "Serving",
         "Realization"
       ]
     },
     "export": {
-      "Anforderung->Anwendung": "Influence",
-      "Anforderung->Prozess": "Influence",
-      "Anforderung->Schnittstelle": "Influence",
-      "Anforderung->Server": "Influence",
-      "Anforderung->Ziel": "Realization",
-      "Anwendung->Datenobjekt": "Access",
-      "Anwendung->Infrastruktur": "Realization",
-      "Anwendung->Prozess": "Serving",
-      "Anwendung->Ressource": "Association",
-      "Anwendung->Risiko": "Influence",
-      "Anwendung->Schnittstelle": "Composition",
-      "Anwendung->Server": "Realization",
-      "Anwendung->Ziel": "Influence",
-      "Faehigkeit->Anforderung": "Realization",
-      "Faehigkeit->Anwendung": "Realization",
-      "Faehigkeit->Prozess": "Realization",
-      "Faehigkeit->Risiko": "Influence",
-      "Faehigkeit->Ziel": "Realization",
-      "Kontext->Anforderung": "Influence",
-      "Kontext->Ziel": "Influence",
-      "OrgEinheit->Anforderung": "Association",
-      "OrgEinheit->Anwendung": "Assignment",
-      "OrgEinheit->Prozess": "Assignment",
-      "OrgEinheit->Rolle": "Assignment",
-      "OrgEinheit->Schnittstelle": "Assignment",
-      "OrgEinheit->Server": "Assignment",
-      "Prozess->Datenobjekt": "Access",
-      "Prozess->Prozess": "Triggering",
-      "Prozess->Ressource": "Association",
-      "Prozess->Ziel": "Influence",
-      "Risiko->Anwendung": "Association",
-      "Risiko->Prozess": "Association",
-      "Risiko->Schnittstelle": "Association",
-      "Risiko->Server": "Association",
-      "Rolle->Prozess": "Assignment",
-      "Schnittstelle->Server": "Realization",
-      "Stakeholder->Anforderung": "Association",
-      "Stakeholder->Anwendung": "Association",
-      "Stakeholder->Prozess": "Association",
-      "Stakeholder->Ziel": "Association",
-      "OrgEinheit->Infrastruktur": "Assignment",
-      "Stakeholder->Kontext": "Association",
-      "Anforderung->Anforderung": "Influence",
-      "Prozess->Faehigkeit": "Serving",
-      "Anwendung->Faehigkeit": "Serving"
+      "Requirement->Application": "Influence",
+      "Requirement->Process": "Influence",
+      "Requirement->Interface": "Influence",
+      "Requirement->Server": "Influence",
+      "Requirement->Goal": "Realization",
+      "Application->DataObject": "Access",
+      "Application->Infrastructure": "Realization",
+      "Application->Process": "Serving",
+      "Application->Resource": "Association",
+      "Application->Risk": "Influence",
+      "Application->Interface": "Composition",
+      "Application->Server": "Realization",
+      "Application->Goal": "Influence",
+      "Capability->Requirement": "Realization",
+      "Capability->Application": "Realization",
+      "Capability->Process": "Realization",
+      "Capability->Risk": "Influence",
+      "Capability->Goal": "Realization",
+      "Context->Requirement": "Influence",
+      "Context->Goal": "Influence",
+      "OrgUnit->Requirement": "Association",
+      "OrgUnit->Application": "Assignment",
+      "OrgUnit->Process": "Assignment",
+      "OrgUnit->Role": "Assignment",
+      "OrgUnit->Interface": "Assignment",
+      "OrgUnit->Server": "Assignment",
+      "Process->DataObject": "Access",
+      "Process->Process": "Triggering",
+      "Process->Resource": "Association",
+      "Process->Goal": "Influence",
+      "Risk->Application": "Association",
+      "Risk->Process": "Association",
+      "Risk->Interface": "Association",
+      "Risk->Server": "Association",
+      "Role->Process": "Assignment",
+      "Interface->Server": "Realization",
+      "Stakeholder->Requirement": "Association",
+      "Stakeholder->Application": "Association",
+      "Stakeholder->Process": "Association",
+      "Stakeholder->Goal": "Association",
+      "OrgUnit->Infrastructure": "Assignment",
+      "Stakeholder->Context": "Association",
+      "Requirement->Requirement": "Influence",
+      "Process->Capability": "Serving",
+      "Application->Capability": "Serving"
     },
     "bridgr_relation": {
-      "Anforderung->Anwendung": "BEEINFLUSST",
-      "Anforderung->Prozess": "BEEINFLUSST",
-      "Anforderung->Schnittstelle": "BEEINFLUSST",
-      "Anforderung->Server": "BEEINFLUSST",
-      "Anforderung->Ziel": "REALISIERT",
-      "Anwendung->Datenobjekt": "VERARBEITET",
-      "Anwendung->Infrastruktur": "LAEUFT_AUF",
-      "Anwendung->Prozess": "DIENT",
-      "Anwendung->Ressource": "BENOETIGT",
-      "Anwendung->Risiko": "MITIGIERT",
-      "Anwendung->Schnittstelle": "USES_INTERFACE",
-      "Anwendung->Server": "RUNS_ON",
-      "Anwendung->Ziel": "UNTERSTUETZT",
-      "Faehigkeit->Anforderung": "REALISIERT",
-      "Faehigkeit->Anwendung": "REALISIERT",
-      "Faehigkeit->Prozess": "REALISIERT",
-      "Faehigkeit->Risiko": "MITIGIERT",
-      "Faehigkeit->Ziel": "REALISIERT",
-      "Kontext->Anforderung": "BEEINFLUSST",
-      "Kontext->Ziel": "BEEINFLUSST",
-      "OrgEinheit->Anforderung": "IST_VERBUNDEN_MIT",
-      "OrgEinheit->Anwendung": "VERANTWORTET",
-      "OrgEinheit->Prozess": "VERANTWORTET",
-      "OrgEinheit->Rolle": "KANN_EINNEHMEN",
-      "OrgEinheit->Schnittstelle": "VERANTWORTET",
-      "OrgEinheit->Server": "VERANTWORTET",
-      "Prozess->Datenobjekt": "VERARBEITET",
-      "Prozess->Prozess": "FOLGT_AUF",
-      "Prozess->Ressource": "BENOETIGT",
-      "Prozess->Ziel": "UNTERSTUETZT",
-      "Risiko->Anwendung": "BETRIFFT",
-      "Risiko->Prozess": "BETRIFFT",
-      "Risiko->Schnittstelle": "BETRIFFT",
-      "Risiko->Server": "BETRIFFT",
-      "Rolle->Prozess": "BETEILIGT_AN",
-      "Schnittstelle->Server": "RUNS_ON",
-      "Stakeholder->Anforderung": "IST_VERBUNDEN_MIT",
-      "Stakeholder->Anwendung": "IST_VERBUNDEN_MIT",
-      "Stakeholder->Prozess": "IST_VERBUNDEN_MIT",
-      "Stakeholder->Ziel": "IST_VERBUNDEN_MIT",
-      "OrgEinheit->Infrastruktur": "VERANTWORTET",
-      "Stakeholder->Kontext": "IST_VERBUNDEN_MIT",
-      "Anforderung->Anforderung": "BEEINFLUSST",
-      "Prozess->Faehigkeit": "UNTERSTUETZT",
-      "Anwendung->Faehigkeit": "UNTERSTUETZT"
+      "Requirement->Application": "INFLUENCES",
+      "Requirement->Process": "INFLUENCES",
+      "Requirement->Interface": "INFLUENCES",
+      "Requirement->Server": "INFLUENCES",
+      "Requirement->Goal": "REALIZES",
+      "Application->DataObject": "PROCESSES",
+      "Application->Infrastructure": "RUNS_ON",
+      "Application->Process": "SERVES",
+      "Application->Resource": "REQUIRES",
+      "Application->Risk": "MITIGATES",
+      "Application->Interface": "USES_INTERFACE",
+      "Application->Server": "RUNS_ON",
+      "Application->Goal": "SUPPORTS",
+      "Capability->Requirement": "REALIZES",
+      "Capability->Application": "REALIZES",
+      "Capability->Process": "REALIZES",
+      "Capability->Risk": "MITIGATES",
+      "Capability->Goal": "REALIZES",
+      "Context->Requirement": "INFLUENCES",
+      "Context->Goal": "INFLUENCES",
+      "OrgUnit->Requirement": "CONNECTED_TO",
+      "OrgUnit->Application": "RESPONSIBLE_FOR",
+      "OrgUnit->Process": "RESPONSIBLE_FOR",
+      "OrgUnit->Role": "CAN_ASSUME",
+      "OrgUnit->Interface": "RESPONSIBLE_FOR",
+      "OrgUnit->Server": "RESPONSIBLE_FOR",
+      "Process->DataObject": "PROCESSES",
+      "Process->Process": "FOLLOWS",
+      "Process->Resource": "REQUIRES",
+      "Process->Goal": "SUPPORTS",
+      "Risk->Application": "AFFECTS",
+      "Risk->Process": "AFFECTS",
+      "Risk->Interface": "AFFECTS",
+      "Risk->Server": "AFFECTS",
+      "Role->Process": "PARTICIPATES_IN",
+      "Interface->Server": "RUNS_ON",
+      "Stakeholder->Requirement": "CONNECTED_TO",
+      "Stakeholder->Application": "CONNECTED_TO",
+      "Stakeholder->Process": "CONNECTED_TO",
+      "Stakeholder->Goal": "CONNECTED_TO",
+      "OrgUnit->Infrastructure": "RESPONSIBLE_FOR",
+      "Stakeholder->Context": "CONNECTED_TO",
+      "Requirement->Requirement": "INFLUENCES",
+      "Process->Capability": "SUPPORTS",
+      "Application->Capability": "SUPPORTS"
     }
   },
   "pending_candidates": []

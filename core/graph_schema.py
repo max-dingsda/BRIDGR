@@ -6,7 +6,7 @@ import re
 
 
 # Unicode-aware identifier: starts with letter/underscore, followed by word chars.
-# Necessary because BRIDGR relationship types contain umlauts (KÖNNTE_DIENEN).
+# Necessary because BRIDGR relationship types contain umlauts (MAY_SERVE).
 _IDENT = r"[^\W\d]\w*"
 
 
@@ -19,81 +19,81 @@ class RelationshipPattern:
 
 
 QUERY_NODE_SCHEMA: dict[str, tuple[str, ...]] = {
-    "Prozess": ("prozess_id", "name", "archimate_type", "archimate_id"),
-    "Anwendung": ("id", "cmdb_id", "name", "archimate_type", "archimate_id"),
-    "Schnittstelle": ("id", "name", "archimate_type", "archimate_id"),
+    "Process": ("process_id", "name", "archimate_type", "archimate_id"),
+    "Application": ("id", "cmdb_id", "name", "archimate_type", "archimate_id"),
+    "Interface": ("id", "name", "archimate_type", "archimate_id"),
     "Server": ("id", "name", "server_type", "archimate_type", "archimate_id"),
-    "OrgEinheit": ("name",),
-    "Rolle": ("name", "archimate_type", "archimate_id", "role_only"),
+    "OrgUnit": ("name",),
+    "Role": ("name", "archimate_type", "archimate_id", "role_only"),
     "Alias": ("normalized_name", "name", "source_kind"),
-    "Faehigkeit":    ("name", "archimate_type", "archimate_id"),
-    "Ressource":     ("name", "archimate_type", "archimate_id"),
-    "Ziel":          ("name", "archimate_type", "archimate_id"),
-    "Anforderung":   ("name", "archimate_type", "archimate_id"),
-    "Kontext":       ("name", "archimate_type", "archimate_id"),
+    "Capability":    ("name", "archimate_type", "archimate_id"),
+    "Resource":     ("name", "archimate_type", "archimate_id"),
+    "Goal":          ("name", "archimate_type", "archimate_id"),
+    "Requirement":   ("name", "archimate_type", "archimate_id"),
+    "Context":       ("name", "archimate_type", "archimate_id"),
     "Stakeholder":   ("name", "archimate_type", "archimate_id"),
-    "Risiko":        ("name", "archimate_type", "archimate_id"),
-    "Datenobjekt":   ("name", "archimate_type", "archimate_id"),
-    "Infrastruktur": ("name", "archimate_type", "archimate_id"),
+    "Risk":        ("name", "archimate_type", "archimate_id"),
+    "DataObject":   ("name", "archimate_type", "archimate_id"),
+    "Infrastructure": ("name", "archimate_type", "archimate_id"),
 }
 
 QUERY_RELATIONSHIP_PATTERNS: tuple[RelationshipPattern, ...] = (
-    RelationshipPattern("DIENT", "Anwendung", "Prozess", ("konfidenz", "source")),
-    RelationshipPattern("BETEILIGT_AN", "Rolle", "Prozess"),
-    RelationshipPattern("KANN_EINNEHMEN", "OrgEinheit", "Rolle"),
-    RelationshipPattern("VERANTWORTET", "OrgEinheit", "Prozess"),
-    RelationshipPattern("VERANTWORTET", "OrgEinheit", "Anwendung"),
-    RelationshipPattern("VERANTWORTET", "OrgEinheit", "Schnittstelle"),
-    RelationshipPattern("VERANTWORTET", "OrgEinheit", "Server"),
-    RelationshipPattern("VERANTWORTET", "OrgEinheit", "Infrastruktur"),
-    RelationshipPattern("FOLGT_AUF", "Prozess", "Prozess"),
-    RelationshipPattern("USES_INTERFACE", "Anwendung", "Schnittstelle"),
-    RelationshipPattern("RUNS_ON", "Anwendung", "Server"),
-    RelationshipPattern("RUNS_ON", "Schnittstelle", "Server"),
-    RelationshipPattern("KÖNNTE_DIENEN", "Anwendung", "Prozess", ("score",)),
-    RelationshipPattern("KANN_MEINEN", "Alias", "Anwendung", ("source_kind",)),
-    RelationshipPattern("KANN_MEINEN", "Alias", "OrgEinheit", ("source_kind",)),
-    RelationshipPattern("BETRIFFT", "Risiko", "Anwendung"),
-    RelationshipPattern("BETRIFFT", "Risiko", "Prozess"),
-    RelationshipPattern("BETRIFFT", "Risiko", "Server"),
-    RelationshipPattern("BETRIFFT", "Risiko", "Schnittstelle"),
-    RelationshipPattern("MITIGIERT", "Faehigkeit", "Risiko"),
-    RelationshipPattern("MITIGIERT", "Anwendung", "Risiko"),
-    RelationshipPattern("REALISIERT", "Faehigkeit", "Prozess"),
-    RelationshipPattern("REALISIERT", "Faehigkeit", "Anwendung"),
-    RelationshipPattern("REALISIERT", "Anforderung", "Ziel"),
-    RelationshipPattern("BENOETIGT", "Prozess", "Ressource"),
-    RelationshipPattern("BENOETIGT", "Anwendung", "Ressource"),
-    RelationshipPattern("UNTERSTUETZT", "Anwendung", "Ziel"),
-    RelationshipPattern("UNTERSTUETZT", "Prozess", "Ziel"),
-    RelationshipPattern("UNTERSTUETZT", "Prozess", "Faehigkeit"),
-    RelationshipPattern("UNTERSTUETZT", "Anwendung", "Faehigkeit"),
-    RelationshipPattern("VERARBEITET", "Anwendung", "Datenobjekt"),
-    RelationshipPattern("VERARBEITET", "Prozess", "Datenobjekt"),
-    RelationshipPattern("LAEUFT_AUF", "Anwendung", "Infrastruktur"),
-    RelationshipPattern("BEEINFLUSST", "Kontext", "Ziel"),
-    RelationshipPattern("BEEINFLUSST", "Kontext", "Anforderung"),
-    RelationshipPattern("BEEINFLUSST", "Anforderung", "Prozess"),
-    RelationshipPattern("BEEINFLUSST", "Anforderung", "Anwendung"),
-    RelationshipPattern("BEEINFLUSST", "Anforderung", "Schnittstelle"),
-    RelationshipPattern("BEEINFLUSST", "Anforderung", "Server"),
-    RelationshipPattern("IST_VERBUNDEN_MIT", "Stakeholder", "Ziel"),
-    RelationshipPattern("IST_VERBUNDEN_MIT", "Stakeholder", "Anforderung"),
-    RelationshipPattern("IST_VERBUNDEN_MIT", "Stakeholder", "Prozess"),
-    RelationshipPattern("IST_VERBUNDEN_MIT", "Stakeholder", "Anwendung"),
-    RelationshipPattern("IST_VERBUNDEN_MIT", "OrgEinheit", "Anforderung"),
-    RelationshipPattern("IST_VERBUNDEN_MIT", "Stakeholder", "Kontext"),
-    RelationshipPattern("REALISIERT", "Faehigkeit", "Ziel"),
-    RelationshipPattern("REALISIERT", "Faehigkeit", "Anforderung"),
-    RelationshipPattern("BEEINFLUSST", "Anforderung", "Anforderung"),
+    RelationshipPattern("SERVES", "Application", "Process", ("confidence", "source")),
+    RelationshipPattern("PARTICIPATES_IN", "Role", "Process"),
+    RelationshipPattern("CAN_ASSUME", "OrgUnit", "Role"),
+    RelationshipPattern("RESPONSIBLE_FOR", "OrgUnit", "Process"),
+    RelationshipPattern("RESPONSIBLE_FOR", "OrgUnit", "Application"),
+    RelationshipPattern("RESPONSIBLE_FOR", "OrgUnit", "Interface"),
+    RelationshipPattern("RESPONSIBLE_FOR", "OrgUnit", "Server"),
+    RelationshipPattern("RESPONSIBLE_FOR", "OrgUnit", "Infrastructure"),
+    RelationshipPattern("FOLLOWS", "Process", "Process"),
+    RelationshipPattern("USES_INTERFACE", "Application", "Interface"),
+    RelationshipPattern("RUNS_ON", "Application", "Server"),
+    RelationshipPattern("RUNS_ON", "Interface", "Server"),
+    RelationshipPattern("MAY_SERVE", "Application", "Process", ("score",)),
+    RelationshipPattern("MAY_REFER_TO", "Alias", "Application", ("source_kind",)),
+    RelationshipPattern("MAY_REFER_TO", "Alias", "OrgUnit", ("source_kind",)),
+    RelationshipPattern("AFFECTS", "Risk", "Application"),
+    RelationshipPattern("AFFECTS", "Risk", "Process"),
+    RelationshipPattern("AFFECTS", "Risk", "Server"),
+    RelationshipPattern("AFFECTS", "Risk", "Interface"),
+    RelationshipPattern("MITIGATES", "Capability", "Risk"),
+    RelationshipPattern("MITIGATES", "Application", "Risk"),
+    RelationshipPattern("REALIZES", "Capability", "Process"),
+    RelationshipPattern("REALIZES", "Capability", "Application"),
+    RelationshipPattern("REALIZES", "Requirement", "Goal"),
+    RelationshipPattern("REQUIRES", "Process", "Resource"),
+    RelationshipPattern("REQUIRES", "Application", "Resource"),
+    RelationshipPattern("SUPPORTS", "Application", "Goal"),
+    RelationshipPattern("SUPPORTS", "Process", "Goal"),
+    RelationshipPattern("SUPPORTS", "Process", "Capability"),
+    RelationshipPattern("SUPPORTS", "Application", "Capability"),
+    RelationshipPattern("PROCESSES", "Application", "DataObject"),
+    RelationshipPattern("PROCESSES", "Process", "DataObject"),
+    RelationshipPattern("RUNS_ON", "Application", "Infrastructure"),
+    RelationshipPattern("INFLUENCES", "Context", "Goal"),
+    RelationshipPattern("INFLUENCES", "Context", "Requirement"),
+    RelationshipPattern("INFLUENCES", "Requirement", "Process"),
+    RelationshipPattern("INFLUENCES", "Requirement", "Application"),
+    RelationshipPattern("INFLUENCES", "Requirement", "Interface"),
+    RelationshipPattern("INFLUENCES", "Requirement", "Server"),
+    RelationshipPattern("CONNECTED_TO", "Stakeholder", "Goal"),
+    RelationshipPattern("CONNECTED_TO", "Stakeholder", "Requirement"),
+    RelationshipPattern("CONNECTED_TO", "Stakeholder", "Process"),
+    RelationshipPattern("CONNECTED_TO", "Stakeholder", "Application"),
+    RelationshipPattern("CONNECTED_TO", "OrgUnit", "Requirement"),
+    RelationshipPattern("CONNECTED_TO", "Stakeholder", "Context"),
+    RelationshipPattern("REALIZES", "Capability", "Goal"),
+    RelationshipPattern("REALIZES", "Capability", "Requirement"),
+    RelationshipPattern("INFLUENCES", "Requirement", "Requirement"),
 )
 
 QUERY_RELATIONSHIP_SCHEMA: dict[str, tuple[str, ...]] = {}
 for _pattern in QUERY_RELATIONSHIP_PATTERNS:
     QUERY_RELATIONSHIP_SCHEMA.setdefault(_pattern.relationship_type, _pattern.properties)
 
-# IST_VERBUNDEN_MIT is unrestricted — no label-pair validation applied.
-_UNRESTRICTED_RELATIONSHIP_TYPES: frozenset[str] = frozenset({"IST_VERBUNDEN_MIT"})
+# CONNECTED_TO is unrestricted — no label-pair validation applied.
+_UNRESTRICTED_RELATIONSHIP_TYPES: frozenset[str] = frozenset({"CONNECTED_TO"})
 
 
 def build_query_schema_reference() -> str:
@@ -259,7 +259,7 @@ def build_archimate_mapping_reference() -> str:
         "|------------------------|---------------|\n"
         f"{rows}\n\n"
         "When a user asks for a framework type (e.g. 'all ApplicationComponents'), use the\n"
-        "corresponding BRIDGR label (`:Anwendung`). Filter on `archimate_type` only when the\n"
+        "corresponding BRIDGR label (`:Application`). Filter on `archimate_type` only when the\n"
         "user explicitly asks about the ArchiMate origin. Not all nodes carry `archimate_type`\n"
         "— only elements imported from ArchiMate files."
         f"{ignore_note}"

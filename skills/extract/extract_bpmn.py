@@ -26,7 +26,7 @@ class BpmnExtractor:
         payload = self._generate_json_with_required_keys(
             system_prompt=prompt,
             user_prompt=bpmn_xml,
-            required_keys={"prozess", "prozess_id", "rollen", "anwendungen"},
+            required_keys={"process", "process_id", "roles", "applications"},
         )
         return self._to_domain_model(payload, source_path)
 
@@ -41,20 +41,20 @@ class BpmnExtractor:
             raw_applications = [
                 ApplicationReference(
                     name=item["name"],
-                    confidence=item["konfidenz"],
+                    confidence=item["confidence"],
                 )
-                for item in payload["anwendungen"]
+                for item in payload["applications"]
             ]
-            applications = self._deduplicate_applications(payload["anwendungen"])
-            roles = self._parse_roles(payload.get("rollen", []))
+            applications = self._deduplicate_applications(payload["applications"])
+            roles = self._parse_roles(payload.get("roles", []))
             return ExtractedProcess(
-                process_name=payload["prozess"],
-                process_id=payload["prozess_id"],
+                process_name=payload["process"],
+                process_id=payload["process_id"],
                 org_unit="",
                 roles=roles,
                 org_units=[],
                 org_unit_candidates=[],
-                follows_after=list(payload.get("folgt_auf", [])),
+                follows_after=list(payload.get("follows_after", [])),
                 raw_applications=raw_applications,
                 applications=applications,
                 source_path=str(source_path),
@@ -109,7 +109,7 @@ class BpmnExtractor:
 
             candidate = {
                 "name": cleaned_name,
-                "konfidenz": item["konfidenz"],
+                "confidence": item["confidence"],
             }
             existing = grouped_applications.get(normalized_key)
             if existing is None or self._is_better_application_candidate(candidate, existing):
@@ -118,7 +118,7 @@ class BpmnExtractor:
         return [
             ApplicationReference(
                 name=item["name"],
-                confidence=item["konfidenz"],
+                confidence=item["confidence"],
             )
             for item in grouped_applications.values()
         ]
@@ -163,7 +163,7 @@ class BpmnExtractor:
 
     def _application_candidate_score(self, candidate: dict) -> tuple[int, int, int]:
         name = candidate["name"]
-        confidence = candidate["konfidenz"]
+        confidence = candidate["confidence"]
         confidence_score = 1 if confidence == "stark" else 0
         readability_score = 1 if " " in name else 0
         technical_penalty = -1 if "." in name else 0

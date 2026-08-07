@@ -5,6 +5,7 @@ from pathlib import Path
 import streamlit as st
 
 from core.app_config import AppConfig, load_config, resolve_runtime_output_path
+from core.i18n import translate_source
 from processing.cmdb import build_cmdb_option_labels, find_cmdb_row_by_label
 from services.cmdb_service import load_all_cmdb_rows, load_application_cmdb_rows
 from core.constants import DOCUMENT_STATUS_OPTIONS, MATCH_SOURCE_REJECTED
@@ -25,7 +26,7 @@ from services.runtime_service import (
 )
 from skills.graph_writer import GraphWriter
 from ui.curation_sections import render_process_merge_section, render_recent_decisions_section
-from ui.layout import render_page_header
+from ui.layout import get_active_locale, render_page_header
 from ui.ui_run_view import (
     build_document_details,
     build_document_status_rows,
@@ -36,6 +37,10 @@ from ui.ui_run_view import (
     summarize_run,
     summarize_review_artifacts,
 )
+
+
+def _t(text: str, **values: object) -> str:
+    return translate_source(text, get_active_locale()).format(**values)
 
 
 def render_latest_run_summary(latest_run: dict, documents: list[dict]) -> None:
@@ -53,17 +58,17 @@ def render_latest_run_summary(latest_run: dict, documents: list[dict]) -> None:
 
 def render_document_status_table(documents: list[dict]) -> None:
     rows = build_document_status_rows(documents)
-    st.markdown("**Dokumentstatus**")
+    st.markdown(f"**{_t('Dokumentstatus')}**")
     if rows:
         st.dataframe(rows, width="stretch")
     else:
-        st.info("Keine Dokumente für den aktuellen Filter gefunden.")
+        st.info(_t("Keine Dokumente für den aktuellen Filter gefunden."))
 
 
 def render_review_artifact_summary(config: AppConfig, documents: list[dict]) -> None:
     org_unit_candidates = GraphWriter().load_org_unit_candidates(get_session_neo4j_client(config))
     summary = summarize_review_artifacts(documents, org_unit_candidates)
-    st.markdown("**Der letzte Import hat folgendes gefunden**")
+    st.markdown(f"**{_t('Der letzte Import hat folgendes gefunden')}**")
     st.markdown(f"- {summary['exact_application_matches']} eindeutige Applikationszuordnungen")
     st.markdown(f"- {summary['review_application_matches']} zu prüfende Applikationszuordnungen")
     st.markdown(f"- {summary['exact_org_unit_matches']} eindeutige Organisationseinheiten")
@@ -78,7 +83,7 @@ def render_duplicate_application_warnings(documents: list[dict]) -> None:
     for warning in warnings:
         variants = "; ".join(warning.get("varianten", []))
         st.warning(
-            f"Im Prozess '{warning.get('prozess', '')}' scheint dieselbe Anwendung mehrfach unterschiedlich notiert zu sein: {variants}"
+            f"Im Prozess '{warning.get('process', '')}' scheint dieselbe Anwendung mehrfach unterschiedlich notiert zu sein: {variants}"
         )
 
 
@@ -114,7 +119,7 @@ def render_review_item_actions(
     checked_row_ids: set[str] | None = None,
     batch_valid_rows: list[dict] | None = None,
 ) -> None:
-    process_name = review_row.get("prozess", "")
+    process_name = review_row.get("process", "")
     process_id = review_row.get("process_id", "")
     source_path = review_row.get("source_path", "")
     application_name = review_row.get("anwendung_im_prozess", "")
@@ -206,7 +211,7 @@ def render_review_items_table(documents: list[dict], config: AppConfig, cmdb_row
     if sort_mode == "Nach Anwendungsbezeichner":
         review_rows = sorted(
             review_rows,
-            key=lambda r: (r.get("anwendung_im_prozess", "").lower(), r.get("prozess", "").lower()),
+            key=lambda r: (r.get("anwendung_im_prozess", "").lower(), r.get("process", "").lower()),
         )
 
     batch_state, checked_rows, checked_row_ids = _compute_batch_state(review_rows)
@@ -287,10 +292,7 @@ def render_review_tab() -> None:
     config = load_config(Path("config.json"))
     apply_pending_review_scope_defaults()
     render_run_feedback(REVIEW_RUN_FEEDBACK_STATE_KEY)
-    st.caption(
-        "Hier bearbeiten Sie bereits bekannte schwache oder offene Zuordnungen. "
-        "Es wird kein neuer Import aus der Inbox gestartet."
-    )
+    st.caption(_t("Hier bearbeiten Sie bereits bekannte schwache oder offene Zuordnungen. Es wird kein neuer Import aus der Inbox gestartet."))
 
     runtime_output_path, used_output_fallback = resolve_runtime_output_path(config.output_path)
     last_import_context = load_last_import_context(runtime_output_path)
@@ -301,21 +303,21 @@ def render_review_tab() -> None:
     action_column, info_column = st.columns([1, 2])
     with action_column:
         review_scope = st.radio(
-            "Umfang",
-            options=["Nur letzter Import", "Dateien manuell wählen"],
+            _t("Umfang"),
+            options=[_t("Nur letzter Import"), _t("Dateien manuell wählen")],
             key="review_scope_mode",
         )
         selected_review_source_paths: list[str] = []
-        if review_scope == "Nur letzter Import":
+        if review_scope == _t("Nur letzter Import"):
             if last_import_labels:
                 st.caption(f"{len(last_import_labels)} Datei(en) aus dem letzten Import stehen zur Verfügung.")
-                with st.expander("Dateien anzeigen", expanded=False):
+                with st.expander(_t("Dateien anzeigen"), expanded=False):
                     st.dataframe([{"Datei": label} for label in last_import_labels], width="stretch")
                     if last_import_archive_path:
                         st.caption(f"Archivpfad des letzten Imports: `{last_import_archive_path}`")
                 selected_review_source_paths = list(last_import_source_paths)
             else:
-                st.info("Es liegt noch keine gespeicherte Auswahl aus dem letzten Import vor.")
+                st.info(_t("Es liegt noch keine gespeicherte Auswahl aus dem letzten Import vor."))
         else:
             latest_run = load_latest_run(runtime_output_path) or {}
             manual_review_options = sorted(
@@ -326,30 +328,27 @@ def render_review_tab() -> None:
                 }
             )
             selected_review_source_paths = st.multiselect(
-                "Dateien für Überprüfung",
+                _t("Dateien für Überprüfung"),
                 options=manual_review_options,
                 default=[],
                 key="review_process_selection",
                 format_func=lambda value: Path(value).name,
             )
     with info_column:
-        st.caption(
-            "Die Ansicht liest den letzten gespeicherten Lauf aus `Output/latest_run.json` "
-            "und zeigt offene bzw. schwache Zuordnungsfälle zur Bearbeitung."
-        )
+        st.caption(_t("Die Ansicht liest den letzten gespeicherten Lauf aus `Output/latest_run.json` und zeigt offene bzw. schwache Zuordnungsfälle zur Bearbeitung."))
 
     latest_run = load_latest_run(runtime_output_path)
     if latest_run is None:
         if used_output_fallback:
             st.warning(f"Der konfigurierte Ausgabepfad ist nicht beschreibbar. Laufartefakte werden nach `{runtime_output_path}` umgeleitet.")
-        st.info("Noch kein gespeicherter Pipeline-Lauf vorhanden.")
+        st.info(_t("Noch kein gespeicherter Pipeline-Lauf vorhanden."))
         _render_curation_sections(config)
         return
 
     if latest_run.get("used_output_fallback"):
         st.warning(f"Laufartefakte werden aktuell nach `{latest_run.get('output_path', runtime_output_path)}` geschrieben.")
 
-    selected_statuses = st.multiselect("Statusfilter", options=DOCUMENT_STATUS_OPTIONS, default=DOCUMENT_STATUS_OPTIONS)
+    selected_statuses = st.multiselect(_t("Statusfilter"), options=DOCUMENT_STATUS_OPTIONS, default=DOCUMENT_STATUS_OPTIONS)
     filtered_documents = filter_documents(latest_run, selected_statuses)
     active_scope_paths = selected_review_source_paths
     if active_scope_paths:
@@ -358,8 +357,8 @@ def render_review_tab() -> None:
             for document in filtered_documents
             if document.get("source_path", "") in active_scope_paths
         ]
-    elif review_scope == "Dateien manuell wählen":
-        st.info("Bitte wählen Sie mindestens eine Prozessdatei für die Überprüfung aus.")
+    elif review_scope == _t("Dateien manuell wählen"):
+        st.info(_t("Bitte wählen Sie mindestens eine Prozessdatei für die Überprüfung aus."))
         filtered_documents = []
     render_latest_run_summary(latest_run, filtered_documents)
     cmdb_rows = _resolve_cmdb_rows(config)
@@ -386,6 +385,6 @@ def render_review_tab() -> None:
 
 
 def _render_curation_sections(config: AppConfig) -> None:
-    st.markdown("#### Datenpflege")
+    st.markdown(f"#### {_t('Datenpflege')}")
     render_process_merge_section(config, REVIEW_RUN_FEEDBACK_STATE_KEY)
     render_recent_decisions_section(config, REVIEW_RUN_FEEDBACK_STATE_KEY)
