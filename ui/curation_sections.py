@@ -4,6 +4,7 @@ import json
 
 import streamlit as st
 
+from core.i18n import translate_source
 from services.correction_service import revert_manual_decision
 from services.decision_service import list_recent_manual_decisions
 from services.merge_service import (
@@ -12,9 +13,14 @@ from services.merge_service import (
     merge_processes,
 )
 from services.runtime_service import get_session_neo4j_client, set_run_feedback
+from ui.layout import get_active_locale
 
 SECTION_RECENT_DECISIONS = "curation_section_recent_decisions_open"
 SECTION_PROCESS_MERGE = "curation_section_process_merge_open"
+
+
+def _t(text: str, **values: object) -> str:
+    return translate_source(text, get_active_locale()).format(**values)
 
 
 def _rerun_keep(section_key: str) -> None:
@@ -96,12 +102,12 @@ def render_recent_decisions_section(config, feedback_state_key: str) -> None:
         decisions = []
         load_error = exc
 
-    with st.expander("Letzte manuelle Änderungen", expanded=st.session_state.get(SECTION_RECENT_DECISIONS, False)):
+    with st.expander(_t("Letzte manuelle Änderungen"), expanded=st.session_state.get(SECTION_RECENT_DECISIONS, False)):
         if load_error:
-            st.warning(f"Manuelle Änderungen konnten nicht geladen werden: {load_error}")
+            st.warning(_t("Manuelle Änderungen konnten nicht geladen werden: {error}", error=load_error))
             return
         if not decisions:
-            st.info("Noch keine manuellen Änderungen im Entscheidungslog vorhanden.")
+            st.info(_t("Noch keine manuellen Änderungen im Entscheidungslog vorhanden."))
             return
 
         st.caption("Hier können gezielt nachvollziehbare manuelle Eingriffe zurückgenommen werden.")
@@ -114,7 +120,7 @@ def render_recent_decisions_section(config, feedback_state_key: str) -> None:
                     cols[0].caption(context)
                 cols[1].caption(f"Status: {decision.status}")
                 cols[1].caption(f"Zeitpunkt: {decision.created_at}")
-                if _decision_is_revertable(decision) and cols[2].button("Zurücknehmen", key=f"decision-revert::{decision.decision_id}", width="stretch"):
+                if _decision_is_revertable(decision) and cols[2].button(_t("Zurücknehmen"), key=f"decision-revert::{decision.decision_id}", width="stretch"):
                     level, message = revert_manual_decision(config, decision.decision_id)
                     set_run_feedback(feedback_state_key, level, message)
                     _rerun_keep(SECTION_RECENT_DECISIONS)
@@ -128,12 +134,12 @@ def render_process_merge_section(config, feedback_state_key: str) -> None:
         process_candidates = []
         load_error = exc
 
-    with st.expander("Prozesse konsolidieren", expanded=st.session_state.get(SECTION_PROCESS_MERGE, False)):
+    with st.expander(_t("Prozesse konsolidieren"), expanded=st.session_state.get(SECTION_PROCESS_MERGE, False)):
         if load_error:
-            st.warning(f"Prozesse konnten nicht geladen werden: {load_error}")
+            st.warning(_t("Prozesse konnten nicht geladen werden: {error}", error=load_error))
             return
         if len(process_candidates) < 2:
-            st.info("Für einen Merge werden mindestens zwei Prozesse benötigt.")
+            st.info(_t("Für einen Merge werden mindestens zwei Prozesse benötigt."))
             return
 
         process_options = [entry["element_id"] for entry in process_candidates]
@@ -147,13 +153,13 @@ def render_process_merge_section(config, feedback_state_key: str) -> None:
         }
 
         source_ref = st.selectbox(
-            "Prozess-Quelle",
+            _t("Prozess-Quelle"),
             options=[""] + process_options,
             format_func=lambda element_id: process_labels.get(element_id, element_id),
             key="process-merge-source",
         )
         target_ref = st.selectbox(
-            "Prozess-Ziel",
+            _t("Prozess-Ziel"),
             options=[""] + [option for option in process_options if option != source_ref],
             format_func=lambda element_id: process_labels.get(element_id, element_id),
             key="process-merge-target",
@@ -165,9 +171,9 @@ def render_process_merge_section(config, feedback_state_key: str) -> None:
                 key_prefix="process-merge-precheck",
             )
 
-        if st.button("Prozess-Merge ausführen", key="process-merge-submit", width="stretch"):
+        if st.button(_t("Prozess-Merge ausführen"), key="process-merge-submit", width="stretch"):
             if not source_ref or not target_ref:
-                st.warning("Bitte Quelle und Ziel auswählen.")
+                st.warning(_t("Bitte Quelle und Ziel auswählen."))
             else:
                 level, message = merge_processes(config, source_ref, target_ref)
                 set_run_feedback(feedback_state_key, level, message)
@@ -272,6 +278,6 @@ def _build_property_conflicts(preview) -> list[dict[str, str]]:
 
 def _render_relationship_rows(rows: list[dict[str, str]]) -> None:
     if not rows:
-        st.caption("Keine Kanten aus der Quelle gefunden.")
+        st.caption(_t("Keine Kanten aus der Quelle gefunden."))
         return
     st.dataframe(rows, width="stretch")

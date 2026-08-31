@@ -14,7 +14,7 @@ from core.neo4j_utils import (
 
 
 def test_validate_read_only_cypher_allows_simple_match() -> None:
-    validate_read_only_cypher("MATCH (p:Prozess) RETURN p.name")
+    validate_read_only_cypher("MATCH (p:Process) RETURN p.name")
 
 
 def test_validate_read_only_cypher_rejects_write_tokens() -> None:
@@ -37,28 +37,28 @@ def test_validate_read_only_cypher_allows_forbidden_tokens_inside_block_comments
 def test_validate_read_only_cypher_rejects_match_after_return_without_with() -> None:
     with pytest.raises(QueryValidationError, match="multiple statements"):
         validate_read_only_cypher(
-            "MATCH (a:Anwendung) RETURN count(a) AS applicationCount MATCH (p:Prozess) RETURN count(p) AS processCount"
+            "MATCH (a:Application) RETURN count(a) AS applicationCount MATCH (p:Process) RETURN count(p) AS processCount"
         )
 
 
 def test_validate_read_only_cypher_allows_with_between_return_and_match() -> None:
     validate_read_only_cypher(
-        "MATCH (a:Anwendung) WITH count(a) AS applicationCount MATCH (p:Prozess) RETURN applicationCount, count(p) AS processCount"
+        "MATCH (a:Application) WITH count(a) AS applicationCount MATCH (p:Process) RETURN applicationCount, count(p) AS processCount"
     )
 
 
 def test_validate_read_only_cypher_rejects_union_with_different_return_aliases() -> None:
     with pytest.raises(QueryValidationError, match="same column aliases"):
         validate_read_only_cypher(
-            "MATCH (a:Anwendung) RETURN a.name AS application UNION ALL MATCH (p:Prozess) RETURN p.name AS process"
+            "MATCH (a:Application) RETURN a.name AS application UNION ALL MATCH (p:Process) RETURN p.name AS process"
         )
 
 
 def test_validate_read_only_cypher_allows_union_with_order_by_after_last_branch() -> None:
     validate_read_only_cypher(
-        "MATCH (n:Prozess) RETURN 'Prozess' AS entity_type, n.name AS entity_name "
+        "MATCH (n:Process) RETURN 'Process' AS entity_type, n.name AS entity_name "
         "UNION ALL "
-        "MATCH (n:Anwendung) RETURN 'Anwendung' AS entity_type, n.name AS entity_name "
+        "MATCH (n:Application) RETURN 'Application' AS entity_type, n.name AS entity_name "
         "ORDER BY entity_type, entity_name"
     )
 
@@ -66,20 +66,20 @@ def test_validate_read_only_cypher_allows_union_with_order_by_after_last_branch(
 def test_validate_read_only_cypher_rejects_unknown_relationship_type() -> None:
     with pytest.raises(QueryValidationError, match="unknown relationship type: HOSTET"):
         validate_read_only_cypher(
-            "MATCH (s:Server)-[:HOSTET]->(a:Anwendung) RETURN s.name AS server, a.name AS application"
+            "MATCH (s:Server)-[:HOSTET]->(a:Application) RETURN s.name AS server, a.name AS application"
         )
 
 
 def test_validate_read_only_cypher_rejects_wrong_runs_on_direction() -> None:
     with pytest.raises(QueryValidationError, match="invalid direction or endpoint labels"):
         validate_read_only_cypher(
-            "MATCH (s:Server)-[:RUNS_ON]->(a:Anwendung) RETURN s.name AS server, a.name AS application"
+            "MATCH (s:Server)-[:RUNS_ON]->(a:Application) RETURN s.name AS server, a.name AS application"
         )
 
 
 def test_validate_read_only_cypher_allows_reverse_traversal_for_runs_on() -> None:
     validate_read_only_cypher(
-        "MATCH (s:Server)<-[:RUNS_ON]-(a:Anwendung) RETURN s.name AS server, a.name AS application"
+        "MATCH (s:Server)<-[:RUNS_ON]-(a:Application) RETURN s.name AS server, a.name AS application"
     )
 
 
@@ -131,36 +131,36 @@ def test_validate_read_only_cypher_rejects_unknown_node_label() -> None:
 def test_validate_read_only_cypher_rejects_wrong_dient_direction() -> None:
     with pytest.raises(QueryValidationError, match="invalid direction or endpoint labels"):
         validate_read_only_cypher(
-            "MATCH (p:Prozess)-[:DIENT]->(a:Anwendung) RETURN p.name AS process, a.name AS application"
+            "MATCH (p:Process)-[:SERVES]->(a:Application) RETURN p.name AS process, a.name AS application"
         )
 
 
 def test_validate_read_only_cypher_allows_correct_dient_direction() -> None:
     validate_read_only_cypher(
-        "MATCH (a:Anwendung)-[:DIENT]->(p:Prozess) RETURN a.name AS application, p.name AS process"
+        "MATCH (a:Application)-[:SERVES]->(p:Process) RETURN a.name AS application, p.name AS process"
     )
 
 
 def test_validate_read_only_cypher_rejects_undirected_relationship() -> None:
     with pytest.raises(QueryValidationError):
         validate_read_only_cypher(
-            "MATCH (a:Anwendung)-[:DIENT]-(p:Prozess) RETURN a.name AS application"
+            "MATCH (a:Application)-[:SERVES]-(p:Process) RETURN a.name AS application"
         )
 
 
 def test_validate_read_only_cypher_rejects_unknown_property_for_known_label() -> None:
     with pytest.raises(QueryValidationError, match="unknown property"):
         validate_read_only_cypher(
-            "MATCH (p:Prozess) RETURN p.beschreibung AS description"
+            "MATCH (p:Process) RETURN p.beschreibung AS description"
         )
 
 
 def test_validate_read_only_cypher_allows_known_property_for_prozess() -> None:
-    validate_read_only_cypher("MATCH (p:Prozess) RETURN p.name AS name, p.prozess_id AS id")
+    validate_read_only_cypher("MATCH (p:Process) RETURN p.name AS name, p.process_id AS id")
 
 
 def test_validate_read_only_cypher_rejects_wrong_verantwortet_direction() -> None:
     with pytest.raises(QueryValidationError, match="invalid direction or endpoint labels"):
         validate_read_only_cypher(
-            "MATCH (p:Prozess)-[:VERANTWORTET]->(o:OrgEinheit) RETURN p.name AS process"
+            "MATCH (p:Process)-[:RESPONSIBLE_FOR]->(o:OrgUnit) RETURN p.name AS process"
         )

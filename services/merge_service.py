@@ -30,9 +30,9 @@ def merge_org_units(config, source_name: str, target_name: str) -> tuple[str, st
     cleaned_source = " ".join(source_name.strip().split())
     cleaned_target = " ".join(target_name.strip().split())
     if not cleaned_source or not cleaned_target:
-        return "error", "Quelle und Ziel dürfen nicht leer sein."
+        return "error", "Quelle und Goal dürfen nicht leer sein."
     if cleaned_source.casefold() == cleaned_target.casefold():
-        return "error", "Quelle und Ziel dürfen nicht identisch sein."
+        return "error", "Quelle und Goal dürfen nicht identisch sein."
 
     neo4j_client = get_session_neo4j_client(config)
     try:
@@ -49,7 +49,7 @@ def merge_org_units(config, source_name: str, target_name: str) -> tuple[str, st
     write_merged_org_unit_alias(neo4j_client, cleaned_source, cleaned_target)
     neo4j_client.execute_write(
         """
-        MATCH (source:OrgEinheit {name: $source_name})
+        MATCH (source:OrgUnit {name: $source_name})
         DETACH DELETE source
         """,
         {
@@ -60,7 +60,7 @@ def merge_org_units(config, source_name: str, target_name: str) -> tuple[str, st
         neo4j_client,
         "entity_merge",
         {
-            "entity_type": "OrgEinheit",
+            "entity_type": "OrgUnit",
             "source_name": cleaned_source,
             "target_name": cleaned_target,
             "source_ref": cleaned_source,
@@ -82,12 +82,12 @@ def load_process_merge_candidates(config) -> list[dict[str, str]]:
     neo4j_client = get_session_neo4j_client(config)
     rows = neo4j_client.execute_read_unvalidated(
         """
-        MATCH (p:Prozess)
+        MATCH (p:Process)
         WHERE coalesce(p.placeholder, false) = false
         RETURN elementId(p) AS element_id,
-               coalesce(p.prozess_id, '') AS process_id,
+               coalesce(p.process_id, '') AS process_id,
                coalesce(p.name, '') AS process_name
-        ORDER BY toLower(coalesce(p.name, '')), toLower(coalesce(p.prozess_id, ''))
+        ORDER BY toLower(coalesce(p.name, '')), toLower(coalesce(p.process_id, ''))
         """,
         {},
     )
@@ -111,9 +111,9 @@ def merge_processes(config, source_element_id: str, target_element_id: str) -> t
     source_ref = source_element_id.strip()
     target_ref = target_element_id.strip()
     if not source_ref or not target_ref:
-        return "error", "Quelle und Ziel dürfen nicht leer sein."
+        return "error", "Quelle und Goal dürfen nicht leer sein."
     if source_ref == target_ref:
-        return "error", "Quelle und Ziel dürfen nicht identisch sein."
+        return "error", "Quelle und Goal dürfen nicht identisch sein."
 
     neo4j_client = get_session_neo4j_client(config)
     try:
@@ -126,7 +126,7 @@ def merge_processes(config, source_element_id: str, target_element_id: str) -> t
     except SnapshotError as exc:
         return "error", f"Merge wurde nicht gestartet: {exc}"
     preview = _collect_process_preview(neo4j_client, source_ref, target_ref)
-    if preview.source_name.casefold() == preview.target_name.casefold() and preview.source_properties.get("prozess_id", "").strip() == preview.source_properties.get("prozess_id", "").strip():
+    if preview.source_name.casefold() == preview.target_name.casefold() and preview.source_properties.get("process_id", "").strip() == preview.source_properties.get("process_id", "").strip():
         # same element ids are already blocked above; this only keeps messages stable for near-identical selections
         pass
     _merge_process_properties(neo4j_client, source_ref, target_ref)
@@ -134,7 +134,7 @@ def merge_processes(config, source_element_id: str, target_element_id: str) -> t
     write_merged_process_alias(neo4j_client, preview.source_name, target_element_id=target_ref)
     neo4j_client.execute_write(
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
         DETACH DELETE source
         """,
@@ -144,7 +144,7 @@ def merge_processes(config, source_element_id: str, target_element_id: str) -> t
         neo4j_client,
         "entity_merge",
         {
-            "entity_type": "Prozess",
+            "entity_type": "Process",
             "source_name": preview.source_name,
             "target_name": preview.target_name,
             "source_ref": source_ref,
@@ -152,7 +152,7 @@ def merge_processes(config, source_element_id: str, target_element_id: str) -> t
             "merge_preview": _serialize_preview(preview),
         },
     )
-    return "success", f"Prozess '{preview.source_name}' wurde in '{preview.target_name}' überführt."
+    return "success", f"Process '{preview.source_name}' wurde in '{preview.target_name}' überführt."
 
 
 def _serialize_preview(preview: MergePreview) -> dict[str, Any]:
@@ -176,11 +176,11 @@ def _serialize_preview(preview: MergePreview) -> dict[str, Any]:
 def _reference_projection(node_alias: str) -> str:
     return (
         "CASE "
-        f"WHEN {node_alias}:Prozess THEN coalesce({node_alias}.prozess_id, {node_alias}.name, elementId({node_alias}), '') "
-        f"WHEN {node_alias}:Anwendung THEN coalesce({node_alias}.cmdb_id, {node_alias}.name, '') "
-        f"WHEN {node_alias}:Schnittstelle OR {node_alias}:Server OR {node_alias}:Infrastruktur THEN coalesce({node_alias}.id, {node_alias}.name, '') "
+        f"WHEN {node_alias}:Process THEN coalesce({node_alias}.process_id, {node_alias}.name, elementId({node_alias}), '') "
+        f"WHEN {node_alias}:Application THEN coalesce({node_alias}.cmdb_id, {node_alias}.name, '') "
+        f"WHEN {node_alias}:Interface OR {node_alias}:Server OR {node_alias}:Infrastructure THEN coalesce({node_alias}.id, {node_alias}.name, '') "
         f"WHEN {node_alias}:Alias THEN coalesce({node_alias}.name, {node_alias}.normalized_name, '') "
-        f"ELSE coalesce({node_alias}.name, {node_alias}.cmdb_id, {node_alias}.id, {node_alias}.prozess_id, elementId({node_alias}), '') "
+        f"ELSE coalesce({node_alias}.name, {node_alias}.cmdb_id, {node_alias}.id, {node_alias}.process_id, elementId({node_alias}), '') "
         "END"
     )
 
@@ -189,7 +189,7 @@ def _collect_org_unit_preview(neo4j_client, source_name: str, target_name: str) 
     source_properties = _load_node_properties(
         neo4j_client,
         """
-        MATCH (source:OrgEinheit {name: $source_name})
+        MATCH (source:OrgUnit {name: $source_name})
         RETURN properties(source) AS props
         """,
         {"source_name": source_name},
@@ -197,7 +197,7 @@ def _collect_org_unit_preview(neo4j_client, source_name: str, target_name: str) 
     target_properties = _load_node_properties(
         neo4j_client,
         """
-        MATCH (target:OrgEinheit {name: $target_name})
+        MATCH (target:OrgUnit {name: $target_name})
         RETURN properties(target) AS props
         """,
         {"target_name": target_name},
@@ -205,7 +205,7 @@ def _collect_org_unit_preview(neo4j_client, source_name: str, target_name: str) 
     source_outgoing = _load_relationship_rows(
         neo4j_client,
         f"""
-        MATCH (source:OrgEinheit {{name: $source_name}})-[r]->(target)
+        MATCH (source:OrgUnit {{name: $source_name}})-[r]->(target)
         RETURN type(r) AS rel_type,
                labels(target)[0] AS other_label,
                {_reference_projection("target")} AS other_ref
@@ -216,7 +216,7 @@ def _collect_org_unit_preview(neo4j_client, source_name: str, target_name: str) 
     source_incoming = _load_relationship_rows(
         neo4j_client,
         f"""
-        MATCH (other)-[r]->(source:OrgEinheit {{name: $source_name}})
+        MATCH (other)-[r]->(source:OrgUnit {{name: $source_name}})
         RETURN type(r) AS rel_type,
                labels(other)[0] AS other_label,
                {_reference_projection("other")} AS other_ref
@@ -227,7 +227,7 @@ def _collect_org_unit_preview(neo4j_client, source_name: str, target_name: str) 
     target_outgoing_keys = _load_relationship_keys(
         neo4j_client,
         f"""
-        MATCH (target:OrgEinheit {{name: $target_name}})-[r]->(other)
+        MATCH (target:OrgUnit {{name: $target_name}})-[r]->(other)
         RETURN type(r) + '|' + labels(other)[0] + '|' + {_reference_projection("other")} AS rel_key
         ORDER BY rel_key
         """,
@@ -236,7 +236,7 @@ def _collect_org_unit_preview(neo4j_client, source_name: str, target_name: str) 
     target_incoming_keys = _load_relationship_keys(
         neo4j_client,
         f"""
-        MATCH (other)-[r]->(target:OrgEinheit {{name: $target_name}})
+        MATCH (other)-[r]->(target:OrgUnit {{name: $target_name}})
         RETURN type(r) + '|' + labels(other)[0] + '|' + {_reference_projection("other")} AS rel_key
         ORDER BY rel_key
         """,
@@ -245,7 +245,7 @@ def _collect_org_unit_preview(neo4j_client, source_name: str, target_name: str) 
     source_alias_names = _load_alias_names(
         neo4j_client,
         """
-        MATCH (alias:Alias)-[:KANN_MEINEN]->(:OrgEinheit {name: $source_name})
+        MATCH (alias:Alias)-[:MAY_REFER_TO]->(:OrgUnit {name: $source_name})
         RETURN alias.name AS alias_name
         ORDER BY alias.name
         """,
@@ -254,14 +254,14 @@ def _collect_org_unit_preview(neo4j_client, source_name: str, target_name: str) 
     target_alias_names = _load_alias_names(
         neo4j_client,
         """
-        MATCH (alias:Alias)-[:KANN_MEINEN]->(:OrgEinheit {name: $target_name})
+        MATCH (alias:Alias)-[:MAY_REFER_TO]->(:OrgUnit {name: $target_name})
         RETURN alias.name AS alias_name
         ORDER BY alias.name
         """,
         {"target_name": target_name},
     )
     return MergePreview(
-        entity_type="OrgEinheit",
+        entity_type="OrgUnit",
         source_ref=source_name,
         target_ref=target_name,
         source_name=source_name,
@@ -280,12 +280,12 @@ def _collect_org_unit_preview(neo4j_client, source_name: str, target_name: str) 
 def _collect_process_preview(neo4j_client, source_element_id: str, target_element_id: str) -> MergePreview:
     rows = neo4j_client.execute_read_unvalidated(
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
-        RETURN coalesce(source.name, source.prozess_id, '') AS source_name,
-               coalesce(target.name, target.prozess_id, '') AS target_name,
+        RETURN coalesce(source.name, source.process_id, '') AS source_name,
+               coalesce(target.name, target.process_id, '') AS target_name,
                properties(source) AS source_props
         """,
         {
@@ -297,7 +297,7 @@ def _collect_process_preview(neo4j_client, source_element_id: str, target_elemen
     source_outgoing = _load_relationship_rows(
         neo4j_client,
         f"""
-        MATCH (source:Prozess)-[r]->(target)
+        MATCH (source:Process)-[r]->(target)
         WHERE elementId(source) = $source_element_id
         RETURN type(r) AS rel_type,
                labels(target)[0] AS other_label,
@@ -309,7 +309,7 @@ def _collect_process_preview(neo4j_client, source_element_id: str, target_elemen
     target_properties = _load_node_properties(
         neo4j_client,
         """
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
         RETURN properties(target) AS props
         """,
@@ -318,7 +318,7 @@ def _collect_process_preview(neo4j_client, source_element_id: str, target_elemen
     source_incoming = _load_relationship_rows(
         neo4j_client,
         f"""
-        MATCH (other)-[r]->(source:Prozess)
+        MATCH (other)-[r]->(source:Process)
         WHERE elementId(source) = $source_element_id
         RETURN type(r) AS rel_type,
                labels(other)[0] AS other_label,
@@ -330,7 +330,7 @@ def _collect_process_preview(neo4j_client, source_element_id: str, target_elemen
     target_outgoing_keys = _load_relationship_keys(
         neo4j_client,
         f"""
-        MATCH (target:Prozess)-[r]->(other)
+        MATCH (target:Process)-[r]->(other)
         WHERE elementId(target) = $target_element_id
         RETURN type(r) + '|' + labels(other)[0] + '|' + {_reference_projection("other")} AS rel_key
         ORDER BY rel_key
@@ -340,7 +340,7 @@ def _collect_process_preview(neo4j_client, source_element_id: str, target_elemen
     target_incoming_keys = _load_relationship_keys(
         neo4j_client,
         f"""
-        MATCH (other)-[r]->(target:Prozess)
+        MATCH (other)-[r]->(target:Process)
         WHERE elementId(target) = $target_element_id
         RETURN type(r) + '|' + labels(other)[0] + '|' + {_reference_projection("other")} AS rel_key
         ORDER BY rel_key
@@ -350,7 +350,7 @@ def _collect_process_preview(neo4j_client, source_element_id: str, target_elemen
     source_alias_names = _load_alias_names(
         neo4j_client,
         """
-        MATCH (alias:Alias)-[:KANN_MEINEN]->(source:Prozess)
+        MATCH (alias:Alias)-[:MAY_REFER_TO]->(source:Process)
         WHERE elementId(source) = $source_element_id
         RETURN alias.name AS alias_name
         ORDER BY alias.name
@@ -360,7 +360,7 @@ def _collect_process_preview(neo4j_client, source_element_id: str, target_elemen
     target_alias_names = _load_alias_names(
         neo4j_client,
         """
-        MATCH (alias:Alias)-[:KANN_MEINEN]->(target:Prozess)
+        MATCH (alias:Alias)-[:MAY_REFER_TO]->(target:Process)
         WHERE elementId(target) = $target_element_id
         RETURN alias.name AS alias_name
         ORDER BY alias.name
@@ -368,7 +368,7 @@ def _collect_process_preview(neo4j_client, source_element_id: str, target_elemen
         {"target_element_id": target_element_id},
     )
     return MergePreview(
-        entity_type="Prozess",
+        entity_type="Process",
         source_ref=source_element_id,
         target_ref=target_element_id,
         source_name=str(row.get("source_name", "")).strip(),
@@ -415,81 +415,81 @@ def _load_alias_names(neo4j_client, query: str, parameters: dict[str, str]) -> l
 def _merge_org_unit_relationships(neo4j_client, source_name: str, target_name: str) -> None:
     neo4j_client.execute_write(
         """
-        MATCH (source:OrgEinheit {name: $source_name})
-        MATCH (target:OrgEinheit {name: $target_name})
-        MATCH (source)-[:VERANTWORTET]->(p:Prozess)
+        MATCH (source:OrgUnit {name: $source_name})
+        MATCH (target:OrgUnit {name: $target_name})
+        MATCH (source)-[:RESPONSIBLE_FOR]->(p:Process)
         WHERE elementId(source) <> elementId(target)
-        MERGE (target)-[:VERANTWORTET]->(p)
+        MERGE (target)-[:RESPONSIBLE_FOR]->(p)
         """,
         {"source_name": source_name, "target_name": target_name},
     )
     neo4j_client.execute_write(
         """
-        MATCH (source:OrgEinheit {name: $source_name})
-        MATCH (target:OrgEinheit {name: $target_name})
-        MATCH (source)-[:VERANTWORTET]->(a:Anwendung)
+        MATCH (source:OrgUnit {name: $source_name})
+        MATCH (target:OrgUnit {name: $target_name})
+        MATCH (source)-[:RESPONSIBLE_FOR]->(a:Application)
         WHERE elementId(source) <> elementId(target)
-        MERGE (target)-[:VERANTWORTET]->(a)
+        MERGE (target)-[:RESPONSIBLE_FOR]->(a)
         """,
         {"source_name": source_name, "target_name": target_name},
     )
     neo4j_client.execute_write(
         """
-        MATCH (source:OrgEinheit {name: $source_name})
-        MATCH (target:OrgEinheit {name: $target_name})
-        MATCH (source)-[:VERANTWORTET]->(i:Schnittstelle)
+        MATCH (source:OrgUnit {name: $source_name})
+        MATCH (target:OrgUnit {name: $target_name})
+        MATCH (source)-[:RESPONSIBLE_FOR]->(i:Interface)
         WHERE elementId(source) <> elementId(target)
-        MERGE (target)-[:VERANTWORTET]->(i)
+        MERGE (target)-[:RESPONSIBLE_FOR]->(i)
         """,
         {"source_name": source_name, "target_name": target_name},
     )
     neo4j_client.execute_write(
         """
-        MATCH (source:OrgEinheit {name: $source_name})
-        MATCH (target:OrgEinheit {name: $target_name})
-        MATCH (source)-[:VERANTWORTET]->(s:Server)
+        MATCH (source:OrgUnit {name: $source_name})
+        MATCH (target:OrgUnit {name: $target_name})
+        MATCH (source)-[:RESPONSIBLE_FOR]->(s:Server)
         WHERE elementId(source) <> elementId(target)
-        MERGE (target)-[:VERANTWORTET]->(s)
+        MERGE (target)-[:RESPONSIBLE_FOR]->(s)
         """,
         {"source_name": source_name, "target_name": target_name},
     )
     neo4j_client.execute_write(
         """
-        MATCH (source:OrgEinheit {name: $source_name})
-        MATCH (target:OrgEinheit {name: $target_name})
-        MATCH (source)-[:VERANTWORTET]->(i:Infrastruktur)
+        MATCH (source:OrgUnit {name: $source_name})
+        MATCH (target:OrgUnit {name: $target_name})
+        MATCH (source)-[:RESPONSIBLE_FOR]->(i:Infrastructure)
         WHERE elementId(source) <> elementId(target)
-        MERGE (target)-[:VERANTWORTET]->(i)
+        MERGE (target)-[:RESPONSIBLE_FOR]->(i)
         """,
         {"source_name": source_name, "target_name": target_name},
     )
     neo4j_client.execute_write(
         """
-        MATCH (source:OrgEinheit {name: $source_name})
-        MATCH (target:OrgEinheit {name: $target_name})
-        MATCH (source)-[:KANN_EINNEHMEN]->(r:Rolle)
+        MATCH (source:OrgUnit {name: $source_name})
+        MATCH (target:OrgUnit {name: $target_name})
+        MATCH (source)-[:CAN_ASSUME]->(r:Role)
         WHERE elementId(source) <> elementId(target)
-        MERGE (target)-[:KANN_EINNEHMEN]->(r)
+        MERGE (target)-[:CAN_ASSUME]->(r)
         """,
         {"source_name": source_name, "target_name": target_name},
     )
     neo4j_client.execute_write(
         """
-        MATCH (source:OrgEinheit {name: $source_name})
-        MATCH (target:OrgEinheit {name: $target_name})
-        MATCH (source)-[:IST_VERBUNDEN_MIT]->(n)
+        MATCH (source:OrgUnit {name: $source_name})
+        MATCH (target:OrgUnit {name: $target_name})
+        MATCH (source)-[:CONNECTED_TO]->(n)
         WHERE elementId(source) <> elementId(target)
-        MERGE (target)-[:IST_VERBUNDEN_MIT]->(n)
+        MERGE (target)-[:CONNECTED_TO]->(n)
         """,
         {"source_name": source_name, "target_name": target_name},
     )
     neo4j_client.execute_write(
         """
-        MATCH (source:OrgEinheit {name: $source_name})
-        MATCH (target:OrgEinheit {name: $target_name})
-        MATCH (alias:Alias)-[:KANN_MEINEN]->(source)
+        MATCH (source:OrgUnit {name: $source_name})
+        MATCH (target:OrgUnit {name: $target_name})
+        MATCH (alias:Alias)-[:MAY_REFER_TO]->(source)
         WHERE elementId(source) <> elementId(target)
-        MERGE (alias)-[:KANN_MEINEN]->(target)
+        MERGE (alias)-[:MAY_REFER_TO]->(target)
         """,
         {"source_name": source_name, "target_name": target_name},
     )
@@ -498,11 +498,11 @@ def _merge_org_unit_relationships(neo4j_client, source_name: str, target_name: s
 def _merge_process_properties(neo4j_client, source_element_id: str, target_element_id: str) -> None:
     neo4j_client.execute_write(
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
-        SET target.prozess_id = coalesce(target.prozess_id, source.prozess_id),
+        SET target.process_id = coalesce(target.process_id, source.process_id),
             target.archimate_id = coalesce(target.archimate_id, source.archimate_id),
             target.archimate_type = coalesce(target.archimate_type, source.archimate_type),
             target.archimate_source = coalesce(target.archimate_source, source.archimate_source),
@@ -519,152 +519,152 @@ def _merge_process_properties(neo4j_client, source_element_id: str, target_eleme
 def _merge_process_relationships(neo4j_client, source_element_id: str, target_element_id: str) -> None:
     for query in (
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
-        MATCH (a:Anwendung)-[r:DIENT]->(source)
+        MATCH (a:Application)-[r:SERVES]->(source)
         WHERE elementId(source) <> elementId(target)
-        MERGE (a)-[merged:DIENT]->(target)
-        SET merged.konfidenz = coalesce(merged.konfidenz, r.konfidenz),
+        MERGE (a)-[merged:SERVES]->(target)
+        SET merged.confidence = coalesce(merged.confidence, r.confidence),
             merged.raw_name = coalesce(merged.raw_name, r.raw_name),
             merged.source = coalesce(merged.source, r.source)
         """,
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
-        MATCH (a:Anwendung)-[r:KÖNNTE_DIENEN]->(source)
+        MATCH (a:Application)-[r:MAY_SERVE]->(source)
         WHERE elementId(source) <> elementId(target)
-        MERGE (a)-[merged:KÖNNTE_DIENEN]->(target)
+        MERGE (a)-[merged:MAY_SERVE]->(target)
         SET merged.score = coalesce(merged.score, r.score)
         """,
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
-        MATCH (role:Rolle)-[:BETEILIGT_AN]->(source)
+        MATCH (role:Role)-[:PARTICIPATES_IN]->(source)
         WHERE elementId(source) <> elementId(target)
-        MERGE (role)-[:BETEILIGT_AN]->(target)
+        MERGE (role)-[:PARTICIPATES_IN]->(target)
         """,
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
-        MATCH (org:OrgEinheit)-[:VERANTWORTET]->(source)
+        MATCH (org:OrgUnit)-[:RESPONSIBLE_FOR]->(source)
         WHERE elementId(source) <> elementId(target)
-        MERGE (org)-[:VERANTWORTET]->(target)
+        MERGE (org)-[:RESPONSIBLE_FOR]->(target)
         """,
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
-        MATCH (source)-[:FOLGT_AUF]->(previous:Prozess)
+        MATCH (source)-[:FOLLOWS]->(previous:Process)
         WHERE elementId(source) <> elementId(target) AND elementId(previous) <> elementId(target)
-        MERGE (target)-[:FOLGT_AUF]->(previous)
+        MERGE (target)-[:FOLLOWS]->(previous)
         """,
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
-        MATCH (successor:Prozess)-[:FOLGT_AUF]->(source)
+        MATCH (successor:Process)-[:FOLLOWS]->(source)
         WHERE elementId(source) <> elementId(target) AND elementId(successor) <> elementId(target)
-        MERGE (successor)-[:FOLGT_AUF]->(target)
+        MERGE (successor)-[:FOLLOWS]->(target)
         """,
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
-        MATCH (n)-[:REALISIERT]->(source)
+        MATCH (n)-[:REALIZES]->(source)
         WHERE elementId(source) <> elementId(target)
-        MERGE (n)-[:REALISIERT]->(target)
+        MERGE (n)-[:REALIZES]->(target)
         """,
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
-        MATCH (n)-[:UNTERSTUETZT]->(source)
+        MATCH (n)-[:SUPPORTS]->(source)
         WHERE elementId(source) <> elementId(target)
-        MERGE (n)-[:UNTERSTUETZT]->(target)
+        MERGE (n)-[:SUPPORTS]->(target)
         """,
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
-        MATCH (n)-[:BENOETIGT]->(source)
+        MATCH (n)-[:REQUIRES]->(source)
         WHERE elementId(source) <> elementId(target)
-        MERGE (n)-[:BENOETIGT]->(target)
+        MERGE (n)-[:REQUIRES]->(target)
         """,
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
-        MATCH (n)-[:VERARBEITET]->(source)
+        MATCH (n)-[:PROCESSES]->(source)
         WHERE elementId(source) <> elementId(target)
-        MERGE (n)-[:VERARBEITET]->(target)
+        MERGE (n)-[:PROCESSES]->(target)
         """,
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
-        MATCH (n)-[:BETRIFFT]->(source)
+        MATCH (n)-[:AFFECTS]->(source)
         WHERE elementId(source) <> elementId(target)
-        MERGE (n)-[:BETRIFFT]->(target)
+        MERGE (n)-[:AFFECTS]->(target)
         """,
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
-        MATCH (n)-[:BEEINFLUSST]->(source)
+        MATCH (n)-[:INFLUENCES]->(source)
         WHERE elementId(source) <> elementId(target)
-        MERGE (n)-[:BEEINFLUSST]->(target)
+        MERGE (n)-[:INFLUENCES]->(target)
         """,
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
-        MATCH (source)-[:UNTERSTUETZT]->(n)
+        MATCH (source)-[:SUPPORTS]->(n)
         WHERE elementId(source) <> elementId(target) AND elementId(n) <> elementId(target)
-        MERGE (target)-[:UNTERSTUETZT]->(n)
+        MERGE (target)-[:SUPPORTS]->(n)
         """,
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
-        MATCH (source)-[:BENOETIGT]->(n)
+        MATCH (source)-[:REQUIRES]->(n)
         WHERE elementId(source) <> elementId(target) AND elementId(n) <> elementId(target)
-        MERGE (target)-[:BENOETIGT]->(n)
+        MERGE (target)-[:REQUIRES]->(n)
         """,
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
-        MATCH (source)-[:VERARBEITET]->(n)
+        MATCH (source)-[:PROCESSES]->(n)
         WHERE elementId(source) <> elementId(target) AND elementId(n) <> elementId(target)
-        MERGE (target)-[:VERARBEITET]->(n)
+        MERGE (target)-[:PROCESSES]->(n)
         """,
         """
-        MATCH (source:Prozess)
+        MATCH (source:Process)
         WHERE elementId(source) = $source_element_id
-        MATCH (target:Prozess)
+        MATCH (target:Process)
         WHERE elementId(target) = $target_element_id
-        MATCH (alias:Alias)-[:KANN_MEINEN]->(source)
+        MATCH (alias:Alias)-[:MAY_REFER_TO]->(source)
         WHERE elementId(source) <> elementId(target)
-        MERGE (alias)-[:KANN_MEINEN]->(target)
+        MERGE (alias)-[:MAY_REFER_TO]->(target)
         """,
     ):
         neo4j_client.execute_write(

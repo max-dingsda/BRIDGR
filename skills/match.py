@@ -85,7 +85,7 @@ def match_application_candidates(
             score=1.0,
         )
         for link in confirmed_links
-        if link.get("prozess") == process_name and link.get("anwendung_name") == application_name
+        if link.get("process") == process_name and link.get("anwendung_name") == application_name
     ]
     if confirmed_matches:
         return confirmed_matches
@@ -222,7 +222,7 @@ def is_application_rejected(
     rejected_links: list[RejectedLink],
 ) -> bool:
     return any(
-        link.get("prozess") == process_name
+        link.get("process") == process_name
         and link.get("anwendung_name") == application_name
         and not link.get("cmdb_id")
         for link in rejected_links
@@ -236,7 +236,7 @@ def is_candidate_rejected(
     rejected_links: list[RejectedLink],
 ) -> bool:
     return any(
-        link.get("prozess") == process_name
+        link.get("process") == process_name
         and link.get("anwendung_name") == application_name
         and link.get("cmdb_id") == cmdb_id
         for link in rejected_links

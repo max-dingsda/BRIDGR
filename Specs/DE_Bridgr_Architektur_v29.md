@@ -865,6 +865,19 @@ Das Schema ist nicht datenbankintrospektiv, sondern wird aus `core/graph_schema.
 aufgebaut. Dadurch lassen sich interne Knotentypen wie `ManualDecision` ohne Verrenkungen
 ausserhalb des Chat-Schemas halten.
 
+Nach dem fachlichen Antwort-Call durchläuft die fertige Antwort einen zweiten, ausschließlich
+sprachlichen LLM-Call. Dieser Sprach-Editor erhält die letzte natürliche Nutzerfrage, den
+Antwortentwurf und die aus dem Query-Ergebnis abgeleiteten geschützten Objektbezeichnungen
+und Identifikatoren. Er glättet Rechtschreibung, Grammatik und unbeabsichtigte
+Sprachmischungen in der Sprache der Nutzerfrage, ohne Fakten, Zahlen, Unsicherheiten,
+Markdown oder geschützte Namen zu verändern. Etablierter Business-Slang darf erhalten
+bleiben. Schlägt dieser Call fehl oder liefert er keinen Text, wird der fachliche Entwurf
+unverändert ausgegeben.
+
+Die UI-Sprache steuert ausschließlich katalogisierte UI-Texte. Freie Inhalte wie
+Chat-Nachrichten, Nutzereingaben und fachliche Objektbezeichnungen werden nach dem LLM-Call
+nicht per Wortersetzung lokalisiert, damit die Antwortsprache der Nutzerfrage maßgeblich bleibt.
+
 ### 13.3 Query-Sicherheit
 
 - nur read-only Cypher
@@ -1137,6 +1150,7 @@ bestätigt werden.
 | Alias-Fortschreibung nach Merge | verpflichtend | Quellname verwerfen | verhindert Wiederauftreten derselben Dublette beim Re-Import |
 | Deduplizierung beim Merge | vor jeder Kantenanlage prüfen | blindes Umhängen | verhindert, dass der Merge selbst neuen Müll erzeugt |
 | Fachgraph vs. Entscheidungsgraph | getrennt | ein gemeinsamer überladener Graph | klarere Verantwortlichkeiten und sicherer Chat-Layer |
+| Sprachliche Endredaktion im Chat | separater, faktenbewahrender LLM-Polish-Call nach der fachlichen Antwort | UI-Locale als Antwortsprache oder wortweise UI-Nachübersetzung freier Texte | Antwortsprache folgt der Nutzerfrage; geschützte Objektbezeichnungen bleiben stabil und die UI verfälscht keine LLM-Ausgabe |
 | CMDB-Import-Format | eine CSV-Datei pro Objektart mit Beziehungsspalten | gemischte Entities-Datei + separate Relationsdatei | entspricht realen CMDB-Export-Strukturen (z. B. ServiceNow, Jira Asset Management); konfigurierbarer Mehrwert-Separator unterstützt gängige Formate |
 
 ---

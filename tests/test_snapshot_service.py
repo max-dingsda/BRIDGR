@@ -7,7 +7,15 @@ from hashlib import sha256
 import pytest
 
 from core.app_config import AppConfig
+from core.i18n import translate_snapshot_error
 from services.snapshot_service import SnapshotError, create_snapshot, list_snapshots, restore_snapshot
+
+
+def test_translate_snapshot_schema_version_error_uses_selected_locale() -> None:
+    error = "Snapshot uses graph schema version unknown; BRIDGR requires version 2."
+
+    assert translate_snapshot_error(error, "de") == "Snapshot verwendet Graph-Schema-Version unknown; BRIDGR benötigt Version 2."
+    assert translate_snapshot_error(error, "en") == error
 
 
 class FakeNeo4jClient:
@@ -19,11 +27,11 @@ class FakeNeo4jClient:
     def execute_read_unvalidated(self, query: str, _parameters=None) -> list[dict]:
         if "RETURN elementId(n) AS snapshot_node_id" in query:
             return [
-                {"snapshot_node_id": "old-a", "labels": ["Prozess"], "properties": {"prozess_id": "P-1", "name": "Rechnung"}},
-                {"snapshot_node_id": "old-b", "labels": ["Anwendung"], "properties": {"cmdb_id": "A-1", "name": "SAP"}},
+                {"snapshot_node_id": "old-a", "labels": ["Process"], "properties": {"process_id": "P-1", "name": "Rechnung"}},
+                {"snapshot_node_id": "old-b", "labels": ["Application"], "properties": {"cmdb_id": "A-1", "name": "SAP"}},
             ]
         if "source_snapshot_node_id" in query:
-            return [{"source_snapshot_node_id": "old-b", "target_snapshot_node_id": "old-a", "relationship_type": "DIENT", "properties": {"source": "stark"}}]
+            return [{"source_snapshot_node_id": "old-b", "target_snapshot_node_id": "old-a", "relationship_type": "SERVES", "properties": {"source": "stark"}}]
         if "relationship_count" in query:
             return [{"node_count": self.current_node_count, "relationship_count": self.current_relationship_count}]
         return []
@@ -32,7 +40,7 @@ class FakeNeo4jClient:
         self.batches.append(statements)
         if statements and "DETACH DELETE" in statements[0][0]:
             self.current_node_count = len(statements) - 1
-            self.current_relationship_count = sum(":`DIENT`" in query for query, _ in statements)
+            self.current_relationship_count = sum(":`SERVES`" in query for query, _ in statements)
             self.current_node_count -= self.current_relationship_count + 1
             return [[] for _ in statements]
         self.current_relationship_count = len(statements)
@@ -54,7 +62,9 @@ def test_create_snapshot_writes_validated_graph_and_manifest(tmp_path: Path) -> 
     assert snapshot.node_count == 2
     assert snapshot.relationship_count == 1
     graph_path = tmp_path / "Output" / "snapshots" / snapshot.snapshot_id / "graph.json"
-    assert json.loads(graph_path.read_text(encoding="utf-8"))["nodes"][0]["labels"] == ["Prozess"]
+    assert json.loads(graph_path.read_text(encoding="utf-8"))["nodes"][0]["labels"] == ["Process"]
+    manifest = json.loads((graph_path.parent / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["graph_schema_version"] == 2
     assert list_snapshots(_config(tmp_path))[0] == snapshot
 
 
@@ -80,8 +90,8 @@ def test_restore_snapshot_recreates_nodes_relationships_and_verifies_counts(tmp_
     assert len(client.batches) == 1
     restore_batch = client.batches[0]
     assert "DETACH DELETE" in restore_batch[0][0]
-    assert ":`Prozess`" in restore_batch[1][0]
-    assert any(":`DIENT`" in query for query, _ in restore_batch)
+    assert ":`Process`" in restore_batch[1][0]
+    assert any(":`SERVES`" in query for query, _ in restore_batch)
 
 
 def test_restore_snapshot_keeps_target_until_pre_restore_snapshot_is_created(tmp_path: Path) -> None:
@@ -137,3 +147,15 @@ def test_restore_snapshot_rejects_tampered_graph(tmp_path: Path) -> None:
 def test_restore_snapshot_rejects_invalid_snapshot_identifier(tmp_path: Path) -> None:
     with pytest.raises(SnapshotError, match="Ungültige Snapshot-ID"):
         restore_snapshot(_config(tmp_path), FakeNeo4jClient(), "../outside")
+
+
+def test_restore_snapshot_rejects_legacy_schema_snapshot(tmp_path: Path) -> None:
+    client = FakeNeo4jClient()
+    snapshot = create_snapshot(_config(tmp_path), client, trigger="pipeline", operation="process_import")
+    manifest_path = tmp_path / "Output" / "snapshots" / snapshot.snapshot_id / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest.pop("graph_schema_version")
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(SnapshotError, match="schema version"):
+        restore_snapshot(_config(tmp_path), client, snapshot.snapshot_id)

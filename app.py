@@ -5,6 +5,7 @@ from pathlib import Path
 import streamlit as st
 
 from core.env_loader import load_env_files
+from core.app_config import load_config
 from services.organization_service import (
     persist_org_candidate_mapping_refresh,
     persist_organization_sync,
@@ -57,7 +58,8 @@ from services.runtime_service import (
 from ui.archimate_tab import render_archimate_tab
 from ui.config_tab import render_config_tab
 from ui.import_tab import render_import_tab
-from ui.layout import get_active_role, get_dark_mode_preference, get_visible_tabs, inject_global_styles, render_app_header
+from ui.layout import get_active_locale, get_active_role, get_dark_mode_preference, get_visible_tabs, inject_global_styles, render_app_header
+from core.i18n import install_streamlit_localization, translate
 from ui.organization_tab import render_organization_tab
 from ui.query_tab import render_query_tab
 from ui.review_tab import render_review_tab
@@ -66,21 +68,24 @@ from ui.review_tab import render_review_tab
 def main() -> None:
     load_env_files()
     st.set_page_config(page_title="BRIDGR", layout="wide")
+    install_streamlit_localization()
+    config_path = Path("config.json")
+    st.session_state.setdefault("bridgr_locale", load_config(config_path).ui_locale)
     inject_global_styles(get_dark_mode_preference())
     render_app_header()
-    config_path = Path("config.json")
 
     tab_renderers = {
-        "Kommunikation": render_query_tab,
-        "Import": lambda: render_import_tab(config_path),
-        "Zuordnungen": render_review_tab,
-        "Organisation": render_organization_tab,
-        "EA-Modell": render_archimate_tab,
-        "Konfiguration": lambda: render_config_tab(config_path),
+        "chat": render_query_tab,
+        "import": lambda: render_import_tab(config_path),
+        "review": render_review_tab,
+        "organization": render_organization_tab,
+        "archimate": render_archimate_tab,
+        "configuration": lambda: render_config_tab(config_path),
     }
 
     visible_tab_names = get_visible_tabs(get_active_role())
-    tabs = st.tabs(visible_tab_names)
+    locale = get_active_locale()
+    tabs = st.tabs([translate(f"tab.{tab_name}", locale) for tab_name in visible_tab_names])
     for tab, tab_name in zip(tabs, visible_tab_names):
         with tab:
             tab_renderers[tab_name]()

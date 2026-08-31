@@ -16,9 +16,9 @@ from core.constants import (
     ALIAS_SOURCE_KIND_CONFIRMED_CANDIDATE,
     ALIAS_SOURCE_KIND_CONFIRMED_MATCH,
     CONFIDENCE_STRONG,
-    DIENT_SOURCE_CONFIRMED,
-    DIENT_SOURCE_MANUAL,
-    DIENT_SOURCE_STRONG,
+    SERVES_SOURCE_CONFIRMED,
+    SERVES_SOURCE_MANUAL,
+    SERVES_SOURCE_STRONG,
     MATCH_SOURCE_KNOWLEDGE_BASE,
     MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL,
 )
@@ -50,7 +50,7 @@ class GraphWriter:
         process_write_action = self._upsert_process_node(client, process.process_id, process.process_name)
         client.execute_write(
             """
-            MATCH (p:Prozess {prozess_id: $process_id})-[r:NUTZT]->(:Anwendung)
+            MATCH (p:Process {process_id: $process_id})-[r:NUTZT]->(:Application)
             DELETE r
             """,
             {
@@ -59,7 +59,7 @@ class GraphWriter:
         )
         client.execute_write(
             """
-            MATCH (:Anwendung)-[r:DIENT]->(p:Prozess {prozess_id: $process_id})
+            MATCH (:Application)-[r:SERVES]->(p:Process {process_id: $process_id})
             DELETE r
             """,
             {
@@ -68,7 +68,7 @@ class GraphWriter:
         )
         client.execute_write(
             """
-            MATCH (:Anwendung)-[r:KÖNNTE_DIENEN]->(p:Prozess {prozess_id: $process_id})
+            MATCH (:Application)-[r:MAY_SERVE]->(p:Process {process_id: $process_id})
             DELETE r
             """,
             {
@@ -77,7 +77,7 @@ class GraphWriter:
         )
         client.execute_write(
             """
-            MATCH (:Rolle)-[r:BETEILIGT_AN]->(p:Prozess {prozess_id: $process_id})
+            MATCH (:Role)-[r:PARTICIPATES_IN]->(p:Process {process_id: $process_id})
             DELETE r
             """,
             {
@@ -88,9 +88,9 @@ class GraphWriter:
         for role_name in process.roles:
             client.execute_write(
                 """
-                MERGE (r:Rolle {name: $role_name})
-                MERGE (p:Prozess {prozess_id: $process_id})
-                MERGE (r)-[:BETEILIGT_AN]->(p)
+                MERGE (r:Role {name: $role_name})
+                MERGE (p:Process {process_id: $process_id})
+                MERGE (r)-[:PARTICIPATES_IN]->(p)
                 """,
                 {
                     "role_name": role_name,
@@ -101,11 +101,11 @@ class GraphWriter:
         for previous_process_name in process.follows_after:
             client.execute_write(
                 """
-                MERGE (current:Prozess {prozess_id: $process_id})
-                MERGE (previous:Prozess {name: $previous_process_name})
+                MERGE (current:Process {process_id: $process_id})
+                MERGE (previous:Process {name: $previous_process_name})
                 ON CREATE SET previous.placeholder = true
                 SET previous.placeholder = coalesce(previous.placeholder, true)
-                MERGE (current)-[:FOLGT_AUF]->(previous)
+                MERGE (current)-[:FOLLOWS]->(previous)
                 """,
                 {
                     "process_id": process.process_id,
@@ -119,18 +119,18 @@ class GraphWriter:
             is_kb_source = match.source in {MATCH_SOURCE_KNOWLEDGE_BASE, MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL}
             if match.confidence == CONFIDENCE_STRONG or is_kb_source:
                 dient_source = (
-                    DIENT_SOURCE_MANUAL if match.source == MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL
-                    else DIENT_SOURCE_CONFIRMED if is_kb_source
-                    else DIENT_SOURCE_STRONG
+                    SERVES_SOURCE_MANUAL if match.source == MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL
+                    else SERVES_SOURCE_CONFIRMED if is_kb_source
+                    else SERVES_SOURCE_STRONG
                 )
                 client.execute_write(
                     """
-                    MERGE (p:Prozess {prozess_id: $process_id})
-                    MERGE (a:Anwendung {cmdb_id: $cmdb_id})
+                    MERGE (p:Process {process_id: $process_id})
+                    MERGE (a:Application {cmdb_id: $cmdb_id})
                     SET a.id = $cmdb_id,
                         a.name = $application_name
-                    MERGE (a)-[r:DIENT]->(p)
-                    SET r.konfidenz = $confidence,
+                    MERGE (a)-[r:SERVES]->(p)
+                    SET r.confidence = $confidence,
                         r.raw_name = $raw_name,
                         r.source = $source
                     """,
@@ -146,9 +146,9 @@ class GraphWriter:
             else:
                 client.execute_write(
                     """
-                    MERGE (p:Prozess {prozess_id: $process_id})
-                    MATCH (a:Anwendung {cmdb_id: $cmdb_id})
-                    MERGE (a)-[r:KÖNNTE_DIENEN]->(p)
+                    MERGE (p:Process {process_id: $process_id})
+                    MATCH (a:Application {cmdb_id: $cmdb_id})
+                    MERGE (a)-[r:MAY_SERVE]->(p)
                     SET r.score = $score
                     """,
                     {
@@ -182,7 +182,7 @@ class GraphWriter:
             )
             client.execute_write(
                 """
-                MATCH (:OrgEinheit)-[r:VERANTWORTET]->(target)
+                MATCH (:OrgUnit)-[r:RESPONSIBLE_FOR]->(target)
                 WHERE target.id = $entity_id
                 DELETE r
                 """,
@@ -196,7 +196,7 @@ class GraphWriter:
             canonical = self._resolve_org_unit_canonical_name(client, org_unit_name)
             client.execute_write(
                 """
-                MATCH (o:OrgEinheit {name: $org_unit_name})-[r:KÖNNTE_VERANTWORTEN]->(target)
+                MATCH (o:OrgUnit {name: $org_unit_name})-[r:MAY_BE_RESPONSIBLE_FOR]->(target)
                 WHERE target.id = $entity_id
                 DELETE r
                 """,
@@ -204,10 +204,10 @@ class GraphWriter:
             )
             client.execute_write(
                 """
-                MERGE (o:OrgEinheit {name: $org_unit_name})
+                MERGE (o:OrgUnit {name: $org_unit_name})
                 MATCH (target)
                 WHERE target.id = $entity_id
-                MERGE (o)-[:VERANTWORTET]->(target)
+                MERGE (o)-[:RESPONSIBLE_FOR]->(target)
                 """,
                 {
                     "org_unit_name": canonical,
@@ -219,16 +219,16 @@ class GraphWriter:
         canonical = self._resolve_org_unit_canonical_name(client, org_unit_name)
         client.execute_write(
             """
-            MATCH (:OrgEinheit)-[r:VERANTWORTET]->(p:Prozess {prozess_id: $process_id})
+            MATCH (:OrgUnit)-[r:RESPONSIBLE_FOR]->(p:Process {process_id: $process_id})
             DELETE r
             """,
             {"process_id": process_id},
         )
         client.execute_write(
             """
-            MERGE (o:OrgEinheit {name: $org_unit_name})
-            MATCH (p:Prozess {prozess_id: $process_id})
-            MERGE (o)-[:VERANTWORTET]->(p)
+            MERGE (o:OrgUnit {name: $org_unit_name})
+            MATCH (p:Process {process_id: $process_id})
+            MERGE (o)-[:RESPONSIBLE_FOR]->(p)
             """,
             {"org_unit_name": canonical, "process_id": process_id},
         )
@@ -236,7 +236,7 @@ class GraphWriter:
     def remove_process_owner(self, client: Neo4jClient, process_id: str) -> None:
         client.execute_write(
             """
-            MATCH (:OrgEinheit)-[r:VERANTWORTET]->(p:Prozess {prozess_id: $process_id})
+            MATCH (:OrgUnit)-[r:RESPONSIBLE_FOR]->(p:Process {process_id: $process_id})
             DELETE r
             """,
             {"process_id": process_id},
@@ -246,9 +246,9 @@ class GraphWriter:
         canonical = self._resolve_org_unit_canonical_name(client, org_unit_name)
         client.execute_write(
             """
-            MERGE (o:OrgEinheit {name: $org_unit_name})
-            MERGE (r:Rolle {name: $role_name})
-            MERGE (o)-[:KANN_EINNEHMEN]->(r)
+            MERGE (o:OrgUnit {name: $org_unit_name})
+            MERGE (r:Role {name: $role_name})
+            MERGE (o)-[:CAN_ASSUME]->(r)
             """,
             {
                 "org_unit_name": canonical,
@@ -259,7 +259,7 @@ class GraphWriter:
     def cleanup_process_placeholders(self, client: Neo4jClient) -> None:
         client.execute_write(
             """
-            MATCH (p:Prozess {placeholder: true})
+            MATCH (p:Process {placeholder: true})
             DETACH DELETE p
             """
         )
@@ -267,7 +267,7 @@ class GraphWriter:
     def _upsert_process_node(self, client: Neo4jClient, process_id: str, process_name: str) -> str:
         placeholder_rows = client.execute_write(
             """
-            MATCH (p:Prozess {name: $process_name, placeholder: true})
+            MATCH (p:Process {name: $process_name, placeholder: true})
             RETURN elementId(p) AS element_id
             """,
             {
@@ -276,7 +276,7 @@ class GraphWriter:
         )
         process_rows = client.execute_write(
             """
-            MATCH (p:Prozess {prozess_id: $process_id})
+            MATCH (p:Process {process_id: $process_id})
             RETURN elementId(p) AS element_id
             """,
             {
@@ -287,7 +287,7 @@ class GraphWriter:
         if process_rows:
             client.execute_write(
                 """
-                MATCH (p:Prozess {prozess_id: $process_id})
+                MATCH (p:Process {process_id: $process_id})
                 SET p.name = $process_name,
                     p.placeholder = false
                 """,
@@ -304,7 +304,7 @@ class GraphWriter:
                 """
                 MATCH (p)
                 WHERE elementId(p) = $element_id
-                SET p.prozess_id = $process_id,
+                SET p.process_id = $process_id,
                     p.name = $process_name,
                     p.placeholder = false
                 """,
@@ -317,12 +317,12 @@ class GraphWriter:
             return PROCESS_WRITE_ACTION_UPDATED
 
         # Check for a node created by another source (e.g. ArchiMate) with the same
-        # name but no prozess_id yet. Enrich it instead of creating a duplicate.
+        # name but no process_id yet. Enrich it instead of creating a duplicate.
         name_rows = client.execute_write(
             """
-            MATCH (p:Prozess)
+            MATCH (p:Process)
             WHERE toLower(p.name) = toLower($process_name)
-              AND p.prozess_id IS NULL
+              AND p.process_id IS NULL
               AND coalesce(p.placeholder, false) = false
             RETURN elementId(p) AS element_id
             LIMIT 1
@@ -334,7 +334,7 @@ class GraphWriter:
                 """
                 MATCH (p)
                 WHERE elementId(p) = $element_id
-                SET p.prozess_id = $process_id,
+                SET p.process_id = $process_id,
                     p.name = $process_name,
                     p.placeholder = false
                 """,
@@ -348,7 +348,7 @@ class GraphWriter:
 
         client.execute_write(
             """
-            MERGE (p:Prozess {prozess_id: $process_id})
+            MERGE (p:Process {process_id: $process_id})
             SET p.name = $process_name,
                 p.placeholder = false
             """,
@@ -365,7 +365,7 @@ class GraphWriter:
             # same name but no cmdb_id yet. Enrich it instead of creating a duplicate.
             existing = client.execute_write(
                 """
-                MATCH (a:Anwendung)
+                MATCH (a:Application)
                 WHERE toLower(a.name) = toLower($name) AND a.cmdb_id IS NULL
                 RETURN elementId(a) AS element_id
                 LIMIT 1
@@ -383,7 +383,7 @@ class GraphWriter:
             else:
                 client.execute_write(
                     """
-                    MERGE (a:Anwendung {cmdb_id: $entity_id})
+                    MERGE (a:Application {cmdb_id: $entity_id})
                     SET a.id = $entity_id,
                         a.name = $name
                     """,
@@ -396,7 +396,7 @@ class GraphWriter:
         if entity.entity_type == CMDB_ENTITY_TYPE_INTERFACE:
             client.execute_write(
                 """
-                MERGE (i:Schnittstelle {id: $entity_id})
+                MERGE (i:Interface {id: $entity_id})
                 SET i.name = $name
                 """,
                 {
@@ -422,7 +422,7 @@ class GraphWriter:
         if entity.entity_type == CMDB_ENTITY_TYPE_PROCESS:
             client.execute_write(
                 """
-                MERGE (p:Prozess {prozess_id: $entity_id})
+                MERGE (p:Process {process_id: $entity_id})
                 SET p.name = $name,
                     p.placeholder = false
                 """,
@@ -469,7 +469,7 @@ class GraphWriter:
         archimate_source: str,
         archimate_type: str,
     ) -> None:
-        canonical_name = self._resolve_org_unit_canonical_name(client, name) if label == "OrgEinheit" else name
+        canonical_name = self._resolve_org_unit_canonical_name(client, name) if label == "OrgUnit" else name
         client.execute_write(
             f"""
             MERGE (n:{label} {{name: $name}})
@@ -519,18 +519,18 @@ class GraphWriter:
     ) -> None:
         client.execute_write(
             """
-            MATCH (a:Anwendung {cmdb_id: $cmdb_id})-[r:KÖNNTE_DIENEN]->(p:Prozess {prozess_id: $process_id})
+            MATCH (a:Application {cmdb_id: $cmdb_id})-[r:MAY_SERVE]->(p:Process {process_id: $process_id})
             DELETE r
             """,
             {"cmdb_id": cmdb_id, "process_id": process_id},
         )
         client.execute_write(
             """
-            MERGE (p:Prozess {prozess_id: $process_id})
-            MERGE (a:Anwendung {cmdb_id: $cmdb_id})
+            MERGE (p:Process {process_id: $process_id})
+            MERGE (a:Application {cmdb_id: $cmdb_id})
             SET a.name = $matched_name
-            MERGE (a)-[r:DIENT]->(p)
-            SET r.konfidenz = 'stark',
+            MERGE (a)-[r:SERVES]->(p)
+            SET r.confidence = 'stark',
                 r.raw_name = $raw_name,
                 r.source = $source
             """,
@@ -539,7 +539,7 @@ class GraphWriter:
                 "cmdb_id": cmdb_id,
                 "matched_name": matched_name,
                 "raw_name": raw_name,
-                "source": DIENT_SOURCE_CONFIRMED,
+                "source": SERVES_SOURCE_CONFIRMED,
             },
         )
         normalized_raw = normalize_org_unit_name(raw_name)
@@ -552,8 +552,8 @@ class GraphWriter:
                               alias.source_kind = $source_kind
                 SET alias.name = coalesce(alias.name, $alias_name)
                 WITH alias
-                MATCH (a:Anwendung {cmdb_id: $cmdb_id})
-                MERGE (alias)-[r:KANN_MEINEN]->(a)
+                MATCH (a:Application {cmdb_id: $cmdb_id})
+                MERGE (alias)-[r:MAY_REFER_TO]->(a)
                 SET r.source_kind = $source_kind
                 """,
                 {
@@ -575,14 +575,14 @@ class GraphWriter:
         if cmdb_id:
             client.execute_write(
                 """
-                MATCH (a:Anwendung {cmdb_id: $cmdb_id})-[r:KÖNNTE_DIENEN]->(p:Prozess {prozess_id: $process_id})
+                MATCH (a:Application {cmdb_id: $cmdb_id})-[r:MAY_SERVE]->(p:Process {process_id: $process_id})
                 DELETE r
                 """,
                 {"cmdb_id": cmdb_id, "process_id": process_id},
             )
         client.execute_write(
             """
-            MERGE (ab:Ablehnung {prozess_name: $prozess_name, anwendung_name: $anwendung_name})
+            MERGE (ab:Rejection {prozess_name: $prozess_name, anwendung_name: $anwendung_name})
             """,
             {"prozess_name": prozess_name, "anwendung_name": anwendung_name},
         )
@@ -590,7 +590,7 @@ class GraphWriter:
     def get_confirmed_links_from_neo4j(self, client: Neo4jClient) -> list[dict]:
         rows = client.execute_read(
             """
-            MATCH (a:Anwendung)-[r:DIENT]->(p:Prozess)
+            MATCH (a:Application)-[r:SERVES]->(p:Process)
             WHERE r.raw_name IS NOT NULL
               AND r.source IN ['manuell_bestaetigt', 'manueller_link']
             RETURN p.name AS prozess,
@@ -605,17 +605,17 @@ class GraphWriter:
     def get_rejected_decisions_from_neo4j(self, client: Neo4jClient) -> list[dict]:
         rows = client.execute_read_unvalidated(
             """
-            MATCH (ab:Ablehnung)
+            MATCH (ab:Rejection)
             RETURN ab.prozess_name AS prozess,
                    ab.anwendung_name AS anwendung_name
             """
         )
-        return [{"prozess": row["prozess"], "anwendung_name": row["anwendung_name"], "cmdb_id": None} for row in rows]
+        return [{"process": row["process"], "anwendung_name": row["anwendung_name"], "cmdb_id": None} for row in rows]
 
     def load_org_units_from_neo4j(self, client: Neo4jClient) -> dict[str, str]:
-        """Return {normalized_name: canonical_name} for all OrgEinheit nodes."""
+        """Return {normalized_name: canonical_name} for all OrgUnit nodes."""
         rows = client.execute_read(
-            "MATCH (o:OrgEinheit) WHERE o.name IS NOT NULL RETURN o.name AS name",
+            "MATCH (o:OrgUnit) WHERE o.name IS NOT NULL RETURN o.name AS name",
             {},
         )
         result: dict[str, str] = {}
@@ -626,10 +626,10 @@ class GraphWriter:
         return result
 
     def load_org_unit_aliases_from_neo4j(self, client: Neo4jClient) -> dict[str, str]:
-        """Return {normalized_alias: canonical_org_unit_name} from Alias→OrgEinheit edges."""
+        """Return {normalized_alias: canonical_org_unit_name} from Alias→OrgUnit edges."""
         rows = client.execute_read(
             """
-            MATCH (alias:Alias)-[:KANN_MEINEN]->(o:OrgEinheit)
+            MATCH (alias:Alias)-[:MAY_REFER_TO]->(o:OrgUnit)
             WHERE alias.normalized_name IS NOT NULL AND o.name IS NOT NULL
             RETURN alias.normalized_name AS alias_normalized, o.name AS org_unit_name
             """,
@@ -644,17 +644,17 @@ class GraphWriter:
         return result
 
     def write_role_only_decision(self, client: Neo4jClient, role_name: str) -> None:
-        """Mark a Rolle node as role-only (not an OrgEinheit) directly in Neo4j."""
+        """Mark a Role node as role-only (not an OrgUnit) directly in Neo4j."""
         client.execute_write(
-            "MATCH (r:Rolle {name: $role_name}) SET r.role_only = true",
+            "MATCH (r:Role {name: $role_name}) SET r.role_only = true",
             {"role_name": role_name},
         )
 
     def write_org_unit_alias(self, client: Neo4jClient, candidate_name: str, org_unit_name: str) -> None:
         """Project a confirmed org-unit candidate mapping as an Alias node in Neo4j.
 
-        Creates (:Alias)-[:KANN_MEINEN]->(:OrgEinheit) so the pipeline can resolve
-        the raw candidate string to the canonical OrgEinheit without reading kb.json.
+        Creates (:Alias)-[:MAY_REFER_TO]->(:OrgUnit) so the pipeline can resolve
+        the raw candidate string to the canonical OrgUnit without reading kb.json.
         No-op when candidate_name and org_unit_name normalise to the same value.
         """
         normalized_candidate = normalize_org_unit_name(candidate_name)
@@ -668,8 +668,8 @@ class GraphWriter:
                           alias.source_kind = $source_kind
             SET alias.name = coalesce(alias.name, $alias_name)
             WITH alias
-            MERGE (o:OrgEinheit {name: $org_unit_name})
-            MERGE (alias)-[r:KANN_MEINEN]->(o)
+            MERGE (o:OrgUnit {name: $org_unit_name})
+            MERGE (alias)-[r:MAY_REFER_TO]->(o)
             SET r.source_kind = $source_kind
             """,
             {
@@ -688,7 +688,7 @@ class GraphWriter:
         process_name: str = "",
         role_name: str = "",
     ) -> None:
-        """Record an unresolved org-unit/role mention as an (:OrgKandidat) node.
+        """Record an unresolved org-unit/role mention as an (:OrgCandidate) node.
 
         MERGE by normalized_name; provenance (source_path/process_name/role_name) is
         appended to list properties without duplicates. last_seen only advances while
@@ -701,7 +701,7 @@ class GraphWriter:
         today = date.today().isoformat()
         client.execute_write(
             """
-            MERGE (k:OrgKandidat {normalized_name: $normalized_name})
+            MERGE (k:OrgCandidate {normalized_name: $normalized_name})
             ON CREATE SET k.candidate_name = $candidate_name,
                           k.status = 'open',
                           k.mapped_org_unit = '',
@@ -732,12 +732,12 @@ class GraphWriter:
         )
 
     def load_org_unit_candidates(self, client: Neo4jClient, status: str | None = None) -> list[dict]:
-        # OrgKandidat is an internal operational node (like Ablehnung) and is deliberately
+        # OrgCandidate is an internal operational node (like Rejection) and is deliberately
         # excluded from graph_schema.py's LLM-facing allowlist, so execute_read's schema
         # validation would reject this query. Use the unvalidated read path instead.
         rows = client.execute_read_unvalidated(
             """
-            MATCH (k:OrgKandidat)
+            MATCH (k:OrgCandidate)
             WHERE $status IS NULL OR k.status = $status
             RETURN k.candidate_name AS candidate_name,
                    k.normalized_name AS normalized_name,
@@ -759,7 +759,7 @@ class GraphWriter:
             return
         client.execute_write(
             """
-            MATCH (k:OrgKandidat {normalized_name: $normalized_name})
+            MATCH (k:OrgCandidate {normalized_name: $normalized_name})
             SET k.status = 'mapped',
                 k.mapped_org_unit = $target_org_unit,
                 k.last_seen = $today
@@ -777,7 +777,7 @@ class GraphWriter:
             return
         client.execute_write(
             """
-            MATCH (k:OrgKandidat {normalized_name: $normalized_name})
+            MATCH (k:OrgCandidate {normalized_name: $normalized_name})
             SET k.status = 'rejected',
                 k.mapped_org_unit = '',
                 k.last_seen = $today
@@ -786,14 +786,14 @@ class GraphWriter:
         )
 
     def _resolve_org_unit_canonical_name(self, client: Neo4jClient, name: str) -> str:
-        """Return canonical OrgEinheit name via case-insensitive lookup; fall back to stripped input.
+        """Return canonical OrgUnit name via case-insensitive lookup; fall back to stripped input.
 
-        First-seen wins: if an OrgEinheit with the same name (different case) already exists,
+        First-seen wins: if an OrgUnit with the same name (different case) already exists,
         its stored name is used for the MERGE to avoid creating a duplicate node.
         """
         stripped = name.strip()
         rows = client.execute_read(
-            "MATCH (o:OrgEinheit) WHERE toLower(o.name) = toLower($name) RETURN o.name AS name LIMIT 1",
+            "MATCH (o:OrgUnit) WHERE toLower(o.name) = toLower($name) RETURN o.name AS name LIMIT 1",
             {"name": stripped},
         )
         return rows[0]["name"] if rows else stripped
@@ -801,13 +801,13 @@ class GraphWriter:
     def _resolve_duplicate_placeholders(self, client: Neo4jClient, process_id: str, process_name: str) -> None:
         client.execute_write(
             """
-            MATCH (real:Prozess {prozess_id: $process_id})
-            MATCH (placeholder:Prozess {name: $process_name, placeholder: true})
+            MATCH (real:Process {process_id: $process_id})
+            MATCH (placeholder:Process {name: $process_name, placeholder: true})
             WHERE elementId(real) <> elementId(placeholder)
-            OPTIONAL MATCH (source:Prozess)-[:FOLGT_AUF]->(placeholder)
+            OPTIONAL MATCH (source:Process)-[:FOLLOWS]->(placeholder)
             WITH real, placeholder, collect(DISTINCT source) AS sources
             FOREACH (src IN sources |
-                MERGE (src)-[:FOLGT_AUF]->(real)
+                MERGE (src)-[:FOLLOWS]->(real)
             )
             """,
             {
@@ -817,13 +817,13 @@ class GraphWriter:
         )
         client.execute_write(
             """
-            MATCH (real:Prozess {prozess_id: $process_id})
-            MATCH (placeholder:Prozess {name: $process_name, placeholder: true})
+            MATCH (real:Process {process_id: $process_id})
+            MATCH (placeholder:Process {name: $process_name, placeholder: true})
             WHERE elementId(real) <> elementId(placeholder)
-            OPTIONAL MATCH (placeholder)-[:FOLGT_AUF]->(target:Prozess)
+            OPTIONAL MATCH (placeholder)-[:FOLLOWS]->(target:Process)
             WITH real, placeholder, collect(DISTINCT target) AS targets
             FOREACH (dst IN targets |
-                MERGE (real)-[:FOLGT_AUF]->(dst)
+                MERGE (real)-[:FOLLOWS]->(dst)
             )
             DETACH DELETE placeholder
             """,

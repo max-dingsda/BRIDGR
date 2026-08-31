@@ -85,6 +85,6 @@ def build_import_completion_message(duration: str, run_mode: str, archive_path: 
     if file_count:
         return (
             f"{mode_label} abgeschlossen in {duration}. "
-            f"{file_count} Prozessdatei(en) wurden verarbeitet und nach `{archive_path}` verschoben."
+            f"{file_count} Processdatei(en) wurden verarbeitet und nach `{archive_path}` verschoben."
         )
-    return f"{mode_label} abgeschlossen in {duration}. Es wurden keine Prozessdateien verschoben."
+    return f"{mode_label} abgeschlossen in {duration}. Es wurden keine Processdateien verschoben."

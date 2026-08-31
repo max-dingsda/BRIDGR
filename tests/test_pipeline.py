@@ -24,13 +24,13 @@ from skills.extract.extract_txt import TextExtractor
 class FakeLlmClient:
     def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
         return {
-            "prozess": "Auftragsabwicklung",
-            "prozess_id": "proc_001",
-            "org_einheit": "Vertrieb",
-            "folgt_auf": ["Angebotserstellung"],
-            "anwendungen": [
-                {"name": "SAP Sales", "konfidenz": "stark"},
-                {"name": "Unbekanntes System", "konfidenz": "schwach"},
+            "process": "Auftragsabwicklung",
+            "process_id": "proc_001",
+            "org_unit": "Vertrieb",
+            "follows_after": ["Angebotserstellung"],
+            "applications": [
+                {"name": "SAP Sales", "confidence": "stark"},
+                {"name": "Unbekanntes System", "confidence": "schwach"},
             ],
         }
 
@@ -87,7 +87,7 @@ def test_run_document_builds_matches_and_review_items(tmp_path: Path) -> None:
 
     confirmed_links = [
         {
-            "prozess": "Auftragsabwicklung",
+            "process": "Auftragsabwicklung",
             "anwendung_name": "Manuelles CRM",
             "cmdb_id": "cmdb-2",
             "resolved_to": "Manual CRM",
@@ -167,7 +167,7 @@ def test_run_document_revives_absent_manuell_bestaetigt_matches(tmp_path: Path) 
         graph_writer=GraphWriter(),
         confirmed_links=[
             {
-                "prozess": "Auftragsabwicklung",
+                "process": "Auftragsabwicklung",
                 "anwendung_name": "Historisches CRM",
                 "cmdb_id": "cmdb-9",
                 "resolved_to": "Historic CRM",
@@ -214,11 +214,11 @@ def test_run_pipeline_writes_artifacts_for_full_runs(tmp_path: Path, monkeypatch
 
         def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
             return {
-                "prozess": "Auftragsabwicklung",
-                "prozess_id": "proc_001",
-                "org_einheit": "Vertrieb",
-                "folgt_auf": [],
-                "anwendungen": [{"name": "SAP Sales", "konfidenz": "stark"}],
+                "process": "Auftragsabwicklung",
+                "process_id": "proc_001",
+                "org_unit": "Vertrieb",
+                "follows_after": [],
+                "applications": [{"name": "SAP Sales", "confidence": "stark"}],
             }
 
     class FakeNeo4jClient:
@@ -229,7 +229,7 @@ def test_run_pipeline_writes_artifacts_for_full_runs(tmp_path: Path, monkeypatch
             return None
 
         def execute_write(self, query: str, parameters=None):
-            if "MATCH (p:Prozess {placeholder: true})" in query:
+            if "MATCH (p:Process {placeholder: true})" in query:
                 self.cleanup_called = True
             return []
 
@@ -337,11 +337,11 @@ def test_run_pipeline_reports_progress_updates(tmp_path: Path, monkeypatch) -> N
 
         def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
             return {
-                "prozess": "Auftragsabwicklung",
-                "prozess_id": "proc_001",
-                "org_einheit": "Vertrieb",
-                "folgt_auf": [],
-                "anwendungen": [{"name": "SAP Sales", "konfidenz": "stark"}],
+                "process": "Auftragsabwicklung",
+                "process_id": "proc_001",
+                "org_unit": "Vertrieb",
+                "follows_after": [],
+                "applications": [{"name": "SAP Sales", "confidence": "stark"}],
             }
 
     class FakeNeo4jClient:
@@ -421,11 +421,11 @@ def test_run_pipeline_propagates_neo4j_write_failures(tmp_path: Path, monkeypatc
 
         def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
             return {
-                "prozess": "Auftragsabwicklung",
-                "prozess_id": "proc_001",
-                "org_einheit": "Vertrieb",
-                "folgt_auf": [],
-                "anwendungen": [{"name": "SAP Sales", "konfidenz": "stark"}],
+                "process": "Auftragsabwicklung",
+                "process_id": "proc_001",
+                "org_unit": "Vertrieb",
+                "follows_after": [],
+                "applications": [{"name": "SAP Sales", "confidence": "stark"}],
             }
 
     class FailingNeo4jClient:
@@ -512,7 +512,7 @@ def test_run_pipeline_persists_org_candidates_to_neo4j(tmp_path: Path, monkeypat
     prompts_dir.mkdir()
 
     txt_path = input_dir / "process.txt"
-    txt_path.write_text("Prozessbeschreibung Einkauf", encoding="utf-8")
+    txt_path.write_text("Processbeschreibung Einkauf", encoding="utf-8")
     (input_dir / "cmdb.csv").write_text("app_id,application_name\n", encoding="utf-8")
     (prompts_dir / "extract_generic.md").write_text("prompt", encoding="utf-8")
 
@@ -525,13 +525,13 @@ def test_run_pipeline_persists_org_candidates_to_neo4j(tmp_path: Path, monkeypat
 
         def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
             return {
-                "prozess": "Einkaufsprozess",
-                "prozess_id": "proc_einkauf",
-                "rolle": "Einkäufer",
-                "prozess_eigentuemer": "",
-                "org_einheit_kandidaten": ["Team Einkauf"],
-                "folgt_auf": [],
-                "anwendungen": [],
+                "process": "Einkaufsprozess",
+                "process_id": "proc_einkauf",
+                "role": "Einkäufer",
+                "process_owner": "",
+                "org_unit_candidates": ["Team Einkauf"],
+                "follows_after": [],
+                "applications": [],
             }
 
     class FakeNeo4jClient:
@@ -572,6 +572,6 @@ def test_run_pipeline_persists_org_candidates_to_neo4j(tmp_path: Path, monkeypat
     candidate_writes = [
         parameters
         for query, parameters in fake_client.write_calls
-        if "OrgKandidat" in query and parameters.get("candidate_name") == "Team Einkauf"
+        if "OrgCandidate" in query and parameters.get("candidate_name") == "Team Einkauf"
     ]
     assert candidate_writes, "upsert_org_unit_candidate was not called for the extracted org candidate"

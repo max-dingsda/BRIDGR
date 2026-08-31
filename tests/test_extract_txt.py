@@ -8,14 +8,14 @@ from skills.extract.extract_txt import TextExtractor, TextExtractorError
 class FakeLlmClient:
     def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
         return {
-            "prozess": "Incident Handling",
-            "prozess_id": "",
-            "rolle": "Support",
-            "org_einheit_kandidaten": ["Support Team"],
-            "folgt_auf": ["Ticket Intake"],
-            "anwendungen": [
-                {"name": "Ticket System", "konfidenz": "stark"},
-                {"name": "Mail Service", "konfidenz": "schwach"},
+            "process": "Incident Handling",
+            "process_id": "",
+            "role": "Support",
+            "org_unit_candidates": ["Support Team"],
+            "follows_after": ["Ticket Intake"],
+            "applications": [
+                {"name": "Ticket System", "confidence": "stark"},
+                {"name": "Mail Service", "confidence": "schwach"},
             ],
         }
 
@@ -53,7 +53,7 @@ def test_text_extractor_uses_payload_process_id_when_present(tmp_path: Path) -> 
     class ProcessIdLlmClient(FakeLlmClient):
         def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
             payload = super().generate_json(system_prompt, user_prompt)
-            payload["prozess_id"] = "text-001"
+            payload["process_id"] = "text-001"
             return payload
 
     extractor = TextExtractor(prompt_path=prompt_path, llm_client=ProcessIdLlmClient())
@@ -74,7 +74,7 @@ def test_text_extractor_prefers_explicit_process_id_from_document_text(tmp_path:
     class MutatingProcessIdLlmClient(FakeLlmClient):
         def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
             payload = super().generate_json(system_prompt, user_prompt)
-            payload["prozess_id"] = "c d26e6af-958f-8ed4-29e2-a0a586ee7850"
+            payload["process_id"] = "c d26e6af-958f-8ed4-29e2-a0a586ee7850"
             return payload
 
     extractor = TextExtractor(prompt_path=prompt_path, llm_client=MutatingProcessIdLlmClient())
@@ -104,19 +104,19 @@ def test_text_extractor_reads_lane_labels_from_bpmn_transform_text_as_roles(tmp_
 def test_text_extractor_extracts_explicit_process_owner(tmp_path: Path) -> None:
     source_path = tmp_path / "process.txt"
     prompt_path = tmp_path / "prompt.md"
-    source_path.write_text("Prozessverantwortlicher: Einkauf", encoding="utf-8")
+    source_path.write_text("Processverantwortlicher: Einkauf", encoding="utf-8")
     prompt_path.write_text("prompt", encoding="utf-8")
 
     class OwnerLlmClient:
         def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
             return {
-                "prozess": "Bestellabwicklung",
-                "prozess_id": "",
-                "rolle": "",
-                "prozess_eigentuemer": "Einkauf",
-                "org_einheit_kandidaten": [],
-                "folgt_auf": [],
-                "anwendungen": [],
+                "process": "Bestellabwicklung",
+                "process_id": "",
+                "role": "",
+                "process_owner": "Einkauf",
+                "org_unit_candidates": [],
+                "follows_after": [],
+                "applications": [],
             }
 
     extractor = TextExtractor(prompt_path=prompt_path, llm_client=OwnerLlmClient())
@@ -149,13 +149,13 @@ def test_text_extractor_ignores_process_owner_in_bpmn_transform(tmp_path: Path) 
     class OwnerLlmClient:
         def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
             return {
-                "prozess": "Bestellabwicklung",
-                "prozess_id": "proc-1",
-                "rolle": "",
-                "prozess_eigentuemer": "Einkauf",
-                "org_einheit_kandidaten": [],
-                "folgt_auf": [],
-                "anwendungen": [],
+                "process": "Bestellabwicklung",
+                "process_id": "proc-1",
+                "role": "",
+                "process_owner": "Einkauf",
+                "org_unit_candidates": [],
+                "follows_after": [],
+                "applications": [],
             }
 
     extractor = TextExtractor(prompt_path=prompt_path, llm_client=OwnerLlmClient())
@@ -172,7 +172,7 @@ def test_text_extractor_rejects_invalid_payload(tmp_path: Path) -> None:
 
     class InvalidLlmClient:
         def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
-            return {"prozess": "Broken"}
+            return {"process": "Broken"}
 
     extractor = TextExtractor(prompt_path=prompt_path, llm_client=InvalidLlmClient())
 
@@ -189,13 +189,13 @@ def test_text_extractor_splits_comma_separated_roles_and_org_candidates(tmp_path
     class CombinedLlmClient:
         def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
             return {
-                "prozess": "Rechnungsstellung",
-                "prozess_id": "",
-                "rolle": "Buchhaltung, Auftragsbearbeitung",
-                "prozess_eigentuemer": "",
-                "org_einheit_kandidaten": ["Buchhaltung, Controlling"],
-                "folgt_auf": [],
-                "anwendungen": [],
+                "process": "Rechnungsstellung",
+                "process_id": "",
+                "role": "Buchhaltung, Auftragsbearbeitung",
+                "process_owner": "",
+                "org_unit_candidates": ["Buchhaltung, Controlling"],
+                "follows_after": [],
+                "applications": [],
             }
 
     extractor = TextExtractor(prompt_path=prompt_path, llm_client=CombinedLlmClient())

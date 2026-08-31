@@ -9,12 +9,12 @@ from skills.extract.extract_docx import DocxExtractor, DocxExtractorError
 class FakeLlmClient:
     def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
         return {
-            "prozess": "Bestellabwicklung",
-            "prozess_id": "",
-            "org_einheit": "Einkauf",
-            "folgt_auf": [],
-            "anwendungen": [
-                {"name": "Microsoft Outlook", "konfidenz": "stark"},
+            "process": "Bestellabwicklung",
+            "process_id": "",
+            "org_unit": "Einkauf",
+            "follows_after": [],
+            "applications": [
+                {"name": "Microsoft Outlook", "confidence": "stark"},
             ],
         }
 
@@ -97,13 +97,13 @@ def test_docx_extractor_splits_comma_separated_roles_and_org_candidates(tmp_path
     class CombinedLlmClient:
         def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
             return {
-                "prozess": "Zahlungsabwicklung",
-                "prozess_id": "",
-                "rolle": "Buchhaltung, Controlling",
-                "prozess_eigentuemer": "",
-                "org_einheit_kandidaten": ["Buchhaltung, Auftragsbearbeitung"],
-                "folgt_auf": [],
-                "anwendungen": [],
+                "process": "Zahlungsabwicklung",
+                "process_id": "",
+                "role": "Buchhaltung, Controlling",
+                "process_owner": "",
+                "org_unit_candidates": ["Buchhaltung, Auftragsbearbeitung"],
+                "follows_after": [],
+                "applications": [],
             }
 
     fake_docx_module = types.ModuleType("docx")

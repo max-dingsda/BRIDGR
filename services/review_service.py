@@ -199,7 +199,7 @@ def confirm_review_links_batch(
         matched_name = row.get("anwendung_in_cmdb", "")
         cmdb_id = row.get("cmdb_id", "")
         process_id = row.get("process_id", "")
-        process_name = row.get("prozess", "")
+        process_name = row.get("process", "")
         source_path = row.get("source_path", "")
         writer.promote_candidate_link(
             neo4j_client,
@@ -293,15 +293,15 @@ def save_manual_link(
     source_path: str,
     cmdb_rows: list[dict[str, str]],
 ) -> str:
-    from core.constants import DIENT_SOURCE_MANUAL
+    from core.constants import SERVES_SOURCE_MANUAL
     neo4j_client = get_session_neo4j_client(config)
     neo4j_client.execute_write(
         """
-        MERGE (p:Prozess {prozess_id: $process_id})
-        MERGE (a:Anwendung {cmdb_id: $cmdb_id})
+        MERGE (p:Process {process_id: $process_id})
+        MERGE (a:Application {cmdb_id: $cmdb_id})
         SET a.name = $matched_name
-        MERGE (a)-[r:DIENT]->(p)
-        SET r.konfidenz = 'stark',
+        MERGE (a)-[r:SERVES]->(p)
+        SET r.confidence = 'stark',
             r.raw_name = $raw_name,
             r.source = $source
         """,
@@ -310,7 +310,7 @@ def save_manual_link(
             "cmdb_id": cmdb_id,
             "matched_name": matched_name or application_name,
             "raw_name": application_name,
-            "source": DIENT_SOURCE_MANUAL,
+            "source": SERVES_SOURCE_MANUAL,
         },
     )
     create_manual_decision(

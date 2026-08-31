@@ -114,7 +114,7 @@ def test_generate_json_extracts_json_object_from_markdown_wrapped_response(monke
                     "choices": [
                         {
                             "message": {
-                                "content": '```json\n{"prozess":"A","anwendungen":[]}\n```'
+                                "content": '```json\n{"process":"A","applications":[]}\n```'
                             }
                         }
                     ]
@@ -126,7 +126,7 @@ def test_generate_json_extracts_json_object_from_markdown_wrapped_response(monke
 
     result = client.generate_json("system", "user")
 
-    assert result == {"prozess": "A", "anwendungen": []}
+    assert result == {"process": "A", "applications": []}
 
 
 def test_generate_json_retries_after_invalid_json_content(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -137,7 +137,7 @@ def test_generate_json_retries_after_invalid_json_content(monkeypatch: pytest.Mo
                     "choices": [
                         {
                             "message": {
-                                "content": '{"prozess":"A","anwendungen":['
+                                "content": '{"process":"A","applications":['
                             }
                         }
                     ]
@@ -148,7 +148,7 @@ def test_generate_json_retries_after_invalid_json_content(monkeypatch: pytest.Mo
                     "choices": [
                         {
                             "message": {
-                                "content": '{"prozess":"A","org_einheit":"","anwendungen":[]}'
+                                "content": '{"process":"A","org_unit":"","applications":[]}'
                             }
                         }
                     ]
@@ -158,9 +158,9 @@ def test_generate_json_retries_after_invalid_json_content(monkeypatch: pytest.Mo
     )
     client = build_client(monkeypatch, session)
 
-    result = client.generate_json("system", "user", required_keys={"prozess", "org_einheit", "anwendungen"})
+    result = client.generate_json("system", "user", required_keys={"process", "org_unit", "applications"})
 
-    assert result == {"prozess": "A", "org_einheit": "", "anwendungen": []}
+    assert result == {"process": "A", "org_unit": "", "applications": []}
     assert len(session.calls) == 2
     second_messages = session.calls[1]["json"]["messages"]
     # Retry starts fresh: no broken assistant context, just [system, user_original, user_retry]
@@ -180,7 +180,7 @@ def test_generate_json_retries_after_missing_required_keys(monkeypatch: pytest.M
                     "choices": [
                         {
                             "message": {
-                                "content": '{"prozess":"A","anwendungen":[]}'
+                                "content": '{"process":"A","applications":[]}'
                             }
                         }
                     ]
@@ -191,7 +191,7 @@ def test_generate_json_retries_after_missing_required_keys(monkeypatch: pytest.M
                     "choices": [
                         {
                             "message": {
-                                "content": '{"prozess":"A","org_einheit":"","anwendungen":[]}'
+                                "content": '{"process":"A","org_unit":"","applications":[]}'
                             }
                         }
                     ]
@@ -201,9 +201,9 @@ def test_generate_json_retries_after_missing_required_keys(monkeypatch: pytest.M
     )
     client = build_client(monkeypatch, session)
 
-    result = client.generate_json("system", "user", required_keys={"prozess", "org_einheit", "anwendungen"})
+    result = client.generate_json("system", "user", required_keys={"process", "org_unit", "applications"})
 
-    assert result == {"prozess": "A", "org_einheit": "", "anwendungen": []}
+    assert result == {"process": "A", "org_unit": "", "applications": []}
     assert len(session.calls) == 2
 
 
@@ -231,7 +231,7 @@ def test_generate_json_logs_requests_and_responses(monkeypatch: pytest.MonkeyPat
                     "choices": [
                         {
                             "message": {
-                                "content": '{"prozess":"A","org_einheit":"","anwendungen":[]}'
+                                "content": '{"process":"A","org_unit":"","applications":[]}'
                             }
                         }
                     ]
@@ -250,13 +250,13 @@ def test_generate_json_logs_requests_and_responses(monkeypatch: pytest.MonkeyPat
         )
     )
 
-    result = client.generate_json("system", "user", required_keys={"prozess", "org_einheit", "anwendungen"})
+    result = client.generate_json("system", "user", required_keys={"process", "org_unit", "applications"})
 
-    assert result == {"prozess": "A", "org_einheit": "", "anwendungen": []}
+    assert result == {"process": "A", "org_unit": "", "applications": []}
     assert logged_events[0][0] == "llm_request"
     assert logged_events[1][0] == "llm_response"
     assert logged_events[0][1]["messages"][0]["content"] == "system"
-    assert logged_events[1][1]["content"] == '{"prozess":"A","org_einheit":"","anwendungen":[]}'
+    assert logged_events[1][1]["content"] == '{"process":"A","org_unit":"","applications":[]}'
 
 
 def test_extract_json_object_handles_nested_json_without_regex() -> None:
@@ -289,7 +289,7 @@ def test_generate_with_tools_returns_tool_calls_from_llm(monkeypatch: pytest.Mon
         {
             "id": "call_abc",
             "type": "function",
-            "function": {"name": "execute_cypher", "arguments": '{"query": "MATCH (p:Prozess) RETURN p.name"}'},
+            "function": {"name": "execute_cypher", "arguments": '{"query": "MATCH (p:Process) RETURN p.name"}'},
         }
     ]
     session = FakeSession(

@@ -23,7 +23,7 @@ class FakeNeo4jClient:
             return [{
                 "source_name": "Reisekostenabrechnung",
                 "target_name": "Reisekosten abrechnen",
-                "source_props": {"prozess_id": "PROC-046", "name": "Reisekostenabrechnung"},
+                "source_props": {"process_id": "PROC-046", "name": "Reisekostenabrechnung"},
             }]
         return []
 
@@ -48,13 +48,13 @@ def test_merge_org_units_transfers_relationships_and_records_decision(
     assert level == "success"
     assert "überführt" in message
     queries = [query for query, _ in fake_client.written]
-    assert any("MATCH (source)-[:VERANTWORTET]->(p:Prozess)" in query and "MERGE (target)-[:VERANTWORTET]->(p)" in query for query in queries)
-    assert any("MATCH (source)-[:KANN_EINNEHMEN]->(r:Rolle)" in query and "MERGE (target)-[:KANN_EINNEHMEN]->(r)" in query for query in queries)
-    assert any("MATCH (alias:Alias)-[:KANN_MEINEN]->(source)" in query and "MERGE (alias)-[:KANN_MEINEN]->(target)" in query for query in queries)
+    assert any("MATCH (source)-[:RESPONSIBLE_FOR]->(p:Process)" in query and "MERGE (target)-[:RESPONSIBLE_FOR]->(p)" in query for query in queries)
+    assert any("MATCH (source)-[:CAN_ASSUME]->(r:Role)" in query and "MERGE (target)-[:CAN_ASSUME]->(r)" in query for query in queries)
+    assert any("MATCH (alias:Alias)-[:MAY_REFER_TO]->(source)" in query and "MERGE (alias)-[:MAY_REFER_TO]->(target)" in query for query in queries)
     assert any("DETACH DELETE source" in query for query in queries)
     mock_write_alias.assert_called_once_with(fake_client, "Team IT Plattforms", "Plattform IT")
     payload = mock_create_manual_decision.call_args[0][2]
-    assert payload["entity_type"] == "OrgEinheit"
+    assert payload["entity_type"] == "OrgUnit"
     assert "merge_preview" in payload
     mock_create_snapshot.assert_called_once_with(config, fake_client, trigger="merge", operation="merge_org_unit")
 
@@ -85,16 +85,16 @@ def test_merge_processes_transfers_relationships_and_records_decision(
     assert level == "success"
     assert "überführt" in message
     queries = [query for query, _ in fake_client.written]
-    assert any("MATCH (a:Anwendung)-[r:DIENT]->(source)" in query and "MERGE (a)-[merged:DIENT]->(target)" in query for query in queries)
-    assert any("MATCH (role:Rolle)-[:BETEILIGT_AN]->(source)" in query and "MERGE (role)-[:BETEILIGT_AN]->(target)" in query for query in queries)
-    assert any("MATCH (successor:Prozess)-[:FOLGT_AUF]->(source)" in query and "MERGE (successor)-[:FOLGT_AUF]->(target)" in query for query in queries)
-    for rel in ("REALISIERT", "UNTERSTUETZT", "BENOETIGT", "VERARBEITET", "BETRIFFT", "BEEINFLUSST"):
+    assert any("MATCH (a:Application)-[r:SERVES]->(source)" in query and "MERGE (a)-[merged:SERVES]->(target)" in query for query in queries)
+    assert any("MATCH (role:Role)-[:PARTICIPATES_IN]->(source)" in query and "MERGE (role)-[:PARTICIPATES_IN]->(target)" in query for query in queries)
+    assert any("MATCH (successor:Process)-[:FOLLOWS]->(source)" in query and "MERGE (successor)-[:FOLLOWS]->(target)" in query for query in queries)
+    for rel in ("REALIZES", "SUPPORTS", "REQUIRES", "PROCESSES", "AFFECTS", "INFLUENCES"):
         assert any(f"(n)-[:{rel}]->(source)" in query and f"(n)-[:{rel}]->(target)" in query for query in queries), f"incoming {rel} not transferred"
-    for rel in ("UNTERSTUETZT", "BENOETIGT", "VERARBEITET"):
+    for rel in ("SUPPORTS", "REQUIRES", "PROCESSES"):
         assert any(f"(source)-[:{rel}]->(n)" in query and f"(target)-[:{rel}]->(n)" in query for query in queries), f"outgoing {rel} not transferred"
     mock_write_alias.assert_called_once_with(fake_client, "Reisekostenabrechnung", target_element_id="target-1")
     payload = mock_create_manual_decision.call_args[0][2]
-    assert payload["entity_type"] == "Prozess"
+    assert payload["entity_type"] == "Process"
     assert payload["source_ref"] == "source-1"
     assert "merge_preview" in payload
     mock_create_snapshot.assert_called_once_with(config, fake_client, trigger="merge", operation="merge_process")
@@ -123,5 +123,5 @@ def test_load_process_merge_candidates_returns_element_ids(mock_get_client) -> N
 def test_reference_projection_prefers_stable_process_identifier() -> None:
     projection = _reference_projection("target")
 
-    assert "WHEN target:Prozess THEN coalesce(target.prozess_id, target.name, elementId(target), '')" in projection
-    assert "WHEN target:Anwendung THEN coalesce(target.cmdb_id, target.name, '')" in projection
+    assert "WHEN target:Process THEN coalesce(target.process_id, target.name, elementId(target), '')" in projection
+    assert "WHEN target:Application THEN coalesce(target.cmdb_id, target.name, '')" in projection

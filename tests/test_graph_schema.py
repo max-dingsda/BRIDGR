@@ -18,7 +18,7 @@ from core.graph_schema import (
 # --- QUERY_NODE_SCHEMA contents ---
 
 def test_ablehnung_not_in_node_schema() -> None:
-    assert "Ablehnung" not in QUERY_NODE_SCHEMA
+    assert "Rejection" not in QUERY_NODE_SCHEMA
 
 
 def test_manual_decision_not_in_node_schema() -> None:
@@ -26,29 +26,29 @@ def test_manual_decision_not_in_node_schema() -> None:
 
 
 def test_expected_labels_in_node_schema() -> None:
-    for label in ("Prozess", "Anwendung", "Schnittstelle", "Server", "OrgEinheit", "Rolle"):
+    for label in ("Process", "Application", "Interface", "Server", "OrgUnit", "Role"):
         assert label in QUERY_NODE_SCHEMA
 
 
-# --- DIENT relationship properties ---
+# --- SERVES relationship properties ---
 
 def test_raw_name_not_in_dient_properties() -> None:
-    assert "raw_name" not in QUERY_RELATIONSHIP_SCHEMA.get("DIENT", ())
+    assert "raw_name" not in QUERY_RELATIONSHIP_SCHEMA.get("SERVES", ())
 
 
-def test_konfidenz_in_dient_properties() -> None:
-    assert "konfidenz" in QUERY_RELATIONSHIP_SCHEMA.get("DIENT", ())
+def test_confidence_in_dient_properties() -> None:
+    assert "confidence" in QUERY_RELATIONSHIP_SCHEMA.get("SERVES", ())
 
 
 def test_source_in_dient_properties() -> None:
-    assert "source" in QUERY_RELATIONSHIP_SCHEMA.get("DIENT", ())
+    assert "source" in QUERY_RELATIONSHIP_SCHEMA.get("SERVES", ())
 
 
 # --- build_query_schema_reference output ---
 
 def test_schema_reference_excludes_ablehnung() -> None:
     ref = build_query_schema_reference()
-    assert "Ablehnung" not in ref
+    assert "Rejection" not in ref
 
 
 def test_schema_reference_excludes_manual_decision() -> None:
@@ -61,17 +61,17 @@ def test_schema_reference_excludes_raw_name() -> None:
     assert "raw_name" not in ref
 
 
-def test_schema_reference_includes_konfidenz_and_source() -> None:
+def test_schema_reference_includes_confidence_and_source() -> None:
     ref = build_query_schema_reference()
-    assert "konfidenz" in ref
+    assert "confidence" in ref
     assert "source" in ref
 
 
-# --- validate_query_schema: Ablehnung rejected ---
+# --- validate_query_schema: Rejection rejected ---
 
 def test_validator_rejects_ablehnung_label() -> None:
     with pytest.raises(ValueError, match="unknown node label"):
-        validate_query_schema("MATCH (a:Ablehnung) RETURN a.prozess_name")
+        validate_query_schema("MATCH (a:Rejection) RETURN a.prozess_name")
 
 
 def test_validator_rejects_manual_decision_label() -> None:
@@ -83,53 +83,53 @@ def test_validator_rejects_manual_decision_label() -> None:
 
 def test_validator_accepts_known_labels() -> None:
     validate_query_schema(
-        "MATCH (a:Anwendung)-[:DIENT]->(p:Prozess) RETURN a.name, p.name"
+        "MATCH (a:Application)-[:SERVES]->(p:Process) RETURN a.name, p.name"
     )
 
 
 def test_validator_accepts_folgt_auf() -> None:
     validate_query_schema(
-        "MATCH (p1:Prozess)-[:FOLGT_AUF]->(p2:Prozess) RETURN p1.name, p2.name"
+        "MATCH (p1:Process)-[:FOLLOWS]->(p2:Process) RETURN p1.name, p2.name"
     )
 
 
 def test_validator_accepts_könnte_dienen() -> None:
     validate_query_schema(
-        "MATCH (a:Anwendung)-[:KÖNNTE_DIENEN]->(p:Prozess) RETURN a.name, p.name"
+        "MATCH (a:Application)-[:MAY_SERVE]->(p:Process) RETURN a.name, p.name"
     )
 
 
 def test_validator_rejects_könnte_verantworten() -> None:
-    # KÖNNTE_VERANTWORTEN has no write path since finding #36 — removed from the query schema.
+    # MAY_BE_RESPONSIBLE_FOR has no write path since finding #36 — removed from the query schema.
     with pytest.raises(ValueError, match="unknown relationship type"):
         validate_query_schema(
-            "MATCH (o:OrgEinheit)-[:KÖNNTE_VERANTWORTEN]->(a:Anwendung) RETURN o.name, a.name"
+            "MATCH (o:OrgUnit)-[:MAY_BE_RESPONSIBLE_FOR]->(a:Application) RETURN o.name, a.name"
         )
 
 
 def test_validator_rejects_unknown_relationship_type() -> None:
     with pytest.raises(ValueError, match="unknown relationship type"):
         validate_query_schema(
-            "MATCH (a:Anwendung)-[:INVENTED_REL]->(p:Prozess) RETURN a.name"
+            "MATCH (a:Application)-[:INVENTED_REL]->(p:Process) RETURN a.name"
         )
 
 
 def test_validator_rejects_unknown_node_property() -> None:
     with pytest.raises(ValueError, match="unknown property"):
         validate_query_schema(
-            "MATCH (p:Prozess) RETURN p.raw_name"
+            "MATCH (p:Process) RETURN p.raw_name"
         )
 
 
 # --- New labels in QUERY_NODE_SCHEMA ---
 
 def test_new_labels_in_node_schema() -> None:
-    for label in ("Faehigkeit", "Ressource", "Ziel", "Risiko", "Datenobjekt", "Infrastruktur"):
+    for label in ("Capability", "Resource", "Goal", "Risk", "DataObject", "Infrastructure"):
         assert label in QUERY_NODE_SCHEMA, f"{label} missing from QUERY_NODE_SCHEMA"
 
 
 def test_new_labels_have_required_properties() -> None:
-    for label in ("Faehigkeit", "Ressource", "Ziel", "Risiko", "Datenobjekt", "Infrastruktur"):
+    for label in ("Capability", "Resource", "Goal", "Risk", "DataObject", "Infrastructure"):
         props = QUERY_NODE_SCHEMA[label]
         assert "name" in props
         assert "archimate_type" in props
@@ -141,21 +141,21 @@ def test_new_labels_have_required_properties() -> None:
 def test_new_relationship_patterns_present() -> None:
     patterns = {(p.relationship_type, p.source_label, p.target_label) for p in QUERY_RELATIONSHIP_PATTERNS}
     expected = [
-        ("BETRIFFT", "Risiko", "Anwendung"),
-        ("BETRIFFT", "Risiko", "Prozess"),
-        ("BETRIFFT", "Risiko", "Server"),
-        ("BETRIFFT", "Risiko", "Schnittstelle"),
-        ("MITIGIERT", "Faehigkeit", "Risiko"),
-        ("MITIGIERT", "Anwendung", "Risiko"),
-        ("REALISIERT", "Faehigkeit", "Prozess"),
-        ("REALISIERT", "Faehigkeit", "Anwendung"),
-        ("BENOETIGT", "Prozess", "Ressource"),
-        ("BENOETIGT", "Anwendung", "Ressource"),
-        ("UNTERSTUETZT", "Anwendung", "Ziel"),
-        ("UNTERSTUETZT", "Prozess", "Ziel"),
-        ("VERARBEITET", "Anwendung", "Datenobjekt"),
-        ("VERARBEITET", "Prozess", "Datenobjekt"),
-        ("LAEUFT_AUF", "Anwendung", "Infrastruktur"),
+        ("AFFECTS", "Risk", "Application"),
+        ("AFFECTS", "Risk", "Process"),
+        ("AFFECTS", "Risk", "Server"),
+        ("AFFECTS", "Risk", "Interface"),
+        ("MITIGATES", "Capability", "Risk"),
+        ("MITIGATES", "Application", "Risk"),
+        ("REALIZES", "Capability", "Process"),
+        ("REALIZES", "Capability", "Application"),
+        ("REQUIRES", "Process", "Resource"),
+        ("REQUIRES", "Application", "Resource"),
+        ("SUPPORTS", "Application", "Goal"),
+        ("SUPPORTS", "Process", "Goal"),
+        ("PROCESSES", "Application", "DataObject"),
+        ("PROCESSES", "Process", "DataObject"),
+        ("RUNS_ON", "Application", "Infrastructure"),
     ]
     for pattern in expected:
         assert pattern in patterns, f"Pattern {pattern} missing from QUERY_RELATIONSHIP_PATTERNS"
@@ -165,22 +165,22 @@ def test_new_relationship_patterns_present() -> None:
 
 def test_schema_reference_includes_new_labels() -> None:
     ref = build_query_schema_reference()
-    for label in ("Faehigkeit", "Ressource", "Ziel", "Risiko", "Datenobjekt", "Infrastruktur"):
+    for label in ("Capability", "Resource", "Goal", "Risk", "DataObject", "Infrastructure"):
         assert label in ref, f"{label} missing from schema reference"
 
 
 # --- validator accepts new labels ---
 
 def test_validator_accepts_risiko_label() -> None:
-    validate_query_schema("MATCH (r:Risiko)-[:BETRIFFT]->(a:Anwendung) RETURN r.name, a.name")
+    validate_query_schema("MATCH (r:Risk)-[:AFFECTS]->(a:Application) RETURN r.name, a.name")
 
 
 def test_validator_accepts_faehigkeit_label() -> None:
-    validate_query_schema("MATCH (f:Faehigkeit)-[:REALISIERT]->(p:Prozess) RETURN f.name, p.name")
+    validate_query_schema("MATCH (f:Capability)-[:REALIZES]->(p:Process) RETURN f.name, p.name")
 
 
 def test_validator_accepts_laeuft_auf() -> None:
-    validate_query_schema("MATCH (a:Anwendung)-[:LAEUFT_AUF]->(i:Infrastruktur) RETURN a.name, i.name")
+    validate_query_schema("MATCH (a:Application)-[:RUNS_ON]->(i:Infrastructure) RETURN a.name, i.name")
 
 
 # --- build_archimate_mapping_reference handles ignore list ---
@@ -214,7 +214,7 @@ def _make_archimate_ref_from_mapping(raw: dict) -> str:
 def test_archimate_mapping_reference_includes_ignore_note() -> None:
     mapping_data = {
         "elements": {
-            "import": {"BusinessProcess": "Prozess"},
+            "import": {"BusinessProcess": "Process"},
             "ignore": ["Grouping", "Location"],
         }
     }
@@ -226,7 +226,7 @@ def test_archimate_mapping_reference_includes_ignore_note() -> None:
 def test_archimate_mapping_reference_no_ignore_note_when_empty() -> None:
     mapping_data = {
         "elements": {
-            "import": {"BusinessProcess": "Prozess"},
+            "import": {"BusinessProcess": "Process"},
         }
     }
     ref = _make_archimate_ref_from_mapping(mapping_data)
@@ -236,12 +236,12 @@ def test_archimate_mapping_reference_no_ignore_note_when_empty() -> None:
 # --- Motivation-Layer labels in QUERY_NODE_SCHEMA ---
 
 def test_motivation_labels_in_node_schema() -> None:
-    for label in ("Stakeholder", "Kontext", "Anforderung"):
+    for label in ("Stakeholder", "Context", "Requirement"):
         assert label in QUERY_NODE_SCHEMA, f"{label} missing from QUERY_NODE_SCHEMA"
 
 
 def test_motivation_labels_have_required_properties() -> None:
-    for label in ("Stakeholder", "Kontext", "Anforderung"):
+    for label in ("Stakeholder", "Context", "Requirement"):
         props = QUERY_NODE_SCHEMA[label]
         assert "name" in props
         assert "archimate_type" in props
@@ -253,17 +253,17 @@ def test_motivation_labels_have_required_properties() -> None:
 def test_motivation_relationship_patterns_present() -> None:
     patterns = {(p.relationship_type, p.source_label, p.target_label) for p in QUERY_RELATIONSHIP_PATTERNS}
     expected = [
-        ("REALISIERT", "Anforderung", "Ziel"),
-        ("BEEINFLUSST", "Kontext", "Ziel"),
-        ("BEEINFLUSST", "Kontext", "Anforderung"),
-        ("BEEINFLUSST", "Anforderung", "Prozess"),
-        ("BEEINFLUSST", "Anforderung", "Anwendung"),
-        ("BEEINFLUSST", "Anforderung", "Schnittstelle"),
-        ("BEEINFLUSST", "Anforderung", "Server"),
-        ("IST_VERBUNDEN_MIT", "Stakeholder", "Ziel"),
-        ("IST_VERBUNDEN_MIT", "Stakeholder", "Anforderung"),
-        ("IST_VERBUNDEN_MIT", "Stakeholder", "Prozess"),
-        ("IST_VERBUNDEN_MIT", "Stakeholder", "Anwendung"),
+        ("REALIZES", "Requirement", "Goal"),
+        ("INFLUENCES", "Context", "Goal"),
+        ("INFLUENCES", "Context", "Requirement"),
+        ("INFLUENCES", "Requirement", "Process"),
+        ("INFLUENCES", "Requirement", "Application"),
+        ("INFLUENCES", "Requirement", "Interface"),
+        ("INFLUENCES", "Requirement", "Server"),
+        ("CONNECTED_TO", "Stakeholder", "Goal"),
+        ("CONNECTED_TO", "Stakeholder", "Requirement"),
+        ("CONNECTED_TO", "Stakeholder", "Process"),
+        ("CONNECTED_TO", "Stakeholder", "Application"),
     ]
     for pattern in expected:
         assert pattern in patterns, f"Pattern {pattern} missing from QUERY_RELATIONSHIP_PATTERNS"
@@ -271,34 +271,34 @@ def test_motivation_relationship_patterns_present() -> None:
 
 def test_motivation_labels_in_schema_reference() -> None:
     ref = build_query_schema_reference()
-    for label in ("Stakeholder", "Kontext", "Anforderung"):
+    for label in ("Stakeholder", "Context", "Requirement"):
         assert label in ref, f"{label} missing from schema reference"
 
 
 # --- Validator: motivation labels and relations accepted ---
 
 def test_validator_accepts_anforderung_label() -> None:
-    validate_query_schema("MATCH (a:Anforderung)-[:REALISIERT]->(z:Ziel) RETURN a.name, z.name")
+    validate_query_schema("MATCH (a:Requirement)-[:REALIZES]->(z:Goal) RETURN a.name, z.name")
 
 
 def test_validator_accepts_kontext_beeinflusst() -> None:
-    validate_query_schema("MATCH (k:Kontext)-[:BEEINFLUSST]->(z:Ziel) RETURN k.name, z.name")
+    validate_query_schema("MATCH (k:Context)-[:INFLUENCES]->(z:Goal) RETURN k.name, z.name")
 
 
 def test_validator_accepts_beeinflusst_anforderung_prozess() -> None:
-    validate_query_schema("MATCH (a:Anforderung)-[:BEEINFLUSST]->(p:Prozess) RETURN a.name, p.name")
+    validate_query_schema("MATCH (a:Requirement)-[:INFLUENCES]->(p:Process) RETURN a.name, p.name")
 
 
 def test_validator_accepts_stakeholder_ist_verbunden_mit_ziel() -> None:
-    validate_query_schema("MATCH (s:Stakeholder)-[:IST_VERBUNDEN_MIT]->(z:Ziel) RETURN s.name, z.name")
+    validate_query_schema("MATCH (s:Stakeholder)-[:CONNECTED_TO]->(z:Goal) RETURN s.name, z.name")
 
 
 def test_validator_accepts_ist_verbunden_mit_arbitrary_labels() -> None:
-    # IST_VERBUNDEN_MIT is unrestricted — any label pair is valid
-    validate_query_schema("MATCH (a:Anwendung)-[:IST_VERBUNDEN_MIT]->(p:Prozess) RETURN a.name, p.name")
-    validate_query_schema("MATCH (k:Kontext)-[:IST_VERBUNDEN_MIT]->(r:Risiko) RETURN k.name, r.name")
+    # CONNECTED_TO is unrestricted — any label pair is valid
+    validate_query_schema("MATCH (a:Application)-[:CONNECTED_TO]->(p:Process) RETURN a.name, p.name")
+    validate_query_schema("MATCH (k:Context)-[:CONNECTED_TO]->(r:Risk) RETURN k.name, r.name")
 
 
 def test_validator_rejects_undirected_ist_verbunden_mit() -> None:
     with pytest.raises(ValueError, match="undirected"):
-        validate_query_schema("MATCH (a:Anwendung)-[:IST_VERBUNDEN_MIT]-(p:Prozess) RETURN a.name")
+        validate_query_schema("MATCH (a:Application)-[:CONNECTED_TO]-(p:Process) RETURN a.name")

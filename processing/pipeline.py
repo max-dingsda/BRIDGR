@@ -313,7 +313,7 @@ def build_manual_matches(
     extracted_names = {application.name for application in extracted_applications}
     manual_matches: list[MatchResult] = []
     for link in confirmed_links:
-        if link.get("prozess") != process_name:
+        if link.get("process") != process_name:
             continue
         if link.get("quelle") not in _PERSISTENT_LINK_SOURCES:
             continue
@@ -368,9 +368,9 @@ def resolve_org_units(
     org_units: dict[str, str],
     org_unit_aliases: dict[str, str],
 ) -> list[str]:
-    """Resolve role and candidate names to canonical OrgEinheit names.
+    """Resolve role and candidate names to canonical OrgUnit names.
 
-    org_units: {normalized_name: canonical_name} loaded from Neo4j OrgEinheit nodes.
+    org_units: {normalized_name: canonical_name} loaded from Neo4j OrgUnit nodes.
     org_unit_aliases: {normalized_alias: canonical_org_unit_name} loaded from Neo4j Alias nodes.
     """
     resolved_org_units: list[str] = []

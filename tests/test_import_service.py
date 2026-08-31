@@ -43,5 +43,5 @@ def test_build_import_completion_message_mentions_archive() -> None:
     message = build_import_completion_message("12s", "full", "data/input_archive/20260528_120000", ["a.bpmn", "b.txt"])
 
     assert "Vollimport abgeschlossen in 12s." in message
-    assert "2 Prozessdatei(en)" in message
+    assert "2 Processdatei(en)" in message
     assert "data/input_archive/20260528_120000" in message

@@ -13,10 +13,10 @@ _ARCHIMATE_NS = "http://www.opengroup.org/xsd/archimate/3.0/"
 _XSI_NS = "http://www.w3.org/2001/XMLSchema-instance"
 _XML_LANG_NS = "http://www.w3.org/XML/1998/namespace"
 
-_EXPORT_LABELS = {"Prozess", "Anwendung", "Schnittstelle", "Server", "OrgEinheit", "Rolle"}
+_EXPORT_LABELS = {"Process", "Application", "Interface", "Server", "OrgUnit", "Role"}
 _EXPORT_RELATIONS = {
-    "DIENT", "BETEILIGT_AN", "KANN_EINNEHMEN", "FOLGT_AUF",
-    "USES_INTERFACE", "RUNS_ON", "VERANTWORTET",
+    "SERVES", "PARTICIPATES_IN", "CAN_ASSUME", "FOLLOWS",
+    "USES_INTERFACE", "RUNS_ON", "RESPONSIBLE_FOR",
 }
 
 
@@ -174,7 +174,7 @@ def _query_untyped_nodes(client: Neo4jClient, export_elem_map: dict[str, str]) -
         MATCH (n)
         WHERE n.name IS NOT NULL
           AND any(lbl IN labels(n) WHERE lbl IN
-            ['Prozess','Anwendung','Schnittstelle','Server','OrgEinheit','Rolle'])
+            ['Process','Application','Interface','Server','OrgUnit','Role'])
           AND n.archimate_type IS NULL
         RETURN labels(n)[0] AS label, n.name AS name
         ORDER BY label, name
@@ -217,7 +217,7 @@ def _read_nodes(client: Neo4jClient) -> list[dict]:
         MATCH (n)
         WHERE n.name IS NOT NULL
           AND any(lbl IN labels(n) WHERE lbl IN
-            ['Prozess','Anwendung','Schnittstelle','Server','OrgEinheit','Rolle'])
+            ['Process','Application','Interface','Server','OrgUnit','Role'])
         RETURN labels(n)[0] AS label,
                n.name AS name,
                n.archimate_id AS archimate_id,
@@ -233,8 +233,8 @@ def _read_relations(client: Neo4jClient) -> list[dict]:
         MATCH (s)-[r]->(t)
         WHERE s.name IS NOT NULL AND t.name IS NOT NULL
           AND type(r) IN
-            ['DIENT','BETEILIGT_AN','KANN_EINNEHMEN','FOLGT_AUF',
-             'USES_INTERFACE','RUNS_ON','VERANTWORTET']
+            ['SERVES','PARTICIPATES_IN','CAN_ASSUME','FOLLOWS',
+             'USES_INTERFACE','RUNS_ON','RESPONSIBLE_FOR']
         RETURN labels(s)[0] AS src_label,
                s.name AS src_name,
                labels(t)[0] AS tgt_label,

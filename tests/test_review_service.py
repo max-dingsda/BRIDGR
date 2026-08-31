@@ -91,7 +91,7 @@ def test_confirm_review_links_batch_confirms_each_row_and_refreshes_per_source(
 
     rows = [
         {
-            "prozess": "Budgetplanung",
+            "process": "Budgetplanung",
             "process_id": "proc-1",
             "anwendung_im_prozess": "SAP CO",
             "anwendung_in_cmdb": "SAP S/4HANA CO",
@@ -99,7 +99,7 @@ def test_confirm_review_links_batch_confirms_each_row_and_refreshes_per_source(
             "source_path": "Input/a.txt",
         },
         {
-            "prozess": "Forecast aktualisieren",
+            "process": "Forecast aktualisieren",
             "process_id": "proc-2",
             "anwendung_im_prozess": "SAP CO",
             "anwendung_in_cmdb": "SAP S/4HANA CO",
@@ -129,7 +129,7 @@ def test_confirm_review_links_batch_refreshes_once_per_unique_source_path(
 
     rows = [
         {
-            "prozess": "Prozess A",
+            "process": "Process A",
             "process_id": "proc-1",
             "anwendung_im_prozess": "Outlook",
             "anwendung_in_cmdb": "Microsoft 365 Outlook",
@@ -137,7 +137,7 @@ def test_confirm_review_links_batch_refreshes_once_per_unique_source_path(
             "source_path": "Input/shared.txt",
         },
         {
-            "prozess": "Prozess B",
+            "process": "Process B",
             "process_id": "proc-2",
             "anwendung_im_prozess": "Outlook",
             "anwendung_in_cmdb": "Microsoft 365 Outlook",

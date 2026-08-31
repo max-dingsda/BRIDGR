@@ -11,6 +11,7 @@ import streamlit as st
 import core.debug_utils as debug_utils
 from core.app_config import AppConfig, is_legacy_input_path, resolve_runtime_output_path
 from core.llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleClient
+from core.i18n import translate
 from core.neo4j_utils import Neo4jClient, Neo4jConfig, Neo4jConnectionError, Neo4jQueryError
 from processing.pipeline import run_pipeline
 
@@ -32,6 +33,19 @@ PENDING_REVIEW_SELECTION_CLEAR_STATE_KEY = "pending_review_selection_clear"
 
 PIPELINE_RUN_TRACKER_LOCK = threading.Lock()
 PIPELINE_RUN_TRACKER: dict[str, dict] = {}
+
+
+def _t(key: str, **values: object) -> str:
+    return translate(key, st.session_state.get("bridgr_locale"), **values)
+
+
+def _status_locale() -> str:
+    """Include the display locale in status-cache keys to avoid stale messages."""
+    return str(st.session_state.get("bridgr_locale", "de"))
+
+
+def _progress_status_label(status: str) -> str:
+    return _t(f"runtime.document_status.{status or 'unknown'}")
 
 
 def build_neo4j_client_key(config: AppConfig) -> tuple[str, str, str, str]:
@@ -89,7 +103,7 @@ def write_debug_log(config: AppConfig, event: str, details: dict) -> None:
 
 
 def get_neo4j_connection_status(config: AppConfig, force_refresh: bool = False) -> tuple[bool, str]:
-    desired_key = build_neo4j_client_key(config)
+    desired_key = (*build_neo4j_client_key(config), _status_locale())
     cached_key = st.session_state.get(NEO4J_CONNECTION_STATUS_CONFIG_STATE_KEY)
     cached_status = st.session_state.get(NEO4J_CONNECTION_STATUS_STATE_KEY)
 
@@ -97,16 +111,16 @@ def get_neo4j_connection_status(config: AppConfig, force_refresh: bool = False) 
         return cached_status
 
     if not config.neo4j_password:
-        status = (False, "Neo4j-Verbindung nicht pruefbar: Passwort fehlt.")
+        status = (False, _t("runtime.neo4j_password_missing"))
     else:
         try:
             client = get_session_neo4j_client(config)
             client.execute_read("RETURN 1 AS ok")
         except (Neo4jConnectionError, Neo4jQueryError) as exc:
-            status = (False, f"Neo4j nicht erreichbar: {exc}")
+            status = (False, _t("runtime.neo4j_unavailable", error=exc))
         else:
             database_label = config.neo4j_database or "default"
-            status = (True, f"Neo4j erreichbar ({config.neo4j_url}, DB: {database_label}).")
+            status = (True, _t("runtime.neo4j_available", url=config.neo4j_url, database=database_label))
 
     st.session_state[NEO4J_CONNECTION_STATUS_CONFIG_STATE_KEY] = desired_key
     st.session_state[NEO4J_CONNECTION_STATUS_STATE_KEY] = status
@@ -119,6 +133,7 @@ def get_llm_status(config: AppConfig, force_refresh: bool = False) -> tuple[str,
         config.llm_model,
         config.llm_api_key_env,
         config.llm_timeout_seconds,
+        _status_locale(),
     )
     cached_key = st.session_state.get(LLM_STATUS_CONFIG_STATE_KEY)
     cached_status = st.session_state.get(LLM_STATUS_STATE_KEY)
@@ -127,9 +142,9 @@ def get_llm_status(config: AppConfig, force_refresh: bool = False) -> tuple[str,
         return cached_status
 
     if not config.llm_base_url:
-        status = ("error", "LLM nicht pruefbar: Base URL fehlt.")
+        status = ("error", _t("runtime.llm_url_missing"))
     elif not config.llm_model:
-        status = ("warning", "LLM-Endpoint erreichbar noch nicht geprueft: Modellname fehlt.")
+        status = ("warning", _t("runtime.llm_model_missing"))
     else:
         try:
             client = OpenAICompatibleClient(
@@ -143,20 +158,20 @@ def get_llm_status(config: AppConfig, force_refresh: bool = False) -> tuple[str,
             )
             models = client.list_models()
         except LlmClientError as exc:
-            status = ("error", f"LLM nicht erreichbar: {exc}")
+            status = ("error", _t("runtime.llm_unavailable", error=exc))
         else:
             if config.llm_model in models:
                 status = (
                     "success",
-                    f"LLM erreichbar. Modell `{config.llm_model}` ist verfuegbar; der erste Aufruf kann bei Ollama trotzdem Ladezeit haben.",
+                    _t("runtime.llm_available", model=config.llm_model),
                 )
             else:
                 available_models = ", ".join(models[:5])
                 suffix = " ..." if len(models) > 5 else ""
-                available_note = f" Verfuegbar: {available_models}{suffix}." if models else ""
+                available_note = _t("runtime.available_models", models=f"{available_models}{suffix}") if models else ""
                 status = (
                     "warning",
-                    f"LLM-Endpoint erreichbar, aber Modell `{config.llm_model}` ist nicht verfuegbar.{available_note}",
+                    _t("runtime.llm_model_unavailable", model=config.llm_model, available_note=available_note),
                 )
 
     st.session_state[LLM_STATUS_CONFIG_STATE_KEY] = desired_key
@@ -277,11 +292,10 @@ def render_active_pipeline_run_monitor(run_state_key: str, feedback_state_key: s
         source_name = Path(source_path).name if source_path else "-"
         if total > 0:
             st.progress(min(1.0, completed / total))
-            st.info(
-                f"{completed} von {total} Dateien bearbeitet. Aktuell/zuletzt: `{source_name}` ({document_status or 'unbekannt'})."
-            )
+            st.info(_t("runtime.import_progress", completed=completed, total=total, source=source_name,
+                       status=_progress_status_label(document_status)))
         else:
-            st.info("Lauf gestartet. Die Anzahl der zu bearbeitenden Dateien wird ermittelt.")
+            st.info(_t("runtime.import_starting"))
         sleep(1)
         st.rerun()
         return
@@ -320,11 +334,10 @@ def run_pipeline_with_live_feedback(
         source_name = Path(source_path).name if source_path else "-"
         if total > 0:
             progress_placeholder.progress(min(1.0, completed / total))
-            status_placeholder.info(
-                f"{completed} von {total} Dateien bearbeitet. Aktuell/zuletzt: `{source_name}` ({document_status or 'unbekannt'})."
-            )
+            status_placeholder.info(_t("runtime.import_progress", completed=completed, total=total, source=source_name,
+                                       status=_progress_status_label(document_status)))
         else:
-            status_placeholder.info("Lauf gestartet. Die Anzahl der zu bearbeitenden Dateien wird ermittelt.")
+            status_placeholder.info(_t("runtime.import_starting"))
 
     try:
         run_result = run_pipeline(config, input_paths=input_paths, progress_callback=progress_callback)

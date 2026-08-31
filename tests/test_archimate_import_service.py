@@ -65,7 +65,7 @@ _UNKNOWN_TYPE_XML = """\
       <name xml:lang="de">Lieferfähigkeit</name>
     </element>
     <element identifier="id-21" xsi:type="BusinessProcess">
-      <name xml:lang="de">Prozess A</name>
+      <name xml:lang="de">Process A</name>
     </element>
   </elements>
   <relationships/>
@@ -77,31 +77,31 @@ _DEFAULT_MAPPING = {
     "fuzzy_match_threshold": 0.85,
     "elements": {
         "import": {
-            "BusinessProcess": "Prozess",
-            "ApplicationComponent": "Anwendung",
-            "BusinessActor": "OrgEinheit",
+            "BusinessProcess": "Process",
+            "ApplicationComponent": "Application",
+            "BusinessActor": "OrgUnit",
         },
         "export": {},
     },
     "relationships": {
         "import": {
-            "Anwendung->Prozess": ["Serving"],
-            "Prozess->Prozess": ["Triggering", "Flow"],
-            "OrgEinheit->Prozess": ["Assignment"],
+            "Application->Process": ["Serving"],
+            "Process->Process": ["Triggering", "Flow"],
+            "OrgUnit->Process": ["Assignment"],
         },
         "export": {},
         "bridgr_relation": {
-            "Anwendung->Prozess":        "DIENT",
-            "Rolle->Prozess":            "BETEILIGT_AN",
-            "OrgEinheit->Rolle":         "KANN_EINNEHMEN",
-            "Prozess->Prozess":          "FOLGT_AUF",
-            "Anwendung->Schnittstelle":  "USES_INTERFACE",
-            "Anwendung->Server":         "RUNS_ON",
-            "Schnittstelle->Server":     "RUNS_ON",
-            "OrgEinheit->Anwendung":     "VERANTWORTET",
-            "OrgEinheit->Schnittstelle": "VERANTWORTET",
-            "OrgEinheit->Server":        "VERANTWORTET",
-            "OrgEinheit->Prozess":       "VERANTWORTET",
+            "Application->Process":        "SERVES",
+            "Role->Process":            "PARTICIPATES_IN",
+            "OrgUnit->Role":         "CAN_ASSUME",
+            "Process->Process":          "FOLLOWS",
+            "Application->Interface":  "USES_INTERFACE",
+            "Application->Server":         "RUNS_ON",
+            "Interface->Server":     "RUNS_ON",
+            "OrgUnit->Application":     "RESPONSIBLE_FOR",
+            "OrgUnit->Interface": "RESPONSIBLE_FOR",
+            "OrgUnit->Server":        "RESPONSIBLE_FOR",
+            "OrgUnit->Process":       "RESPONSIBLE_FOR",
         },
     },
     "pending_candidates": [],
@@ -158,7 +158,7 @@ def test_parse_minimal_xml(tmp_path: Path) -> None:
     assert elements[0].archimate_id == "id-1"
     assert elements[0].archimate_type == "BusinessProcess"
     assert elements[0].name == "Posteingang"
-    assert elements[0].bridgr_label == "Prozess"
+    assert elements[0].bridgr_label == "Process"
     assert len(relations) == 1
     assert relations[0].archimate_rel_type == "Serving"
     assert relations[0].source_archimate_id == "id-2"
@@ -179,7 +179,7 @@ def test_parse_unknown_type_skipped(tmp_path: Path) -> None:
     elements, _, skipped = _parse_archimate_xml(xml_file, _DEFAULT_MAPPING)
     # Capability not in import mapping → skipped with warning; BusinessProcess included
     assert len(elements) == 1
-    assert elements[0].name == "Prozess A"
+    assert elements[0].name == "Process A"
     assert "Capability" in skipped
 
 
@@ -215,26 +215,26 @@ _BRIDGR_MAP = _DEFAULT_MAPPING["relationships"]["bridgr_relation"]
 
 
 def test_label_pair_to_relation_known() -> None:
-    assert _label_pair_to_relation("Anwendung", "Prozess", _BRIDGR_MAP) == "DIENT"
-    assert _label_pair_to_relation("Prozess", "Prozess", _BRIDGR_MAP) == "FOLGT_AUF"
-    assert _label_pair_to_relation("OrgEinheit", "Anwendung", _BRIDGR_MAP) == "VERANTWORTET"
+    assert _label_pair_to_relation("Application", "Process", _BRIDGR_MAP) == "SERVES"
+    assert _label_pair_to_relation("Process", "Process", _BRIDGR_MAP) == "FOLLOWS"
+    assert _label_pair_to_relation("OrgUnit", "Application", _BRIDGR_MAP) == "RESPONSIBLE_FOR"
 
 
 def test_label_pair_org_prozess_returns_verantwortet() -> None:
-    assert _label_pair_to_relation("OrgEinheit", "Prozess", _BRIDGR_MAP) == "VERANTWORTET"
+    assert _label_pair_to_relation("OrgUnit", "Process", _BRIDGR_MAP) == "RESPONSIBLE_FOR"
 
 
 def test_label_pair_to_relation_unknown_returns_none() -> None:
-    assert _label_pair_to_relation("Prozess", "Anwendung", _BRIDGR_MAP) is None
+    assert _label_pair_to_relation("Process", "Application", _BRIDGR_MAP) is None
 
 
 def test_label_pair_to_relation_empty_map_returns_none() -> None:
-    assert _label_pair_to_relation("Anwendung", "Prozess", {}) is None
+    assert _label_pair_to_relation("Application", "Process", {}) is None
 
 
 def test_label_pair_to_relation_reads_custom_map() -> None:
-    custom = {"Anwendung->Prozess": "CUSTOM_REL"}
-    assert _label_pair_to_relation("Anwendung", "Prozess", custom) == "CUSTOM_REL"
+    custom = {"Application->Process": "CUSTOM_REL"}
+    assert _label_pair_to_relation("Application", "Process", custom) == "CUSTOM_REL"
 
 
 # --- _import_to_neo4j ---
@@ -246,14 +246,14 @@ def test_import_exact_name_match_merges_existing(tmp_path: Path) -> None:
         archimate_id="id-1",
         archimate_type="BusinessProcess",
         name="Posteingang",
-        bridgr_label="Prozess",
+        bridgr_label="Process",
     )
     client = RecordingNeo4jClient(
         read_results={"archimate_id": [], "n.name": [{"name": "Posteingang"}]}
     )
     result = _import_to_neo4j(client, [element], [], _DEFAULT_MAPPING, "test.xml")
     assert result.elements_imported == 1
-    merge_queries = [q for q, _ in client.queries if "MERGE" in q and "Prozess" in q]
+    merge_queries = [q for q, _ in client.queries if "MERGE" in q and "Process" in q]
     assert len(merge_queries) == 1
 
 
@@ -264,7 +264,7 @@ def test_import_archimate_id_lookup_on_reimport() -> None:
         archimate_id="id-42",
         archimate_type="BusinessProcess",
         name="Posteingang",
-        bridgr_label="Prozess",
+        bridgr_label="Process",
     )
     client = RecordingNeo4jClient(
         read_results={"archimate_id": [{"name": "Posteingang"}]}
@@ -279,13 +279,13 @@ def test_import_new_node_created_when_no_match() -> None:
     element = ArchiMateElement(
         archimate_id="id-99",
         archimate_type="BusinessProcess",
-        name="Neuer Prozess",
-        bridgr_label="Prozess",
+        name="Neuer Process",
+        bridgr_label="Process",
     )
     client = RecordingNeo4jClient(read_results={})
     result = _import_to_neo4j(client, [element], [], _DEFAULT_MAPPING, "test.xml")
     assert result.elements_imported == 1
-    merge_queries = [q for q, _ in client.queries if "MERGE" in q and "Prozess" in q]
+    merge_queries = [q for q, _ in client.queries if "MERGE" in q and "Process" in q]
     assert len(merge_queries) == 1
 
 
@@ -293,8 +293,8 @@ def test_import_relation_imported_when_both_endpoints_resolved() -> None:
     from services.archimate_import_service import ArchiMateElement, ArchiMateRelation
 
     elements = [
-        ArchiMateElement("id-1", "BusinessProcess", "Posteingang", "Prozess"),
-        ArchiMateElement("id-2", "ApplicationComponent", "SAP SD", "Anwendung"),
+        ArchiMateElement("id-1", "BusinessProcess", "Posteingang", "Process"),
+        ArchiMateElement("id-2", "ApplicationComponent", "SAP SD", "Application"),
     ]
     relation = ArchiMateRelation("id-3", "Serving", "id-2", "id-1")
     client = RecordingNeo4jClient(read_results={})
@@ -308,8 +308,8 @@ def test_import_relation_skipped_when_type_not_accepted() -> None:
     from services.archimate_import_service import ArchiMateElement, ArchiMateRelation
 
     elements = [
-        ArchiMateElement("id-1", "BusinessProcess", "Posteingang", "Prozess"),
-        ArchiMateElement("id-2", "ApplicationComponent", "SAP SD", "Anwendung"),
+        ArchiMateElement("id-1", "BusinessProcess", "Posteingang", "Process"),
+        ArchiMateElement("id-2", "ApplicationComponent", "SAP SD", "Application"),
     ]
     relation = ArchiMateRelation("id-3", "Aggregation", "id-2", "id-1")
     client = RecordingNeo4jClient(read_results={})
@@ -322,7 +322,7 @@ def test_import_relation_skipped_when_endpoint_unresolved() -> None:
     from services.archimate_import_service import ArchiMateElement, ArchiMateRelation
 
     elements = [
-        ArchiMateElement("id-1", "BusinessProcess", "Posteingang", "Prozess"),
+        ArchiMateElement("id-1", "BusinessProcess", "Posteingang", "Process"),
     ]
     relation = ArchiMateRelation("id-3", "ServingRelationship", "id-unknown", "id-1")
     client = RecordingNeo4jClient(read_results={})
@@ -331,24 +331,24 @@ def test_import_relation_skipped_when_endpoint_unresolved() -> None:
 
 
 def test_import_org_prozess_assignment_creates_verantwortet() -> None:
-    """OrgEinheit->Prozess via Assignment must produce a VERANTWORTET relation."""
+    """OrgUnit->Process via Assignment must produce a RESPONSIBLE_FOR relation."""
     from services.archimate_import_service import ArchiMateElement, ArchiMateRelation
 
     elements = [
-        ArchiMateElement("id-org", "BusinessActor", "Sales", "OrgEinheit"),
-        ArchiMateElement("id-proc", "BusinessProcess", "Auftragsabwicklung", "Prozess"),
+        ArchiMateElement("id-org", "BusinessActor", "Sales", "OrgUnit"),
+        ArchiMateElement("id-proc", "BusinessProcess", "Auftragsabwicklung", "Process"),
     ]
     relation = ArchiMateRelation("id-rel", "Assignment", "id-org", "id-proc")
     client = RecordingNeo4jClient(read_results={})
     result = _import_to_neo4j(client, elements, [relation], _DEFAULT_MAPPING, "test.xml")
     assert result.relations_imported == 1
     assert result.relations_skipped == 0
-    verantwortet_queries = [q for q, _ in client.queries if "VERANTWORTET" in q]
+    verantwortet_queries = [q for q, _ in client.queries if "RESPONSIBLE_FOR" in q]
     assert len(verantwortet_queries) == 1
 
 
 def test_import_org_prozess_skipped_without_bridgr_relation_entry() -> None:
-    """Without bridgr_relation entry, OrgEinheit->Prozess is skipped even if import type matches."""
+    """Without bridgr_relation entry, OrgUnit->Process is skipped even if import type matches."""
     from services.archimate_import_service import ArchiMateElement, ArchiMateRelation
 
     mapping_no_bridgr = {
@@ -359,8 +359,8 @@ def test_import_org_prozess_skipped_without_bridgr_relation_entry() -> None:
         },
     }
     elements = [
-        ArchiMateElement("id-org", "BusinessActor", "Sales", "OrgEinheit"),
-        ArchiMateElement("id-proc", "BusinessProcess", "Auftragsabwicklung", "Prozess"),
+        ArchiMateElement("id-org", "BusinessActor", "Sales", "OrgUnit"),
+        ArchiMateElement("id-proc", "BusinessProcess", "Auftragsabwicklung", "Process"),
     ]
     relation = ArchiMateRelation("id-rel", "Assignment", "id-org", "id-proc")
     client = RecordingNeo4jClient(read_results={})
@@ -376,7 +376,7 @@ def test_confirm_archimate_candidate_node_transfers_relations_and_deletes_candid
 
     confirm_archimate_candidate_node(
         client,
-        label="Anwendung",
+        label="Application",
         candidate_name="SAP S/4HANA FI",
         target_name="SAP S/4HANA CO",
         archimate_id="id-abc123",
@@ -424,7 +424,7 @@ def test_skipped_relation_unresolved_endpoint_recorded() -> None:
     from services.archimate_import_service import ArchiMateElement, ArchiMateRelation
 
     elements = [
-        ArchiMateElement("id-1", "BusinessProcess", "Posteingang", "Prozess"),
+        ArchiMateElement("id-1", "BusinessProcess", "Posteingang", "Process"),
     ]
     relation = ArchiMateRelation("id-3", "Serving", "id-unknown", "id-1")
     client = RecordingNeo4jClient(read_results={})
@@ -442,8 +442,8 @@ def test_skipped_relation_type_not_accepted_recorded() -> None:
     from services.archimate_import_service import ArchiMateElement, ArchiMateRelation
 
     elements = [
-        ArchiMateElement("id-1", "BusinessProcess", "Posteingang", "Prozess"),
-        ArchiMateElement("id-2", "ApplicationComponent", "SAP SD", "Anwendung"),
+        ArchiMateElement("id-1", "BusinessProcess", "Posteingang", "Process"),
+        ArchiMateElement("id-2", "ApplicationComponent", "SAP SD", "Application"),
     ]
     relation = ArchiMateRelation("id-3", "Aggregation", "id-2", "id-1")
     client = RecordingNeo4jClient(read_results={})
@@ -468,8 +468,8 @@ def test_skipped_relation_no_bridgr_mapping_recorded() -> None:
         },
     }
     elements = [
-        ArchiMateElement("id-org", "BusinessActor", "Sales", "OrgEinheit"),
-        ArchiMateElement("id-proc", "BusinessProcess", "Auftragsabwicklung", "Prozess"),
+        ArchiMateElement("id-org", "BusinessActor", "Sales", "OrgUnit"),
+        ArchiMateElement("id-proc", "BusinessProcess", "Auftragsabwicklung", "Process"),
     ]
     relation = ArchiMateRelation("id-rel", "Assignment", "id-org", "id-proc")
     client = RecordingNeo4jClient(read_results={})
@@ -486,8 +486,8 @@ def test_skipped_relations_empty_when_all_imported() -> None:
     from services.archimate_import_service import ArchiMateElement, ArchiMateRelation
 
     elements = [
-        ArchiMateElement("id-1", "BusinessProcess", "Posteingang", "Prozess"),
-        ArchiMateElement("id-2", "ApplicationComponent", "SAP SD", "Anwendung"),
+        ArchiMateElement("id-1", "BusinessProcess", "Posteingang", "Process"),
+        ArchiMateElement("id-2", "ApplicationComponent", "SAP SD", "Application"),
     ]
     relation = ArchiMateRelation("id-3", "Serving", "id-2", "id-1")
     client = RecordingNeo4jClient(read_results={})
@@ -531,7 +531,7 @@ _IGNORE_XML = """\
       <name xml:lang="de">Meine Gruppe</name>
     </element>
     <element identifier="id-31" xsi:type="BusinessProcess">
-      <name xml:lang="de">Regulaerer Prozess</name>
+      <name xml:lang="de">Regulaerer Process</name>
     </element>
   </elements>
   <relationships/>
@@ -553,7 +553,7 @@ def test_ignore_list_skips_silently(tmp_path: Path) -> None:
     xml_file.write_text(_IGNORE_XML, encoding="utf-8")
     elements, _, skipped = _parse_archimate_xml(xml_file, _MAPPING_WITH_IGNORE)
     assert len(elements) == 1
-    assert elements[0].name == "Regulaerer Prozess"
+    assert elements[0].name == "Regulaerer Process"
     assert "Grouping" not in skipped
 
 
@@ -568,28 +568,28 @@ def test_uncategorized_type_in_skipped_types(tmp_path: Path) -> None:
 
 
 def test_new_label_faehigkeit_imported(tmp_path: Path) -> None:
-    """Capability type maps to Faehigkeit label when present in import mapping."""
+    """Capability type maps to Capability label when present in import mapping."""
     mapping_with_capability = {
         **_DEFAULT_MAPPING,
         "elements": {
             **_DEFAULT_MAPPING["elements"],
             "import": {
                 **_DEFAULT_MAPPING["elements"]["import"],
-                "Capability": "Faehigkeit",
+                "Capability": "Capability",
             },
         },
     }
     xml_file = tmp_path / "fähigkeit.xml"
     xml_file.write_text(_UNKNOWN_TYPE_XML, encoding="utf-8")
     elements, _, skipped = _parse_archimate_xml(xml_file, mapping_with_capability)
-    faehigkeit_elements = [e for e in elements if e.bridgr_label == "Faehigkeit"]
+    faehigkeit_elements = [e for e in elements if e.bridgr_label == "Capability"]
     assert len(faehigkeit_elements) == 1
     assert faehigkeit_elements[0].archimate_type == "Capability"
     assert "Capability" not in skipped
 
 
 def test_new_label_risiko_imported(tmp_path: Path) -> None:
-    """Risk type maps to Risiko label."""
+    """Risk type maps to Risk label."""
     _RISK_XML = """\
 <?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://www.opengroup.org/xsd/archimate/3.0/"
@@ -609,7 +609,7 @@ def test_new_label_risiko_imported(tmp_path: Path) -> None:
             **_DEFAULT_MAPPING["elements"],
             "import": {
                 **_DEFAULT_MAPPING["elements"]["import"],
-                "Risk": "Risiko",
+                "Risk": "Risk",
             },
         },
     }
@@ -617,7 +617,7 @@ def test_new_label_risiko_imported(tmp_path: Path) -> None:
     xml_file.write_text(_RISK_XML, encoding="utf-8")
     elements, _, skipped = _parse_archimate_xml(xml_file, mapping_with_risk)
     assert len(elements) == 1
-    assert elements[0].bridgr_label == "Risiko"
+    assert elements[0].bridgr_label == "Risk"
     assert elements[0].archimate_type == "Risk"
     assert "Risk" not in skipped
 
@@ -675,15 +675,15 @@ _MOTIVATION_MAPPING = {
         **_DEFAULT_MAPPING["elements"],
         "import": {
             **_DEFAULT_MAPPING["elements"]["import"],
-            "Goal": "Ziel",
-            "Outcome": "Ziel",
-            "Meaning": "Ziel",
-            "Value": "Ziel",
-            "Principle": "Anforderung",
-            "Requirement": "Anforderung",
-            "Constraint": "Anforderung",
-            "Driver": "Kontext",
-            "Assessment": "Kontext",
+            "Goal": "Goal",
+            "Outcome": "Goal",
+            "Meaning": "Goal",
+            "Value": "Goal",
+            "Principle": "Requirement",
+            "Requirement": "Requirement",
+            "Constraint": "Requirement",
+            "Driver": "Context",
+            "Assessment": "Context",
             "Stakeholder": "Stakeholder",
         },
     },
@@ -724,12 +724,12 @@ def test_motivation_types_mapped_to_correct_labels(tmp_path: Path) -> None:
     xml_file.write_text(_MOTIVATION_XML, encoding="utf-8")
     elements, _, skipped = _parse_archimate_xml(xml_file, _MOTIVATION_MAPPING)
     label_map = {e.archimate_type: e.bridgr_label for e in elements}
-    assert label_map["Goal"] == "Ziel"
-    assert label_map["Requirement"] == "Anforderung"
-    assert label_map["Driver"] == "Kontext"
+    assert label_map["Goal"] == "Goal"
+    assert label_map["Requirement"] == "Requirement"
+    assert label_map["Driver"] == "Context"
     assert label_map["Stakeholder"] == "Stakeholder"
-    assert label_map["Assessment"] == "Kontext"
-    assert label_map["Constraint"] == "Anforderung"
+    assert label_map["Assessment"] == "Context"
+    assert label_map["Constraint"] == "Requirement"
     assert skipped == {}
 
 
@@ -750,7 +750,7 @@ def test_goal_maps_to_ziel(tmp_path: Path) -> None:
     xml_file = tmp_path / "goal.xml"
     xml_file.write_text(xml, encoding="utf-8")
     elements, _, _ = _parse_archimate_xml(xml_file, _MOTIVATION_MAPPING)
-    assert elements[0].bridgr_label == "Ziel"
+    assert elements[0].bridgr_label == "Goal"
     assert elements[0].archimate_type == "Goal"
 
 
@@ -772,7 +772,7 @@ def test_business_actor_maps_to_orgeinheit(tmp_path: Path) -> None:
     xml_file.write_text(xml, encoding="utf-8")
     elements, _, _ = _parse_archimate_xml(xml_file, _DEFAULT_MAPPING)
     assert len(elements) == 1
-    assert elements[0].bridgr_label == "OrgEinheit"
+    assert elements[0].bridgr_label == "OrgUnit"
     assert elements[0].archimate_type == "BusinessActor"
 
 
@@ -809,15 +809,15 @@ _MOTIVATION_MAPPING_WITH_RELS = {
     **_MOTIVATION_MAPPING,
     "relationships": {
         "import": {
-            "Kontext->Ziel": ["Influence", "Association"],
-            "Anforderung->Ziel": ["Realization", "Association"],
-            "Stakeholder->Ziel": ["Association"],
+            "Context->Goal": ["Influence", "Association"],
+            "Requirement->Goal": ["Realization", "Association"],
+            "Stakeholder->Goal": ["Association"],
         },
         "export": {},
         "bridgr_relation": {
-            "Kontext->Ziel": "BEEINFLUSST",
-            "Anforderung->Ziel": "REALISIERT",
-            "Stakeholder->Ziel": "IST_VERBUNDEN_MIT",
+            "Context->Goal": "INFLUENCES",
+            "Requirement->Goal": "REALIZES",
+            "Stakeholder->Goal": "CONNECTED_TO",
         },
     },
 }
@@ -832,9 +832,9 @@ def test_motivation_relations_imported(tmp_path: Path) -> None:
     assert result.elements_imported == 4
     assert result.relations_imported == 3
     assert result.relations_skipped == 0
-    beeinflusst_qs = [q for q, _ in client.queries if "BEEINFLUSST" in q]
-    realisiert_qs = [q for q, _ in client.queries if "REALISIERT" in q]
-    verbunden_qs = [q for q, _ in client.queries if "IST_VERBUNDEN_MIT" in q]
+    beeinflusst_qs = [q for q, _ in client.queries if "INFLUENCES" in q]
+    realisiert_qs = [q for q, _ in client.queries if "REALIZES" in q]
+    verbunden_qs = [q for q, _ in client.queries if "CONNECTED_TO" in q]
     assert len(beeinflusst_qs) == 1
     assert len(realisiert_qs) == 1
     assert len(verbunden_qs) == 1

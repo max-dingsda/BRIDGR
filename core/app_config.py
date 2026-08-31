@@ -41,6 +41,7 @@ class AppConfig:
     chat_mode: str = "prompt-only"
     debug_mode: bool = False
     snapshot_retention_count: int = 10
+    ui_locale: str = "de"
 
 
 def load_config(path: Path | None = None) -> AppConfig:
@@ -82,6 +83,7 @@ def load_config(path: Path | None = None) -> AppConfig:
         default="",
     )
     raw_config["last_run_mode"] = normalize_run_mode(raw_config.get("last_run_mode", "partial"))
+    raw_config["ui_locale"] = raw_config.get("ui_locale", "de") if raw_config.get("ui_locale", "de") in {"de", "en"} else "de"
 
     return AppConfig(**raw_config)
 

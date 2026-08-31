@@ -5,24 +5,33 @@ from pathlib import Path
 
 import streamlit as st
 
+from core.i18n import DEFAULT_LOCALE, SUPPORTED_LOCALES, translate, translate_source
+
 DARK_MODE_STATE_KEY = "bridgr_dark_mode"
 ROLE_STATE_KEY = "bridgr_active_role"
+LOCALE_STATE_KEY = "bridgr_locale"
 
 # Complexity-reduction only: this is a session-bound view filter, not an access
 # control mechanism. Every tab is reachable simply by switching roles; nothing
 # server-side enforces the restriction. A real AD-backed role concept is future
 # scope (Findings.txt #31).
-ALL_TABS = ("Kommunikation", "Import", "Zuordnungen", "Organisation", "EA-Modell", "Konfiguration")
+ALL_TABS = ("chat", "import", "review", "organization", "archimate", "configuration")
 
 ROLE_TAB_MAP: dict[str, tuple[str, ...]] = {
-    "Benutzer": ("Kommunikation",),
-    "Experte": ("Kommunikation", "Import", "Zuordnungen", "Organisation"),
-    "Architekt": ("Kommunikation", "Import", "Zuordnungen", "Organisation", "EA-Modell"),
-    "Konfigurator": ("Kommunikation", "Konfiguration"),
+    "Benutzer": ("chat",),
+    "Experte": ("chat", "import", "review", "organization"),
+    "Architekt": ("chat", "import", "review", "organization", "archimate"),
+    "Konfigurator": ("chat", "configuration"),
 }
 
 ROLE_OPTIONS = tuple(ROLE_TAB_MAP.keys())
 DEFAULT_ROLE = "Benutzer"
+_ROLE_TRANSLATION_KEYS = {
+    "Benutzer": "role.user",
+    "Experte": "role.expert",
+    "Architekt": "role.architect",
+    "Konfigurator": "role.configurator",
+}
 
 _ASSETS_DIR = Path(__file__).resolve().parent / "assets"
 _LOGO_PATH = _ASSETS_DIR / "bridgr_logo_dark.png"
@@ -243,10 +252,6 @@ def _build_theme_stylesheet(dark_mode: bool) -> str:
             box-shadow: 0 18px 40px rgba(12, 26, 56, 0.18);
         }}
 
-        .st-key-bridgr-app-header {{
-            position: relative;
-        }}
-
         .st-key-bridgr-app-header p {{
             margin: 0;
         }}
@@ -256,7 +261,7 @@ def _build_theme_stylesheet(dark_mode: bool) -> str:
             align-items: center;
             justify-content: space-between;
             gap: 1.5rem;
-            padding-right: 17rem;
+            padding-right: 0;
             min-height: 38px;
         }}
 
@@ -276,15 +281,13 @@ def _build_theme_stylesheet(dark_mode: bool) -> str:
         }}
 
         .st-key-bridgr-header-controls {{
-            position: absolute;
-            top: 50%;
-            right: 1.25rem;
-            transform: translateY(-50%);
             display: flex !important;
             flex-direction: row !important;
             align-items: center;
+            justify-content: flex-end;
             gap: 0.75rem;
-            width: fit-content;
+            margin-top: 0.75rem;
+            width: 100%;
         }}
 
         .st-key-bridgr-header-controls > [data-testid="stLayoutWrapper"] {{
@@ -294,6 +297,10 @@ def _build_theme_stylesheet(dark_mode: bool) -> str:
 
         .st-key-bridgr-role-select {{
             width: 150px;
+        }}
+
+        .st-key-bridgr-language-select {{
+            width: 120px;
         }}
 
         .st-key-bridgr-role-select div[data-testid="stSelectbox"] label {{
@@ -404,27 +411,44 @@ def get_active_role() -> str:
     return str(st.session_state[ROLE_STATE_KEY])
 
 
+def get_active_locale() -> str:
+    st.session_state.setdefault(LOCALE_STATE_KEY, DEFAULT_LOCALE)
+    return str(st.session_state[LOCALE_STATE_KEY])
+
+
 def get_visible_tabs(role: str) -> tuple[str, ...]:
     return ROLE_TAB_MAP.get(role, ALL_TABS)
 
 
 def render_app_header() -> None:
+    locale = get_active_locale()
     with st.container(key="bridgr-app-header"):
         st.markdown(
             f"""
             <div class="bridgr-app-header__row">
                 <img class="bridgr-app-header__logo" src="{_load_logo_data_uri()}" alt="BRIDGR" />
-                <div class="bridgr-app-header__meta">Wissensgraph aus Prozessen, CMDB und Architekturwissen</div>
+                <div class="bridgr-app-header__meta">{translate("app.tagline", locale)}</div>
             </div>
             """,
             unsafe_allow_html=True,
         )
         with st.container(key="bridgr-header-controls"):
             with st.container(key="bridgr-role-select"):
-                st.selectbox(
+                selected_role = st.selectbox(
                     "Rolle",
                     options=ROLE_OPTIONS,
-                    key=ROLE_STATE_KEY,
+                    index=ROLE_OPTIONS.index(get_active_role()),
+                    key=f"{ROLE_STATE_KEY}_widget_{locale}",
+                    format_func=lambda role: translate(_ROLE_TRANSLATION_KEYS[role], locale),
+                    label_visibility="collapsed",
+                )
+                st.session_state[ROLE_STATE_KEY] = selected_role
+            with st.container(key="bridgr-language-select"):
+                st.selectbox(
+                    translate("language", locale),
+                    options=SUPPORTED_LOCALES,
+                    format_func=lambda code: "Deutsch" if code == "de" else "English",
+                    key=LOCALE_STATE_KEY,
                     label_visibility="collapsed",
                 )
             with st.container(key="bridgr-dark-toggle"):
@@ -432,6 +456,10 @@ def render_app_header() -> None:
 
 
 def render_page_header(title: str, subtitle: str, meta: str | None = None) -> None:
+    locale = get_active_locale()
+    title = translate_source(title, locale)
+    subtitle = translate_source(subtitle, locale)
+    meta = translate_source(meta, locale) if meta else None
     meta_html = f'<div class="bridgr-page-header__meta">{meta}</div>' if meta else ""
     st.markdown(
         f"""
