@@ -47,81 +47,83 @@ def create_snapshot(
     protected_snapshot_ids: set[str] | None = None,
 ) -> SnapshotInfo:
     """Export and validate the complete BRIDGR graph before a write operation."""
-    try:
-        nodes = neo4j_client.execute_read_unvalidated(
-            """
-            MATCH (n)
-            RETURN elementId(n) AS snapshot_node_id, labels(n) AS labels, properties(n) AS properties
-            ORDER BY elementId(n)
-            """,
-            {},
-        )
-        relationships = neo4j_client.execute_read_unvalidated(
-            """
-            MATCH (source)-[relationship]->(target)
-            RETURN elementId(source) AS source_snapshot_node_id,
-                   elementId(target) AS target_snapshot_node_id,
-                   type(relationship) AS relationship_type,
-                   properties(relationship) AS properties
-            ORDER BY elementId(source), type(relationship), elementId(target)
-            """,
-            {},
-        )
-    except Neo4jExecutionError as exc:
-        raise SnapshotError(f"Snapshot konnte nicht aus Neo4j gelesen werden: {exc}") from exc
+    with neo4j_client.serialized_writes():
+        try:
+            nodes = neo4j_client.execute_read_unvalidated(
+                """
+                MATCH (n)
+            WHERE NOT n:__BridgrWriteLock AND NOT n:__BridgrArtifact
+                RETURN elementId(n) AS snapshot_node_id, labels(n) AS labels, properties(n) AS properties
+                ORDER BY elementId(n)
+                """,
+                {},
+            )
+            relationships = neo4j_client.execute_read_unvalidated(
+                """
+                MATCH (source)-[relationship]->(target)
+                RETURN elementId(source) AS source_snapshot_node_id,
+                       elementId(target) AS target_snapshot_node_id,
+                       type(relationship) AS relationship_type,
+                       properties(relationship) AS properties
+                ORDER BY elementId(source), type(relationship), elementId(target)
+                """,
+                {},
+            )
+        except Neo4jExecutionError as exc:
+            raise SnapshotError(f"Snapshot konnte nicht aus Neo4j gelesen werden: {exc}") from exc
 
-    graph_payload = {
-        "nodes": [_normalize_node(row) for row in nodes],
-        "relationships": [_normalize_relationship(row) for row in relationships],
-    }
-    graph_bytes = json.dumps(graph_payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    snapshot_id = _new_snapshot_id()
-    created_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-    output_path, _ = resolve_runtime_output_path(config.output_path)
-    snapshot_root = output_path / SNAPSHOT_DIRECTORY_NAME
-    temporary_path = snapshot_root / f".{snapshot_id}.tmp"
-    final_path = snapshot_root / snapshot_id
-
-    try:
-        snapshot_root.mkdir(parents=True, exist_ok=True)
-        temporary_path.mkdir(parents=False, exist_ok=False)
-        (temporary_path / SNAPSHOT_GRAPH_FILENAME).write_bytes(graph_bytes)
-        manifest = {
-            "graph_schema_version": GRAPH_SCHEMA_VERSION,
-            "snapshot_id": snapshot_id,
-            "created_at": created_at,
-            "trigger": trigger,
-            "operation": operation,
-            "node_count": len(graph_payload["nodes"]),
-            "relationship_count": len(graph_payload["relationships"]),
-            "graph_filename": SNAPSHOT_GRAPH_FILENAME,
-            "graph_sha256": sha256(graph_bytes).hexdigest(),
-            "config_hint": _safe_config_hint(config),
+        graph_payload = {
+            "nodes": [_normalize_node(row) for row in nodes],
+            "relationships": [_normalize_relationship(row) for row in relationships],
         }
-        (temporary_path / SNAPSHOT_MANIFEST_FILENAME).write_text(
-            json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-        )
-        info = _validate_snapshot_directory(temporary_path)
-        if not info.valid:
-            raise SnapshotError(info.error)
-        temporary_path.replace(final_path)
-        removed_snapshot_ids = _prune_snapshots(
-            snapshot_root,
-            max(1, int(config.snapshot_retention_count)),
-            keep_snapshot_id=snapshot_id,
-            protected_snapshot_ids=protected_snapshot_ids or set(),
-        )
-        write_debug_log(
-            config,
-            "snapshot_created",
-            {**asdict(info), "removed_snapshot_ids": removed_snapshot_ids},
-        )
-        return info
-    except (OSError, ValueError, TypeError) as exc:
-        raise SnapshotError(f"Snapshot konnte nicht geschrieben werden: {exc}") from exc
-    finally:
-        if temporary_path.exists():
-            shutil.rmtree(temporary_path, ignore_errors=True)
+        graph_bytes = json.dumps(graph_payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        snapshot_id = _new_snapshot_id()
+        created_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        output_path, _ = resolve_runtime_output_path(config.output_path)
+        snapshot_root = output_path / SNAPSHOT_DIRECTORY_NAME
+        temporary_path = snapshot_root / f".{snapshot_id}.tmp"
+        final_path = snapshot_root / snapshot_id
+
+        try:
+            snapshot_root.mkdir(parents=True, exist_ok=True)
+            temporary_path.mkdir(parents=False, exist_ok=False)
+            (temporary_path / SNAPSHOT_GRAPH_FILENAME).write_bytes(graph_bytes)
+            manifest = {
+                "graph_schema_version": GRAPH_SCHEMA_VERSION,
+                "snapshot_id": snapshot_id,
+                "created_at": created_at,
+                "trigger": trigger,
+                "operation": operation,
+                "node_count": len(graph_payload["nodes"]),
+                "relationship_count": len(graph_payload["relationships"]),
+                "graph_filename": SNAPSHOT_GRAPH_FILENAME,
+                "graph_sha256": sha256(graph_bytes).hexdigest(),
+                "config_hint": _safe_config_hint(config),
+            }
+            (temporary_path / SNAPSHOT_MANIFEST_FILENAME).write_text(
+                json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+            )
+            info = _validate_snapshot_directory(temporary_path)
+            if not info.valid:
+                raise SnapshotError(info.error)
+            temporary_path.replace(final_path)
+            removed_snapshot_ids = _prune_snapshots(
+                snapshot_root,
+                max(1, int(config.snapshot_retention_count)),
+                keep_snapshot_id=snapshot_id,
+                protected_snapshot_ids=protected_snapshot_ids or set(),
+            )
+            write_debug_log(
+                config,
+                "snapshot_created",
+                {**asdict(info), "removed_snapshot_ids": removed_snapshot_ids},
+            )
+            return info
+        except (OSError, ValueError, TypeError) as exc:
+            raise SnapshotError(f"Snapshot konnte nicht geschrieben werden: {exc}") from exc
+        finally:
+            if temporary_path.exists():
+                shutil.rmtree(temporary_path, ignore_errors=True)
 
 
 def list_snapshots(config: AppConfig) -> list[SnapshotInfo]:
@@ -139,59 +141,61 @@ def list_snapshots(config: AppConfig) -> list[SnapshotInfo]:
 
 def restore_snapshot(config: AppConfig, neo4j_client: Neo4jClient, snapshot_id: str) -> SnapshotInfo:
     """Restore a validated graph snapshot after first protecting the current state."""
-    if not config.neo4j_database.strip():
-        raise SnapshotError(
-            "Wiederherstellung erfordert eine explizit konfigurierte, ausschließlich für BRIDGR verwendete Neo4j-Datenbank."
-        )
-    target_path = _snapshot_path(config, snapshot_id)
-    target_info, graph_payload = _load_validated_graph(target_path)
-    pre_restore = create_snapshot(
-        config,
-        neo4j_client,
-        trigger="restore",
-        operation=f"pre_restore:{snapshot_id}",
-        protected_snapshot_ids={snapshot_id},
-    )
-    if not pre_restore.valid:
-        raise SnapshotError("Pre-Restore-Snapshot ist nicht valide.")
-
-    restore_statements: list[tuple[str, dict[str, Any]]] = [("MATCH (n) DETACH DELETE n", {})]
-    for node in graph_payload["nodes"]:
-        restore_statements.append(
-            (
-                _create_node_query(node["labels"]),
-                {"properties": node["properties"], "snapshot_node_id": node["snapshot_node_id"]},
+    with neo4j_client.serialized_writes():
+        if not config.neo4j_database.strip():
+            raise SnapshotError(
+                "Wiederherstellung erfordert eine explizit konfigurierte, ausschließlich für BRIDGR verwendete Neo4j-Datenbank."
             )
+        target_path = _snapshot_path(config, snapshot_id)
+        target_info, graph_payload = _load_validated_graph(target_path)
+        pre_restore = create_snapshot(
+            config,
+            neo4j_client,
+            trigger="restore",
+            operation=f"pre_restore:{snapshot_id}",
+            protected_snapshot_ids={snapshot_id},
         )
-    for relationship in graph_payload["relationships"]:
-        restore_statements.append(
-            (
-                _create_relationship_query(relationship["relationship_type"]),
-                {
-                    "source_snapshot_node_id": relationship["source_snapshot_node_id"],
-                    "target_snapshot_node_id": relationship["target_snapshot_node_id"],
-                    "properties": relationship["properties"],
-                },
-            )
-        )
-    restore_statements.append(
-        (f"MATCH (n:`{RESTORE_LABEL}`) REMOVE n:`{RESTORE_LABEL}`, n.`{RESTORE_REFERENCE_PROPERTY}`", {})
-    )
-    try:
-        neo4j_client.execute_write_batch(restore_statements)
-    except Neo4jExecutionError as exc:
-        raise SnapshotError(f"Wiederherstellung von Snapshot '{snapshot_id}' fehlgeschlagen: {exc}") from exc
+        if not pre_restore.valid:
+            raise SnapshotError("Pre-Restore-Snapshot ist nicht valide.")
 
-    _verify_restored_counts(neo4j_client, target_info)
-    output_path, _ = resolve_runtime_output_path(config.output_path)
-    _prune_snapshots(
-        output_path / SNAPSHOT_DIRECTORY_NAME,
-        max(1, int(config.snapshot_retention_count)),
-        keep_snapshot_id=pre_restore.snapshot_id,
-        protected_snapshot_ids=set(),
-    )
-    write_debug_log(config, "snapshot_restored", asdict(target_info))
-    return target_info
+        restore_statements: list[tuple[str, dict[str, Any]]] = [("MATCH (n) WHERE NOT n:__BridgrWriteLock DETACH DELETE n", {})]
+        for node in graph_payload["nodes"]:
+            restore_statements.append(
+                (
+                    _create_node_query(node["labels"]),
+                    {"properties": node["properties"], "snapshot_node_id": node["snapshot_node_id"]},
+                )
+            )
+        for relationship in graph_payload["relationships"]:
+            restore_statements.append(
+                (
+                    _create_relationship_query(relationship["relationship_type"]),
+                    {
+                        "source_snapshot_node_id": relationship["source_snapshot_node_id"],
+                        "target_snapshot_node_id": relationship["target_snapshot_node_id"],
+                        "properties": relationship["properties"],
+                    },
+                )
+            )
+        restore_statements.append(
+            (f"MATCH (n:`{RESTORE_LABEL}`) REMOVE n:`{RESTORE_LABEL}`, n.`{RESTORE_REFERENCE_PROPERTY}`", {})
+        )
+        try:
+            with neo4j_client.transaction():
+                neo4j_client.execute_write_batch(restore_statements)
+                _verify_restored_counts(neo4j_client, target_info)
+        except Neo4jExecutionError as exc:
+            raise SnapshotError(f"Wiederherstellung von Snapshot '{snapshot_id}' fehlgeschlagen: {exc}") from exc
+
+        output_path, _ = resolve_runtime_output_path(config.output_path)
+        _prune_snapshots(
+            output_path / SNAPSHOT_DIRECTORY_NAME,
+            max(1, int(config.snapshot_retention_count)),
+            keep_snapshot_id=pre_restore.snapshot_id,
+            protected_snapshot_ids=set(),
+        )
+        write_debug_log(config, "snapshot_restored", asdict(target_info))
+        return target_info
 
 
 def _load_validated_graph(snapshot_path: Path) -> tuple[SnapshotInfo, dict[str, list[dict[str, Any]]]]:
@@ -244,7 +248,7 @@ def _validate_snapshot_directory(snapshot_path: Path) -> SnapshotInfo:
 
 def _verify_restored_counts(neo4j_client: Neo4jClient, snapshot_info: SnapshotInfo) -> None:
     rows = neo4j_client.execute_read_unvalidated(
-        "MATCH (n) WITH count(n) AS node_count MATCH ()-[r]->() RETURN node_count, count(r) AS relationship_count",
+        "MATCH (n) WHERE NOT n:__BridgrWriteLock AND NOT n:__BridgrArtifact WITH count(n) AS node_count OPTIONAL MATCH ()-[r]->() RETURN node_count, count(r) AS relationship_count",
         {},
     )
     row = rows[0] if rows else {}

@@ -1,10 +1,14 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from contextlib import contextmanager
+from contextvars import ContextVar
 import re
+import json
+import logging
+from pathlib import Path
 from typing import Any
 
-from core.graph_schema import validate_query_schema
 
 
 class Neo4jExecutionError(RuntimeError):
@@ -53,7 +57,7 @@ READ_ONLY_FORBIDDEN_TOKENS = [
 class Neo4jConfig:
     url: str
     user: str
-    password: str
+    password: str = field(repr=False)
     database: str = ""
 
 
@@ -67,6 +71,10 @@ class Neo4jClient:
             ) from exc
 
         self._database = config.database
+        self._transaction = ContextVar(f"neo4j_transaction_{id(self)}", default=None)
+        self._write_lock = ContextVar(f"neo4j_write_lock_{id(self)}", default=False)
+        self._artifact_paths = ContextVar(f"neo4j_artifacts_{id(self)}", default=None)
+        self._constraints_ready = False
         self._driver = GraphDatabase.driver(
             config.url,
             auth=(config.user, config.password),
@@ -77,20 +85,91 @@ class Neo4jClient:
         self._driver.close()
 
     def execute_write(self, query: str, parameters: dict[str, Any] | None = None) -> list[dict[str, Any]]:
-        return self._execute(query, parameters)
+        with self.transaction():
+            return self._execute(query, parameters)
+
+    @contextmanager
+    def serialized_writes(self):
+        """Serialize BRIDGR writers across clients/processes using a database lock.
+
+        The lock transaction has no domain writes. Its node is operational runtime
+        state and deliberately excluded from logical snapshots and restore.
+        """
+        if self._write_lock.get():
+            yield self
+            return
+        self.ensure_constraints()
+        with self._driver.session(database=self._database or None) as session:
+            with session.begin_transaction(timeout=0) as lock:
+                lock.run("MERGE (l:__BridgrWriteLock {id:'writer'}) SET l.held = true").consume()
+                token = self._write_lock.set(True)
+                try:
+                    yield self
+                finally:
+                    self._write_lock.reset(token)
+                    lock.rollback()
+
+    @contextmanager
+    def transaction(self):
+        """Join the explicit unit of work on this client, or start one."""
+        if self._transaction.get() is not None:
+            yield self
+            return
+        with self.serialized_writes():
+            self.publish_pending_artifacts(required_paths=set())
+            artifact_paths = set()
+            with self._driver.session(database=self._database or None) as session:
+                with session.begin_transaction() as transaction:
+                    token = self._transaction.set(transaction)
+                    artifact_token = self._artifact_paths.set(artifact_paths)
+                    try:
+                        yield self
+                        transaction.commit()
+                    except BaseException:
+                        transaction.rollback()
+                        raise
+                    finally:
+                        self._transaction.reset(token)
+                        self._artifact_paths.reset(artifact_token)
+            self.publish_pending_artifacts(required_paths=artifact_paths)
+
+    def stage_artifact(self, path: Path, payload: dict) -> None:
+        """Persist a replayable JSON projection in the same transaction as its graph changes."""
+        if self._transaction.get() is None:
+            raise RuntimeError("Artifact staging requires an active transaction.")
+        self._artifact_paths.get().add(str(path.resolve()))
+        self._execute(
+            "MERGE (a:__BridgrArtifact {path:$path}) SET a.payload = $payload",
+            {"path": str(path.resolve()), "payload": json.dumps(payload, ensure_ascii=False)},
+        )
+
+    def read_staged_artifact(self, path: Path):
+        rows = self._execute("MATCH (a:__BridgrArtifact {path:$path}) RETURN a.payload AS payload",
+                             {"path": str(path.resolve())})
+        return json.loads(rows[0]["payload"]) if rows else None
+
+    def publish_pending_artifacts(self, required_paths=None) -> None:
+        from processing.run_artifacts import atomic_write_json
+
+        if self._transaction.get() is not None:
+            return
+        for row in self._execute("MATCH (a:__BridgrArtifact) RETURN a.path AS path, a.payload AS payload"):
+            try:
+                atomic_write_json(Path(row["path"]), json.loads(row["payload"]))
+                self._execute("MATCH (a:__BridgrArtifact {path:$path}) DELETE a", {"path": row["path"]})
+            except Exception as exc:
+                logging.getLogger(__name__).exception("Artifact publication failed for %s", row["path"])
+                if required_paths is None or row["path"] in required_paths:
+                    raise Neo4jExecutionError(
+                        "Graph wurde gespeichert; Anzeige ist noch ausstehend. "
+                        "Die gespeicherte Aktualisierung wird beim nächsten Schreibvorgang erneut veröffentlicht."
+                    ) from exc
 
     def execute_write_batch(self, statements: list[tuple[str, dict[str, Any]]]) -> list[list[dict[str, Any]]]:
         """Execute all write statements in one Neo4j transaction."""
         try:
-            session_kwargs = {"database": self._database} if self._database else {}
-            with self._driver.session(**session_kwargs) as session:
-                with session.begin_transaction() as transaction:
-                    results = [
-                        [record.data() for record in transaction.run(query, parameters)]
-                        for query, parameters in statements
-                    ]
-                    transaction.commit()
-                    return results
+            with self.transaction():
+                return [self._execute(query, parameters) for query, parameters in statements]
         except Exception as exc:
             raise _translate_neo4j_exception(exc) from exc
 
@@ -102,7 +181,11 @@ class Neo4jClient:
         return self._execute(query, parameters)
 
     def ensure_constraints(self) -> None:
+        if self._constraints_ready:
+            return
         constraint_queries = [
+            "CREATE CONSTRAINT bridgr_identity IF NOT EXISTS FOR (n:__BridgrIdentity) REQUIRE n.__bridgr_id IS UNIQUE",
+            "CREATE CONSTRAINT bridgr_artifact_path IF NOT EXISTS FOR (a:__BridgrArtifact) REQUIRE a.path IS UNIQUE",
             "CREATE CONSTRAINT process_id IF NOT EXISTS FOR (p:Process) REQUIRE p.process_id IS UNIQUE",
             "CREATE CONSTRAINT anwendung_id IF NOT EXISTS FOR (a:Application) REQUIRE a.cmdb_id IS UNIQUE",
             "CREATE CONSTRAINT schnittstelle_id IF NOT EXISTS FOR (i:Interface) REQUIRE i.id IS UNIQUE",
@@ -113,9 +196,15 @@ class Neo4jClient:
         ]
         for query in constraint_queries:
             self._execute(query, {})
+        self._execute("CREATE CONSTRAINT bridgr_write_lock IF NOT EXISTS FOR (l:__BridgrWriteLock) REQUIRE l.id IS UNIQUE")
+        self._execute("MERGE (:__BridgrWriteLock {id:'writer'})")
+        self._constraints_ready = True
 
     def _execute(self, query: str, parameters: dict[str, Any] | None = None) -> list[dict[str, Any]]:
         try:
+            transaction = self._transaction.get()
+            if transaction is not None:
+                return [record.data() for record in transaction.run(query, parameters or {})]
             session_kwargs = {"database": self._database} if self._database else {}
             with self._driver.session(**session_kwargs) as session:
                 result = session.run(query, parameters or {})
@@ -125,6 +214,8 @@ class Neo4jClient:
 
 
 def _translate_neo4j_exception(exc: Exception) -> Neo4jExecutionError:
+    if isinstance(exc, Neo4jExecutionError):
+        return exc
     try:
         from neo4j.exceptions import AuthError, ClientError, CypherSyntaxError, DriverError, ServiceUnavailable, SessionExpired
     except ModuleNotFoundError:
@@ -146,16 +237,17 @@ def _translate_neo4j_exception(exc: Exception) -> Neo4jExecutionError:
 
 
 def validate_read_only_cypher(query: str) -> None:
+    from core.chat_cypher import validate_chat_cypher
     cleaned_query = _strip_cypher_strings_and_comments(query)
     normalized_query = " ".join(cleaned_query.upper().split())
     if not normalized_query:
         raise QueryValidationError("Cypher query is empty.")
     for token in READ_ONLY_FORBIDDEN_TOKENS:
-        if token in normalized_query:
+        if re.search(r"\b" + re.escape(token) + r"\b", normalized_query):
             raise QueryValidationError(f"Cypher query contains forbidden token: {token}")
     _validate_query_structure(normalized_query)
     try:
-        validate_query_schema(cleaned_query)
+        validate_chat_cypher(query)
     except ValueError as exc:
         raise QueryValidationError(str(exc)) from exc
 
@@ -166,8 +258,6 @@ def _validate_query_structure(normalized_query: str) -> None:
             "Cypher query appears to contain multiple statements. Use a single query and continue after RETURN only with UNION, "
             "or move intermediate results with WITH."
         )
-    if "UNION" in normalized_query:
-        _validate_union_return_columns(normalized_query)
 
 
 def _has_match_after_return_without_transition(normalized_query: str) -> bool:
@@ -193,40 +283,8 @@ def _has_match_after_return_without_transition(normalized_query: str) -> bool:
     return False
 
 
-def _validate_union_return_columns(normalized_query: str) -> None:
-    branches = [branch.strip() for branch in re.split(r"\bUNION(?: ALL)?\b", normalized_query) if branch.strip()]
-    if len(branches) < 2:
-        return
-
-    expected_aliases = _extract_return_aliases(branches[0])
-    if not expected_aliases:
-        return
-
-    for branch in branches[1:]:
-        branch_aliases = _extract_return_aliases(branch)
-        if branch_aliases != expected_aliases:
-            raise QueryValidationError(
-                "Cypher UNION branches must return the same column aliases in the same order."
-            )
 
 
-def _extract_return_aliases(branch: str) -> list[str]:
-    return_match = re.search(r"\bRETURN\b\s+(.+)$", branch)
-    if return_match is None:
-        return []
-
-    return_clause = re.split(r"\bORDER BY\b|\bSKIP\b|\bLIMIT\b", return_match.group(1), maxsplit=1)[0]
-    aliases: list[str] = []
-    for item in return_clause.split(","):
-        normalized_item = item.strip()
-        alias_match = re.search(r"\bAS\s+([A-Z_][A-Z0-9_]*)$", normalized_item)
-        if alias_match is not None:
-            aliases.append(alias_match.group(1))
-            continue
-        bare_identifier_match = re.search(r"([A-Z_][A-Z0-9_]*)$", normalized_item)
-        if bare_identifier_match is not None:
-            aliases.append(bare_identifier_match.group(1))
-    return aliases
 
 
 def _strip_cypher_strings_and_comments(query: str) -> str:

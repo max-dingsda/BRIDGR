@@ -734,15 +734,9 @@ These fields must match the column names of your CMDB CSV files.
 
 Note on file format: BRIDGR automatically detects the delimiter of the CSV files. Both comma (`,`) and semicolon (`;`) are supported.
 
-#### Section `CMDB Column Mapping — Relations (Legacy Format)`
+#### CMDB Type Files
 
-Applies only if the older two-file format is still used.
-
-Fields:
-
-- `Source ID Column`
-- `Relation Type Column`
-- `Target ID Column`
+Only configured type files are supported. The former mixed-entities/separate-relations format has been removed. Configure each CSV in the Import tab; relations are multi-value columns in the type files.
 
 #### Section `Import & Matching`
 
@@ -841,6 +835,17 @@ Possible causes:
 - Status filter or file filter restricts the view
 
 ---
+
+### Stabilization and recovery
+
+Configure a dedicated Neo4j read-only chat username/password and an explicit database in Configuration. The current secured chat requires Enterprise privileges; it never uses writer credentials as a fallback. Unsupported or overly broad questions may need a narrower formulation. UI language selects interface text; answers follow your latest message language.
+
+CMDB type files are the only supported input format. Old entity/relation-file settings are no longer used. Relative paths refer to the project root, even when BRIDGR is started elsewhere.
+
+Confirmed and rejected application assignments belong to the process ID and survive renaming. Ambiguous organization aliases remain open for review. Merge undo preserves original properties but refuses later conflicting changes or incomplete historical undo records. Resolve malformed decisions before rerunning matching.
+
+If the graph was saved but display publication failed, the pending projection is retried on the next BRIDGR write. Do not repeat a manual decision merely to refresh its display. Pending archiving can be retried in Import with **Retry archiving**, without reimporting graph data. If recovery is impossible, **Stop archiving** preserves the journal and all files and enables further imports; moved files remain in the archive, remaining files in the input folder. Failed input documents remain in the inbox. Pause direct external writes during snapshots and restore.
+
 
 ## 14. Short Version for New Users
 

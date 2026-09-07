@@ -16,6 +16,9 @@ from services.organization_service import (
 
 
 class FakeNeo4jClient:
+    def execute_read_unvalidated(self, query, parameters=None):
+        return self.execute_write(query, parameters)
+
     def __init__(self, rows: list[dict] | None = None) -> None:
         self.written: list[tuple[str, dict | None]] = []
         self._rows = rows or []
@@ -26,6 +29,19 @@ class FakeNeo4jClient:
 
     def execute_read(self, query: str, parameters=None):
         return []
+
+    def transaction(self):
+        from contextlib import nullcontext
+        return nullcontext(self)
+
+    serialized_writes = transaction
+
+    def stage_artifact(self, path, payload):
+        from processing.run_artifacts import atomic_write_json
+        atomic_write_json(path, payload)
+
+    def read_staged_artifact(self, path):
+        return None
 
 
 def _make_config():

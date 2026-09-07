@@ -203,23 +203,23 @@ User: Wie viele Organisationseinheiten kennst du und wie viele davon sind mit ke
 ```cypher
 MATCH (o:OrgUnit)
 WITH count(o) AS org_unit_count,
-     count(CASE WHEN NOT EXISTS { (o)-[:RESPONSIBLE_FOR]->(:Process) } THEN 1 END) AS org_units_without_process_count
+     count(CASE WHEN NOT (o)-[:RESPONSIBLE_FOR]->(:Process) THEN 1 END) AS org_units_without_process_count
 RETURN org_unit_count, org_units_without_process_count
 ```
 
 User: Welche Risiken kannst du in unserer Architektur identifizieren?
 ```cypher
 MATCH (p:Process)
-WITH count(CASE WHEN NOT EXISTS { (:OrgUnit)-[:RESPONSIBLE_FOR]->(p) } THEN 1 END) AS ownerless_process_count
+WITH count(CASE WHEN NOT (:OrgUnit)-[:RESPONSIBLE_FOR]->(p) THEN 1 END) AS ownerless_process_count
 MATCH (a:Application)
 WITH ownerless_process_count,
-     count(CASE WHEN NOT EXISTS { (:OrgUnit)-[:RESPONSIBLE_FOR]->(a) } THEN 1 END) AS ownerless_application_count
+     count(CASE WHEN NOT (:OrgUnit)-[:RESPONSIBLE_FOR]->(a) THEN 1 END) AS ownerless_application_count
 MATCH (i:Interface)
 WITH ownerless_process_count, ownerless_application_count,
-     count(CASE WHEN NOT EXISTS { (:OrgUnit)-[:RESPONSIBLE_FOR]->(i) } THEN 1 END) AS ownerless_interface_count
+     count(CASE WHEN NOT (:OrgUnit)-[:RESPONSIBLE_FOR]->(i) THEN 1 END) AS ownerless_interface_count
 MATCH (s:Server)
 WITH ownerless_process_count, ownerless_application_count, ownerless_interface_count,
-     count(CASE WHEN NOT EXISTS { (:OrgUnit)-[:RESPONSIBLE_FOR]->(s) } THEN 1 END) AS ownerless_server_count
+     count(CASE WHEN NOT (:OrgUnit)-[:RESPONSIBLE_FOR]->(s) THEN 1 END) AS ownerless_server_count
 MATCH (a:Application)-[:RUNS_ON]->(s:Server)
 WITH ownerless_process_count, ownerless_application_count, ownerless_interface_count, ownerless_server_count,
      s.name AS server, count(DISTINCT a) AS application_count
@@ -276,8 +276,17 @@ ORDER BY type, application
 
 User: Welche Risiken sind im Modell dokumentiert und wen betreffen sie?
 ```cypher
-MATCH (r:Risk)-[:AFFECTS]->(target)
-RETURN r.name AS risk, labels(target)[0] AS target_type, target.name AS target
+MATCH (r:Risk)-[:AFFECTS]->(target:Application)
+RETURN r.name AS risk, 'Application' AS target_type, target.name AS target
+UNION ALL
+MATCH (r:Risk)-[:AFFECTS]->(target:Process)
+RETURN r.name AS risk, 'Process' AS target_type, target.name AS target
+UNION ALL
+MATCH (r:Risk)-[:AFFECTS]->(target:Server)
+RETURN r.name AS risk, 'Server' AS target_type, target.name AS target
+UNION ALL
+MATCH (r:Risk)-[:AFFECTS]->(target:Interface)
+RETURN r.name AS risk, 'Interface' AS target_type, target.name AS target
 ORDER BY risk, target_type, target
 ```
 
@@ -318,5 +327,18 @@ ORDER BY process, ressource
 ---
 
 ## Graph schema
+The execution boundary supports a deliberately limited Cypher language:
+- Every newly introduced node must have an explicit label from the schema below.
+- Use only fixed-length, directed relationships with an explicit allowed type.
+- Return named scalar properties, scalar lists, or aggregations such as count(node).
+  Never return whole nodes, relationships, paths, properties(node), or labels(node).
+- WITH may carry already typed variables; each UNION branch must independently use
+  explicit labels and the same output column aliases.
+- Use OPTIONAL MATCH with IS NULL or NOT (labelled pattern) for missing relations.
+- Do not use CALL, subqueries, dynamic property access, map projections, backtick
+  identifiers, variable-length paths or label predicates in WHERE.
+- Narrow or aggregate large queries. Results above 500 rows or 100,000 characters
+  are rejected and must be narrowed; there is no silent truncation.
+
 
 {GRAPH_SCHEMA_REFERENCE}

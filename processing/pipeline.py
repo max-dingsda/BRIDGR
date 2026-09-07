@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from uuid import uuid4
 
 from core.app_config import AppConfig, resolve_project_path, resolve_runtime_output_path
 from services.cmdb_service import load_application_cmdb_rows
@@ -32,7 +33,8 @@ from skills.extract.extract_docx import DocxExtractor, DocxExtractorError
 from skills.extract.extract_pdf import PdfExtractor, PdfExtractorError
 from skills.extract.extract_txt import TextExtractor, TextExtractorError
 from skills.graph_writer import GraphWritePayload, GraphWriter, normalize_org_unit_name
-from skills.match import ConfirmedLink, MatchResult, match_application_candidates
+from skills.match import ConfirmedLink, MatchResult, match_application_candidates, decision_matches_process, confirmed_match_source
+from core.org_resolution import resolve_organization
 from skills.review import ReviewItem, collect_review_items
 from services.cmdb_service import sync_cmdb_to_neo4j
 from services.snapshot_service import create_snapshot
@@ -57,6 +59,7 @@ class PipelineRunResult:
     output_path: str
     used_output_fallback: bool
     documents: list[DocumentRunResult]
+    run_id: str = ""
 
 
 def run_pipeline(
@@ -64,135 +67,67 @@ def run_pipeline(
     input_paths: list[Path] | None = None,
     progress_callback: Callable[[dict], None] | None = None,
 ) -> PipelineRunResult:
+    from types import SimpleNamespace
+
     output_path, used_output_fallback = resolve_runtime_output_path(config.output_path)
     cmdb_rows = load_application_cmdb_rows(config)
-    import_state = load_import_state(output_path)
-    previous_hashes = {document.source_path: document.file_hash for document in import_state.documents}
-    llm_client = OpenAICompatibleClient(
-        LlmClientConfig(
-            base_url=config.llm_base_url,
-            model=config.llm_model,
-            api_key_env=config.llm_api_key_env,
-            timeout_seconds=config.llm_timeout_seconds,
-            debug_logger=lambda event, details: write_debug_log(config, event, details),
-        )
-    )
-    graph_writer = GraphWriter()
-    neo4j_client = build_neo4j_client(config)
-    create_snapshot(
-        config,
-        neo4j_client,
-        trigger="pipeline",
-        operation="process_import",
-    )
-    sync_cmdb_to_neo4j(config, neo4j_client)
-    confirmed_links = graph_writer.get_confirmed_links_from_neo4j(neo4j_client)
-    rejected_links = graph_writer.get_rejected_decisions_from_neo4j(neo4j_client)
-    org_units = graph_writer.load_org_units_from_neo4j(neo4j_client)
-    org_unit_aliases = graph_writer.load_org_unit_aliases_from_neo4j(neo4j_client)
-
-    if input_paths is not None:
-        candidate_paths = list(input_paths)
-    elif config.last_run_mode == "full":
-        candidate_paths = list_bpmn_files(resolve_project_path(config.input_path))
-    else:
-        candidate_paths = []
-    total_documents = len(candidate_paths)
-    if progress_callback is not None:
-        progress_callback(
-            {
-                "phase": "start",
-                "completed": 0,
-                "total": total_documents,
-                "source_path": "",
-                "status": "",
-            }
-        )
-    document_results = []
-    next_state_documents: list[DocumentState] = []
-    for index, path in enumerate(candidate_paths, start=1):
-        file_hash = compute_file_hash(path)
-        if should_skip_file(config.last_run_mode, input_paths, path, file_hash, previous_hashes):
-            document_results.append(
-                DocumentRunResult(
-                    source_path=str(path),
-                    file_hash=file_hash,
-                    status=DOCUMENT_STATUS_SKIPPED_UNCHANGED,
-                    extracted_process=None,
-                    matches=[],
-                    review_items=[],
-                    graph_payload=None,
-                )
-            )
-            next_state_documents.append(
-                DocumentState(source_path=str(path), file_hash=file_hash, process_id="")
-            )
-            if progress_callback is not None:
-                progress_callback(
-                    {
-                        "phase": "document",
-                        "completed": index,
-                        "total": total_documents,
-                        "source_path": str(path),
-                        "status": DOCUMENT_STATUS_SKIPPED_UNCHANGED,
-                    }
-                )
-            continue
-
-        extractor = build_extractor_for_path(path, llm_client)
-        document_result = run_document(path, file_hash, extractor, config, cmdb_rows, graph_writer, confirmed_links, rejected_links, org_units, org_unit_aliases)
-        if document_result.extracted_process is not None:
-            update_organization_knowledge(graph_writer, neo4j_client, document_result.extracted_process)
-        document_results.append(document_result)
-        if document_result.graph_payload is not None:
-            document_result.process_write_action = graph_writer.write_payload(neo4j_client, document_result.graph_payload)
-        next_state_documents.append(
-            DocumentState(
-                source_path=str(path),
-                file_hash=file_hash,
-                process_id=document_result.extracted_process.process_id if document_result.extracted_process else "",
-            )
-        )
-        if progress_callback is not None:
-            progress_callback(
-                {
-                    "phase": "document",
-                    "completed": index,
-                    "total": total_documents,
-                    "source_path": str(path),
-                    "status": document_result.status,
-                }
-            )
-
-    run_result = PipelineRunResult(
-        run_mode=config.last_run_mode,
-        output_path=str(output_path),
-        used_output_fallback=used_output_fallback,
-        documents=document_results,
-    )
-    save_import_state(ImportState(documents=next_state_documents), output_path)
-    write_latest_run(
-        {
-            "run_mode": run_result.run_mode,
-            "output_path": run_result.output_path,
-            "used_output_fallback": run_result.used_output_fallback,
-            "documents": [asdict(document) for document in run_result.documents],
-        },
-        output_path,
-    )
-    if progress_callback is not None:
-        progress_callback(
-            {
-                "phase": "done",
-                "completed": total_documents,
-                "total": total_documents,
-                "source_path": "",
-                "status": "",
-            }
-        )
-    graph_writer.cleanup_process_placeholders(neo4j_client)
-    neo4j_client.close()
-    return run_result
+    candidate_paths = (list(input_paths) if input_paths is not None else
+                       list_bpmn_files(resolve_project_path(config.input_path)) if config.last_run_mode == "full" else [])
+    total = len(candidate_paths)
+    if progress_callback:
+        progress_callback({"phase": "start", "completed": 0, "total": total, "source_path": "", "status": ""})
+    llm_client = OpenAICompatibleClient(LlmClientConfig(
+        base_url=config.llm_base_url, model=config.llm_model, api_key_env=config.llm_api_key_env,
+        timeout_seconds=config.llm_timeout_seconds,
+        debug_logger=lambda event, details: write_debug_log(config, event, details),
+    ))
+    writer = GraphWriter()
+    # All extraction/LLM work precedes the write lock and database transactions.
+    prepared = [run_document(path, compute_file_hash(path), build_extractor_for_path(path, llm_client),
+                             config, cmdb_rows, writer) for path in candidate_paths]
+    client = build_neo4j_client(config)
+    completed = []
+    states = []
+    result = PipelineRunResult(run_mode=config.last_run_mode, output_path=str(output_path),
+                               used_output_fallback=used_output_fallback, documents=completed, run_id=uuid4().hex)
+    def checkpoint(status):
+        save_import_state(ImportState(documents=states), output_path, client)
+        write_latest_run({"run_id": result.run_id, "run_mode": result.run_mode, "output_path": result.output_path,
+                          "used_output_fallback": used_output_fallback, "status": status,
+                          "documents": [asdict(document) for document in completed]}, output_path, client)
+    try:
+        with client.serialized_writes():
+            create_snapshot(config, client, trigger="pipeline", operation="process_import")
+            sync_cmdb_to_neo4j(config, client)
+            for index, document in enumerate(prepared, start=1):
+                with client.transaction():
+                    process = document.extracted_process
+                    if process is not None:
+                        # Match again against current decisions after acquiring the write lock.
+                        document = run_document(
+                            Path(document.source_path), document.file_hash,
+                            SimpleNamespace(extract=lambda _path: process), config, cmdb_rows, writer,
+                            writer.get_confirmed_links_from_neo4j(client),
+                            writer.get_rejected_decisions_from_neo4j(client),
+                            writer.load_org_units_from_neo4j(client), writer.load_org_unit_aliases_from_neo4j(client),
+                        )
+                        update_organization_knowledge(writer, client, document.extracted_process)
+                        document.process_write_action = writer.write_payload(client, document.graph_payload)
+                    completed.append(document)
+                    states.append(DocumentState(source_path=document.source_path, file_hash=document.file_hash,
+                                                process_id=process.process_id if process else ""))
+                    checkpoint("in_progress")
+                if progress_callback:
+                    progress_callback({"phase": "document", "completed": index, "total": total,
+                                       "source_path": document.source_path, "status": document.status})
+            with client.transaction():
+                writer.cleanup_process_placeholders(client)
+                checkpoint("complete")
+        if progress_callback:
+            progress_callback({"phase": "done", "completed": total, "total": total, "source_path": "", "status": ""})
+        return result
+    finally:
+        client.close()
 
 
 def list_bpmn_files(root_path: Path) -> list[Path]:
@@ -261,6 +196,7 @@ def run_document(
             match_application_candidates(
                 application_name=application.name,
                 process_name=extracted_process.process_name,
+                process_id=extracted_process.process_id,
                 cmdb_rows=cmdb_rows,
                 confirmed_links=confirmed_links,
                 rejected_links=rejected_links,
@@ -269,7 +205,7 @@ def run_document(
                 name_column=config.cmdb_name_column,
             )
         )
-    matches.extend(build_manual_matches(extracted_process.process_name, extracted_process.applications, confirmed_links))
+    matches.extend(build_manual_matches(extracted_process.process_name, extracted_process.applications, confirmed_links, extracted_process.process_id))
     review_items = collect_review_items(extracted_process, matches)
     graph_payload = graph_writer.build_payload(extracted_process, matches)
     status = DOCUMENT_STATUS_NO_MATCHES if not extracted_process.applications else DOCUMENT_STATUS_PROCESSED
@@ -303,6 +239,7 @@ def build_manual_matches(
     process_name: str,
     extracted_applications: list,
     confirmed_links: list[ConfirmedLink],
+    process_id: str = "",
 ) -> list[MatchResult]:
     """Reconstruct confirmed links that survive re-import regardless of document content.
 
@@ -313,7 +250,7 @@ def build_manual_matches(
     extracted_names = {application.name for application in extracted_applications}
     manual_matches: list[MatchResult] = []
     for link in confirmed_links:
-        if link.get("process") != process_name:
+        if not decision_matches_process(link, process_name, process_id):
             continue
         if link.get("quelle") not in _PERSISTENT_LINK_SOURCES:
             continue
@@ -326,7 +263,7 @@ def build_manual_matches(
                 cmdb_id=link.get("cmdb_id"),
                 matched_name=link.get("resolved_to", application_name),
                 confidence=CONFIDENCE_STRONG,
-                source=MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL,
+                source=confirmed_match_source(link),
             )
         )
     return manual_matches
@@ -397,7 +334,7 @@ def _resolve_org_unit_name(
     normalized_name = normalize_org_unit_name(raw_name)
     if not normalized_name:
         return ""
-    return org_unit_aliases.get(normalized_name) or org_units.get(normalized_name) or ""
+    return resolve_organization(raw_name, org_units, org_unit_aliases).name
 
 
 def update_organization_knowledge(

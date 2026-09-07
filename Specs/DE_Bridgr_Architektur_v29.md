@@ -125,7 +125,7 @@ CMDB-Synchronisation und ArchiMate-Import/-Export werden separat ausgelöst.
 | Graph | Neo4j als Fach- und Entscheidungsgraph | alternatives Graph-Backend |
 | Review | manuelle Zuordnung, Ablehnung, Rücknahme, Merge | externes Ticketing |
 | ArchiMate | Import, Export, Mapping-Konfiguration, Kandidaten-Review | Views/Viewpoints |
-| Konsolidierung | Merge für `OrgEinheit` und `Prozess`, später erweiterbar | generischer Merge beliebiger Labels |
+| Konsolidierung | Merge für `OrgUnit` und `Process`, später erweiterbar | generischer Merge beliebiger Labels |
 
 ---
 
@@ -136,7 +136,7 @@ CMDB-Synchronisation und ArchiMate-Import/-Export werden separat ausgelöst.
 #### Prozess
 
 Geschäftsprozess aus Prozessdokumenten oder ArchiMate. Fachliche Primäridentität aus
-`prozess_id`, sofern vorhanden. Zusätzlich kann `archimate_id` existieren.
+`process_id`, sofern vorhanden. Zusätzlich kann `archimate_id` existieren.
 
 #### Anwendung
 
@@ -151,7 +151,7 @@ Separat geführter Integrations- oder Übergabepunkt.
 
 Physischer oder virtueller Infrastrukturknoten mit `server_type`.
 
-#### OrgEinheit
+#### OrgUnit
 
 Reale organisatorische Einheit. Entsteht durch manuelle Pflege, bestätigte Kandidaten,
 CMDB-Owner-Auflösung oder ArchiMate-Import.
@@ -159,11 +159,11 @@ CMDB-Owner-Auflösung oder ArchiMate-Import.
 #### Rolle
 
 Prozessteilnehmer auf Prozessebene, typischerweise aus BPMN-Lanes. Eine Rolle ist keine
-OrgEinheit und impliziert keine Verantwortung.
+OrgUnit und impliziert keine Verantwortung.
 
 #### Alias
 
-Deterministische alternative Bezeichnung für `Anwendung` oder `OrgEinheit`. Dient der
+Deterministische alternative Bezeichnung für `Application` oder `OrgUnit`. Dient der
 Identitätsauflösung in Pipeline und Chat.
 
 #### Stakeholder
@@ -209,44 +209,44 @@ Sie dient der Unterdrückung erneuter Vorschläge.
 
 #### OrgKandidat
 
-Interner Betriebsknoten für eine unaufgelöste OrgEinheit-/Rollen-Nennung aus Prozessimport
+Interner Betriebsknoten für eine unaufgelöste OrgUnit-/Rollen-Nennung aus Prozessimport
 oder CMDB-Sync (`status`: `open`, `mapped` oder `rejected`; `mapped_org_unit` bei `mapped`).
 Ersetzt seit der vollständigigen Ablösung von `kb.json` (Finding #15) den früheren
-`org_unit_candidates`-Abschnitt der Wissensbasis-Datei. Wie `ManualDecision` und `Ablehnung`
+`org_unit_candidates`-Abschnitt der Wissensbasis-Datei. Wie `ManualDecision` und `Rejection`
 bewusst nicht Teil des Query-Schemas für den Chat-Layer.
 
 ### 5.2 Fachbeziehungen
 
 ```text
-(:Anwendung)-[:DIENT]->(:Prozess)
-(:Anwendung)-[:KÖNNTE_DIENEN]->(:Prozess)
-(:Rolle)-[:BETEILIGT_AN]->(:Prozess)
-(:OrgEinheit)-[:KANN_EINNEHMEN]->(:Rolle)
-(:OrgEinheit)-[:VERANTWORTET]->(:Prozess|:Anwendung|:Schnittstelle|:Server|:Infrastruktur)
-(:Prozess)-[:FOLGT_AUF]->(:Prozess)
-(:Anwendung)-[:USES_INTERFACE]->(:Schnittstelle)
-(:Anwendung|:Schnittstelle)-[:RUNS_ON]->(:Server)
-(:Alias)-[:KANN_MEINEN]->(:Anwendung|:OrgEinheit)
-(:Risiko)-[:BETRIFFT]->(...)
-(:Faehigkeit|:Anwendung)-[:MITIGIERT]->(:Risiko)
-(:Faehigkeit|:Anforderung)-[:REALISIERT]->(...)
-(:Prozess|:Anwendung)-[:BENOETIGT]->(:Ressource)
-(:Prozess|:Anwendung)-[:UNTERSTUETZT]->(:Ziel|:Faehigkeit)
-(:Prozess|:Anwendung)-[:VERARBEITET]->(:Datenobjekt)
-(:Anwendung)-[:LAEUFT_AUF]->(:Infrastruktur)
-(:Kontext|:Anforderung)-[:BEEINFLUSST]->(...)
-(:Stakeholder|:OrgEinheit)-[:IST_VERBUNDEN_MIT]->(...)
+(:Application)-[:SERVES]->(:Process)
+(:Application)-[:MAY_SERVE]->(:Process)
+(:Role)-[:PARTICIPATES_IN]->(:Process)
+(:OrgUnit)-[:CAN_ASSUME]->(:Role)
+(:OrgUnit)-[:RESPONSIBLE_FOR]->(:Process|:Application|:Interface|:Server|:Infrastructure)
+(:Process)-[:FOLLOWS]->(:Process)
+(:Application)-[:USES_INTERFACE]->(:Interface)
+(:Application|:Interface)-[:RUNS_ON]->(:Server)
+(:Alias)-[:MAY_REFER_TO]->(:Application|:OrgUnit)
+(:Risk)-[:AFFECTS]->(...)
+(:Capability|:Application)-[:MITIGATES]->(:Risk)
+(:Capability|:Requirement)-[:REALIZES]->(...)
+(:Process|:Application)-[:REQUIRES]->(:Resource)
+(:Process|:Application)-[:SUPPORTS]->(:Goal|:Capability)
+(:Process|:Application)-[:PROCESSES]->(:DataObject)
+(:Application)-[:RUNS_ON]->(:Infrastructure)
+(:Context|:Requirement)-[:INFLUENCES]->(...)
+(:Stakeholder|:OrgUnit)-[:CONNECTED_TO]->(...)
 ```
 
 ### 5.3 Wichtige Properties
 
-#### Auf `:DIENT`
+#### Auf `:SERVES`
 
-- `konfidenz`
+- `confidence`
 - `source`
 - `raw_name`
 
-#### Auf `:KÖNNTE_DIENEN`
+#### Auf `:MAY_SERVE`
 
 - `score`
 
@@ -260,7 +260,7 @@ bewusst nicht Teil des Query-Schemas für den Chat-Layer.
 
 - `archimate_rel_type`
 
-#### Auf `:Rolle`
+#### Auf `:Role`
 
 - `role_only`
 
@@ -325,10 +325,10 @@ Jedes Prozessdokument durchläuft diese Kette:
 ### 7.3 Konfidenzmodell
 
 - `stark`
-  bestätigt oder sicher gematcht, wird als `DIENT` bzw. `VERANTWORTET` geschrieben
+  bestätigt oder sicher gematcht, wird als `SERVES` bzw. `RESPONSIBLE_FOR` geschrieben
 - `schwach`
-  Anwendungskandidat mit Review-Bedarf, wird als `KÖNNTE_DIENEN` geschrieben; unsichere
-  CMDB-Owner werden als `OrgKandidat` geführt (kein direkter Kanten-Schreibpfad)
+  Anwendungskandidat mit Review-Bedarf, wird als `MAY_SERVE` geschrieben; unsichere
+  CMDB-Owner werden als `OrgCandidate` geführt (kein direkter Kanten-Schreibpfad)
 - `offen`
   kein Match, nur Review-Artefakt
 
@@ -398,16 +398,9 @@ Der Loader erzeugt aus allen Typ-Dateien gemeinsam ein `NormalizedCmdb`-Objekt m
 
 Der `GraphWriter` bleibt unverändert und kennt nur das `NormalizedCmdb`-Interface.
 
-#### 7.5.5 Rückwärtskompatibilität
+#### 7.5.5 Unterstütztes CMDB-Format
 
-Ist `cmdb_type_files` in `config.json` leer oder nicht gesetzt, fällt BRIDGR auf das
-Legacy-Format zurück:
-
-- eine gemischte Entities-Datei (konfiguriert über `cmdb_filename`) mit einer `entity_type`-Spalte
-- eine optionale separate Relationsdatei (konfiguriert über `cmdb_relations_filename`)
-
-Das Legacy-Format ist weiterhin voll funktionsfähig, aber als Entwicklungsformat
-eingestuft. Produktive CMDB-Anbindungen sollen das Typ-Datei-Format verwenden.
+Es werden ausschließlich konfigurierte Typdateien unterstützt. Bei leerem oder fehlendem `cmdb_type_files` wird keine CMDB geladen. Das frühere Format mit gemischter Entities-Datei und separater Relationsdatei entfällt gemäß Nutzerentscheidung vom 7. September 2026. Alte Konfigurationsfelder werden mit einem Hinweis auf die erforderlichen Typdateien verworfen.
 
 ---
 
@@ -415,11 +408,11 @@ eingestuft. Produktive CMDB-Anbindungen sollen das Typ-Datei-Format verwenden.
 
 ### 8.1 Bestätigen eines schwachen Anwendungskandidaten
 
-Beim Bestätigen einer `KÖNNTE_DIENEN`-Kante:
+Beim Bestätigen einer `MAY_SERVE`-Kante:
 
 1. wird die schwache Kante gelöscht
-2. wird eine starke `DIENT`-Kante geschrieben
-3. wird `raw_name` auf der `DIENT`-Kante gesetzt
+2. wird eine starke `SERVES`-Kante geschrieben
+3. wird `raw_name` auf der `SERVES`-Kante gesetzt
 4. wird bei abweichendem Begriff ein `Alias` auf die Anwendung geschrieben
 5. wird die Anzeige in `latest_run.json` gezielt aktualisiert
 
@@ -427,23 +420,23 @@ Beim Bestätigen einer `KÖNNTE_DIENEN`-Kante:
 
 Beim Ablehnen:
 
-1. wird die `KÖNNTE_DIENEN`-Kante gelöscht
-2. wird ein `(:Ablehnung)`-Knoten geschrieben
+1. wird die `MAY_SERVE`-Kante gelöscht
+2. wird ein `(:Rejection)`-Knoten geschrieben
 3. wird der Begriff bei nächsten Läufen nicht erneut vorgeschlagen
 
 ### 8.3 Manuelle Zuordnung einer Anwendung
 
 Bei manueller Zuordnung im Review-Tab:
 
-1. wird direkt eine starke `DIENT`-Kante geschrieben
+1. wird direkt eine starke `SERVES`-Kante geschrieben
 2. bleibt die Entscheidung über Re-Importe hinweg persistent
 3. muss die Entscheidung später gezielt rücknehmbar sein
 
 ### 8.4 Owner- und Rollenzuordnungen
 
-- `VERANTWORTET` für Prozesse und CMDB-Ziele wird nur explizit oder über exakte
+- `RESPONSIBLE_FOR` für Prozesse und CMDB-Ziele wird nur explizit oder über exakte
   Owner-Auflösung geschrieben
-- `KANN_EINNEHMEN` entsteht nur über Benutzeraktion
+- `CAN_ASSUME` entsteht nur über Benutzeraktion
 
 ---
 
@@ -471,20 +464,16 @@ Alle regulären Schreibpfade sind auf wiederholte Ausführung ausgelegt:
 
 Bereits heute existieren gezielte Anreicherungen statt blindem Duplikatbau:
 
-- BPMN-/Dokumentprozess auf vorhandenen Prozess ohne `prozess_id`
+- BPMN-/Dokumentprozess auf vorhandenen Prozess ohne `process_id`
 - CMDB-Anwendung auf vorhandene ArchiMate-Anwendung ohne `cmdb_id`
-- case-insensitive Kanonisierung für `OrgEinheit`
+- case-insensitive Kanonisierung für `OrgUnit`
 
 ### 9.4 Grenzen des aktuellen Writers
 
-Der aktuelle Writer schreibt Fachgraph und Teilentscheidungen, hat aber noch keine
-vollständigige Korrekturschicht für:
-
-- Undo manueller Entscheidungen
-- Merge von Dubletten mit Auditspur
-- Alias-Lifecycle bei Rücknahmen
-
-Diese Fähigkeiten werden in Abschnitt 10 spezifiziert.
+Der Writer unterstützt manuelle Entscheidungen, Merge mit Audit sowie selektive
+Rücknahme einschließlich Alias-Lifecycle. Die Korrekturschicht ist in Abschnitt 10
+beschrieben. Stabilisierungsverträge und konservative Grenzen historischer
+Undo-Daten sind in Abschnitt 18.6 festgelegt.
 
 ---
 
@@ -500,7 +489,7 @@ gezielt konsolidierbar sein.
 
 Der Fachgraph bleibt vom Entscheidungsgraph getrennt.
 
-- Der **Fachgraph** enthält Objekte wie `Prozess`, `Anwendung`, `OrgEinheit`, `Alias`.
+- Der **Fachgraph** enthält Objekte wie `Process`, `Application`, `OrgUnit`, `Alias`.
 - Der **Entscheidungsgraph** enthält Betriebsmetadaten für manuelle Eingriffe.
 
 ### 10.3 Entscheidungsknoten
@@ -528,7 +517,7 @@ Optionale Attribute:
 ### 10.4 Implementierter Umsetzungsstand (Ist-Zustand)
 
 `ManualDecision` wird als isolierter Knoten ohne Kanten zu den betroffenen Fachobjekten
-persistiert. Die Zuordnung betroffener Objekte (Prozess, Anwendung, OrgEinheit, Rolle usw.)
+persistiert. Die Zuordnung betroffener Objekte (Prozess, Anwendung, OrgUnit, Rolle usw.)
 erfolgt ausschliesslich über das Feld `payload_json`, das die relevanten IDs und Namen
 als JSON-String enthält.
 
@@ -543,10 +532,10 @@ um die ursprünglichen Graphänderungen rückgängig zu machen.
 Architektonisch vorgesehen, aber derzeit nicht implementiert sind explizite Kanten:
 
 ```text
-(:ManualDecision)-[:AFFECTS]->(:Prozess)
-(:ManualDecision)-[:AFFECTS]->(:Anwendung)
-(:ManualDecision)-[:AFFECTS]->(:OrgEinheit)
-(:ManualDecision)-[:AFFECTS]->(:Rolle)
+(:ManualDecision)-[:AFFECTS]->(:Process)
+(:ManualDecision)-[:AFFECTS]->(:Application)
+(:ManualDecision)-[:AFFECTS]->(:OrgUnit)
+(:ManualDecision)-[:AFFECTS]->(:Role)
 (:ManualDecision)-[:CREATED_ALIAS]->(:Alias)
 (:ManualDecision)-[:SUPERSEDES]->(:ManualDecision)
 ```
@@ -605,8 +594,8 @@ Aktueller Umsetzungsstand:
 
 In Scope für die erste Ausbaustufe:
 
-- manueller `DIENT`-Link
-- bestätigter `KÖNNTE_DIENEN`-Link
+- manueller `SERVES`-Link
+- bestätigter `MAY_SERVE`-Link
 - manuelle Prozess-Owner-Zuordnung
 - manuelle Rollenzuordnung
 
@@ -628,16 +617,16 @@ den Zustand verursacht hat.
 
 Typische Fälle:
 
-- `OrgEinheit`: unterschiedliche Schreibweisen oder manuell falsch angelegte Einheiten
-- `Prozess`: identischer Prozess aus TXT und BPMN unter leicht abweichenden Namen
-- später optional `Anwendung`
+- `OrgUnit`: unterschiedliche Schreibweisen oder manuell falsch angelegte Einheiten
+- `Process`: identischer Prozess aus TXT und BPMN unter leicht abweichenden Namen
+- später optional `Application`
 
 ### 11.2 Mergebare Labels
 
 Erste Ausbaustufe:
 
-- `OrgEinheit`
-- `Prozess`
+- `OrgUnit`
+- `Process`
 
 ### 11.3 Merge-Ziele
 
@@ -680,39 +669,35 @@ Regel:
   - vorhandene IDs und ArchiMate-Metadaten bleiben erhalten
   - redundante Duplikate werden verworfen
 
-### 11.7 Merge von `OrgEinheit`
+### 11.7 Merge von `OrgUnit`
 
 Zu berücksichtigende Fachbeziehungen:
 
-- ausgehend: `VERANTWORTET`, `KANN_EINNEHMEN`, `IST_VERBUNDEN_MIT`
-- eingehend über Alias: `(:Alias)-[:KANN_MEINEN]->(:OrgEinheit)`
+- ausgehend: `RESPONSIBLE_FOR`, `CAN_ASSUME`, `CONNECTED_TO`
+- eingehend über Alias: `(:Alias)-[:MAY_REFER_TO]->(:OrgUnit)`
 - betriebliche Metadaten aus `ManualDecision`
 
 Aktueller Umsetzungsstand:
 
-- Der Backend-Merge für `OrgEinheit` ist implementiert.
-- Kantenübernahme erfolgt derzeit für `VERANTWORTET`, `KANN_EINNEHMEN`,
-  ausgehendes `IST_VERBUNDEN_MIT` sowie bestehende eingehende Alias-Kanten.
-- Die Deduplizierung erfolgt aktuell über `MERGE` auf den Zielkanten.
-- Eine weitergehende Property-Konsolidierung ist für diese erste Ausbaustufe noch
-  nicht erforderlich und daher noch nicht separat implementiert.
+- Der Backend-Merge für `OrgUnit` ist implementiert.
+- Ein- und ausgehende Beziehungen mit unterstützten Fachtypen einschließlich Alias-Kanten werden übernommen; nicht unterstützte Typen brechen den Merge ab, bevor Daten verworfen werden.
+- Beziehungen werden nach Typ, Endpunkten und Richtung dedupliziert. Die Property-Konsolidierung folgt §11.6: stärkere Evidenz gewinnt, bestehende Ziel-IDs und ArchiMate-Metadaten bleiben erhalten.
 
-### 11.8 Merge von `Prozess`
+### 11.8 Merge von `Process`
 
 Zu berücksichtigende Fachbeziehungen:
 
-- eingehend: `DIENT`, `KÖNNTE_DIENEN`, `BETEILIGT_AN`, `VERANTWORTET`, `REALISIERT`,
-  `UNTERSTUETZT`, `BENOETIGT`, `VERARBEITET`, `BETRIFFT`, `BEEINFLUSST`
-- ausgehend: `FOLGT_AUF`, `UNTERSTUETZT`, `BENOETIGT`, `VERARBEITET`
-- zusätzliche Konsolidierung von `prozess_id`, `archimate_id`, `archimate_type`
+- eingehend: `SERVES`, `MAY_SERVE`, `PARTICIPATES_IN`, `RESPONSIBLE_FOR`, `REALIZES`,
+  `SUPPORTS`, `REQUIRES`, `PROCESSES`, `AFFECTS`, `INFLUENCES`
+- ausgehend: `FOLLOWS`, `SUPPORTS`, `REQUIRES`, `PROCESSES`
+- zusätzliche Konsolidierung von `process_id`, `archimate_id`, `archimate_type`
 
 Aktueller Umsetzungsstand:
 
-- Der Backend-Merge für `Prozess` ist implementiert.
+- Der Backend-Merge für `Process` ist implementiert.
 - Bestehende gleichartige Beziehungen am Ziel werden nicht doppelt angelegt.
 - Der Quellname wird als Alias des Zielprozesses weitergeführt.
-- Die Rücknahme arbeitet snapshot-basiert über die im Merge-Payload gespeicherten
-  Knoten- und Beziehungshinweise.
+- Undo verwendet den vollständigen typisierten Vor-/Nachzustand im Merge-Payload der Version 2 und stabile technische Identitäten. Der gespeicherte Zustand wird nur wiederhergestellt, wenn der aktuelle Zustand noch dem aufgezeichneten Nachzustand entspricht; unvollständige Legacy-Payloads und spätere widersprüchliche Änderungen werden abgelehnt.
 
 ### 11.9 Merge-Precheck
 
@@ -728,7 +713,7 @@ Erst danach darf der Merge explizit bestätigt werden.
 
 Aktueller Umsetzungsstand:
 
-- Im UI existieren Merge-Bereiche für `OrgEinheit` und `Prozess`.
+- Im UI existieren Merge-Bereiche für `OrgUnit` und `Process`.
 - Der Precheck zeigt bereits Quell-/Zielobjekt, Anzahl ein- und ausgehender Kanten,
   Dubletten am Ziel, Alias-Übernahme sowie erkannte Property-Konflikte.
 - Zusätzlich wird eine kompakte Wirkungszusammenfassung angezeigt
@@ -759,7 +744,7 @@ erstellt für:
 - Prozessimport (`run_pipeline`), einschliesslich des darin enthaltenen
   CMDB-Abgleichs
 - explizite CMDB-Synchronisation
-- Merge von `OrgEinheit` oder `Prozess`
+- Merge von `OrgUnit` oder `Process`
 
 Ein fehlgeschlagener oder nicht verifizierbarer Snapshot ist ein harter Gate:
 Die auslösende Schreiboperation wird nicht gestartet und die UI zeigt einen
@@ -774,7 +759,7 @@ abhängige Neo4j-Server- oder Dateisystem-Sicherung. Er enthält in einem
 konsistenten Lesezustand:
 
 - alle fachlichen Knoten und Beziehungen
-- interne Betriebsmetadaten (`ManualDecision`, `Ablehnung`, `OrgKandidat` und
+- interne Betriebsmetadaten (`ManualDecision`, `Rejection`, `OrgCandidate` und
   Alias-Projektionen)
 - Knotenlabels, Properties, Beziehungstypen und Beziehungsproperties
 - eine Manifestdatei mit Snapshot-ID, Zeitpunkt, Auslöser, Operation,
@@ -882,8 +867,8 @@ nicht per Wortersetzung lokalisiert, damit die Antwortsprache der Nutzerfrage ma
 
 - nur read-only Cypher
 - Validator prüft Labels, Relationen, Richtungen und Properties
-- `IST_VERBUNDEN_MIT` ist als Ausnahme ohne Labelpaarbeschränkung erlaubt
-- interne Knoten wie `Ablehnung`, `ManualDecision` und `OrgKandidat` sind nicht freigegeben
+- `CONNECTED_TO` ist als Ausnahme ohne Labelpaarbeschränkung erlaubt
+- interne Knoten wie `Rejection`, `ManualDecision` und `OrgCandidate` sind nicht freigegeben
 
 ### 13.4 Alias-Nutzung im Chat
 
@@ -897,8 +882,8 @@ Alias-Knoten unterstützen:
 
 Der Chat darf bestätigte Fakten und unbestätigte Kandidaten unterscheiden:
 
-- `DIENT` / `VERANTWORTET` = bestätigte Fakten
-- `KÖNNTE_DIENEN` = nicht bestätigte Kandidaten
+- `SERVES` / `RESPONSIBLE_FOR` = bestätigte Fakten
+- `MAY_SERVE` = nicht bestätigte Kandidaten
 
 Entscheidungsmetadaten selbst sind kein Chat-Gegenstand.
 
@@ -924,7 +909,7 @@ Entscheidungsmetadaten selbst sind kein Chat-Gegenstand.
 - Review offener und schwacher Anwendungszuordnungen
 - Bestätigen, Ablehnen, manuelle Zuordnung
 - Rücknahme zuletzt getroffener manueller Entscheidungen
-- Merge-Verwaltung für `Prozess`
+- Merge-Verwaltung für `Process`
 
 ### 14.4 Tab `Konfiguration`
 
@@ -943,7 +928,7 @@ Entscheidungsmetadaten selbst sind kein Chat-Gegenstand.
 - Kandidaten-Mapping
 - Prozess-Owner-Zuordnung
 - Rollenzuordnung
-- Merge-Verwaltung für `OrgEinheit`
+- Merge-Verwaltung für `OrgUnit`
 
 ### 14.6 Tab `EA-Modell`
 
@@ -965,8 +950,8 @@ Aktueller Umsetzungsstand:
 
 - `Letzte manuelle Änderungen` und `Entscheidung zurücknehmen` sind im
   Tab `Zuordnungen` vorhanden.
-- `Objekte konsolidieren` ist für `Prozess` im Tab `Zuordnungen` und für
-  `OrgEinheit` im Tab `Organisation` vorhanden.
+- `Objekte konsolidieren` ist für `Process` im Tab `Zuordnungen` und für
+  `OrgUnit` im Tab `Organisation` vorhanden.
 - Der Merge-Precheck zeigt bereits fachlich relevante Wirkungen und Konflikte.
 - Offen bleiben nur mögliche spätere UX-Verfeinerungen oder die Erweiterung auf
   weitere Objektarten.
@@ -989,7 +974,6 @@ Zentrale Laufzeitkonfiguration für:
   - `cmdb_runs_on_column`: Spaltenname für Server-IDs in der Anwendungsdatei (Standard: `runs_on`)
   - `cmdb_uses_interfaces_column`: Spaltenname für Schnittstellen-IDs in der Anwendungsdatei (Standard: `uses_interfaces`)
   - `cmdb_multivalue_separator`: Trennzeichen für Mehrfachwerte (Standard: `|`)
-  - `cmdb_filename`, `cmdb_relations_filename`: Legacy-Felder für das Zwei-Dateien-Format, werden ignoriert wenn `cmdb_type_files` gesetzt ist
 - Chat-Modus
 - Sicherung:
   - `snapshot_retention_count`: Anzahl gültiger, anwendungsverwalteter
@@ -1100,6 +1084,19 @@ bestätigt werden.
 
 ---
 
+### 18.6 Stabilisierungsverträge (Review R1–R7, 07.09.2026)
+
+- Bestätigungen/Ablehnungen verwenden `process_id`; `process` ist die Namensprojektion. Manuelle/bestätigte `SERVES`-Kanten überstehen Umbenennungen und entfernte Rohbegriffe. Historische Namensablehnungen werden nur eindeutig gebunden. Ungültige gespeicherte Entscheidungen stoppen das erneute Matching ausdrücklich bis zur Datenklärung.
+- Ein datenbankweiter `__BridgrWriteLock` serialisiert alle BRIDGR-Schreiber über Sitzungs-/Prozessgrenzen. Snapshot und geschützte Operation teilen die Sperre. Prozessupdate, CMDB-Sync, ArchiMate-Import, manuelle Entscheidung mit Audit, Merge, Undo mit Audit und Restore sind transaktional. LLM-Extraktion erfolgt vorher. Direkte externe Datenbankänderungen nehmen nicht teil und müssen während geschützter Operationen pausieren. Ein Ausfall der Sperrverbindung ist eine Betriebsstörung; ein verteiltes Fencing-Protokoll wird nicht zugesichert.
+- `latest_run.json` und Importstatus werden als `__BridgrArtifact` zusammen mit Fachänderungen gespeichert und nach Commit atomar veröffentlicht. Dateifehler bleiben wiederholbar; die Meldung unterscheidet den bereits gespeicherten Graphen von der ausstehenden Anzeige. Alte nicht schreibbare Artefakte blockieren unabhängige Änderungen nicht. `in_progress` kennzeichnet einen noch nicht vollständig abgeschlossenen Batch, dessen frühere Dokumente bereits committed sein können. Archivierung erfolgt nach Commit mit vorher persistiertem Journal und Wiederholung im Import-Tab ohne erneuten Import/Audit. Fehlerhafte Quelldokumente bleiben in der Inbox.
+- Merge-Payload Version 2 speichert vollständige typisierte Knoten-/Kantenproperties vor und nach dem Merge. `__bridgr_id` ist über das Zusatzlabel `__BridgrIdentity` eindeutig indiziert; das Label ist kein Fachtyp. Undo vergleicht den betroffenen Graphen mit dem Nachzustand und blockiert bei späteren Änderungen oder fehlenden Endpunkten. Historische unvollständige Payloads werden nicht automatisch zurückgenommen. Bei Gleichstand gewinnen Zielproperties; stärkere manuelle/bestätigte Kanteninformationen haben Vorrang, Identitäts-/ArchiMate-Referenzen des Ziels bleiben erhalten. Konfligierende Originalwerte bleiben für Undo im Vorzustand. Unbekannte Quellbeziehungstypen blockieren den Merge.
+- Aliasauflösung erhält alle unterschiedlichen Ziele. Exakte Organisationsnamen haben Vorrang; ein Aliasziel ist eindeutig, mehrere bleiben offene Kandidaten. Reihenfolgen dürfen keine Eigentümer bestimmen.
+- Relative Konfigurations-/Datenpfade beziehen sich stets auf die Repository-Wurzel, unabhängig von Arbeitsverzeichnis und Existenz. Absolute Pfade bleiben gültig. Nur CMDB-Typdateien werden unterstützt. Leere `cmdb_type_files` bedeuten beim Prozessimport keine CMDB; expliziter Sync meldet fehlende Konfiguration. Legacy-Schlüssel werden mit Warnung verworfen, ohne Fallback.
+- Chat benötigt eigene `neo4j_chat_user` / `neo4j_chat_password` (Umgebungsvariablen `NEO4J_CHAT_USERNAME` / `NEO4J_CHAT_PASSWORD`) und eine explizite Datenbank. Der Benutzer muss vom Schreiber abweichen und rein lesende Rechte besitzen. Die aktuelle Rechteprüfung (`SHOW USER PRIVILEGES`) benötigt Neo4j Enterprise; gesicherter Chat unterstützt Community nicht. Kein Rückfall auf Schreibrechte. Normale reader/PUBLIC-Ausführungs-/Load-Rechte sind toleriert, die Grammatik sperrt jedoch Prozeduren, externe Ladevorgänge und eigene Funktionen. Boosted-Ausführung, Schreib-/Administrationsrechte werden abgelehnt.
+- Die Chat-Teilmenge erlaubt explizit typisierte Pfade fester Länge, freigegebene skalare Properties/Funktionen, Filter, Aggregationen, `WITH` und passende `UNION`-Zweige. Dynamische Zugriffe, ganze Graphobjekte/Maps, neue ungelabelte Knoten, Subqueries und variable Pfade werden abgelehnt. Promptbeispiele werden über den echten Lesezugang geprüft. Query und Rechteprüfung haben 15 Sekunden Timeout. Mehr als 500 Zeilen oder 100.000 serialisierte Zeichen führen zu einer verständlichen Ablehnung statt stiller Kürzung. Anwendungssichtbarkeit und Datenbank-Schreibschutz ergänzen sich; interne Daten liegen weiterhin physisch im selben Graphen.
+- Die UI-Sprache steuert Katalogtexte, die letzte Benutzernachricht die Antwortsprache; Fachnamen bleiben Quelldaten. Weitergehende Herkunftsmodellierung, `FOLLOWS`-Ersetzungsregeln und geprüfte Sprachpolitur bleiben gemäß D1 im Folge-Backlog.
+
+
 ## 19. Akzeptanzkriterien
 
 1. Korrekte Informationen aus den Quelldaten können über die Weboberfläche abgefragt werden.
@@ -1117,14 +1114,14 @@ bestätigt werden.
 13. OrgEinheiten werden case-insensitiv kanonisiert.
 14. `ManualDecision` wird nicht in das freigegebene Query-Schema aufgenommen.
 15. Undo einer manuellen Zuordnung entfernt nur die konkret von dieser Entscheidung erzeugten Effekte.
-16. Ein Merge von `OrgEinheit` führt den Quellnamen als Alias des Zielobjekts weiter.
-17. Ein Merge von `Prozess` kann Dubletten aus unterschiedlichen Quellen konsolidieren.
+16. Ein Merge von `OrgUnit` führt den Quellnamen als Alias des Zielobjekts weiter.
+17. Ein Merge von `Process` kann Dubletten aus unterschiedlichen Quellen konsolidieren.
 18. Beim Merge werden gleichartige Beziehungen nicht doppelt angelegt.
 19. Der Merge ist nur nach Precheck und expliziter Benutzerbestätigung ausführbar.
 20. ArchiMate-Import und -Export bleiben trotz Korrekturschicht funktionsfähig.
 21. CMDB-Daten können als eine CSV-Datei pro Objektart importiert werden, mit Beziehungen als Multi-Value-Spalten.
 22. Das CMDB-Mehrwert-Trennzeichen ist für gängige CMDB-Export-Formate konfigurierbar.
-23. Das bisherige Zwei-Dateien-Format bleibt als Legacy-Pfad funktionsfähig.
+23. CMDB-Daten werden ausschließlich über konfigurierte Typdateien geladen; ein Legacy-Fallback findet nicht statt.
 24. Vor Prozessimport, expliziter CMDB-Synchronisation und Merge wird ein
     vollständigiger, validierter Snapshot erstellt.
 25. Bei fehlgeschlagener Snapshot-Erstellung wird die auslösende Schreiboperation
@@ -1146,7 +1143,7 @@ bestätigt werden.
 | Persistenz manueller Korrekturen | interner Entscheidungsgraph in Neo4j | globale Snapshots als Ersatz für Undo | selektive Rücknahme einzelner Entscheidungen bleibt schnell und fachlich präzise |
 | Sicherung vor globalen Schreiboperationen | anwendungsverwaltete logische Graph-Snapshots | ausschliesslich manuelle Neo4j-Backups | Wiederherstellbarkeit ist direkt im BRIDGR-Workflow verfügbar, ohne Server-Administration vorauszusetzen |
 | Sichtbarkeit der Korrekturschicht im Chat | verborgen | im Query-Schema freigeben | trennt Fachdialog von Betriebsmetadaten |
-| Merge-Strategie | labelspezifisch (`OrgEinheit`, `Prozess`) | generischer Merge beliebiger Nodes | geringeres Risiko, fachlich kontrollierbar |
+| Merge-Strategie | labelspezifisch (`OrgUnit`, `Process`) | generischer Merge beliebiger Nodes | geringeres Risiko, fachlich kontrollierbar |
 | Alias-Fortschreibung nach Merge | verpflichtend | Quellname verwerfen | verhindert Wiederauftreten derselben Dublette beim Re-Import |
 | Deduplizierung beim Merge | vor jeder Kantenanlage prüfen | blindes Umhängen | verhindert, dass der Merge selbst neuen Müll erzeugt |
 | Fachgraph vs. Entscheidungsgraph | getrennt | ein gemeinsamer überladener Graph | klarere Verantwortlichkeiten und sicherer Chat-Layer |
@@ -1161,13 +1158,12 @@ bestätigt werden.
   aber noch nicht vollständigig implementiert.
 - `ManualDecision` wird aktuell ohne explizite `AFFECTS`-, `CREATED_ALIAS`- oder
   `SUPERSEDES`-Kanten gespeichert; die Zuordnung erfolgt derzeit payload-basiert.
-- Merge-Workflows für `Anwendung` sind bewusst noch nicht Teil der ersten Ausbaustufe.
-- Ein generischer Merge für weitere Labels ausser `OrgEinheit` und `Prozess` ist noch
+- Merge-Workflows für `Application` sind bewusst noch nicht Teil der ersten Ausbaustufe.
+- Ein generischer Merge für weitere Labels ausser `OrgUnit` und `Process` ist noch
   nicht Teil der aktuellen Ausbaustufe.
 - UML-Diagramme im Repository können dem beschriebenen Stand voraus- oder hinterherlaufen
   und sind vor Aktualisierung nicht die kanonische Referenz.
-- Das Legacy-CMDB-Format (gemischte Entities-Datei + separate Relationsdatei) bleibt
-  funktionsfähig, ist aber für produktive CMDB-Anbindungen nicht das Zielformat.
+- Der CMDB-Import benötigt konfigurierte Typdateien; das Legacy-Format wurde entfernt.
 
 ---
 

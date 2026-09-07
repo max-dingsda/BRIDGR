@@ -53,6 +53,7 @@ QUERY_RELATIONSHIP_PATTERNS: tuple[RelationshipPattern, ...] = (
     RelationshipPattern("MAY_SERVE", "Application", "Process", ("score",)),
     RelationshipPattern("MAY_REFER_TO", "Alias", "Application", ("source_kind",)),
     RelationshipPattern("MAY_REFER_TO", "Alias", "OrgUnit", ("source_kind",)),
+    RelationshipPattern("MAY_REFER_TO", "Alias", "Process", ("source_kind",)),
     RelationshipPattern("AFFECTS", "Risk", "Application"),
     RelationshipPattern("AFFECTS", "Risk", "Process"),
     RelationshipPattern("AFFECTS", "Risk", "Server"),

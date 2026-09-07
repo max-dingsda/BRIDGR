@@ -3,11 +3,12 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import warnings
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 
-PROJECT_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CONFIG_PATH = Path("config.json")
 DEFAULT_LLM_BASE_URL = "http://localhost:11434/v1"
 DEFAULT_NEO4J_URL = "bolt://localhost:7687"
@@ -24,8 +25,10 @@ class AppConfig:
     llm_timeout_seconds: int = 900
     neo4j_url: str = DEFAULT_NEO4J_URL
     neo4j_user: str = DEFAULT_NEO4J_USER
-    neo4j_password: str = ""
+    neo4j_password: str = field(default="", repr=False)
     neo4j_database: str = ""
+    neo4j_chat_user: str = ""
+    neo4j_chat_password: str = field(default="", repr=False)
     fuzzy_threshold: float = 0.85
     cmdb_uuid_column: str = "id"
     cmdb_name_column: str = "name"
@@ -45,7 +48,7 @@ class AppConfig:
 
 
 def load_config(path: Path | None = None) -> AppConfig:
-    config_path = path or DEFAULT_CONFIG_PATH
+    config_path = resolve_project_path(path if path is not None else DEFAULT_CONFIG_PATH)
     if not config_path.exists():
         return AppConfig()
 
@@ -57,6 +60,8 @@ def load_config(path: Path | None = None) -> AppConfig:
     else:
         raw_config.pop("process_input_path", None)
 
+    if not raw_config.get("cmdb_type_files") and any(raw_config.get(key) for key in ("cmdb_filename", "cmdb_relations_filename", "cmdb_path")):
+        warnings.warn("Legacy CMDB format is no longer supported. Configure cmdb_type_files; no legacy files will be imported.", UserWarning)
     for legacy_key in ("cmdb_filename", "cmdb_relations_filename", "cmdb_entity_type_column",
                         "cmdb_relation_source_column", "cmdb_relation_type_column",
                         "cmdb_relation_target_column", "cmdb_path"):
@@ -82,6 +87,8 @@ def load_config(path: Path | None = None) -> AppConfig:
         env_name="NEO4J_DATABASE",
         default="",
     )
+    raw_config["neo4j_chat_user"] = resolve_env_backed_value(raw_config.get("neo4j_chat_user"), "NEO4J_CHAT_USERNAME", "")
+    raw_config["neo4j_chat_password"] = resolve_env_backed_value(raw_config.get("neo4j_chat_password"), "NEO4J_CHAT_PASSWORD", "")
     raw_config["last_run_mode"] = normalize_run_mode(raw_config.get("last_run_mode", "partial"))
     raw_config["ui_locale"] = raw_config.get("ui_locale", "de") if raw_config.get("ui_locale", "de") in {"de", "en"} else "de"
 
@@ -108,7 +115,7 @@ def resolve_env_backed_value(config_value: str | None, env_name: str, default: s
 
 
 def save_config(config: AppConfig, path: Path | None = None) -> None:
-    config_path = path or DEFAULT_CONFIG_PATH
+    config_path = resolve_project_path(path if path is not None else DEFAULT_CONFIG_PATH)
     config_path.parent.mkdir(parents=True, exist_ok=True)
     with config_path.open("w", encoding="utf-8") as handle:
         json.dump(asdict(config), handle, indent=2, ensure_ascii=False)
@@ -118,17 +125,13 @@ def save_config(config: AppConfig, path: Path | None = None) -> None:
 def resolve_project_path(path_value: str | Path) -> Path:
     """Return an absolute project path.
 
-    This helper resolves relative paths against the current working directory
-    first and falls back to the project root. The returned path may still not
-    exist.
+    Relative data and configuration paths always use the repository root,
+    independently of the working directory and whether the target exists.
     """
 
     candidate_path = Path(path_value)
     if candidate_path.is_absolute():
         return candidate_path
-    current_workdir_path = Path.cwd() / candidate_path
-    if current_workdir_path.exists():
-        return current_workdir_path
     return PROJECT_ROOT / candidate_path
 
 

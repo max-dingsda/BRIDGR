@@ -10,13 +10,15 @@ from core.constants import (
     CONFIDENCE_WEAK,
     MATCH_SOURCE_FUZZY,
     MATCH_SOURCE_KNOWLEDGE_BASE,
+    MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL,
     MATCH_SOURCE_REJECTED,
     MATCH_SOURCE_UNMATCHED,
 )
 
 
 class ConfirmedLink(TypedDict):
-    prozess: str
+    process: str
+    process_id: str
     anwendung_name: str
     cmdb_id: str
     resolved_to: str
@@ -24,7 +26,8 @@ class ConfirmedLink(TypedDict):
 
 
 class RejectedLink(TypedDict):
-    prozess: str
+    process: str
+    process_id: str
     anwendung_name: str
     cmdb_id: str | None
 
@@ -49,6 +52,7 @@ def match_application(
     uuid_column: str,
     name_column: str,
     entity_type_column: str = "entity_type",
+    process_id: str = "",
 ) -> MatchResult:
     candidates = match_application_candidates(
         application_name=application_name,
@@ -60,6 +64,7 @@ def match_application(
         uuid_column=uuid_column,
         name_column=name_column,
         entity_type_column=entity_type_column,
+        process_id=process_id,
     )
     return candidates[0]
 
@@ -74,6 +79,7 @@ def match_application_candidates(
     uuid_column: str,
     name_column: str,
     entity_type_column: str = "entity_type",
+    process_id: str = "",
 ) -> list[MatchResult]:
     confirmed_matches = [
         MatchResult(
@@ -81,16 +87,16 @@ def match_application_candidates(
             cmdb_id=link.get("cmdb_id"),
             matched_name=link.get("resolved_to", application_name),
             confidence=CONFIDENCE_STRONG,
-            source=MATCH_SOURCE_KNOWLEDGE_BASE,
+            source=confirmed_match_source(link),
             score=1.0,
         )
         for link in confirmed_links
-        if link.get("process") == process_name and link.get("anwendung_name") == application_name
+        if decision_matches_process(link, process_name, process_id) and link.get("anwendung_name") == application_name
     ]
     if confirmed_matches:
         return confirmed_matches
 
-    if is_application_rejected(process_name, application_name, rejected_links):
+    if is_application_rejected(process_name, application_name, rejected_links, process_id):
         return [
             MatchResult(
                 application_name=application_name,
@@ -110,6 +116,7 @@ def match_application_candidates(
         uuid_column=uuid_column,
         name_column=name_column,
         entity_type_column=entity_type_column,
+        process_id=process_id,
     )
     if candidate_matches:
         return candidate_matches
@@ -138,12 +145,13 @@ def build_fuzzy_candidates(
     uuid_column: str,
     name_column: str,
     entity_type_column: str = "entity_type",
+    process_id: str = "",
 ) -> list[MatchResult]:
     candidates: list[MatchResult] = []
     normalized_application_name = normalize_name_for_matching(application_name)
     for row in cmdb_rows:
         cmdb_id = row.get(uuid_column)
-        if is_candidate_rejected(process_name, application_name, cmdb_id, rejected_links):
+        if is_candidate_rejected(process_name, application_name, cmdb_id, rejected_links, process_id):
             continue
         candidate_name = row.get(name_column, "")
         normalized_candidate_name = normalize_name_for_matching(candidate_name)
@@ -220,9 +228,10 @@ def is_application_rejected(
     process_name: str,
     application_name: str,
     rejected_links: list[RejectedLink],
+    process_id: str = "",
 ) -> bool:
     return any(
-        link.get("process") == process_name
+        decision_matches_process(link, process_name, process_id)
         and link.get("anwendung_name") == application_name
         and not link.get("cmdb_id")
         for link in rejected_links
@@ -234,10 +243,23 @@ def is_candidate_rejected(
     application_name: str,
     cmdb_id: str | None,
     rejected_links: list[RejectedLink],
+    process_id: str = "",
 ) -> bool:
     return any(
-        link.get("process") == process_name
+        decision_matches_process(link, process_name, process_id)
         and link.get("anwendung_name") == application_name
         and link.get("cmdb_id") == cmdb_id
         for link in rejected_links
     )
+
+
+def decision_matches_process(link: dict, process_name: str, process_id: str = "") -> bool:
+    """Runtime callers supply identity; name-only callers cannot match an identified decision."""
+    if process_id or link.get("process_id"):
+        return bool(process_id) and link.get("process_id") == process_id
+    return link.get("process") == process_name
+
+
+def confirmed_match_source(link: dict) -> str:
+    return (MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL if link.get("quelle") == "manueller_link"
+            else MATCH_SOURCE_KNOWLEDGE_BASE)

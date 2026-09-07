@@ -64,8 +64,9 @@ The Streamlit workspace provides six tabs:
 - EA Model: import and export ArchiMate Exchange Format models.
 - Configuration: configure LLM, Neo4j, paths, matching behavior, snapshots, and the default UI language.
 
-The UI is available in German and English. The language switch controls visible
-text and the chat response language, while the graph schema stays English.
+The UI is available in German and English. The language switch controls catalogued
+UI text. Chat replies follow the language of the user's question; object names and
+the graph schema remain unchanged.
 
 ## Configuration
 
@@ -114,3 +115,26 @@ conda run -n BRIDGR python -m pytest -q
 
 BRIDGR is actively developed. Please describe defects and proposals in an issue,
 and run the test suite before submitting a pull request.
+
+## Review stabilization (2026-09-07)
+
+Chat requires Neo4j Enterprise and a dedicated read-only account configured with
+`neo4j_chat_user` / `neo4j_chat_password` (or `NEO4J_CHAT_USERNAME` /
+`NEO4J_CHAT_PASSWORD`). Writer credentials are never used as a chat fallback.
+Relative paths always refer to the repository root. Only CMDB type files are supported.
+
+Real database regressions create and remove an isolated temporary database:
+
+```powershell
+$env:BRIDGR_RUN_NEO4J_TESTS = '1'
+conda run -n BRIDGR python -m pytest -q
+```
+
+Opt into configured live-LLM acceptance separately with `BRIDGR_RUN_LLM_TESTS=1`.
+This uses synthetic data in the disposable database. A skipped integration test
+is not evidence that database guarantees passed.
+
+For the optional Playwright smoke test, start the local app and set
+`BRIDGR_RUN_BROWSER_TESTS=1` and `BRIDGR_BROWSER_URL` to its local URL.
+The test uses installed Edge (`BRIDGR_BROWSER_CHANNEL=msedge` by default),
+changes only session-local views, and does not save configuration or mutate domain data.

@@ -89,6 +89,7 @@ def test_run_document_builds_matches_and_review_items(tmp_path: Path) -> None:
         {
             "process": "Auftragsabwicklung",
             "anwendung_name": "Manuelles CRM",
+            "process_id": "proc_001",
             "cmdb_id": "cmdb-2",
             "resolved_to": "Manual CRM",
             "quelle": "manueller_link",
@@ -169,6 +170,7 @@ def test_run_document_revives_absent_manuell_bestaetigt_matches(tmp_path: Path) 
             {
                 "process": "Auftragsabwicklung",
                 "anwendung_name": "Historisches CRM",
+                "process_id": "proc_001",
                 "cmdb_id": "cmdb-9",
                 "resolved_to": "Historic CRM",
                 "quelle": "manuell_bestaetigt",
@@ -242,6 +244,19 @@ def test_run_pipeline_writes_artifacts_for_full_runs(tmp_path: Path, monkeypatch
         def ensure_constraints(self) -> None:
             return None
 
+        def transaction(self):
+            from contextlib import nullcontext
+            return nullcontext(self)
+
+        serialized_writes = transaction
+
+        def stage_artifact(self, path, payload):
+            from processing.run_artifacts import atomic_write_json
+            atomic_write_json(path, payload)
+
+        def read_staged_artifact(self, path):
+            return None
+
     monkeypatch.setattr("processing.pipeline.OpenAICompatibleClient", PipelineLlmClient)
     fake_client = FakeNeo4jClient()
     monkeypatch.setattr("processing.pipeline.build_neo4j_client", lambda config: fake_client)
@@ -295,6 +310,19 @@ def test_run_pipeline_partial_without_explicit_files_returns_empty_run(tmp_path:
             return []
 
         def ensure_constraints(self) -> None:
+            return None
+
+        def transaction(self):
+            from contextlib import nullcontext
+            return nullcontext(self)
+
+        serialized_writes = transaction
+
+        def stage_artifact(self, path, payload):
+            from processing.run_artifacts import atomic_write_json
+            atomic_write_json(path, payload)
+
+        def read_staged_artifact(self, path):
             return None
 
     monkeypatch.setattr("processing.pipeline.build_neo4j_client", lambda config: FakeNeo4jClient())
@@ -358,6 +386,19 @@ def test_run_pipeline_reports_progress_updates(tmp_path: Path, monkeypatch) -> N
             return []
 
         def ensure_constraints(self) -> None:
+            return None
+
+        def transaction(self):
+            from contextlib import nullcontext
+            return nullcontext(self)
+
+        serialized_writes = transaction
+
+        def stage_artifact(self, path, payload):
+            from processing.run_artifacts import atomic_write_json
+            atomic_write_json(path, payload)
+
+        def read_staged_artifact(self, path):
             return None
 
     progress_updates: list[dict] = []
@@ -442,6 +483,19 @@ def test_run_pipeline_propagates_neo4j_write_failures(tmp_path: Path, monkeypatc
             return []
 
         def ensure_constraints(self) -> None:
+            return None
+
+        def transaction(self):
+            from contextlib import nullcontext
+            return nullcontext(self)
+
+        serialized_writes = transaction
+
+        def stage_artifact(self, path, payload):
+            from processing.run_artifacts import atomic_write_json
+            atomic_write_json(path, payload)
+
+        def read_staged_artifact(self, path):
             return None
 
     monkeypatch.setattr("processing.pipeline.OpenAICompatibleClient", PipelineLlmClient)
@@ -552,6 +606,19 @@ def test_run_pipeline_persists_org_candidates_to_neo4j(tmp_path: Path, monkeypat
             return []
 
         def ensure_constraints(self) -> None:
+            return None
+
+        def transaction(self):
+            from contextlib import nullcontext
+            return nullcontext(self)
+
+        serialized_writes = transaction
+
+        def stage_artifact(self, path, payload):
+            from processing.run_artifacts import atomic_write_json
+            atomic_write_json(path, payload)
+
+        def read_staged_artifact(self, path):
             return None
 
     fake_client = FakeNeo4jClient()

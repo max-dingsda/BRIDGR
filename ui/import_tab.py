@@ -18,7 +18,7 @@ from processing.import_utils import describe_cmdb_file, list_cmdb_candidate_file
 from core.neo4j_utils import Neo4jConnectionError, Neo4jQueryError
 from core.i18n import translate
 from services.cmdb_service import persist_cmdb_sync
-from services.import_service import build_import_completion_message, finalize_import_artifacts
+from services.import_service import PENDING_ARCHIVE, build_import_completion_message, finalize_import_artifacts, recover_import_artifacts, stop_import_archiving
 from services.runtime_service import (
     IMPORT_RUN_FEEDBACK_STATE_KEY,
     ensure_import_session_defaults,
@@ -53,6 +53,22 @@ def render_import_section(config: AppConfig) -> None:
 
     input_dir = resolve_project_path(config.input_path)
     runtime_output_path, used_output_fallback = resolve_runtime_output_path(config.output_path)
+    if (runtime_output_path / PENDING_ARCHIVE).exists():
+        st.warning(_t("import.archive_pending"))
+        if st.button(_t("import.archive_retry"), key="retry_import_archive"):
+            try:
+                recover_import_artifacts(config, runtime_output_path)
+                request_review_last_import_scope()
+                st.rerun()
+            except (OSError, ValueError, Neo4jConnectionError, Neo4jQueryError) as exc:
+                st.error(str(exc))
+        if st.button(_t("import.archive_stop"), key="stop_import_archive", help=_t("import.archive_stop_help")):
+            try:
+                stop_import_archiving(config, runtime_output_path)
+                st.rerun()
+            except (OSError, Neo4jConnectionError, Neo4jQueryError) as exc:
+                st.error(str(exc))
+        return
     current_process_files = list_process_files(input_dir)
     process_file_labels = {path.relative_to(input_dir).as_posix(): path for path in current_process_files}
     available_bpmn_files = [path for path in current_process_files if path.suffix.lower() in {".bpmn", ".xml"}]
@@ -172,15 +188,17 @@ def _render_process_import_section(
                     processed_source_paths = [
                         document.source_path
                         for document in run_result.documents
-                        if document.status != "skipped_unchanged"
+                        if document.status in {DOCUMENT_STATUS_PROCESSED, DOCUMENT_STATUS_NO_MATCHES}
                     ]
-                    archive_path, archived_display_paths = finalize_import_artifacts(
-                        runtime_config,
-                        runtime_output_path,
-                        input_dir,
-                        runtime_config.last_run_mode,
-                        processed_source_paths,
-                    )
+                    try:
+                        archive_path, archived_display_paths = finalize_import_artifacts(
+                            runtime_config, runtime_output_path, input_dir,
+                            runtime_config.last_run_mode, processed_source_paths,
+                            expected_run_id=run_result.run_id,
+                        )
+                    except (OSError, ValueError, Neo4jConnectionError, Neo4jQueryError) as exc:
+                        st.error(str(exc))
+                        return
                     request_review_last_import_scope()
                     message = build_import_completion_message(
                         duration,

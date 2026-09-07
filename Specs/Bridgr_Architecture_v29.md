@@ -111,7 +111,7 @@ CMDB synchronization and ArchiMate import/export are triggered separately.
 | Graph | Neo4j as domain and decision graph | alternative graph backend |
 | Review | manual assignment, rejection, withdrawal, merge | external ticketing |
 | ArchiMate | import, export, mapping configuration, candidate review | views/viewpoints |
-| Consolidation | merge for `OrgEinheit` and `Prozess`, later expandable | generic merge of any labels |
+| Consolidation | merge for `OrgUnit` and `Prozess`, later expandable | generic merge of any labels |
 
 ---
 
@@ -121,7 +121,7 @@ CMDB synchronization and ArchiMate import/export are triggered separately.
 
 #### Process
 
-Business process from process documents or ArchiMate. Domain primary identity from `prozess_id`, if available. Additionally, `archimate_id` may exist.
+Business process from process documents or ArchiMate. Domain primary identity from `process_id`, if available. Additionally, `archimate_id` may exist.
 
 #### Application
 
@@ -135,17 +135,17 @@ Separately managed integration or handover point.
 
 Physical or virtual infrastructure node with `server_type`.
 
-#### OrgEinheit
+#### OrgUnit
 
 Real organizational unit. Created through manual maintenance, confirmed candidates, CMDB owner resolution, or ArchiMate import.
 
 #### Role
 
-Process participant at the process level, typically from BPMN lanes. A role is not an OrgEinheit and does not imply responsibility.
+Process participant at the process level, typically from BPMN lanes. A role is not an OrgUnit and does not imply responsibility.
 
 #### Alias
 
-Deterministic alternative designation for `Application` or `OrgEinheit`. Used for identity resolution in pipeline and chat.
+Deterministic alternative designation for `Application` or `OrgUnit`. Used for identity resolution in pipeline and chat.
 
 #### Stakeholder
 
@@ -189,20 +189,20 @@ Persistent rejection mark for an extracted designation in a specific process. It
 
 #### OrgCandidate
 
-Internal operational node for an unresolved OrgEinheit/role mention from process import or CMDB sync (`status`: `open`, `mapped`, or `rejected`; `mapped_org_unit` when `mapped`). Replaces the former `org_unit_candidates` section of the knowledge base file since the complete replacement of `kb.json` (Finding #15). Like `ManualDecision` and `Rejection`, it is deliberately not part of the query schema for the chat layer.
+Internal operational node for an unresolved OrgUnit/role mention from process import or CMDB sync (`status`: `open`, `mapped`, or `rejected`; `mapped_org_unit` when `mapped`). Replaces the former `org_unit_candidates` section of the knowledge base file since the complete replacement of `kb.json` (Finding #15). Like `ManualDecision` and `Rejection`, it is deliberately not part of the query schema for the chat layer.
 
 ### 5.2 Domain Relationships
 
 ```text
 (:Application)-[:SERVES]->(:Process)
-(:Application)-[:COULD_SERVE]->(:Process)
-(:Role)-[:INVOLVED_IN]->(:Process)
-(:OrgEinheit)-[:CAN_OCCUPY]->(:Role)
-(:OrgEinheit)-[:RESPONSIBLE_FOR]->(:Process|:Application|:Interface|:Server|:Infrastructure)
+(:Application)-[:MAY_SERVE]->(:Process)
+(:Role)-[:PARTICIPATES_IN]->(:Process)
+(:OrgUnit)-[:CAN_ASSUME]->(:Role)
+(:OrgUnit)-[:RESPONSIBLE_FOR]->(:Process|:Application|:Interface|:Server|:Infrastructure)
 (:Process)-[:FOLLOWS]->(:Process)
 (:Application)-[:USES_INTERFACE]->(:Interface)
 (:Application|:Interface)-[:RUNS_ON]->(:Server)
-(:Alias)-[:CAN_MEAN]->(:Application|:OrgEinheit)
+(:Alias)-[:MAY_REFER_TO]->(:Application|:OrgUnit)
 (:Risk)-[:AFFECTS]->(...)
 (:Capability|:Application)-[:MITIGATES]->(:Risk)
 (:Capability|:Requirement)-[:REALIZES]->(...)
@@ -211,7 +211,7 @@ Internal operational node for an unresolved OrgEinheit/role mention from process
 (:Process|:Application)-[:PROCESSES]->(:DataObject)
 (:Application)-[:RUNS_ON]->(:Infrastructure)
 (:Context|:Requirement)-[:INFLUENCES]->(...)
-(:Stakeholder|:OrgEinheit)-[:IS_CONNECTED_WITH]->(...)
+(:Stakeholder|:OrgUnit)-[:CONNECTED_TO]->(...)
 ```
 
 ### 5.3 Important Properties
@@ -222,7 +222,7 @@ Internal operational node for an unresolved OrgEinheit/role mention from process
 - `source`
 - `raw_name`
 
-#### On `:COULD_SERVE`
+#### On `:MAY_SERVE`
 
 - `score`
 
@@ -303,7 +303,7 @@ Each process document goes through this chain:
 - `strong`
   confirmed or securely matched, written as `SERVES` or `RESPONSIBLE_FOR`
 - `weak`
-  application candidate requiring review, written as `COULD_SERVE`; uncertain CMDB owners are managed as `OrgCandidate` (no direct edge write path)
+  application candidate requiring review, written as `MAY_SERVE`; uncertain CMDB owners are managed as `OrgCandidate` (no direct edge write path)
 - `open`
   no match, only review artifact
 
@@ -366,14 +366,9 @@ The loader creates a `NormalizedCmdb` object from all type files together with:
 
 The `GraphWriter` remains unchanged and only knows the `NormalizedCmdb` interface.
 
-#### 7.5.5 Backward Compatibility
+#### 7.5.5 Supported CMDB Format
 
-If `cmdb_type_files` in `config.json` is empty or not set, BRIDGR falls back to the legacy format:
-
-- A mixed entities file (configured via `cmdb_filename`) with an `entity_type` column
-- An optional separate relations file (configured via `cmdb_relations_filename`)
-
-The legacy format remains fully functional but is classified as a development format. Productive CMDB connections should use the type file format.
+Only configured type files are supported. Empty or missing `cmdb_type_files` means no CMDB import. The former mixed entities file plus separate relations file is no longer supported, by user decision on 7 September 2026. Obsolete configuration fields are discarded with a warning to configure type files.
 
 ---
 
@@ -381,7 +376,7 @@ The legacy format remains fully functional but is classified as a development fo
 
 ### 8.1 Confirming a Weak Application Candidate
 
-When confirming a `COULD_SERVE` edge:
+When confirming a `MAY_SERVE` edge:
 
 1. The weak edge is deleted
 2. A strong `SERVES` edge is written
@@ -393,7 +388,7 @@ When confirming a `COULD_SERVE` edge:
 
 When rejecting:
 
-1. The `COULD_SERVE` edge is deleted
+1. The `MAY_SERVE` edge is deleted
 2. A `(:Rejection)` node is written
 3. The term is not suggested again in future runs
 
@@ -408,7 +403,7 @@ In manual assignment in the review tab:
 ### 8.4 Owner and Role Assignments
 
 - `RESPONSIBLE_FOR` for processes and CMDB targets is only written explicitly or through exact owner resolution
-- `CAN_OCCUPY` only arises through user action
+- `CAN_ASSUME` only arises through user action
 
 ---
 
@@ -436,19 +431,16 @@ All regular write paths are designed for repeated execution:
 
 Targeted enrichments already exist today instead of blind duplicate creation:
 
-- BPMN/document process on existing process without `prozess_id`
+- BPMN/document process on existing process without `process_id`
 - CMDB application on existing ArchiMate application without `cmdb_id`
-- case-insensitive canonization for `OrgEinheit`
+- case-insensitive canonization for `OrgUnit`
 
-### 9.4 Current Writer Limitations
+### 9.4 Decision and Correction Support
 
-The current writer writes domain graph and partial decisions but does not yet have a complete correction layer for:
-
-- Undo of manual decisions
-- Merge of duplicates with audit trail
-- Alias lifecycle upon reversals
-
-These capabilities are specified in Section 10.
+Manual decisions, merge and selective undo are implemented. Merge audit payloads are
+versioned and preserve complete local before/after states. Unsafe historical payloads
+are rejected rather than reconstructed with missing properties. Larger cross-source
+identity and provenance redesigns remain future work.
 
 ---
 
@@ -462,7 +454,7 @@ Users must be able to traceably, selectively, and safely reverse manual interven
 
 The domain graph remains separate from the decision graph.
 
-- The **domain graph** contains objects like `Process`, `Application`, `OrgEinheit`, `Alias`.
+- The **domain graph** contains objects like `Process`, `Application`, `OrgUnit`, `Alias`.
 - The **decision graph** contains operational metadata for manual interventions.
 
 ### 10.3 Decision Nodes
@@ -489,7 +481,7 @@ Optional attributes:
 
 ### 10.4 Implemented Implementation Status (Current State)
 
-`ManualDecision` is persisted as an isolated node without edges to the affected domain objects. The assignment of affected objects (process, application, OrgEinheit, role, etc.) is done exclusively through the `payload_json` field, which contains the relevant IDs and names as a JSON string.
+`ManualDecision` is persisted as an isolated node without edges to the affected domain objects. The assignment of affected objects (process, application, OrgUnit, role, etc.) is done exclusively through the `payload_json` field, which contains the relevant IDs and names as a JSON string.
 
 Reversals (`decision_revert`) also reference the original decision via `supersedes_decision_id` in the payload, not via a graph edge.
 
@@ -502,7 +494,7 @@ Architecturally planned but not currently implemented are explicit edges:
 ```text
 (:ManualDecision)-[:AFFECTS]->(:Process)
 (:ManualDecision)-[:AFFECTS]->(:Application)
-(:ManualDecision)-[:AFFECTS]->(:OrgEinheit)
+(:ManualDecision)-[:AFFECTS]->(:OrgUnit)
 (:ManualDecision)-[:AFFECTS]->(:Role)
 (:ManualDecision)-[:CREATED_ALIAS]->(:Alias)
 (:ManualDecision)-[:SUPERSEDES]->(:ManualDecision)
@@ -556,7 +548,7 @@ Current implementation status:
 In scope for the first expansion stage:
 
 - manual `SERVES` link
-- confirmed `COULD_SERVE` link
+- confirmed `MAY_SERVE` link
 - manual process owner assignment
 - manual role assignment
 
@@ -574,7 +566,7 @@ BRIDGR must be able to merge domain duplicates, even if no manual error caused t
 
 Typical cases:
 
-- `OrgEinheit`: different spellings or manually incorrectly created units
+- `OrgUnit`: different spellings or manually incorrectly created units
 - `Process`: identical process from TXT and BPMN under slightly different names
 - later optionally `Application`
 
@@ -582,7 +574,7 @@ Typical cases:
 
 First expansion stage:
 
-- `OrgEinheit`
+- `OrgUnit`
 - `Process`
 
 ### 11.3 Merge Objectives
@@ -621,35 +613,34 @@ Rule:
   - existing IDs and ArchiMate metadata are retained
   - redundant duplicates are discarded
 
-### 11.7 Merge of `OrgEinheit`
+### 11.7 Merge of `OrgUnit`
 
 Domain relationships to consider:
 
-- outgoing: `RESPONSIBLE_FOR`, `CAN_OCCUPY`, `IS_CONNECTED_WITH`
-- incoming via alias: `(:Alias)-[:CAN_MEAN]->(:OrgEinheit)`
+- outgoing: `RESPONSIBLE_FOR`, `CAN_ASSUME`, `CONNECTED_TO`
+- incoming via alias: `(:Alias)-[:MAY_REFER_TO]->(:OrgUnit)`
 - operational metadata from `ManualDecision`
 
 Current implementation status:
 
-- The backend merge for `OrgEinheit` is implemented.
-- Edge transfer currently occurs for `RESPONSIBLE_FOR`, `CAN_OCCUPY`, outgoing `IS_CONNECTED_WITH`, and existing incoming alias edges.
-- Deduplication currently occurs via `MERGE` on the target edges.
-- Further property consolidation is not required for this first expansion stage and is therefore not separately implemented.
+- The backend merge for `OrgUnit` is implemented.
+- Incoming and outgoing relationships with supported domain types, including alias edges, are transferred; unsupported types abort the merge before data is discarded.
+- Relationships are deduplicated by type, endpoints and direction. Property consolidation follows §11.6: stronger evidence wins, while existing target IDs and ArchiMate metadata are retained.
 
 ### 11.8 Merge of `Process`
 
 Domain relationships to consider:
 
-- incoming: `SERVES`, `COULD_SERVE`, `INVOLVED_IN`, `RESPONSIBLE_FOR`, `REALIZES`, `SUPPORTS`, `REQUIRES`, `PROCESSES`, `AFFECTS`, `INFLUENCES`
+- incoming: `SERVES`, `MAY_SERVE`, `PARTICIPATES_IN`, `RESPONSIBLE_FOR`, `REALIZES`, `SUPPORTS`, `REQUIRES`, `PROCESSES`, `AFFECTS`, `INFLUENCES`
 - outgoing: `FOLLOWS`, `SUPPORTS`, `REQUIRES`, `PROCESSES`
-- additional consolidation of `prozess_id`, `archimate_id`, `archimate_type`
+- additional consolidation of `process_id`, `archimate_id`, `archimate_type`
 
 Current implementation status:
 
 - The backend merge for `Process` is implemented.
 - Existing similar relationships at the target are not duplicated.
 - The source name is continued as an alias of the target process.
-- The reversal works snapshot-based via the node and relationship hints stored in the merge payload.
+- Undo uses the complete typed before/after state in the version 2 merge payload and stable technical identities. It restores the recorded state only if the current state still matches the recorded post-merge state; incomplete legacy payloads and later conflicting changes are rejected.
 
 ### 11.9 Merge Precheck
 
@@ -665,7 +656,7 @@ Only then can the merge be explicitly confirmed.
 
 Current implementation status:
 
-- Merge areas for `OrgEinheit` and `Process` exist in the UI.
+- Merge areas for `OrgUnit` and `Process` exist in the UI.
 - The precheck already shows source/target object, number of incoming and outgoing edges, duplicates at the target, alias transfer, and detected property conflicts.
 - Additionally, a compact impact summary is displayed (edges to be transferred, edges not to be duplicated, behavior in case of conflicts).
 - Further refinements of the visualization are possible but are no longer a functional requirement for the first expansion stage.
@@ -686,7 +677,7 @@ A snapshot is automatically created immediately before the first graph write ope
 
 - Process import (`run_pipeline`), including the CMDB reconciliation contained therein
 - Explicit CMDB synchronization
-- Merge of `OrgEinheit` or `Process`
+- Merge of `OrgUnit` or `Process`
 
 A failed or unverifiable snapshot is a hard gate: The triggering write operation is not started, and the UI displays a comprehensible error with the technical detail in the debug log. Pure chat queries, prechecks, review lists, and targeted undo do not generate a snapshot.
 
@@ -773,7 +764,7 @@ so that the language of the user question remains authoritative.
 
 - Only read-only Cypher
 - Validator checks labels, relationships, directions, and properties
-- `IS_CONNECTED_WITH` is allowed as an exception without label pair restriction
+- `CONNECTED_TO` is allowed as an exception without label pair restriction
 - Internal nodes like `Rejection`, `ManualDecision`, and `OrgCandidate` are not released
 
 ### 13.4 Alias Usage in Chat
@@ -789,7 +780,7 @@ Alias nodes support:
 The chat may distinguish between confirmed facts and unconfirmed candidates:
 
 - `SERVES` / `RESPONSIBLE_FOR` = confirmed facts
-- `COULD_SERVE` = unconfirmed candidates
+- `MAY_SERVE` = unconfirmed candidates
 
 Decision metadata itself is not a chat subject.
 
@@ -833,7 +824,7 @@ Decision metadata itself is not a chat subject.
 - Candidate mapping
 - Process owner assignment
 - Role assignment
-- Merge management for `OrgEinheit`
+- Merge management for `OrgUnit`
 
 ### 14.6 Tab `EA Model`
 
@@ -854,7 +845,7 @@ Additional operation areas:
 Current implementation status:
 
 - `Last Manual Changes` and `Undo Decision` are present in the `Assignments` tab.
-- `Consolidate Objects` is available for `Process` in the `Assignments` tab and for `OrgEinheit` in the `Organization` tab.
+- `Consolidate Objects` is available for `Process` in the `Assignments` tab and for `OrgUnit` in the `Organization` tab.
 - The merge precheck already shows domain-relevant effects and conflicts.
 - Only possible later UX refinements or expansion to other object types remain open.
 
@@ -876,7 +867,6 @@ Central runtime configuration for:
   - `cmdb_runs_on_column`: Column name for server IDs in the application file (default: `runs_on`)
   - `cmdb_uses_interfaces_column`: Column name for interface IDs in the application file (default: `uses_interfaces`)
   - `cmdb_multivalue_separator`: Separator for multi-values (default: `|`)
-  - `cmdb_filename`, `cmdb_relations_filename`: Legacy fields for the two-file format, ignored if `cmdb_type_files` is set
 - Chat mode
 - Backup:
   - `snapshot_retention_count`: Number of valid, application-managed graph snapshots to retain (default: `10`)
@@ -982,6 +972,19 @@ Every v1 write operation that can change a global graph state requires a validat
 
 ---
 
+### 18.6 Stabilization contracts (review R1–R7, 2026-09-07)
+
+- Confirmations and rejections use `process_id`; `process` is the display-name projection. Manual and confirmed `SERVES` links survive renaming and removal of the extracted raw term. Historical name-only rejections are bound only when exactly one process matches. Invalid persisted decisions stop rematching explicitly; resolve the affected data before retrying. No guessed migration is performed.
+- All BRIDGR writers use a database-wide singleton lock (`__BridgrWriteLock`) across sessions/processes. Snapshot export and the protected operation share that lock. Each process update, CMDB sync, ArchiMate import, manual decision plus audit, merge, undo plus audit, and restore is transactional. LLM extraction precedes write transactions. Direct writes outside BRIDGR do not participate in this protocol and must be paused during protected operations; database/lock-session failure is an operational failure, not a distributed fencing guarantee.
+- `latest_run.json` and import state are staged as `__BridgrArtifact` records in the domain transaction, then atomically published after commit. Failed publication remains replayable and reports that the graph is saved. Unrelated operations remain available if an old artifact is unwritable. Import checkpoints distinguish `in_progress` from `complete`; an interrupted batch can retain already committed documents. Archive moves are post-commit and journaled before the first move. The Import tab can retry pending archive work without reimporting or creating duplicate audit events. Failed source documents are retained in the inbox.
+- Merge decisions use payload version 2: complete typed node/relationship properties before and after, plus stable `__bridgr_id` identities with a unique constraint on `__BridgrIdentity`. This auxiliary label is not a domain type. Undo checks the affected graph against the recorded after-state; later changes or missing endpoints block reversal. Historical payloads without a full before-state are not undone automatically. Target properties win ties; stronger manual/confirmed relationship evidence wins conflicts while target provenance identifiers are retained. Full conflicting originals remain in the before-state for undo. Unsupported source relationship types block merge before any data is discarded.
+- Organization alias resolution retains all distinct targets. Exact canonical names take precedence; one alias target resolves, multiple targets remain ambiguous and require review. Neither candidate order nor database row order chooses an owner.
+- Relative configuration/data paths are always rooted at the repository directory, independent of current working directory or target existence. Absolute paths remain supported. CMDB import supports type files only; empty `cmdb_type_files` means no CMDB in process import, and explicit CMDB sync reports missing configuration. Legacy entity/relation-file configuration is discarded with a warning and has no fallback.
+- Chat uses a separate `neo4j_chat_user` / `neo4j_chat_password` (environment fallbacks `NEO4J_CHAT_USERNAME` / `NEO4J_CHAT_PASSWORD`) and an explicit database. The account must differ from the writer and have read-only grants. The current privilege check requires Neo4j Enterprise (`SHOW USER PRIVILEGES`); Community is not supported for secured chat. There is no writer fallback. The reader/PUBLIC baseline can include normal procedure/function execution or load grants, but the chat grammar permits neither procedure calls, external loading, nor custom functions. Boosted execution, write and administration grants are rejected.
+- The chat parser allows explicitly typed fixed-length graph patterns, approved scalar properties/functions, filters, aggregation, `WITH`, and aligned `UNION` branches. Dynamic properties, whole graph objects/maps, unlabeled new nodes, subqueries, procedure calls, and variable-length paths are rejected. Every prompt example is exercised against the real read-only boundary. Queries and privilege checks have a 15-second database timeout; results exceeding 500 rows or 100,000 serialized characters are rejected rather than silently truncated. These are application visibility controls in addition to database write protection, not physical separation of internal graph data.
+- UI locale selects catalogued interface text. Chat prose follows the most recent user message; business names remain source data. Broader provenance, `FOLLOWS` replacement semantics, and answer-polishing invariants remain deferred under decision D1.
+
+
 ## 19. Acceptance Criteria
 
 1. Correct information from the source data can be queried via the web interface.
@@ -999,14 +1002,14 @@ Every v1 write operation that can change a global graph state requires a validat
 13. OrgEinheiten are canonized case-insensitively.
 14. `ManualDecision` is not included in the released query schema.
 15. Undo of a manual assignment removes only the effects specifically created by this decision.
-16. A merge of `OrgEinheit` continues the source name as an alias of the target object.
+16. A merge of `OrgUnit` continues the source name as an alias of the target object.
 17. A merge of `Process` can consolidate duplicates from different sources.
 18. Similar relationships are not duplicated during the merge.
 19. The merge is only executable after precheck and explicit user confirmation.
 20. ArchiMate import and export remain functional despite the correction layer.
 21. CMDB data can be imported as one CSV file per object type, with relationships as multi-value columns.
 22. The CMDB multi-value separator is configurable for common CMDB export formats.
-23. The previous two-file format remains functional as a legacy path.
+23. CMDB data is loaded exclusively from configured type files; there is no legacy fallback.
 24. A complete, validated snapshot is created before process import, explicit CMDB synchronization, and merge.
 25. If snapshot creation fails, the triggering write operation is not executed, and a traceable error is displayed.
 26. A snapshot includes the domain graph and internal operational metadata, but no access data or secrets.
@@ -1023,7 +1026,7 @@ Every v1 write operation that can change a global graph state requires a validat
 | Persistence of Manual Corrections | Internal decision graph in Neo4j | Global snapshots as a replacement for undo | Selective reversal of individual decisions remains fast and domain-precise |
 | Backup before Global Write Operations | Application-managed logical graph snapshots | Exclusively manual Neo4j backups | Restorability is directly available in the BRIDGR workflow without requiring server administration |
 | Visibility of the Correction Layer in Chat | Hidden | Released in the query schema | Separates domain dialogue from operational metadata |
-| Merge Strategy | Label-specific (`OrgEinheit`, `Process`) | Generic merge of any nodes | Lower risk, domain-controllable |
+| Merge Strategy | Label-specific (`OrgUnit`, `Process`) | Generic merge of any nodes | Lower risk, domain-controllable |
 | Alias Continuation after Merge | Mandatory | Discard source name | Prevents the recurrence of the same duplicate on re-import |
 | Deduplication during Merge | Check before each edge creation | Blind transfer | Prevents the merge itself from creating new clutter |
 | Domain Graph vs. Decision Graph | Separate | One overloaded graph | Clearer responsibilities and safer chat layer |
@@ -1037,9 +1040,9 @@ Every v1 write operation that can change a global graph state requires a validat
 - The described decision and correction layer is architecturally defined but not yet fully implemented.
 - `ManualDecision` is currently stored without explicit `AFFECTS`, `CREATED_ALIAS`, or `SUPERSEDES` edges; the assignment is currently payload-based.
 - Merge workflows for `Application` are deliberately not part of the first expansion stage.
-- A generic merge for additional labels beyond `OrgEinheit` and `Process` is not yet part of the current expansion stage.
+- A generic merge for additional labels beyond `OrgUnit` and `Process` is not yet part of the current expansion stage.
 - UML diagrams in the repository may be ahead or behind the described state and are not the canonical reference before updating.
-- The legacy CMDB format (mixed entities file + separate relations file) remains functional but is not the target format for productive CMDB connections.
+- CMDB import requires configured type files; the legacy format has been removed.
 
 ---
 

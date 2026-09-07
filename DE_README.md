@@ -135,7 +135,7 @@ Wichtige Felder:
 - `neo4j_password`: Neo4j-Passwort
 - `neo4j_database`: optionaler Neo4j-Datenbankname, für Aura typischerweise die Instanz-ID
 - `input_path`: gemeinsamer Eingabeordner für Prozessdokumente und CMDB-Dateien
-- `cmdb_type_files`: Mapping von Objektart auf CSV-Dateiname, z. B. `{"application": "Anwendungen.csv", "server": "Server.csv", "interface": "Schnittstellen.csv"}`; wenn leer, wird das Legacy-Format verwendet
+- `cmdb_type_files`: Mapping von Objektart auf CSV-Dateiname, z. B. `{"application": "Anwendungen.csv", "server": "Server.csv", "interface": "Schnittstellen.csv"}`. Ohne konfigurierte Typdateien wird keine CMDB geladen. Das frühere Legacy-Format wird nicht mehr unterstützt.
 - `cmdb_uuid_column`: ID-Spalte aller CMDB-Typ-Dateien
 - `cmdb_name_column`: Namensspalte aller CMDB-Typ-Dateien
 - `cmdb_server_type_column`: Server-Untertyp `physical` oder `virtual` (nur in der Server-Datei)
@@ -330,3 +330,25 @@ Verbesserungen und Pull Requests sind willkommen.
 - Besonders hilfreich sind Beiträge zu Importformaten, Tests, Benutzerführung und Architekturmodellierung.
 
 Weitere Informationen zur Nutzung finden sich in der [LICENSE](LICENSE).
+
+## Review-Stabilisierung (07.09.2026)
+
+Chat benötigt Neo4j Enterprise und einen eigenen Lesezugang über
+`neo4j_chat_user` / `neo4j_chat_password` (oder `NEO4J_CHAT_USERNAME` /
+`NEO4J_CHAT_PASSWORD`). Kein Rückfall auf den Schreibzugang.
+Relative Pfade beziehen sich immer auf die Repository-Wurzel. Nur CMDB-Typdateien werden unterstützt.
+
+Echte Datenbankregressionen legen eine isolierte temporäre Datenbank an und entfernen sie anschließend:
+
+```powershell
+$env:BRIDGR_RUN_NEO4J_TESTS = '1'
+conda run -n BRIDGR python -m pytest -q
+```
+
+Live-LLM-Abnahme separat mit `BRIDGR_RUN_LLM_TESTS=1` aktivieren; sie verwendet synthetische Daten
+in der temporären DB. Übersprungene Integrationstests gelten nicht als Datenbanknachweis.
+
+Für den optionalen Playwright-Smoke-Test die lokale App starten und
+`BRIDGR_RUN_BROWSER_TESTS=1` sowie `BRIDGR_BROWSER_URL` auf ihre lokale URL setzen.
+Der Test verwendet vorhandenes Edge (`BRIDGR_BROWSER_CHANNEL=msedge` als Standard),
+ändert nur Sitzungsansichten und speichert weder Konfiguration noch Fachänderungen.

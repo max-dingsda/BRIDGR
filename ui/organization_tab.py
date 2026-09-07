@@ -155,15 +155,15 @@ def _render_process_manager_for_org_unit(config, org_unit_name: str, org_key: st
         st.caption(_t("Keine Prozesse im Graphen gefunden."))
         return
 
-    owned_by_me = {p["prozess_id"] for p in all_processes if p["owner"] == org_unit_name}
+    owned_by_me = {p["process_id"] for p in all_processes if p["owner"] == org_unit_name}
 
     def process_label(p: dict) -> str:
         if p["owner"] and p["owner"] != org_unit_name:
             return f"{p['process']} (→ {p['owner']})"
         return p["process"]
 
-    process_options = [p["prozess_id"] for p in all_processes]
-    process_labels = {p["prozess_id"]: process_label(p) for p in all_processes}
+    process_options = [p["process_id"] for p in all_processes]
+    process_labels = {p["process_id"]: process_label(p) for p in all_processes}
 
     default_selection = [pid for pid in process_options if pid in owned_by_me]
 
@@ -212,9 +212,9 @@ def _render_process_owner_section(config, org_units, all_processes: list[dict]) 
             return
 
         with st.form("process-owner-batch-form"):
-            process_options = [process["prozess_id"] for process in ownerless]
+            process_options = [process["process_id"] for process in ownerless]
             process_labels = {
-                process["prozess_id"]: (process["process"] or process["prozess_id"])
+                process["process_id"]: (process["process"] or process["process_id"])
                 for process in ownerless
             }
             selected_process_ids = st.multiselect(
@@ -249,7 +249,7 @@ def _render_process_owner_section(config, org_units, all_processes: list[dict]) 
                 _rerun_keep(_SECTION_PROCESS_OWNER)
 
         for process in ownerless:
-            process_id = process["prozess_id"]
+            process_id = process["process_id"]
             process_name = process["process"] or process_id
             proc_key = (process_id or process_name).replace(" ", "_").replace("/", "_")
             with st.container(border=True):

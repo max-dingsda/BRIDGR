@@ -94,37 +94,38 @@ def confirm_archimate_candidate_node(
     target_name: str,
     archimate_id: str,
 ) -> None:
-    from core.graph_schema import QUERY_NODE_SCHEMA, QUERY_RELATIONSHIP_PATTERNS
-    if label not in QUERY_NODE_SCHEMA:
-        raise ValueError(f"Unbekanntes Label: {label}")
-    outgoing = {p.relationship_type for p in QUERY_RELATIONSHIP_PATTERNS if p.source_label == label}
-    incoming = {p.relationship_type for p in QUERY_RELATIONSHIP_PATTERNS if p.target_label == label}
-    for rel_type in outgoing:
+    with neo4j_client.transaction():
+        from core.graph_schema import QUERY_NODE_SCHEMA, QUERY_RELATIONSHIP_PATTERNS
+        if label not in QUERY_NODE_SCHEMA:
+            raise ValueError(f"Unbekanntes Label: {label}")
+        outgoing = {p.relationship_type for p in QUERY_RELATIONSHIP_PATTERNS if p.source_label == label}
+        incoming = {p.relationship_type for p in QUERY_RELATIONSHIP_PATTERNS if p.target_label == label}
+        for rel_type in outgoing:
+            neo4j_client.execute_write(
+                f"""
+                MATCH (kandidat:{label} {{name: $candidate_name}})-[:{rel_type}]->(other)
+                MATCH (ziel:{label} {{name: $target_name}})
+                MERGE (ziel)-[:{rel_type}]->(other)
+                """,
+                {"candidate_name": candidate_name, "target_name": target_name},
+            )
+        for rel_type in incoming:
+            neo4j_client.execute_write(
+                f"""
+                MATCH (other)-[:{rel_type}]->(kandidat:{label} {{name: $candidate_name}})
+                MATCH (ziel:{label} {{name: $target_name}})
+                MERGE (other)-[:{rel_type}]->(ziel)
+                """,
+                {"candidate_name": candidate_name, "target_name": target_name},
+            )
         neo4j_client.execute_write(
-            f"""
-            MATCH (kandidat:{label} {{name: $candidate_name}})-[:{rel_type}]->(other)
-            MATCH (ziel:{label} {{name: $target_name}})
-            MERGE (ziel)-[:{rel_type}]->(other)
-            """,
-            {"candidate_name": candidate_name, "target_name": target_name},
+            f"MATCH (n:{label} {{name: $target_name}}) SET n.archimate_id = $archimate_id",
+            {"target_name": target_name, "archimate_id": archimate_id},
         )
-    for rel_type in incoming:
         neo4j_client.execute_write(
-            f"""
-            MATCH (other)-[:{rel_type}]->(kandidat:{label} {{name: $candidate_name}})
-            MATCH (ziel:{label} {{name: $target_name}})
-            MERGE (other)-[:{rel_type}]->(ziel)
-            """,
-            {"candidate_name": candidate_name, "target_name": target_name},
+            f"MATCH (n:{label} {{name: $candidate_name}}) DETACH DELETE n",
+            {"candidate_name": candidate_name},
         )
-    neo4j_client.execute_write(
-        f"MATCH (n:{label} {{name: $target_name}}) SET n.archimate_id = $archimate_id",
-        {"target_name": target_name, "archimate_id": archimate_id},
-    )
-    neo4j_client.execute_write(
-        f"MATCH (n:{label} {{name: $candidate_name}}) DETACH DELETE n",
-        {"candidate_name": candidate_name},
-    )
 
 
 def save_archimate_mapping(mapping: dict, path: Path | None = None) -> None:
@@ -251,113 +252,114 @@ def _import_to_neo4j(
     mapping: dict,
     source_filename: str,
 ) -> ArchiMateImportResult:
-    result = ArchiMateImportResult()
-    writer = GraphWriter()
-    threshold: float = mapping.get("fuzzy_match_threshold", 0.85)
-    rel_import_map: dict[str, list[str]] = mapping.get("relationships", {}).get("import", {})
-    bridgr_map: dict[str, str] = mapping.get("relationships", {}).get("bridgr_relation", {})
+    with client.transaction():
+        result = ArchiMateImportResult()
+        writer = GraphWriter()
+        threshold: float = mapping.get("fuzzy_match_threshold", 0.85)
+        rel_import_map: dict[str, list[str]] = mapping.get("relationships", {}).get("import", {})
+        bridgr_map: dict[str, str] = mapping.get("relationships", {}).get("bridgr_relation", {})
 
-    # Snapshot of existing names per label taken BEFORE this import run.
-    # Fuzzy matching uses only this snapshot so that nodes created during
-    # the current import cannot match each other.
-    all_labels = {elem.bridgr_label for elem in elements}
-    pre_existing_names: dict[str, list[str]] = {
-        label: [
-            r["name"]
-            for r in client.execute_read(
-                f"MATCH (n:{label}) WHERE n.name IS NOT NULL RETURN n.name AS name", {}
+        # Snapshot of existing names per label taken BEFORE this import run.
+        # Fuzzy matching uses only this snapshot so that nodes created during
+        # the current import cannot match each other.
+        all_labels = {elem.bridgr_label for elem in elements}
+        pre_existing_names: dict[str, list[str]] = {
+            label: [
+                r["name"]
+                for r in client.execute_read_unvalidated(
+                    f"MATCH (n:{label}) WHERE n.name IS NOT NULL RETURN n.name AS name", {}
+                )
+            ]
+            for label in all_labels
+        }
+
+        # archimate_id → resolved name (for nodes successfully imported/merged)
+        id_to_name: dict[str, str] = {}
+        # archimate_id → bridgr_label
+        id_to_label: dict[str, str] = {}
+        # archimate_id → original archimate name (all elements, incl. candidates)
+        id_to_archimate_name: dict[str, str] = {e.archimate_id: e.name for e in elements}
+
+        skipped_types: dict[str, int] = {}
+
+        for elem in elements:
+            resolved_name = _resolve_identity(
+                client, elem, threshold, mapping,
+                pre_existing_names.get(elem.bridgr_label, []),
             )
-        ]
-        for label in all_labels
-    }
+            is_candidate = resolved_name is None
+            if is_candidate:
+                resolved_name = elem.name
+                result.elements_as_candidates += 1
+            else:
+                result.elements_imported += 1
 
-    # archimate_id → resolved name (for nodes successfully imported/merged)
-    id_to_name: dict[str, str] = {}
-    # archimate_id → bridgr_label
-    id_to_label: dict[str, str] = {}
-    # archimate_id → original archimate name (all elements, incl. candidates)
-    id_to_archimate_name: dict[str, str] = {e.archimate_id: e.name for e in elements}
+            writer.merge_archimate_node(
+                client,
+                label=elem.bridgr_label,
+                name=resolved_name,
+                archimate_id=elem.archimate_id,
+                archimate_source=source_filename,
+                archimate_type=elem.archimate_type,
+            )
+            id_to_name[elem.archimate_id] = resolved_name
+            id_to_label[elem.archimate_id] = elem.bridgr_label
 
-    skipped_types: dict[str, int] = {}
+        for rel in relations:
+            source_name = id_to_name.get(rel.source_archimate_id)
+            target_name = id_to_name.get(rel.target_archimate_id)
+            source_label = id_to_label.get(rel.source_archimate_id)
+            target_label = id_to_label.get(rel.target_archimate_id)
 
-    for elem in elements:
-        resolved_name = _resolve_identity(
-            client, elem, threshold, mapping,
-            pre_existing_names.get(elem.bridgr_label, []),
-        )
-        is_candidate = resolved_name is None
-        if is_candidate:
-            resolved_name = elem.name
-            result.elements_as_candidates += 1
-        else:
-            result.elements_imported += 1
+            if not source_name or not target_name or not source_label or not target_label:
+                result.relations_skipped += 1
+                src_display = source_name or f"~{id_to_archimate_name.get(rel.source_archimate_id, '?')} (Kandidat)"
+                tgt_display = target_name or f"~{id_to_archimate_name.get(rel.target_archimate_id, '?')} (Kandidat)"
+                result.skipped_relations.append({
+                    "source": src_display,
+                    "target": tgt_display,
+                    "rel_type": rel.archimate_rel_type,
+                    "reason": "unresolvable_endpoint",
+                })
+                continue
 
-        writer.merge_archimate_node(
-            client,
-            label=elem.bridgr_label,
-            name=resolved_name,
-            archimate_id=elem.archimate_id,
-            archimate_source=source_filename,
-            archimate_type=elem.archimate_type,
-        )
-        id_to_name[elem.archimate_id] = resolved_name
-        id_to_label[elem.archimate_id] = elem.bridgr_label
+            pair_key = f"{source_label}->{target_label}"
+            accepted_types = rel_import_map.get(pair_key, [])
+            if rel.archimate_rel_type not in accepted_types:
+                result.relations_skipped += 1
+                skipped_types[rel.archimate_rel_type] = skipped_types.get(rel.archimate_rel_type, 0) + 1
+                result.skipped_relations.append({
+                    "source": source_name,
+                    "target": target_name,
+                    "rel_type": rel.archimate_rel_type,
+                    "reason": "type_not_accepted",
+                })
+                continue
 
-    for rel in relations:
-        source_name = id_to_name.get(rel.source_archimate_id)
-        target_name = id_to_name.get(rel.target_archimate_id)
-        source_label = id_to_label.get(rel.source_archimate_id)
-        target_label = id_to_label.get(rel.target_archimate_id)
+            bridgr_relation = _label_pair_to_relation(source_label, target_label, bridgr_map)
+            if bridgr_relation is None:
+                result.relations_skipped += 1
+                result.skipped_relations.append({
+                    "source": source_name,
+                    "target": target_name,
+                    "rel_type": rel.archimate_rel_type,
+                    "reason": "no_bridgr_relation",
+                })
+                continue
 
-        if not source_name or not target_name or not source_label or not target_label:
-            result.relations_skipped += 1
-            src_display = source_name or f"~{id_to_archimate_name.get(rel.source_archimate_id, '?')} (Kandidat)"
-            tgt_display = target_name or f"~{id_to_archimate_name.get(rel.target_archimate_id, '?')} (Kandidat)"
-            result.skipped_relations.append({
-                "source": src_display,
-                "target": tgt_display,
-                "rel_type": rel.archimate_rel_type,
-                "reason": "unresolvable_endpoint",
-            })
-            continue
+            writer.merge_archimate_relation(
+                client,
+                source_name=source_name,
+                source_label=source_label,
+                target_name=target_name,
+                target_label=target_label,
+                bridgr_relation=bridgr_relation,
+                archimate_rel_type=rel.archimate_rel_type,
+            )
+            result.relations_imported += 1
 
-        pair_key = f"{source_label}->{target_label}"
-        accepted_types = rel_import_map.get(pair_key, [])
-        if rel.archimate_rel_type not in accepted_types:
-            result.relations_skipped += 1
-            skipped_types[rel.archimate_rel_type] = skipped_types.get(rel.archimate_rel_type, 0) + 1
-            result.skipped_relations.append({
-                "source": source_name,
-                "target": target_name,
-                "rel_type": rel.archimate_rel_type,
-                "reason": "type_not_accepted",
-            })
-            continue
-
-        bridgr_relation = _label_pair_to_relation(source_label, target_label, bridgr_map)
-        if bridgr_relation is None:
-            result.relations_skipped += 1
-            result.skipped_relations.append({
-                "source": source_name,
-                "target": target_name,
-                "rel_type": rel.archimate_rel_type,
-                "reason": "no_bridgr_relation",
-            })
-            continue
-
-        writer.merge_archimate_relation(
-            client,
-            source_name=source_name,
-            source_label=source_label,
-            target_name=target_name,
-            target_label=target_label,
-            bridgr_relation=bridgr_relation,
-            archimate_rel_type=rel.archimate_rel_type,
-        )
-        result.relations_imported += 1
-
-    result.skipped_types = skipped_types
-    return result
+        result.skipped_types = skipped_types
+        return result
 
 
 def _resolve_identity(
@@ -368,7 +370,7 @@ def _resolve_identity(
     pre_existing_names: list[str],
 ) -> str | None:
     # 1. archimate_id lookup (Re-Import)
-    rows = client.execute_read(
+    rows = client.execute_read_unvalidated(
         f"MATCH (n:{element.bridgr_label} {{archimate_id: $archimate_id}}) RETURN n.name AS name",
         {"archimate_id": element.archimate_id},
     )
@@ -376,7 +378,7 @@ def _resolve_identity(
         return rows[0]["name"]
 
     # 2. Exact name match against pre-existing nodes
-    rows = client.execute_read(
+    rows = client.execute_read_unvalidated(
         f"MATCH (n:{element.bridgr_label} {{name: $name}}) RETURN n.name AS name",
         {"name": element.name},
     )

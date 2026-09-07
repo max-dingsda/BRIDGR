@@ -1,3 +1,4 @@
+from neo4j_test_support import ScopedClientStub
 import streamlit as st
 
 from app import (
@@ -433,6 +434,19 @@ def test_persist_org_unit_node_merges_org_unit_node(monkeypatch) -> None:
             captured["parameters"] = parameters
             return [{"name": parameters["org_unit_name"]}]
 
+        def transaction(self):
+            from contextlib import nullcontext
+            return nullcontext(self)
+
+        serialized_writes = transaction
+
+        def stage_artifact(self, path, payload):
+            from processing.run_artifacts import atomic_write_json
+            atomic_write_json(path, payload)
+
+        def read_staged_artifact(self, path):
+            return None
+
     monkeypatch.setattr(organization_service, "get_session_neo4j_client", lambda _config: FakeNeo4jClient())
 
     persist_org_unit_node(AppConfig(neo4j_password="secret"), "  People   &  Culture  ")
@@ -477,9 +491,9 @@ def test_persist_org_candidate_mapping_refresh_syncs_org_unit_node_without_lates
     monkeypatch.setattr(organization_service, "GraphWriter", FakeGraphWriter)
     monkeypatch.setattr(organization_service, "persist_org_unit_node", lambda _config, name: synced_org_units.append(name))
     monkeypatch.setattr(organization_service, "sync_curated_aliases", lambda _client, _confirmed, _candidates: alias_sync_calls.append(True))
-    monkeypatch.setattr(organization_service, "get_session_neo4j_client", lambda _config: object())
+    monkeypatch.setattr(organization_service, "get_session_neo4j_client", lambda _config: ScopedClientStub())
     monkeypatch.setattr(organization_service, "resolve_runtime_output_path", lambda _path: (None, False))
-    monkeypatch.setattr(organization_service, "load_latest_run", lambda _path: None)
+    monkeypatch.setattr(organization_service, "load_latest_run", lambda _path, *_args: None)
 
     refreshed_count = persist_org_candidate_mapping_refresh(AppConfig(neo4j_password="secret"), "People & Culture")
 
@@ -537,7 +551,7 @@ def test_persist_organization_sync_syncs_all_org_units_and_refreshes_latest_run(
     synced_names = []
     monkeypatch.setattr(organization_service, "persist_org_unit_node", lambda _config, name: synced_names.append(name))
     monkeypatch.setattr(organization_service, "sync_curated_aliases", lambda _client, _confirmed, _candidates: alias_sync_calls.append(True))
-    monkeypatch.setattr(organization_service, "get_session_neo4j_client", lambda _config: object())
+    monkeypatch.setattr(organization_service, "get_session_neo4j_client", lambda _config: ScopedClientStub())
     monkeypatch.setattr(organization_service, "load_all_cmdb_rows", lambda _config: [{"id": "cmdb-1", "name": "SAP"}])
     monkeypatch.setattr(organization_service, "persist_latest_run_refresh", lambda _config, _cmdb_rows: 3)
 
@@ -563,7 +577,7 @@ def test_run_query_chat_turn_logs_error_on_connection_failure(tmp_path, monkeypa
             raise RuntimeError("connection refused")
 
     monkeypatch.setattr(query_service, "OpenAICompatibleClient", FakeLlmClient)
-    monkeypatch.setattr(query_service, "get_session_neo4j_client", lambda _config: object())
+    monkeypatch.setattr(query_service, "get_session_chat_client", lambda _config: ScopedClientStub())
     monkeypatch.setattr(query_service, "LlmClientError", RuntimeError)
 
     run_query_chat_turn("Wie viele Processe gibt es?", AppConfig(debug_mode=True, neo4j_password="secret", llm_model="qwen"))

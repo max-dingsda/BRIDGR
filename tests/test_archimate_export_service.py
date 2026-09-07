@@ -38,13 +38,26 @@ class FakeNeo4jClient:
         self._nodes = nodes
         self._relations = relations
 
-    def execute_read(self, query: str, parameters=None):
+    def execute_read_unvalidated(self, query: str, parameters=None):
         if "archimate_id" in query or "archimate_type" in query:
             return self._nodes
         return self._relations
 
     def execute_write(self, query: str, parameters=None):
         return []
+
+    def transaction(self):
+        from contextlib import nullcontext
+        return nullcontext(self)
+
+    serialized_writes = transaction
+
+    def stage_artifact(self, path, payload):
+        from processing.run_artifacts import atomic_write_json
+        atomic_write_json(path, payload)
+
+    def read_staged_artifact(self, path):
+        return None
 
 
 def _run(tmp_path: Path, nodes: list[dict], relations: list[dict]):
@@ -168,11 +181,24 @@ class _UntypedQueryClient:
     def __init__(self, rows: list[dict]) -> None:
         self._rows = rows
 
-    def execute_read(self, query: str, parameters=None):
+    def execute_read_unvalidated(self, query: str, parameters=None):
         return self._rows
 
     def execute_write(self, query: str, parameters=None):
         return []
+
+    def transaction(self):
+        from contextlib import nullcontext
+        return nullcontext(self)
+
+    serialized_writes = transaction
+
+    def stage_artifact(self, path, payload):
+        from processing.run_artifacts import atomic_write_json
+        atomic_write_json(path, payload)
+
+    def read_staged_artifact(self, path):
+        return None
 
 
 _EXPORT_MAP = {
@@ -213,12 +239,25 @@ class _RecordingWriteClient:
     def __init__(self) -> None:
         self.written: list[tuple[str, dict]] = []
 
-    def execute_read(self, query: str, parameters=None):
+    def execute_read_unvalidated(self, query: str, parameters=None):
         return []
 
     def execute_write(self, query: str, parameters=None):
         self.written.append((query, parameters or {}))
         return []
+
+    def transaction(self):
+        from contextlib import nullcontext
+        return nullcontext(self)
+
+    serialized_writes = transaction
+
+    def stage_artifact(self, path, payload):
+        from processing.run_artifacts import atomic_write_json
+        atomic_write_json(path, payload)
+
+    def read_staged_artifact(self, path):
+        return None
 
 
 def test_write_archimate_types_sets_only_archimate_type() -> None:

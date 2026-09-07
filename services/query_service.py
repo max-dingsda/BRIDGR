@@ -13,7 +13,7 @@ from services.alias_service import lookup_alias_matches
 from services.runtime_service import (
     CHAT_MESSAGES_STATE_KEY,
     append_chat_message,
-    get_session_neo4j_client,
+    get_session_chat_client,
     write_debug_log,
 )
 import streamlit as st
@@ -117,7 +117,7 @@ def run_query_chat_turn(question: str, config: AppConfig, response_locale: str |
                 debug_logger=lambda event, details: write_debug_log(config, event, details),
             )
         )
-        neo4j_client = get_session_neo4j_client(config)
+        neo4j_client = get_session_chat_client(config)
 
         system_prompt = _build_chat_system_prompt(config, response_locale)
         all_messages = st.session_state.get(CHAT_MESSAGES_STATE_KEY, [])
@@ -408,6 +408,11 @@ def _format_query_result(rows: list[dict], alias_hints: list[str], response_loca
 
 
 def _translate_error_for_user(exc: Exception, response_locale: str | None = None) -> str:
+    from core.chat_neo4j import ChatConfigurationError
+    if isinstance(exc, ChatConfigurationError):
+        if normalize_locale(response_locale) == "en":
+            return "Please configure a separate read-only Neo4j chat account and an explicit database in Configuration."
+        return "Bitte in der Konfiguration einen separaten, schreibgeschützten Neo4j-Chat-Zugang und eine Datenbank eintragen."
     if normalize_locale(response_locale) == "en":
         if isinstance(exc, QueryValidationError):
             return "I could not derive a valid read-only query from your question yet. Please phrase it more specifically."

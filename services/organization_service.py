@@ -47,123 +47,130 @@ def persist_org_unit_node(config: AppConfig, org_unit_name: str) -> None:
 
 def persist_organization_sync(config: AppConfig) -> tuple[int, int]:
     neo4j_client = get_session_neo4j_client(config)
-    graph_writer = GraphWriter()
-    synced_org_units = 0
-    synced_names: list[str] = []
-    for org_unit_name in graph_writer.load_org_units_from_neo4j(neo4j_client).values():
-        if not org_unit_name:
-            continue
-        persist_org_unit_node(config, org_unit_name)
-        synced_org_units += 1
-        synced_names.append(org_unit_name)
-    sync_curated_aliases(
-        neo4j_client,
-        graph_writer.get_confirmed_links_from_neo4j(neo4j_client),
-        graph_writer.load_org_unit_candidates(neo4j_client),
-    )
+    with neo4j_client.transaction():
+        graph_writer = GraphWriter()
+        synced_org_units = 0
+        synced_names: list[str] = []
+        for org_unit_name in graph_writer.load_org_units_from_neo4j(neo4j_client).values():
+            if not org_unit_name:
+                continue
+            persist_org_unit_node(config, org_unit_name)
+            synced_org_units += 1
+            synced_names.append(org_unit_name)
+        sync_curated_aliases(
+            neo4j_client,
+            graph_writer.get_confirmed_links_from_neo4j(neo4j_client),
+            graph_writer.load_org_unit_candidates(neo4j_client),
+        )
 
-    cmdb_rows = load_all_cmdb_rows(config)
-    if not cmdb_rows:
+        cmdb_rows = load_all_cmdb_rows(config)
+        if not cmdb_rows:
+            write_debug_log(
+                config,
+                "organization_sync",
+                {
+                    "synced_org_units": synced_org_units,
+                    "synced_names": synced_names,
+                    "refreshed_documents": 0,
+                    "cmdb_refresh": "skipped",
+                },
+            )
+            return synced_org_units, 0
+
+        refreshed_documents = persist_latest_run_refresh(config, cmdb_rows)
         write_debug_log(
             config,
             "organization_sync",
             {
                 "synced_org_units": synced_org_units,
                 "synced_names": synced_names,
-                "refreshed_documents": 0,
-                "cmdb_refresh": "skipped",
+                "refreshed_documents": refreshed_documents,
+                "cmdb_refresh": "completed",
             },
         )
-        return synced_org_units, 0
-
-    refreshed_documents = persist_latest_run_refresh(config, cmdb_rows)
-    write_debug_log(
-        config,
-        "organization_sync",
-        {
-            "synced_org_units": synced_org_units,
-            "synced_names": synced_names,
-            "refreshed_documents": refreshed_documents,
-            "cmdb_refresh": "completed",
-        },
-    )
-    return synced_org_units, refreshed_documents
+        return synced_org_units, refreshed_documents
 
 
 def persist_org_candidate_mapping_refresh(config: AppConfig, candidate_name: str) -> int:
     neo4j_client = get_session_neo4j_client(config)
-    graph_writer = GraphWriter()
-    candidate_entry = next(
-        (
-            entry
-            for entry in graph_writer.load_org_unit_candidates(neo4j_client)
-            if entry.get("candidate_name", "") == candidate_name
-            or entry.get("normalized_name", "") == normalize_org_unit_name(candidate_name)
-        ),
-        None,
-    )
-    if candidate_entry is None:
-        return 0
-
-    mapped_org_unit = candidate_entry.get("mapped_org_unit", "").strip()
-    if mapped_org_unit:
-        persist_org_unit_node(config, mapped_org_unit)
-        graph_writer.write_org_unit_alias(neo4j_client, candidate_name, mapped_org_unit)
-    sync_curated_aliases(
-        neo4j_client,
-        graph_writer.get_confirmed_links_from_neo4j(neo4j_client),
-        graph_writer.load_org_unit_candidates(neo4j_client),
-    )
-
-    runtime_output_path, _ = resolve_runtime_output_path(config.output_path)
-    latest_run = load_latest_run(runtime_output_path)
-    if latest_run is None:
-        return 0
-
-    cmdb_rows = load_all_cmdb_rows(config)
-
-    target_source_paths = set(candidate_entry.get("source_paths", []))
-    target_process_names = set(candidate_entry.get("process_names", []))
-    refreshed_count = 0
-    updated_documents: list[dict] = []
-    org_units = graph_writer.load_org_units_from_neo4j(neo4j_client)
-    org_unit_aliases = graph_writer.load_org_unit_aliases_from_neo4j(neo4j_client)
-
-    for document in latest_run.get("documents", []):
-        extracted_process_payload = document.get("extracted_process") or {}
-        source_path = document.get("source_path", "")
-        process_name = extracted_process_payload.get("process_name", "")
-        if source_path not in target_source_paths and process_name not in target_process_names:
-            updated_documents.append(document)
-            continue
-
-        refreshed_document = rerun_single_document_from_artifact(
-            document, config, cmdb_rows, org_units=org_units, org_unit_aliases=org_unit_aliases
+    with neo4j_client.transaction():
+        neo4j_client = get_session_neo4j_client(config)
+        graph_writer = GraphWriter()
+        candidate_entry = next(
+            (
+                entry
+                for entry in graph_writer.load_org_unit_candidates(neo4j_client)
+                if entry.get("candidate_name", "") == candidate_name
+                or entry.get("normalized_name", "") == normalize_org_unit_name(candidate_name)
+            ),
+            None,
         )
-        updated_documents.append(refreshed_document)
-        graph_payload = refreshed_document.get("graph_payload") or {}
-        process_payload = graph_payload.get("process") or {}
-        matches_payload = graph_payload.get("matches") or []
-        process = reconstruct_extracted_process(process_payload)
-        matches = [reconstruct_match_result(match_payload) for match_payload in matches_payload]
-        graph_writer.write_payload(neo4j_client, graph_writer.build_payload(process, matches))
-        refreshed_count += 1
+        if candidate_entry is None:
+            return 0
 
-    latest_run["documents"] = updated_documents
-    write_latest_run(latest_run, runtime_output_path)
-    return refreshed_count
+        mapped_org_unit = candidate_entry.get("mapped_org_unit", "").strip()
+        if mapped_org_unit:
+            persist_org_unit_node(config, mapped_org_unit)
+            graph_writer.write_org_unit_alias(neo4j_client, candidate_name, mapped_org_unit)
+        sync_curated_aliases(
+            neo4j_client,
+            graph_writer.get_confirmed_links_from_neo4j(neo4j_client),
+            graph_writer.load_org_unit_candidates(neo4j_client),
+        )
+
+        runtime_output_path, _ = resolve_runtime_output_path(config.output_path)
+        latest_run = load_latest_run(runtime_output_path, neo4j_client)
+        if latest_run is None:
+            return 0
+
+        cmdb_rows = load_all_cmdb_rows(config)
+
+        target_source_paths = set(candidate_entry.get("source_paths", []))
+        target_process_names = set(candidate_entry.get("process_names", []))
+        refreshed_count = 0
+        updated_documents: list[dict] = []
+        org_units = graph_writer.load_org_units_from_neo4j(neo4j_client)
+        org_unit_aliases = graph_writer.load_org_unit_aliases_from_neo4j(neo4j_client)
+
+        for document in latest_run.get("documents", []):
+            extracted_process_payload = document.get("extracted_process") or {}
+            source_path = document.get("source_path", "")
+            process_name = extracted_process_payload.get("process_name", "")
+            if source_path not in target_source_paths and process_name not in target_process_names:
+                updated_documents.append(document)
+                continue
+
+            refreshed_document = rerun_single_document_from_artifact(
+                document, config, cmdb_rows,
+                confirmed_links=graph_writer.get_confirmed_links_from_neo4j(neo4j_client),
+                rejected_links=graph_writer.get_rejected_decisions_from_neo4j(neo4j_client),
+                org_units=org_units, org_unit_aliases=org_unit_aliases
+            )
+            updated_documents.append(refreshed_document)
+            graph_payload = refreshed_document.get("graph_payload") or {}
+            process_payload = graph_payload.get("process") or {}
+            matches_payload = graph_payload.get("matches") or []
+            process = reconstruct_extracted_process(process_payload)
+            matches = [reconstruct_match_result(match_payload) for match_payload in matches_payload]
+            graph_writer.write_payload(neo4j_client, graph_writer.build_payload(process, matches))
+            refreshed_count += 1
+
+        latest_run["documents"] = updated_documents
+        write_latest_run(latest_run, runtime_output_path, neo4j_client)
+        return refreshed_count
 
 
 def add_org_unit_entry(config: AppConfig, org_unit_name: str) -> tuple[str, str]:
     neo4j_client = get_session_neo4j_client(config)
     graph_writer = GraphWriter()
     try:
-        persist_org_unit_node(config, org_unit_name)
-        sync_curated_aliases(
-            neo4j_client,
-            graph_writer.get_confirmed_links_from_neo4j(neo4j_client),
-            graph_writer.load_org_unit_candidates(neo4j_client),
-        )
+        with neo4j_client.transaction():
+            persist_org_unit_node(config, org_unit_name)
+            sync_curated_aliases(
+                neo4j_client,
+                graph_writer.get_confirmed_links_from_neo4j(neo4j_client),
+                graph_writer.load_org_unit_candidates(neo4j_client),
+            )
     except Exception as exc:
         return "warning", f"Organisationseinheit konnte nicht nach Neo4j synchronisiert werden: {exc}"
     return "success", "Organisationseinheit gespeichert und nach Neo4j synchronisiert."
@@ -176,33 +183,35 @@ def ensure_org_unit_registered(config: AppConfig, org_unit_name: str) -> str:
 
     neo4j_client = get_session_neo4j_client(config)
     graph_writer = GraphWriter()
-    try:
+    with neo4j_client.transaction():
         persist_org_unit_node(config, cleaned_name)
         sync_curated_aliases(
             neo4j_client,
             graph_writer.get_confirmed_links_from_neo4j(neo4j_client),
             graph_writer.load_org_unit_candidates(neo4j_client),
         )
-    except Exception:
-        return cleaned_name
     return cleaned_name
 
 
 def map_org_candidate(config: AppConfig, candidate_name: str, target_name: str) -> tuple[str, str]:
-    GraphWriter().map_org_unit_candidate(get_session_neo4j_client(config), candidate_name, target_name)
-    refreshed_count = persist_org_candidate_mapping_refresh(config, candidate_name)
-    if refreshed_count:
-        return "success", f"Kandidat wurde gemappt und {refreshed_count} betroffene Processe im Graph aktualisiert."
-    return "success", "Kandidat wurde gemappt."
+    neo4j_client = get_session_neo4j_client(config)
+    with neo4j_client.transaction():
+        GraphWriter().map_org_unit_candidate(get_session_neo4j_client(config), candidate_name, target_name)
+        refreshed_count = persist_org_candidate_mapping_refresh(config, candidate_name)
+        if refreshed_count:
+            return "success", f"Kandidat wurde gemappt und {refreshed_count} betroffene Processe im Graph aktualisiert."
+        return "success", "Kandidat wurde gemappt."
 
 
 def accept_org_candidate(config: AppConfig, candidate_name: str, proposed_name: str) -> tuple[str, str]:
-    resolved_name = (proposed_name or candidate_name).strip()
-    GraphWriter().map_org_unit_candidate(get_session_neo4j_client(config), candidate_name, resolved_name)
-    refreshed_count = persist_org_candidate_mapping_refresh(config, candidate_name)
-    if refreshed_count:
-        return "success", f"Kandidat wurde als neue Organisationseinheit uebernommen und {refreshed_count} betroffene Processe im Graph aktualisiert."
-    return "success", "Kandidat wurde als neue Organisationseinheit uebernommen."
+    neo4j_client = get_session_neo4j_client(config)
+    with neo4j_client.transaction():
+        resolved_name = (proposed_name or candidate_name).strip()
+        GraphWriter().map_org_unit_candidate(get_session_neo4j_client(config), candidate_name, resolved_name)
+        refreshed_count = persist_org_candidate_mapping_refresh(config, candidate_name)
+        if refreshed_count:
+            return "success", f"Kandidat wurde als neue Organisationseinheit uebernommen und {refreshed_count} betroffene Processe im Graph aktualisiert."
+        return "success", "Kandidat wurde als neue Organisationseinheit uebernommen."
 
 
 def reject_org_candidate(config: AppConfig, candidate_name: str) -> tuple[str, str]:
@@ -212,12 +221,12 @@ def reject_org_candidate(config: AppConfig, candidate_name: str) -> tuple[str, s
 
 def load_all_processes_with_owner(config: AppConfig) -> list[dict]:
     neo4j_client = get_session_neo4j_client(config)
-    rows = neo4j_client.execute_write(
+    rows = neo4j_client.execute_read_unvalidated(
         """
         MATCH (p:Process)
         WHERE p.placeholder IS NULL OR p.placeholder = false
         OPTIONAL MATCH (o:OrgUnit)-[:RESPONSIBLE_FOR]->(p)
-        RETURN p.process_id AS process_id, p.name AS prozess, o.name AS eigentuemer
+        RETURN p.process_id AS process_id, p.name AS process, o.name AS owner
         ORDER BY p.name
         """
     )
@@ -233,22 +242,24 @@ def set_process_owner(
     org_unit_name: str,
     process_name: str = "",
 ) -> tuple[str, str]:
-    cleaned = " ".join(org_unit_name.strip().split())
-    if not cleaned:
-        return "error", "Organisationseinheit darf nicht leer sein."
-    ensure_org_unit_registered(config, cleaned)
     neo4j_client = get_session_neo4j_client(config)
-    GraphWriter().write_process_owner(neo4j_client, cleaned, process_id)
-    create_manual_decision(
-        neo4j_client,
-        "manual_process_owner_assignment",
-        {
-            "process_id": process_id,
-            "process_name": process_name,
-            "org_unit_name": cleaned,
-        },
-    )
-    return "success", f"Eigentümer gesetzt."
+    with neo4j_client.transaction():
+        cleaned = " ".join(org_unit_name.strip().split())
+        if not cleaned:
+            return "error", "Organisationseinheit darf nicht leer sein."
+        ensure_org_unit_registered(config, cleaned)
+        neo4j_client = get_session_neo4j_client(config)
+        GraphWriter().write_process_owner(neo4j_client, cleaned, process_id)
+        create_manual_decision(
+            neo4j_client,
+            "manual_process_owner_assignment",
+            {
+                "process_id": process_id,
+                "process_name": process_name,
+                "org_unit_name": cleaned,
+            },
+        )
+        return "success", f"Eigentümer gesetzt."
 
 
 def clear_process_owner(config: AppConfig, process_id: str) -> tuple[str, str]:
@@ -264,7 +275,7 @@ def load_process_owner_candidates(config: AppConfig) -> list[dict]:
         return []
 
     neo4j_client = get_session_neo4j_client(config)
-    process_rows = neo4j_client.execute_write(
+    process_rows = neo4j_client.execute_read_unvalidated(
         "MATCH (p:Process) "
         "OPTIONAL MATCH (:OrgUnit)-[r:RESPONSIBLE_FOR]->(p) "
         "RETURN p.process_id AS process_id, count(r) AS owner_count"
@@ -300,15 +311,21 @@ def load_process_owner_candidates(config: AppConfig) -> list[dict]:
 
 
 def _update_process_owner_candidate_status(config: AppConfig, process_id: str, status: str) -> None:
+    neo4j_client = get_session_neo4j_client(config)
+    with neo4j_client.transaction():
+        _stage_process_owner_candidate_status(config, process_id, status, neo4j_client)
+
+
+def _stage_process_owner_candidate_status(config, process_id, status, neo4j_client):
     output_path, _ = resolve_runtime_output_path(config.output_path)
-    latest_run = load_latest_run(output_path)
+    latest_run = load_latest_run(output_path, neo4j_client)
     if not latest_run:
         return
     for document in latest_run.get("documents", []):
         extracted = document.get("extracted_process") or {}
         if extracted.get("process_id") == process_id:
             document["process_owner_candidate_status"] = status
-    write_latest_run(latest_run, output_path)
+    write_latest_run(latest_run, output_path, neo4j_client)
 
 
 def accept_process_owner_candidate(
@@ -317,11 +334,13 @@ def accept_process_owner_candidate(
     org_unit_name: str,
     process_name: str = "",
 ) -> tuple[str, str]:
-    ensure_org_unit_registered(config, org_unit_name)
-    level, message = set_process_owner(config, process_id, org_unit_name, process_name=process_name)
-    if level == "success":
-        _update_process_owner_candidate_status(config, process_id, "accepted")
-    return level, message
+    neo4j_client = get_session_neo4j_client(config)
+    with neo4j_client.transaction():
+        ensure_org_unit_registered(config, org_unit_name)
+        level, message = set_process_owner(config, process_id, org_unit_name, process_name=process_name)
+        if level == "success":
+            _update_process_owner_candidate_status(config, process_id, "accepted")
+        return level, message
 
 
 def reject_process_owner_candidate(config: AppConfig, process_id: str) -> tuple[str, str]:
@@ -331,13 +350,13 @@ def reject_process_owner_candidate(config: AppConfig, process_id: str) -> tuple[
 
 def load_unassigned_roles(config: AppConfig) -> list[dict]:
     neo4j_client = get_session_neo4j_client(config)
-    rows = neo4j_client.execute_write(
+    rows = neo4j_client.execute_read_unvalidated(
         """
         MATCH (r:Role)-[:PARTICIPATES_IN]->(p:Process)
         WHERE NOT (:OrgUnit)-[:CAN_ASSUME]->(r)
           AND NOT EXISTS { MATCH (o:OrgUnit) WHERE toLower(o.name) = toLower(r.name) }
           AND (r.role_only IS NULL OR r.role_only = false)
-        RETURN r.name AS rolle, collect(p.name) AS prozesse
+        RETURN r.name AS role, collect(p.name) AS processes
         ORDER BY r.name
         """
     )
@@ -349,21 +368,23 @@ def load_unassigned_roles(config: AppConfig) -> list[dict]:
 
 
 def assign_role_to_org_unit(config: AppConfig, role_name: str, org_unit_name: str) -> tuple[str, str]:
-    cleaned_org_unit = " ".join(org_unit_name.strip().split())
-    if not cleaned_org_unit:
-        return "error", "Organisationseinheit darf nicht leer sein."
-    ensure_org_unit_registered(config, cleaned_org_unit)
     neo4j_client = get_session_neo4j_client(config)
-    GraphWriter().write_role_assignment(neo4j_client, cleaned_org_unit, role_name)
-    create_manual_decision(
-        neo4j_client,
-        "manual_role_assignment",
-        {
-            "role_name": role_name,
-            "org_unit_name": cleaned_org_unit,
-        },
-    )
-    return "success", f"Role \"{role_name}\" wurde \"{cleaned_org_unit}\" zugeordnet."
+    with neo4j_client.transaction():
+        cleaned_org_unit = " ".join(org_unit_name.strip().split())
+        if not cleaned_org_unit:
+            return "error", "Organisationseinheit darf nicht leer sein."
+        ensure_org_unit_registered(config, cleaned_org_unit)
+        neo4j_client = get_session_neo4j_client(config)
+        GraphWriter().write_role_assignment(neo4j_client, cleaned_org_unit, role_name)
+        create_manual_decision(
+            neo4j_client,
+            "manual_role_assignment",
+            {
+                "role_name": role_name,
+                "org_unit_name": cleaned_org_unit,
+            },
+        )
+        return "success", f"Role \"{role_name}\" wurde \"{cleaned_org_unit}\" zugeordnet."
 
 
 def mark_role_as_role_only(config: AppConfig, role_name: str) -> tuple[str, str]:

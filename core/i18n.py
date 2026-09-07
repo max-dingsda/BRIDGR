@@ -8,6 +8,10 @@ SUPPORTED_LOCALES = ("de", "en")
 DEFAULT_LOCALE = "de"
 
 _MESSAGES: dict[str, Mapping[str, str]] = {
+    "import.archive_pending": {"de": "Der Graph wurde gespeichert. Die Archivierung ist noch ausstehend; wiederholen Sie nur diesen Schritt.", "en": "The graph has been saved. Archiving is still pending; retry only this step."},
+    "import.archive_retry": {"de": "Archivierung wiederholen", "en": "Retry archiving"},
+    "import.archive_stop": {"de": "Archivierung beenden", "en": "Stop archiving"},
+    "import.archive_stop_help": {"de": "Graph und Dateien bleiben erhalten. Bereits verschobene Dateien bleiben im Archiv, übrige Dateien im Eingabepfad. Das Protokoll wird aufbewahrt.", "en": "The graph and all files are retained. Moved files stay in the archive; remaining files stay in the input folder. The journal is kept."},
     "app.tagline": {
         "de": "Wissensgraph aus Prozessen, CMDB und Architekturwissen",
         "en": "Knowledge graph from processes, CMDB, and architecture knowledge",
