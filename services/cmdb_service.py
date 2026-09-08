@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from core.app_config import AppConfig, resolve_cmdb_type_file_paths
+from core.org_resolution import resolve_organization
 from processing.cmdb import CmdbLoadError, load_cmdb_rows, load_normalized_cmdb_from_type_files
 from skills.graph_writer import GraphWriter, normalize_org_unit_name
 from services.snapshot_service import create_snapshot
@@ -18,35 +19,40 @@ class CmdbSyncResult:
 
 
 def persist_cmdb_sync(config: AppConfig) -> CmdbSyncResult:
-    from services.runtime_service import get_session_neo4j_client, write_debug_log
-    from services.review_service import persist_latest_run_refresh
-
+    if not resolve_cmdb_type_file_paths(config):
+        raise CmdbLoadError("Keine CMDB-Typdateien konfiguriert. Das Legacy-Format wird nicht unterstützt.")
+    from services.runtime_service import get_session_neo4j_client
     neo4j_client = get_session_neo4j_client(config)
-    create_snapshot(
-        config,
-        neo4j_client,
-        trigger="cmdb_sync",
-        operation="explicit_cmdb_sync",
-    )
-    result = sync_cmdb_to_neo4j(config, neo4j_client)
+    with neo4j_client.serialized_writes():
+        from services.runtime_service import get_session_neo4j_client, write_debug_log
+        from services.review_service import persist_latest_run_refresh
 
-    cmdb_rows = load_all_cmdb_rows(config)
-    refreshed_document_count = persist_latest_run_refresh(config, cmdb_rows)
-    result.refreshed_document_count = refreshed_document_count
+        neo4j_client = get_session_neo4j_client(config)
+        create_snapshot(
+            config,
+            neo4j_client,
+            trigger="cmdb_sync",
+            operation="explicit_cmdb_sync",
+        )
+        result = sync_cmdb_to_neo4j(config, neo4j_client)
 
-    write_debug_log(
-        config,
-        "cmdb_sync",
-        {
-            "entity_count": result.entity_count,
-            "relation_count": result.relation_count,
-            "owner_assignment_count": result.owner_assignment_count,
-            "owner_candidate_count": result.owner_candidate_count,
-            "refreshed_document_count": result.refreshed_document_count,
-            "cmdb_type_files": config.cmdb_type_files,
-        },
-    )
-    return result
+        cmdb_rows = load_all_cmdb_rows(config)
+        refreshed_document_count = persist_latest_run_refresh(config, cmdb_rows)
+        result.refreshed_document_count = refreshed_document_count
+
+        write_debug_log(
+            config,
+            "cmdb_sync",
+            {
+                "entity_count": result.entity_count,
+                "relation_count": result.relation_count,
+                "owner_assignment_count": result.owner_assignment_count,
+                "owner_candidate_count": result.owner_candidate_count,
+                "refreshed_document_count": result.refreshed_document_count,
+                "cmdb_type_files": config.cmdb_type_files,
+            },
+        )
+        return result
 
 
 def load_all_cmdb_rows(config: AppConfig) -> list[dict[str, str]]:
@@ -77,38 +83,39 @@ def sync_cmdb_to_neo4j(
     config: AppConfig,
     neo4j_client,
 ) -> CmdbSyncResult:
-    normalized_cmdb = load_normalized_cmdb_from_type_files(
-        resolve_cmdb_type_file_paths(config),
-        id_column=config.cmdb_uuid_column,
-        name_column=config.cmdb_name_column,
-        server_type_column=config.cmdb_server_type_column,
-        owner_name_column=config.cmdb_owner_name_column,
-        runs_on_column=config.cmdb_runs_on_column,
-        uses_interfaces_column=config.cmdb_uses_interfaces_column,
-        multivalue_separator=config.cmdb_multivalue_separator,
-    )
+    with neo4j_client.transaction():
+        normalized_cmdb = load_normalized_cmdb_from_type_files(
+            resolve_cmdb_type_file_paths(config),
+            id_column=config.cmdb_uuid_column,
+            name_column=config.cmdb_name_column,
+            server_type_column=config.cmdb_server_type_column,
+            owner_name_column=config.cmdb_owner_name_column,
+            runs_on_column=config.cmdb_runs_on_column,
+            uses_interfaces_column=config.cmdb_uses_interfaces_column,
+            multivalue_separator=config.cmdb_multivalue_separator,
+        )
 
-    graph_writer = GraphWriter()
-    org_units = graph_writer.load_org_units_from_neo4j(neo4j_client)
-    org_unit_aliases = graph_writer.load_org_unit_aliases_from_neo4j(neo4j_client)
+        graph_writer = GraphWriter()
+        org_units = graph_writer.load_org_units_from_neo4j(neo4j_client)
+        org_unit_aliases = graph_writer.load_org_unit_aliases_from_neo4j(neo4j_client)
 
-    update_organization_knowledge_from_cmdb(
-        graph_writer, neo4j_client, normalized_cmdb,
-        source_path="cmdb_sync",
-        org_units=org_units, org_unit_aliases=org_unit_aliases,
-    )
-    owner_assignments = resolve_cmdb_owner_assignments(normalized_cmdb, org_units, org_unit_aliases)
+        update_organization_knowledge_from_cmdb(
+            graph_writer, neo4j_client, normalized_cmdb,
+            source_path="cmdb_sync",
+            org_units=org_units, org_unit_aliases=org_unit_aliases,
+        )
+        owner_assignments = resolve_cmdb_owner_assignments(normalized_cmdb, org_units, org_unit_aliases)
 
-    graph_writer.sync_cmdb(neo4j_client, normalized_cmdb, owner_assignments=owner_assignments)
+        graph_writer.sync_cmdb(neo4j_client, normalized_cmdb, owner_assignments=owner_assignments)
 
-    open_candidate_count = len(graph_writer.load_org_unit_candidates(neo4j_client, status="open"))
-    return CmdbSyncResult(
-        entity_count=len(normalized_cmdb.entities),
-        relation_count=len(normalized_cmdb.relations),
-        owner_assignment_count=len(owner_assignments),
-        owner_candidate_count=open_candidate_count,
-        refreshed_document_count=0,
-    )
+        open_candidate_count = len(graph_writer.load_org_unit_candidates(neo4j_client, status="open"))
+        return CmdbSyncResult(
+            entity_count=len(normalized_cmdb.entities),
+            relation_count=len(normalized_cmdb.relations),
+            owner_assignment_count=len(owner_assignments),
+            owner_candidate_count=open_candidate_count,
+            refreshed_document_count=0,
+        )
 
 
 def update_organization_knowledge_from_cmdb(
@@ -125,7 +132,7 @@ def update_organization_knowledge_from_cmdb(
         if not owner_name:
             continue
         normalized_owner = normalize_org_unit_name(owner_name)
-        if normalized_owner in org_units or normalized_owner in org_unit_aliases:
+        if resolve_organization(owner_name, org_units, org_unit_aliases).status == "unique":
             continue
         graph_writer.upsert_org_unit_candidate(
             neo4j_client,
@@ -148,7 +155,7 @@ def resolve_cmdb_owner_assignments(
         if not owner_name:
             continue
         normalized_owner = normalize_org_unit_name(owner_name)
-        resolved_owner = org_units.get(normalized_owner) or org_unit_aliases.get(normalized_owner)
+        resolved_owner = resolve_organization(owner_name, org_units, org_unit_aliases).name
         if resolved_owner:
             assignments[entity.entity_id] = resolved_owner
     return assignments

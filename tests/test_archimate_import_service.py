@@ -109,6 +109,9 @@ _DEFAULT_MAPPING = {
 
 
 class RecordingNeo4jClient:
+    def execute_read(self, query, parameters=None):
+        return self.execute_read_unvalidated(query, parameters)
+
     def __init__(self, read_results: dict[str, list[dict]] | None = None) -> None:
         self.queries: list[tuple[str, dict | None]] = []
         self._read_results = read_results or {}
@@ -120,11 +123,24 @@ class RecordingNeo4jClient:
         self.queries.append((query, parameters))
         return []
 
-    def execute_read(self, query: str, parameters=None):
+    def execute_read_unvalidated(self, query: str, parameters=None):
         for key, result in self._read_results.items():
             if key in query:
                 return result
         return []
+
+    def transaction(self):
+        from contextlib import nullcontext
+        return nullcontext(self)
+
+    serialized_writes = transaction
+
+    def stage_artifact(self, path, payload):
+        from processing.run_artifacts import atomic_write_json
+        atomic_write_json(path, payload)
+
+    def read_staged_artifact(self, path):
+        return None
 
 
 # --- _select_name ---

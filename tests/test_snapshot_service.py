@@ -46,6 +46,15 @@ class FakeNeo4jClient:
         self.current_relationship_count = len(statements)
         return [[] for _ in statements]
 
+    def transaction(self):
+        from contextlib import nullcontext
+        return nullcontext(self)
+
+    serialized_writes = transaction
+
+    def read_staged_artifact(self, path):
+        return None
+
 
 def _config(tmp_path: Path, retention: int = 10) -> AppConfig:
     return AppConfig(

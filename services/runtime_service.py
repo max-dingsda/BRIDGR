@@ -93,6 +93,23 @@ def get_session_neo4j_client(config: AppConfig) -> Neo4jClient:
     return client
 
 
+def get_session_chat_client(config: AppConfig):
+    from core.chat_neo4j import ChatNeo4jClient, ChatConfigurationError
+
+    if not config.neo4j_chat_user or config.neo4j_chat_user == config.neo4j_user:
+        raise ChatConfigurationError("Bitte einen separaten, schreibgeschützten Neo4j-Chat-Zugang konfigurieren.")
+    key = (config.neo4j_url, config.neo4j_chat_user, config.neo4j_chat_password, config.neo4j_database)
+    cached = st.session_state.get("chat_neo4j_client")
+    if cached is not None and st.session_state.get("chat_neo4j_client_key") == key:
+        return cached
+    if cached is not None:
+        cached.close()
+    client = ChatNeo4jClient(Neo4jConfig(*key))
+    st.session_state["chat_neo4j_client"] = client
+    st.session_state["chat_neo4j_client_key"] = key
+    return client
+
+
 def write_debug_log(config: AppConfig, event: str, details: dict) -> None:
     original_resolver = debug_utils.resolve_runtime_output_path
     try:

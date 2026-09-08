@@ -1,3 +1,4 @@
+from neo4j_test_support import ScopedClientStub
 from pathlib import Path
 
 from core.app_config import AppConfig
@@ -16,7 +17,7 @@ def test_persist_cmdb_sync_refreshes_latest_run_with_current_cmdb_rows(tmp_path:
 
     debug_events: list[tuple[str, dict]] = []
 
-    monkeypatch.setattr(runtime_service, "get_session_neo4j_client", lambda _config: object())
+    monkeypatch.setattr(runtime_service, "get_session_neo4j_client", lambda _config: ScopedClientStub())
     monkeypatch.setattr(runtime_service, "write_debug_log", lambda _config, event, details: debug_events.append((event, details)))
     snapshot_calls: list[tuple[str, str]] = []
     monkeypatch.setattr(
@@ -108,7 +109,7 @@ def test_sync_cmdb_to_neo4j_uses_type_files_when_configured(tmp_path: Path, monk
         cmdb_runs_on_column="runs_on",
     )
 
-    result = cmdb_service.sync_cmdb_to_neo4j(config, object())
+    result = cmdb_service.sync_cmdb_to_neo4j(config, ScopedClientStub())
 
     assert result.entity_count == 2
     assert result.relation_count == 1
@@ -193,7 +194,7 @@ def test_persist_latest_run_refresh_resolves_previously_unmatched_application(tm
             return {}
 
     monkeypatch.setattr(review_service, "resolve_runtime_output_path", lambda _path: (output_dir, False))
-    monkeypatch.setattr(review_service, "get_session_neo4j_client", lambda _config: object())
+    monkeypatch.setattr(review_service, "get_session_neo4j_client", lambda _config: ScopedClientStub())
     monkeypatch.setattr(review_service, "GraphWriter", FakeGraphWriter)
 
     refreshed_count = review_service.persist_latest_run_refresh(

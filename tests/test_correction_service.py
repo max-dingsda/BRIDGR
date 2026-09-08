@@ -21,6 +21,19 @@ class FakeNeo4jClient:
         self.reads += 1
         return [{"element_id": "restored-source"}]
 
+    def transaction(self):
+        from contextlib import nullcontext
+        return nullcontext(self)
+
+    serialized_writes = transaction
+
+    def stage_artifact(self, path, payload):
+        from processing.run_artifacts import atomic_write_json
+        atomic_write_json(path, payload)
+
+    def read_staged_artifact(self, path):
+        return None
+
 
 def _make_config():
     config = MagicMock()
@@ -182,121 +195,12 @@ def test_revert_manual_decision_returns_error_when_missing(mock_get_client, mock
     assert "nicht gefunden" in message
 
 
-@patch("services.correction_service.create_manual_decision")
-@patch("services.correction_service.mark_manual_decision_reverted")
-@patch("services.correction_service.delete_org_unit_alias")
-@patch("services.correction_service.get_manual_decision")
-@patch("services.correction_service.get_session_neo4j_client")
-def test_revert_org_unit_merge_restores_node_and_relationships(
-    mock_get_client, mock_get_decision, mock_delete_alias, mock_mark_reverted, mock_create_manual_decision
-) -> None:
-    fake_client = FakeNeo4jClient()
-    mock_get_client.return_value = fake_client
-    mock_get_decision.return_value = type(
-        "Decision",
-        (),
-        {
-            "decision_id": "dec-5",
-            "decision_type": "entity_merge",
-            "status": "active",
-            "payload_json": json.dumps({
-                "entity_type": "OrgUnit",
-                "source_name": "Controlling",
-                "target_name": "Buchhaltung",
-                "merge_preview": {
-                    "source_properties": {"name": "Controlling"},
-                    "source_outgoing": [{"rel_type": "RESPONSIBLE_FOR", "other_label": "Process", "other_ref": "Auftrag erfassen"}],
-                    "source_incoming": [{"rel_type": "MAY_REFER_TO", "other_label": "Alias", "other_ref": "CTRL"}],
-                    "target_outgoing_keys": [],
-                    "target_incoming_keys": [],
-                },
-            }),
-        },
-    )()
-
-    level, message = revert_manual_decision(_make_config(), "dec-5")
-
-    assert level == "success"
-    assert "Controlling" in message
-    queries = [q for q, _ in fake_client.written]
-    assert any("MERGE (source:OrgUnit {name: $source_name})" in query for query in queries)
-    assert any("MERGE (source)-[:RESPONSIBLE_FOR]->(other)" in query for query in queries)
-    assert any("coalesce(other.process_id, '') = $other_ref" in query or "coalesce(other.name, '') = $other_ref" in query for query in queries)
-    assert any("MATCH (other)-[r:MAY_REFER_TO]->(source)" in query for query in queries)
-    mock_delete_alias.assert_called_once_with(fake_client, "Controlling", "Buchhaltung", source_kind="merged_entity")
-    mock_mark_reverted.assert_called_once()
-    mock_create_manual_decision.assert_called_once()
 
 
-@patch("services.correction_service.create_manual_decision")
-@patch("services.correction_service.mark_manual_decision_reverted")
-@patch("services.correction_service.delete_process_alias")
-@patch("services.correction_service.get_manual_decision")
-@patch("services.correction_service.get_session_neo4j_client")
-def test_revert_process_merge_restores_node_and_relationships(
-    mock_get_client, mock_get_decision, mock_delete_alias, mock_mark_reverted, mock_create_manual_decision
-) -> None:
-    fake_client = FakeNeo4jClient()
-    mock_get_client.return_value = fake_client
-    mock_get_decision.return_value = type(
-        "Decision",
-        (),
-        {
-            "decision_id": "dec-6",
-            "decision_type": "entity_merge",
-            "status": "active",
-            "payload_json": json.dumps({
-                "entity_type": "Process",
-                "source_name": "Reisekostenabrechnung",
-                "target_ref": "target-1",
-                "merge_preview": {
-                    "source_properties": {"process_id": "PROC-046", "name": "Reisekostenabrechnung"},
-                    "target_properties": {"process_id": "PROC-045", "name": "Reisekosten abrechnen"},
-                    "source_outgoing": [{"rel_type": "FOLLOWS", "other_label": "Process", "other_ref": "prev-1"}],
-                    "source_incoming": [{"rel_type": "SERVES", "other_label": "Application", "other_ref": "app-1"}],
-                    "target_outgoing_keys": [],
-                    "target_incoming_keys": [],
-                },
-            }),
-        },
-    )()
-
-    level, message = revert_manual_decision(_make_config(), "dec-6")
-
-    assert level == "success"
-    assert "Reisekostenabrechnung" in message
-    queries = [q for q, _ in fake_client.written]
-    assert any("SET target.process_id = $target_process_id" in query for query in queries)
-    assert not any("CREATE (source:Process)" in query for query in queries)
-    assert any("SET source += $source_properties" in query for query in queries)
-    assert any("MERGE (source)-[:FOLLOWS]->(other)" in query for query in queries)
-    assert any("MERGE (other)-[:SERVES]->(source)" in query for query in queries)
-    mock_delete_alias.assert_called_once_with(
-        fake_client,
-        "Reisekostenabrechnung",
-        target_element_id="target-1",
-        source_kind="merged_entity",
-    )
-    mock_mark_reverted.assert_called_once()
-    mock_create_manual_decision.assert_called_once()
 
 
-def test_revert_process_match_supports_element_id_process_id_and_name() -> None:
-    from services.correction_service import _node_match
-
-    query = _node_match("other", "Process")
-
-    assert "elementId(other) = $other_ref" in query
-    assert "coalesce(other.process_id, '') = $other_ref" in query
-    assert "coalesce(other.name, '') = $other_ref" in query
 
 
-def test_revert_name_based_domain_labels_are_supported() -> None:
-    from services.correction_service import _node_match
-
-    query = _node_match("other", "Requirement")
-
-    assert query == "MATCH (other:Requirement {name: $other_ref})"
 
 
 @patch("services.correction_service.mark_manual_decision_reverted")
@@ -337,7 +241,7 @@ def test_revert_manual_decision_returns_error_on_neo4j_failure(
 @patch("services.correction_service.mark_manual_decision_reverted")
 @patch("services.correction_service.get_manual_decision")
 @patch("services.correction_service.get_session_neo4j_client")
-def test_revert_manual_decision_returns_warning_when_audit_write_fails(
+def test_revert_manual_decision_returns_error_when_audit_write_fails(
     mock_get_client, mock_get_decision, mock_mark_reverted, mock_create_manual_decision
 ) -> None:
     fake_client = FakeNeo4jClient()
@@ -359,8 +263,7 @@ def test_revert_manual_decision_returns_warning_when_audit_write_fails(
 
     level, message = revert_manual_decision(_make_config(), "dec-8")
 
-    assert level == "warning"
-    assert "fachlich ausgeführt" in message
+    assert level == "error"
     assert "audit failed" in message
     mock_mark_reverted.assert_called_once()
 

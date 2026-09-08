@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import tempfile
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -24,8 +26,12 @@ class ImportState:
     documents: list[DocumentState]
 
 
-def load_latest_run(output_path: Path) -> dict[str, Any] | None:
+def load_latest_run(output_path: Path, neo4j_client=None) -> dict[str, Any] | None:
     run_path = output_path / LATEST_RUN_FILENAME
+    if neo4j_client is not None:
+        staged = neo4j_client.read_staged_artifact(run_path)
+        if staged is not None:
+            return staged
     if not run_path.exists():
         return None
 
@@ -61,20 +67,33 @@ def load_import_state(output_path: Path) -> ImportState:
     )
 
 
-def save_import_state(state: ImportState, output_path: Path) -> None:
-    output_path.mkdir(parents=True, exist_ok=True)
-    state_path = output_path / STATE_FILENAME
-    with state_path.open("w", encoding="utf-8") as handle:
-        json.dump(asdict(state), handle, indent=2, ensure_ascii=False)
-        handle.write("\n")
+def save_import_state(state: ImportState, output_path: Path, neo4j_client=None) -> None:
+    write_artifact(output_path / STATE_FILENAME, asdict(state), neo4j_client)
 
 
-def write_latest_run(payload: dict[str, Any], output_path: Path) -> None:
-    output_path.mkdir(parents=True, exist_ok=True)
-    run_path = output_path / LATEST_RUN_FILENAME
-    with run_path.open("w", encoding="utf-8") as handle:
-        json.dump(payload, handle, indent=2, ensure_ascii=False)
-        handle.write("\n")
+def write_latest_run(payload: dict[str, Any], output_path: Path, neo4j_client=None) -> None:
+    write_artifact(output_path / LATEST_RUN_FILENAME, payload, neo4j_client)
+
+
+def write_artifact(path: Path, payload: dict, neo4j_client=None) -> None:
+    if neo4j_client is not None:
+        neo4j_client.stage_artifact(path, payload)
+    else:
+        atomic_write_json(path, payload)
+
+
+def atomic_write_json(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, indent=2, ensure_ascii=False)
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        Path(temporary).unlink(missing_ok=True)
 
 
 def save_last_import_selection(
@@ -84,22 +103,14 @@ def save_last_import_selection(
     display_paths: list[str] | None = None,
     archive_path: str = "",
     run_mode: str = "",
+    neo4j_client=None,
 ) -> None:
-    output_path.mkdir(parents=True, exist_ok=True)
-    selection_path = output_path / LAST_IMPORT_SELECTION_FILENAME
-    with selection_path.open("w", encoding="utf-8") as handle:
-        json.dump(
-            {
-                "source_paths": source_paths,
-                "display_paths": display_paths or source_paths,
-                "archive_path": archive_path,
-                "run_mode": run_mode,
-            },
-            handle,
-            indent=2,
-            ensure_ascii=False,
-        )
-        handle.write("\n")
+    write_artifact(output_path / LAST_IMPORT_SELECTION_FILENAME, {
+        "source_paths": source_paths,
+        "display_paths": display_paths or source_paths,
+        "archive_path": archive_path,
+        "run_mode": run_mode,
+    }, neo4j_client)
 
 
 def load_last_import_selection(output_path: Path) -> list[str]:

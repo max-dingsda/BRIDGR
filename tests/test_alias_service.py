@@ -35,6 +35,19 @@ class RecordingNeo4jClient:
             return self.responses.pop(0)
         return []
 
+    def transaction(self):
+        from contextlib import nullcontext
+        return nullcontext(self)
+
+    serialized_writes = transaction
+
+    def stage_artifact(self, path, payload):
+        from processing.run_artifacts import atomic_write_json
+        atomic_write_json(path, payload)
+
+    def read_staged_artifact(self, path):
+        return None
+
 
 def test_sync_curated_aliases_projects_application_and_org_aliases() -> None:
     client = RecordingNeo4jClient()
@@ -129,10 +142,10 @@ def test_lookup_alias_matches_returns_supported_target_rows() -> None:
     assert "MATCH (alias:Alias" in client.queries[0][0]
 
 
-def test_lookup_alias_matches_uses_unvalidated_read_path() -> None:
+def test_lookup_alias_matches_uses_validated_read_path() -> None:
     class ReadPathClient(RecordingNeo4jClient):
-        def execute_read(self, query: str, parameters=None):
-            raise AssertionError("validated read path must not be used for alias lookup")
+        def execute_read_unvalidated(self, query: str, parameters=None):
+            raise AssertionError("alias hints must use the validated chat boundary")
 
     client = ReadPathClient(
         responses=[

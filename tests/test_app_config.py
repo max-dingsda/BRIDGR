@@ -45,3 +45,20 @@ def test_normalize_run_mode_maps_legacy_values() -> None:
     assert normalize_run_mode("delta") == "partial"
     assert normalize_run_mode("initial") == "full"
     assert normalize_run_mode("full") == "full"
+
+
+def test_relative_paths_and_default_config_ignore_cwd_and_existence(tmp_path, monkeypatch):
+    from core.app_config import resolve_project_path, load_config
+    root, elsewhere = tmp_path / "project", tmp_path / "elsewhere"
+    root.mkdir()
+    elsewhere.mkdir()
+    monkeypatch.setattr("core.app_config.PROJECT_ROOT", root)
+    monkeypatch.chdir(elsewhere)
+    (elsewhere / "Output").mkdir()
+    assert resolve_project_path("Output") == root / "Output"
+    (root / "Output").mkdir()
+    assert resolve_project_path("Output") == root / "Output"
+    assert resolve_project_path(elsewhere) == elsewhere
+    save_config(AppConfig(ui_locale="en"))
+    assert (root / "config.json").exists()
+    assert load_config().ui_locale == "en"

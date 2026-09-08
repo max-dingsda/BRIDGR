@@ -16,25 +16,15 @@ def lookup_alias_matches(neo4j_client: Neo4jClient, alias_name: str) -> list[dic
     normalized_name = normalize_alias_name(alias_name)
     if not normalized_name:
         return []
-    rows = neo4j_client.execute_read_unvalidated(
-        """
-        MATCH (alias:Alias {normalized_name: $normalized_name})-[:MAY_REFER_TO]->(target)
-        WITH alias, target,
-             CASE
-                 WHEN target:Process THEN 'Process'
-                 WHEN target:Application THEN 'Application'
-                 WHEN target:Interface THEN 'Interface'
-                 WHEN target:Server THEN 'Server'
-                 WHEN target:OrgUnit THEN 'OrgUnit'
-                 ELSE ''
-             END AS entity_type
-        WHERE entity_type <> ''
-        RETURN entity_type,
-               coalesce(target.name, '') AS entity_name,
-               coalesce(target.cmdb_id, target.process_id, target.id, '') AS entity_id,
-               alias.name AS alias_name
-        ORDER BY entity_type, entity_name, entity_id
-        """,
+    branches = []
+    for label, identity in (("Application", "target.cmdb_id"), ("Process", "target.process_id"), ("OrgUnit", "target.name")):
+        branches.append(
+            f"MATCH (alias:Alias {{normalized_name: $normalized_name}})-[:MAY_REFER_TO]->(target:{label}) "
+            f"RETURN '{label}' AS entity_type, target.name AS entity_name, "
+            f"coalesce({identity}, '') AS entity_id, alias.name AS alias_name"
+        )
+    rows = neo4j_client.execute_read(
+        " UNION ALL ".join(branches) + " ORDER BY entity_type, entity_name, entity_id",
         {"normalized_name": normalized_name},
     )
     return [

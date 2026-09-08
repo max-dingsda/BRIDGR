@@ -23,15 +23,15 @@ def test_validate_read_only_cypher_rejects_write_tokens() -> None:
 
 
 def test_validate_read_only_cypher_allows_forbidden_tokens_inside_string_literals() -> None:
-    validate_read_only_cypher('MATCH (p) RETURN "CREATE this" AS note')
+    validate_read_only_cypher('MATCH (p:Process) RETURN "CREATE this" AS note')
 
 
 def test_validate_read_only_cypher_allows_forbidden_tokens_inside_line_comments() -> None:
-    validate_read_only_cypher("MATCH (p) // DELETE p\nRETURN p.name")
+    validate_read_only_cypher("MATCH (p:Process) // DELETE p\nRETURN p.name")
 
 
 def test_validate_read_only_cypher_allows_forbidden_tokens_inside_block_comments() -> None:
-    validate_read_only_cypher("MATCH (p) /* MERGE (x) */ RETURN p.name")
+    validate_read_only_cypher("MATCH (p:Process) /* MERGE (x) */ RETURN p.name")
 
 
 def test_validate_read_only_cypher_rejects_match_after_return_without_with() -> None:

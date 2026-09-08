@@ -743,15 +743,9 @@ Diese Felder müssen zu den Spaltennamen Ihrer CMDB-CSV-Dateien passen.
 
 Hinweis zum Dateiformat: BRIDGR erkennt das Trennzeichen der CSV-Dateien automatisch. Sowohl Komma (`,`) als auch Semikolon (`;`) werden unterstützt.
 
-#### Abschnitt `CMDB-Spaltenmapping — Relationen (Legacy-Format)`
+#### CMDB-Typdateien
 
-Gilt nur, wenn noch das ältere Zwei-Dateien-Format verwendet wird.
-
-Felder:
-
-- `Quell-ID-Spalte`
-- `Relationstyp-Spalte`
-- `Ziel-ID-Spalte`
+Es werden nur konfigurierte Typdateien unterstützt. Das frühere Format mit gemischten Entities und separaten Relationen entfällt. Konfigurieren Sie die CSV-Dateien im Import-Tab; Relationen stehen als Mehrwertspalten in den Typdateien.
 
 #### Abschnitt `Import & Matching`
 
@@ -858,6 +852,17 @@ Mögliche Ursachen:
 - Statusfilter oder Dateifilter schränken die Ansicht ein
 
 ---
+
+### Stabilisierung und Wiederaufnahme
+
+In der Konfiguration einen eigenen Neo4j-Chat-Benutzer mit Leserechten, Passwort und expliziter Datenbank eintragen. Der aktuelle gesicherte Chat benötigt Enterprise-Rechteverwaltung; auf den Schreibzugang wird nie zurückgefallen. Nicht unterstützte oder zu breite Fragen gegebenenfalls enger formulieren. Die UI-Sprache steuert Oberflächentexte, die letzte Nachricht die Antwortsprache.
+
+CMDB-Typdateien sind das einzige unterstützte Eingabeformat. Alte Entitäts-/Beziehungsdatei-Einstellungen werden nicht verwendet. Relative Pfade beziehen sich immer auf die Projektwurzel, auch bei Start aus einem anderen Verzeichnis.
+
+Bestätigte und abgelehnte Anwendungszuordnungen gehören zur Prozess-ID und überstehen Umbenennungen. Mehrdeutige Organisationsaliase bleiben zur Klärung offen. Merge-Undo bewahrt Originalproperties, verweigert aber spätere Konflikte und unvollständige historische Undo-Daten. Ungültige Entscheidungen vor erneutem Matching klären.
+
+Wurde der Graph gespeichert, aber die Anzeige konnte nicht aktualisiert werden, wird die ausstehende Projektion beim nächsten BRIDGR-Schreibvorgang erneut veröffentlicht. Eine manuelle Entscheidung nicht nur zur Anzeigeaktualisierung wiederholen. Ausstehende Archivierung im Import-Tab mit **Archivierung wiederholen** fortsetzen; kein erneuter Graphimport ist nötig. Ist eine Wiederholung nicht möglich, erhält **Archivierung beenden** Protokoll und Dateien und ermöglicht weitere Importe. Bereits verschobene Dateien bleiben im Archiv, übrige im Eingabepfad. Fehlerhafte Quelldokumente bleiben in der Inbox. Direkte externe Schreibzugriffe während Snapshot/Restore pausieren.
+
 
 ## 14. Kurzfassung für neue Benutzer
 

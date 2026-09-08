@@ -67,6 +67,7 @@ def rerun_single_document_from_artifact(
             match_application_candidates(
                 application_name=application.name,
                 process_name=extracted_process.process_name,
+                process_id=extracted_process.process_id,
                 cmdb_rows=cmdb_rows,
                 confirmed_links=confirmed_links,
                 rejected_links=rejected_links,
@@ -75,7 +76,7 @@ def rerun_single_document_from_artifact(
                 name_column=config.cmdb_name_column,
             )
         )
-    matches.extend(build_manual_matches(extracted_process.process_name, extracted_process.applications, confirmed_links))
+    matches.extend(build_manual_matches(extracted_process.process_name, extracted_process.applications, confirmed_links, extracted_process.process_id))
     review_items = collect_review_items(extracted_process, matches)
     graph_payload = GraphWriter().build_payload(extracted_process, matches)
     document["extracted_process"] = {
@@ -89,6 +90,7 @@ def rerun_single_document_from_artifact(
         "raw_applications": [asdict(application) for application in extracted_process.raw_applications],
         "applications": [asdict(application) for application in extracted_process.applications],
         "source_path": extracted_process.source_path,
+        "process_owner_candidate": extracted_process.process_owner_candidate,
     }
     document["matches"] = [asdict(match) for match in matches]
     document["review_items"] = [asdict(review_item) for review_item in review_items]
@@ -104,6 +106,7 @@ def rerun_single_document_from_artifact(
             "raw_applications": [asdict(application) for application in graph_payload.process.raw_applications],
             "applications": [asdict(application) for application in graph_payload.process.applications],
             "source_path": graph_payload.process.source_path,
+            "process_owner_candidate": graph_payload.process.process_owner_candidate,
         },
         "matches": [asdict(match) for match in matches],
     }
@@ -112,76 +115,80 @@ def rerun_single_document_from_artifact(
 
 
 def persist_single_document_refresh(config: AppConfig, source_path: str, cmdb_rows: list[dict[str, str]]) -> None:
-    runtime_output_path, _ = resolve_runtime_output_path(config.output_path)
-    latest_run = load_latest_run(runtime_output_path)
-    if latest_run is None:
-        return
-    graph_writer = GraphWriter()
     neo4j_client = get_session_neo4j_client(config)
-    confirmed_links = graph_writer.get_confirmed_links_from_neo4j(neo4j_client)
-    rejected_links = graph_writer.get_rejected_decisions_from_neo4j(neo4j_client)
-    org_units = graph_writer.load_org_units_from_neo4j(neo4j_client)
-    org_unit_aliases = graph_writer.load_org_unit_aliases_from_neo4j(neo4j_client)
-    updated_documents: list[dict] = []
-    updated_document_for_graph: dict | None = None
-    for document in latest_run.get("documents", []):
-        if document.get("source_path") != source_path:
-            updated_documents.append(document)
-            continue
-        refreshed_document = rerun_single_document_from_artifact(
-            document, config, cmdb_rows, confirmed_links, rejected_links,
-            org_units, org_unit_aliases,
-        )
-        updated_documents.append(refreshed_document)
-        updated_document_for_graph = refreshed_document
+    with neo4j_client.transaction():
+        runtime_output_path, _ = resolve_runtime_output_path(config.output_path)
+        latest_run = load_latest_run(runtime_output_path, neo4j_client)
+        if latest_run is None:
+            return
+        graph_writer = GraphWriter()
+        neo4j_client = get_session_neo4j_client(config)
+        confirmed_links = graph_writer.get_confirmed_links_from_neo4j(neo4j_client)
+        rejected_links = graph_writer.get_rejected_decisions_from_neo4j(neo4j_client)
+        org_units = graph_writer.load_org_units_from_neo4j(neo4j_client)
+        org_unit_aliases = graph_writer.load_org_unit_aliases_from_neo4j(neo4j_client)
+        updated_documents: list[dict] = []
+        updated_document_for_graph: dict | None = None
+        for document in latest_run.get("documents", []):
+            if document.get("source_path") != source_path:
+                updated_documents.append(document)
+                continue
+            refreshed_document = rerun_single_document_from_artifact(
+                document, config, cmdb_rows, confirmed_links, rejected_links,
+                org_units, org_unit_aliases,
+            )
+            updated_documents.append(refreshed_document)
+            updated_document_for_graph = refreshed_document
 
-    latest_run["documents"] = updated_documents
-    write_latest_run(latest_run, runtime_output_path)
+        latest_run["documents"] = updated_documents
+        write_latest_run(latest_run, runtime_output_path, neo4j_client)
 
-    if updated_document_for_graph is None:
-        return
+        if updated_document_for_graph is None:
+            return
 
-    graph_payload = updated_document_for_graph.get("graph_payload") or {}
-    process_payload = graph_payload.get("process") or {}
-    matches_payload = graph_payload.get("matches") or []
-    process = reconstruct_extracted_process(process_payload)
-    matches = [reconstruct_match_result(match_payload) for match_payload in matches_payload]
-    graph_writer.write_payload(neo4j_client, graph_writer.build_payload(process, matches))
-
-
-def persist_latest_run_refresh(config: AppConfig, cmdb_rows: list[dict[str, str]]) -> int:
-    runtime_output_path, _ = resolve_runtime_output_path(config.output_path)
-    latest_run = load_latest_run(runtime_output_path)
-    if latest_run is None:
-        return 0
-
-    updated_documents: list[dict] = []
-    graph_writer = GraphWriter()
-    neo4j_client = get_session_neo4j_client(config)
-    confirmed_links = graph_writer.get_confirmed_links_from_neo4j(neo4j_client)
-    rejected_links = graph_writer.get_rejected_decisions_from_neo4j(neo4j_client)
-    org_units = graph_writer.load_org_units_from_neo4j(neo4j_client)
-    org_unit_aliases = graph_writer.load_org_unit_aliases_from_neo4j(neo4j_client)
-    refreshed_count = 0
-
-    for document in latest_run.get("documents", []):
-        refreshed_document = rerun_single_document_from_artifact(
-            document, config, cmdb_rows, confirmed_links, rejected_links,
-            org_units, org_unit_aliases,
-        )
-        updated_documents.append(refreshed_document)
-
-        graph_payload = refreshed_document.get("graph_payload") or {}
+        graph_payload = updated_document_for_graph.get("graph_payload") or {}
         process_payload = graph_payload.get("process") or {}
         matches_payload = graph_payload.get("matches") or []
         process = reconstruct_extracted_process(process_payload)
         matches = [reconstruct_match_result(match_payload) for match_payload in matches_payload]
         graph_writer.write_payload(neo4j_client, graph_writer.build_payload(process, matches))
-        refreshed_count += 1
 
-    latest_run["documents"] = updated_documents
-    write_latest_run(latest_run, runtime_output_path)
-    return refreshed_count
+
+def persist_latest_run_refresh(config: AppConfig, cmdb_rows: list[dict[str, str]]) -> int:
+    neo4j_client = get_session_neo4j_client(config)
+    with neo4j_client.transaction():
+        runtime_output_path, _ = resolve_runtime_output_path(config.output_path)
+        latest_run = load_latest_run(runtime_output_path, neo4j_client)
+        if latest_run is None:
+            return 0
+
+        updated_documents: list[dict] = []
+        graph_writer = GraphWriter()
+        neo4j_client = get_session_neo4j_client(config)
+        confirmed_links = graph_writer.get_confirmed_links_from_neo4j(neo4j_client)
+        rejected_links = graph_writer.get_rejected_decisions_from_neo4j(neo4j_client)
+        org_units = graph_writer.load_org_units_from_neo4j(neo4j_client)
+        org_unit_aliases = graph_writer.load_org_unit_aliases_from_neo4j(neo4j_client)
+        refreshed_count = 0
+
+        for document in latest_run.get("documents", []):
+            refreshed_document = rerun_single_document_from_artifact(
+                document, config, cmdb_rows, confirmed_links, rejected_links,
+                org_units, org_unit_aliases,
+            )
+            updated_documents.append(refreshed_document)
+
+            graph_payload = refreshed_document.get("graph_payload") or {}
+            process_payload = graph_payload.get("process") or {}
+            matches_payload = graph_payload.get("matches") or []
+            process = reconstruct_extracted_process(process_payload)
+            matches = [reconstruct_match_result(match_payload) for match_payload in matches_payload]
+            graph_writer.write_payload(neo4j_client, graph_writer.build_payload(process, matches))
+            refreshed_count += 1
+
+        latest_run["documents"] = updated_documents
+        write_latest_run(latest_run, runtime_output_path, neo4j_client)
+        return refreshed_count
 
 
 def confirm_review_links_batch(
@@ -189,19 +196,61 @@ def confirm_review_links_batch(
     review_rows: list[dict],
     cmdb_rows: list[dict[str, str]],
 ) -> str:
-    if not review_rows:
-        return "Keine Einträge ausgewählt."
     neo4j_client = get_session_neo4j_client(config)
-    writer = GraphWriter()
-    source_paths: set[str] = set()
-    for row in review_rows:
-        application_name = row.get("anwendung_im_prozess", "")
-        matched_name = row.get("anwendung_in_cmdb", "")
-        cmdb_id = row.get("cmdb_id", "")
-        process_id = row.get("process_id", "")
-        process_name = row.get("process", "")
-        source_path = row.get("source_path", "")
-        writer.promote_candidate_link(
+    with neo4j_client.transaction():
+        if not review_rows:
+            return "Keine Einträge ausgewählt."
+        neo4j_client = get_session_neo4j_client(config)
+        writer = GraphWriter()
+        source_paths: set[str] = set()
+        for row in review_rows:
+            application_name = row.get("anwendung_im_prozess", "")
+            matched_name = row.get("anwendung_in_cmdb", "")
+            cmdb_id = row.get("cmdb_id", "")
+            process_id = row.get("process_id", "")
+            process_name = row.get("process", "")
+            source_path = row.get("source_path", "")
+            writer.promote_candidate_link(
+                neo4j_client,
+                cmdb_id=cmdb_id,
+                process_id=process_id,
+                raw_name=application_name,
+                matched_name=matched_name or application_name,
+            )
+            create_manual_decision(
+                neo4j_client,
+                "confirmed_candidate_link",
+                {
+                    "process_name": process_name,
+                    "process_id": process_id,
+                    "application_name": application_name,
+                    "matched_name": matched_name or application_name,
+                    "cmdb_id": cmdb_id,
+                    "source_path": source_path,
+                },
+            )
+            if source_path:
+                source_paths.add(source_path)
+        for source_path in source_paths:
+            persist_single_document_refresh(config, source_path, cmdb_rows)
+        app_name = review_rows[0].get("anwendung_im_prozess", "")
+        return f"{len(review_rows)} Einträge für '{app_name}' bestätigt."
+
+
+def confirm_review_link(
+    config: AppConfig,
+    process_name: str,
+    application_name: str,
+    cmdb_id: str,
+    matched_name: str,
+    process_id: str,
+    source_path: str,
+    cmdb_rows: list[dict[str, str]],
+) -> str:
+    neo4j_client = get_session_neo4j_client(config)
+    with neo4j_client.transaction():
+        neo4j_client = get_session_neo4j_client(config)
+        GraphWriter().promote_candidate_link(
             neo4j_client,
             cmdb_id=cmdb_id,
             process_id=process_id,
@@ -220,46 +269,8 @@ def confirm_review_links_batch(
                 "source_path": source_path,
             },
         )
-        if source_path:
-            source_paths.add(source_path)
-    for source_path in source_paths:
         persist_single_document_refresh(config, source_path, cmdb_rows)
-    app_name = review_rows[0].get("anwendung_im_prozess", "")
-    return f"{len(review_rows)} Einträge für '{app_name}' bestätigt."
-
-
-def confirm_review_link(
-    config: AppConfig,
-    process_name: str,
-    application_name: str,
-    cmdb_id: str,
-    matched_name: str,
-    process_id: str,
-    source_path: str,
-    cmdb_rows: list[dict[str, str]],
-) -> str:
-    neo4j_client = get_session_neo4j_client(config)
-    GraphWriter().promote_candidate_link(
-        neo4j_client,
-        cmdb_id=cmdb_id,
-        process_id=process_id,
-        raw_name=application_name,
-        matched_name=matched_name or application_name,
-    )
-    create_manual_decision(
-        neo4j_client,
-        "confirmed_candidate_link",
-        {
-            "process_name": process_name,
-            "process_id": process_id,
-            "application_name": application_name,
-            "matched_name": matched_name or application_name,
-            "cmdb_id": cmdb_id,
-            "source_path": source_path,
-        },
-    )
-    persist_single_document_refresh(config, source_path, cmdb_rows)
-    return f"Link fuer '{application_name}' bestaetigt."
+        return f"Link fuer '{application_name}' bestaetigt."
 
 
 def reject_review_link(
@@ -272,15 +283,17 @@ def reject_review_link(
     cmdb_rows: list[dict[str, str]],
 ) -> str:
     neo4j_client = get_session_neo4j_client(config)
-    GraphWriter().reject_candidate_link(
-        neo4j_client,
-        cmdb_id=cmdb_id,
-        process_id=process_id,
-        prozess_name=process_name,
-        anwendung_name=application_name,
-    )
-    persist_single_document_refresh(config, source_path, cmdb_rows)
-    return f"Link fuer '{application_name}' abgelehnt."
+    with neo4j_client.transaction():
+        neo4j_client = get_session_neo4j_client(config)
+        GraphWriter().reject_candidate_link(
+            neo4j_client,
+            cmdb_id=cmdb_id,
+            process_id=process_id,
+            prozess_name=process_name,
+            anwendung_name=application_name,
+        )
+        persist_single_document_refresh(config, source_path, cmdb_rows)
+        return f"Link fuer '{application_name}' abgelehnt."
 
 
 def save_manual_link(
@@ -293,37 +306,39 @@ def save_manual_link(
     source_path: str,
     cmdb_rows: list[dict[str, str]],
 ) -> str:
-    from core.constants import SERVES_SOURCE_MANUAL
     neo4j_client = get_session_neo4j_client(config)
-    neo4j_client.execute_write(
-        """
-        MERGE (p:Process {process_id: $process_id})
-        MERGE (a:Application {cmdb_id: $cmdb_id})
-        SET a.name = $matched_name
-        MERGE (a)-[r:SERVES]->(p)
-        SET r.confidence = 'stark',
-            r.raw_name = $raw_name,
-            r.source = $source
-        """,
-        {
-            "process_id": process_id,
-            "cmdb_id": cmdb_id,
-            "matched_name": matched_name or application_name,
-            "raw_name": application_name,
-            "source": SERVES_SOURCE_MANUAL,
-        },
-    )
-    create_manual_decision(
-        neo4j_client,
-        "manual_link",
-        {
-            "process_name": process_name,
-            "process_id": process_id,
-            "application_name": application_name,
-            "matched_name": matched_name or application_name,
-            "cmdb_id": cmdb_id,
-            "source_path": source_path,
-        },
-    )
-    persist_single_document_refresh(config, source_path, cmdb_rows)
-    return f"Manueller Link fuer '{application_name}' gespeichert."
+    with neo4j_client.transaction():
+        from core.constants import SERVES_SOURCE_MANUAL
+        neo4j_client = get_session_neo4j_client(config)
+        neo4j_client.execute_write(
+            """
+            MERGE (p:Process {process_id: $process_id})
+            MERGE (a:Application {cmdb_id: $cmdb_id})
+            SET a.name = $matched_name
+            MERGE (a)-[r:SERVES]->(p)
+            SET r.confidence = 'stark',
+                r.raw_name = $raw_name,
+                r.source = $source
+            """,
+            {
+                "process_id": process_id,
+                "cmdb_id": cmdb_id,
+                "matched_name": matched_name or application_name,
+                "raw_name": application_name,
+                "source": SERVES_SOURCE_MANUAL,
+            },
+        )
+        create_manual_decision(
+            neo4j_client,
+            "manual_link",
+            {
+                "process_name": process_name,
+                "process_id": process_id,
+                "application_name": application_name,
+                "matched_name": matched_name or application_name,
+                "cmdb_id": cmdb_id,
+                "source_path": source_path,
+            },
+        )
+        persist_single_document_refresh(config, source_path, cmdb_rows)
+        return f"Manueller Link fuer '{application_name}' gespeichert."

@@ -169,14 +169,14 @@ def _build_archimate_export(
 
 
 def _query_untyped_nodes(client: Neo4jClient, export_elem_map: dict[str, str]) -> list[dict]:
-    rows = client.execute_read(
+    rows = client.execute_read_unvalidated(
         """
         MATCH (n)
         WHERE n.name IS NOT NULL
           AND any(lbl IN labels(n) WHERE lbl IN
             ['Process','Application','Interface','Server','OrgUnit','Role'])
           AND n.archimate_type IS NULL
-        RETURN labels(n)[0] AS label, n.name AS name
+        RETURN [label IN labels(n) WHERE label <> '__BridgrIdentity'][0] AS label, n.name AS name
         ORDER BY label, name
         """,
         {},
@@ -212,13 +212,13 @@ def _normalize_rel_type(rel_type: str) -> str:
 
 
 def _read_nodes(client: Neo4jClient) -> list[dict]:
-    return client.execute_read(
+    return client.execute_read_unvalidated(
         """
         MATCH (n)
         WHERE n.name IS NOT NULL
           AND any(lbl IN labels(n) WHERE lbl IN
             ['Process','Application','Interface','Server','OrgUnit','Role'])
-        RETURN labels(n)[0] AS label,
+        RETURN [label IN labels(n) WHERE label <> '__BridgrIdentity'][0] AS label,
                n.name AS name,
                n.archimate_id AS archimate_id,
                n.archimate_type AS archimate_type
@@ -228,16 +228,16 @@ def _read_nodes(client: Neo4jClient) -> list[dict]:
 
 
 def _read_relations(client: Neo4jClient) -> list[dict]:
-    return client.execute_read(
+    return client.execute_read_unvalidated(
         """
         MATCH (s)-[r]->(t)
         WHERE s.name IS NOT NULL AND t.name IS NOT NULL
           AND type(r) IN
             ['SERVES','PARTICIPATES_IN','CAN_ASSUME','FOLLOWS',
              'USES_INTERFACE','RUNS_ON','RESPONSIBLE_FOR']
-        RETURN labels(s)[0] AS src_label,
+        RETURN [label IN labels(s) WHERE label <> '__BridgrIdentity'][0] AS src_label,
                s.name AS src_name,
-               labels(t)[0] AS tgt_label,
+               [label IN labels(t) WHERE label <> '__BridgrIdentity'][0] AS tgt_label,
                t.name AS tgt_name,
                type(r) AS rel_type,
                r.archimate_rel_type AS archimate_rel_type

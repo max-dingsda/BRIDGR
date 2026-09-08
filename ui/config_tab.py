@@ -26,6 +26,8 @@ from ui.layout import render_page_header
 from ui.layout import get_active_locale
 
 _EN = {
+    "Neo4j-Chat-Benutzer (nur Lesen)": "Neo4j chat user (read-only)",
+    "Neo4j-Chat-Passwort": "Neo4j chat password",
     "Pfade auswählen": "Select paths", "Eingabe-Ordner wählen": "Select input folder", "Ausgabe-Ordner wählen": "Select output folder",
     "LLM-Presets": "LLM presets", "Sprache": "Language", "Standardsprache": "Default language",
     "Die Standardsprache gilt für neue Sitzungen. Sie können sie jederzeit im Kopfbereich ändern.": "The default language applies to new sessions. You can change it at any time in the header.",
@@ -137,6 +139,8 @@ def render_config_tab(config_path: Path) -> None:
         if os.getenv("NEO4J_PASSWORD"):
             st.caption(_t("NEO4J_PASSWORD wurde aus der Umgebung geladen. Der aktuell wirksame Wert bleibt beim Speichern erhalten, bis Sie ihn hier explizit ändern."))
         neo4j_database = st.text_input(_t("Neo4j-Datenbank"), value=st.session_state["config_neo4j_database"])
+        neo4j_chat_user = st.text_input(_t("Neo4j-Chat-Benutzer (nur Lesen)"), value=config.neo4j_chat_user)
+        neo4j_chat_password = st.text_input(_t("Neo4j-Chat-Passwort"), value=config.neo4j_chat_password, type="password")
         if os.getenv("NEO4J_DATABASE"):
             st.caption(_t("NEO4J_DATABASE wurde aus der Umgebung geladen. Der aktuell wirksame Wert ist im Feld sichtbar und kann hier dauerhaft überschrieben werden."))
 
@@ -182,6 +186,8 @@ def render_config_tab(config_path: Path) -> None:
             neo4j_user=neo4j_user.strip(),
             neo4j_password=neo4j_password.strip(),
             neo4j_database=neo4j_database.strip(),
+            neo4j_chat_user=neo4j_chat_user.strip(),
+            neo4j_chat_password=neo4j_chat_password,
             fuzzy_threshold=float(fuzzy_threshold),
             cmdb_uuid_column=cmdb_uuid_column,
             cmdb_name_column=cmdb_name_column,
@@ -296,4 +302,7 @@ def render_config_tab(config_path: Path) -> None:
         st.info("Noch keine Snapshots vorhanden. Sie werden vor Import, CMDB-Synchronisation und Merge automatisch erstellt.")
 
     st.caption(_t("Aktuelle Konfiguration"))
-    st.json(asdict(load_config(config_path)))
+    displayed_config = asdict(load_config(config_path))
+    for key in ("neo4j_password", "neo4j_chat_password"):
+        displayed_config[key] = "********" if displayed_config[key] else ""
+    st.json(displayed_config)

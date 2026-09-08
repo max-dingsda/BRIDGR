@@ -258,6 +258,9 @@ Output/snapshots/
 Output/import_state.json
 Output/last_import_selection.json
 Output/latest_run.json
+Output/pending_import_archive.json
+Output/archive_journals/
+Output/stabilization_ui/
 Specs/Bridgr_Architektur_v27.md
 Specs/Bridgr_Architektur_v28.md
 Specs/FachlReview_Gemini.md
@@ -269,3 +272,10 @@ testresult*.txt
 .codex/
 *.bak
 Specs/CODEX_README_REVIEW.md
+CODEX_BRIDGR_Claude_Crossreview_2026-09-07.md
+CODEX_BRIDGR_Claude_Deltareview_2026-09-07.md
+CODEX_BRIDGR_Review_2026-09-07.md
+CODEX_BRIDGR_Stabilisierungsplan_2026-09-07.md
+CODEX_BRIDGR_Umsetzung_2026-09-07.md
+HANDOVER_visualization.md
+Specs/PLAN_Antwort-Begleitdiagramm.md
