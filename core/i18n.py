@@ -75,6 +75,7 @@ _SOURCE_TRANSLATIONS: dict[str, str] = {
     "Bestätigen": "Confirm",
     "Ablehnen": "Reject",
     "Manuell anlegen": "Create manually",
+    "Zuordnung für {application} im Prozess {process} auswählen": "Select mapping for {application} in process {process}",
     "Aufgrund der Selektion nicht ausführbar": "Not available due to the selection",
     "CMDB-Ziel": "CMDB target",
     "Ausgewähltes CMDB-Ziel konnte nicht aufgelöst werden.": "The selected CMDB target could not be resolved.",

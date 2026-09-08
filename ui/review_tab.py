@@ -131,7 +131,15 @@ def render_review_item_actions(
     is_batch_trigger = batch_valid_rows is not None and row_id in _checked
 
     row_columns = st.columns(_REVIEW_COL_WIDTHS)
-    row_columns[0].checkbox("", key=f"review-batch-select::{row_id}", label_visibility="collapsed")
+    row_columns[0].checkbox(
+        _t(
+            "Zuordnung für {application} im Prozess {process} auswählen",
+            application=application_name,
+            process=process_name,
+        ),
+        key=f"review-batch-select::{row_id}",
+        label_visibility="collapsed",
+    )
     row_columns[1].write(process_name)
     row_columns[2].write(application_name)
     row_columns[3].write(matched_name)
