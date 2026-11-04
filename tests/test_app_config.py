@@ -41,6 +41,16 @@ def test_save_config_persists_debug_mode_and_snapshot_retention(tmp_path: Path) 
     assert '"snapshot_retention_count": 7' in config_path.read_text(encoding="utf-8")
 
 
+def test_save_config_persists_dedicated_chat_credentials(tmp_path: Path) -> None:
+    config_path = tmp_path / "config.json"
+
+    save_config(AppConfig(neo4j_chat_user="reader", neo4j_chat_password="secret"), config_path)
+
+    saved = config_path.read_text(encoding="utf-8")
+    assert '"neo4j_chat_user": "reader"' in saved
+    assert '"neo4j_chat_password": "secret"' in saved
+
+
 def test_normalize_run_mode_maps_legacy_values() -> None:
     assert normalize_run_mode("delta") == "partial"
     assert normalize_run_mode("initial") == "full"

@@ -185,10 +185,15 @@ Possible additional content:
 - Tabular results
 - Technical Cypher query under `Technical Details`
 - CSV export of a result
+- An optional interactive answer-companion diagram for suitable relationship results
 
 #### Button `Export as CSV`
 
 Appears with tabular hits and exports the visible result as a CSV file.
+
+#### Button `Show as Diagram`
+
+Appears for non-empty relationship results that can be resolved to graph objects. It opens a locally validated, interactive Archify diagram without repeating the answering query. If you explicitly ask for a diagram immediately after such an answer, BRIDGR reuses that answer's stored result; empty and count-only results do not offer a diagram.
 
 ### 6.3 Important Notes
 

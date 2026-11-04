@@ -10,6 +10,7 @@ from core.graph_schema import build_archimate_mapping_reference, build_query_sch
 from core.llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleClient
 from core.neo4j_utils import Neo4jConnectionError, Neo4jQueryError, QueryValidationError
 from services.alias_service import lookup_alias_matches
+from services.graph_view_service import collect_seed_candidates
 from services.runtime_service import (
     CHAT_MESSAGES_STATE_KEY,
     append_chat_message,
@@ -21,6 +22,10 @@ import streamlit as st
 MAX_HISTORY_MESSAGES = 20
 MAX_CYPHER_RETRIES = 2
 MAX_TOOL_CALLS_PER_TURN = 5
+_DIAGRAM_REQUEST_PATTERN = re.compile(
+    r"\b(diagramm?|visuali[sz](?:e|iere|ierung|ation)|darstell(?:en|ung)|show.*diagram)\b",
+    re.IGNORECASE,
+)
 
 _RESPONSE_POLISH_PROMPT = """You are the final copy editor for an enterprise architecture assistant.
 Return a complete rewritten version of the answer in the language of the user's most recent
@@ -119,8 +124,19 @@ def run_query_chat_turn(question: str, config: AppConfig, response_locale: str |
         )
         neo4j_client = get_session_chat_client(config)
 
-        system_prompt = _build_chat_system_prompt(config, response_locale)
         all_messages = st.session_state.get(CHAT_MESSAGES_STATE_KEY, [])
+        diagram_source = _diagram_source_from_history(question, all_messages[:-1] if all_messages else [])
+        if diagram_source is not None:
+            source_query, source_rows = diagram_source
+            append_chat_message(
+                "assistant",
+                _diagram_followup_response(response_locale or config.ui_locale),
+                cypher_query=source_query,
+                rows=source_rows,
+            )
+            return
+
+        system_prompt = _build_chat_system_prompt(config, response_locale)
         # Exclude the last message: query_tab already appended the current user question
         # before calling this function; we add it explicitly below to avoid duplication.
         history = _build_llm_history(all_messages[:-1] if all_messages else [])
@@ -162,6 +178,27 @@ def run_query_chat_turn(question: str, config: AppConfig, response_locale: str |
     append_chat_message("assistant", final_response.strip(), cypher_query=cypher_query, rows=rows)
 
 
+def _diagram_source_from_history(question: str, messages: list[dict]) -> tuple[str, list[dict]] | None:
+    """Reuse the latest suitable result for an explicit diagram follow-up."""
+    if not _DIAGRAM_REQUEST_PATTERN.search(question):
+        return None
+    for message in reversed(messages):
+        if message.get("role") != "assistant":
+            continue
+        rows = message.get("rows", [])
+        cypher_query = message.get("cypher_query", "")
+        if cypher_query and isinstance(rows, list) and collect_seed_candidates(rows):
+            return cypher_query, rows
+        return None
+    return None
+
+
+def _diagram_followup_response(locale: str | None) -> str:
+    if normalize_locale(locale or "") == "en":
+        return "You can now open the relationships from the previous answer as a diagram."
+    return "Sie können die Zusammenhänge aus der vorherigen Antwort jetzt als Diagramm öffnen."
+
+
 def _polish_response_language(
     llm_client: OpenAICompatibleClient,
     question: str,
@@ -192,32 +229,7 @@ def _polish_response_language(
 
 def _collect_protected_names(rows: list[dict]) -> list[str]:
     """Return distinct string values from query results that must not be translated."""
-    schema_terms = {
-        "application",
-        "process",
-        "interface",
-        "server",
-        "orgunit",
-        "role",
-        "capability",
-        "goal",
-        "dataobject",
-        "resource",
-        "infrastructure",
-        "risk",
-    }
-    names: list[str] = []
-    seen: set[str] = set()
-    for row in rows:
-        for value in row.values():
-            if not isinstance(value, str):
-                continue
-            name = value.strip()
-            if not name or name.casefold() in schema_terms or name in seen:
-                continue
-            names.append(name)
-            seen.add(name)
-    return names
+    return collect_seed_candidates(rows)
 
 
 def _run_prompt_only_turn(

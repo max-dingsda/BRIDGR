@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from services.review_service import confirm_review_link, confirm_review_links_batch, save_manual_link
+from services.review_service import (
+    confirm_review_link,
+    confirm_review_links_batch,
+    rerun_single_document_from_artifact,
+    save_manual_link,
+)
 
 
 class FakeNeo4jClient:
@@ -60,6 +65,44 @@ def test_confirm_review_link_records_manual_decision(
     assert payload["application_name"] == "Mail"
     assert payload["cmdb_id"] == "cmdb-1"
     mock_refresh.assert_called_once()
+
+
+def test_refresh_removes_confirmed_weak_link_from_review_items() -> None:
+    document = {
+        "extracted_process": {
+            "process_name": "Eingangsrechnung prüfen und buchen",
+            "process_id": "PROC-001",
+            "applications": [{"name": "DATEV", "confidence": "schwach"}],
+            "raw_applications": [{"name": "DATEV", "confidence": "schwach"}],
+            "source_path": "Input/eingangsrechnung.txt",
+        }
+    }
+    config = MagicMock(
+        fuzzy_threshold=0.85,
+        cmdb_uuid_column="cmdb_id",
+        cmdb_name_column="name",
+    )
+
+    refreshed = rerun_single_document_from_artifact(
+        document,
+        config,
+        [{"cmdb_id": "APP-014", "name": "DATEV Unternehmen Online"}],
+        confirmed_links=[
+            {
+                "process": "Eingangsrechnung prüfen und buchen",
+                "process_id": "PROC-001",
+                "anwendung_name": "DATEV",
+                "cmdb_id": "APP-014",
+                "resolved_to": "DATEV Unternehmen Online",
+                "source": "manuell_bestaetigt",
+                "quelle": "manuell_bestaetigt",
+            }
+        ],
+    )
+
+    assert refreshed["review_items"] == []
+    assert refreshed["matches"][0]["confidence"] == "stark"
+    assert refreshed["matches"][0]["source"] == "knowledge_base"
 
 
 @patch("services.review_service.persist_single_document_refresh")

@@ -97,6 +97,7 @@ Aktuell relevante Output-Dateien:
 - `Output/import_state.json`: letzter bekannter Dokumentzustand
 - `Output/latest_run.json`: letzter gespeicherter Import-/Reviewlauf für die UI; wird nach Prozessimporten und nach einer CMDB-Synchronisation für die Neubewertung bestehender Zuordnungen aktualisiert
 - `Output/debug.log`: optionale JSONL-Diagnoseausgabe bei aktiviertem Debug-Modus
+- `Output/chat-diagrams/`: lokal erzeugte Archify-Artefakte für geöffnete Antwort-Begleitdiagramme
 
 Mehr Informationen zur Architektur finden sich in der
 [Architekturbeschreibung](Specs/DE_Bridgr_Architektur_v29.md).
@@ -133,6 +134,7 @@ Wichtige Felder:
 - `neo4j_url`: Neo4j-Bolt-URL
 - `neo4j_user`: Neo4j-Benutzer
 - `neo4j_password`: Neo4j-Passwort
+- `neo4j_chat_user`, `neo4j_chat_password`: optionale, separate Lesezugangsdaten für den Chat; sie werden über `NEO4J_CHAT_USERNAME` und `NEO4J_CHAT_PASSWORD` aus der lokalen Umgebung aufgelöst
 - `neo4j_database`: optionaler Neo4j-Datenbankname, für Aura typischerweise die Instanz-ID
 - `input_path`: gemeinsamer Eingabeordner für Prozessdokumente und CMDB-Dateien
 - `cmdb_type_files`: Mapping von Objektart auf CSV-Dateiname, z. B. `{"application": "Anwendungen.csv", "server": "Server.csv", "interface": "Schnittstellen.csv"}`. Ohne konfigurierte Typdateien wird keine CMDB geladen. Das frühere Legacy-Format wird nicht mehr unterstützt.

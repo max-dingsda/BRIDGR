@@ -76,6 +76,32 @@ def test_graph_writer_removes_existing_process_application_links_before_rewrite(
     assert process_write_action == "inserted"
 
 
+def test_graph_writer_loads_confirmed_links_with_matching_contract() -> None:
+    writer = GraphWriter()
+    client = RecordingNeo4jClient(
+        [
+            {
+                "process": "Eingangsrechnung prüfen und buchen",
+                "process_id": "PROC-001",
+                "anwendung_name": "DATEV",
+                "cmdb_id": "APP-014",
+                "resolved_to": "DATEV Unternehmen Online",
+                "source": "manuell_bestaetigt",
+                "quelle": "manuell_bestaetigt",
+            }
+        ]
+    )
+
+    links = writer.get_confirmed_links_from_neo4j(client)
+
+    assert links[0]["process"] == "Eingangsrechnung prüfen und buchen"
+    assert links[0]["process_id"] == "PROC-001"
+    assert links[0]["source"] == "manuell_bestaetigt"
+    query, _ = client.queries[0]
+    assert "p.name AS process" in query
+    assert "r.source AS quelle" in query
+
+
 def test_graph_writer_only_writes_strong_or_confirmed_matches() -> None:
     writer = GraphWriter()
     client = RecordingNeo4jClient()

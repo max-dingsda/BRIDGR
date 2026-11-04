@@ -93,6 +93,26 @@ QUERY_RELATIONSHIP_SCHEMA: dict[str, tuple[str, ...]] = {}
 for _pattern in QUERY_RELATIONSHIP_PATTERNS:
     QUERY_RELATIONSHIP_SCHEMA.setdefault(_pattern.relationship_type, _pattern.properties)
 
+# Internal bookkeeping and review-queue labels. They are never exposed to the query LLM
+# and never rendered in a diagram, regardless of whether they appear in a raw result.
+INTERNAL_NODE_LABELS: frozenset[str] = frozenset(
+    {"Alias", "ManualDecision", "OrgCandidate", "Rejection"}
+)
+
+# Business labels that may appear as nodes in the answer-companion diagram (§13.6.6).
+VISUAL_NODE_LABELS: tuple[str, ...] = tuple(
+    label for label in QUERY_NODE_SCHEMA if label not in INTERNAL_NODE_LABELS
+)
+
+# Confirmed relationship types. MAY_* edges are unconfirmed candidates and are excluded
+# from graph expansion (§13.6.5).
+BUSINESS_RELATIONSHIP_TYPES: tuple[str, ...] = tuple(
+    relationship_type
+    for relationship_type in QUERY_RELATIONSHIP_SCHEMA
+    if not relationship_type.startswith("MAY_")
+)
+
+
 # CONNECTED_TO is unrestricted — no label-pair validation applied.
 _UNRESTRICTED_RELATIONSHIP_TYPES: frozenset[str] = frozenset({"CONNECTED_TO"})
 

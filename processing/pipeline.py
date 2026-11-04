@@ -252,7 +252,7 @@ def build_manual_matches(
     for link in confirmed_links:
         if not decision_matches_process(link, process_name, process_id):
             continue
-        if link.get("quelle") not in _PERSISTENT_LINK_SOURCES:
+        if link.get("source") not in _PERSISTENT_LINK_SOURCES:
             continue
         application_name = link.get("anwendung_name", "")
         if application_name in extracted_names:
