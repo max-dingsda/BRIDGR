@@ -10,6 +10,8 @@ from core.llm_client import LlmClientError
 from services.query_service import (
     _build_llm_history,
     _collect_protected_names,
+    _diagram_followup_response,
+    _diagram_source_from_history,
     _extract_cypher_from_response,
     _format_query_result,
     _polish_response_language,
@@ -50,6 +52,34 @@ def test_collect_protected_names_preserves_result_names_but_not_schema_terms() -
     rows = [{"application": "SAP SD", "server": "ns-prd-001", "type": "Application"}]
 
     assert _collect_protected_names(rows) == ["SAP SD", "ns-prd-001"]
+
+
+def test_diagram_followup_reuses_the_latest_suitable_stored_result() -> None:
+    messages = [
+        {"role": "assistant", "content": "Leere Antwort", "cypher_query": "MATCH (n) RETURN n", "rows": []},
+        {
+            "role": "assistant",
+            "content": "Betroffene Anwendungen",
+            "cypher_query": "MATCH (a:Application) RETURN a.name AS application",
+            "rows": [{"application": "SAP S/4HANA FI", "server": "ns-prd-001"}],
+        },
+    ]
+
+    assert _diagram_source_from_history("Ja bitte, zeig das als Diagramm.", messages) == (
+        "MATCH (a:Application) RETURN a.name AS application",
+        [{"application": "SAP S/4HANA FI", "server": "ns-prd-001"}],
+    )
+
+
+def test_diagram_followup_does_not_reuse_empty_or_count_only_results() -> None:
+    messages = [{"role": "assistant", "cypher_query": "MATCH (p) RETURN count(p) AS count", "rows": [{"count": 5}]}]
+
+    assert _diagram_source_from_history("show me a diagram", messages) is None
+
+
+def test_diagram_followup_response_is_localized() -> None:
+    assert "Diagramm" in _diagram_followup_response("de")
+    assert "diagram" in _diagram_followup_response("en").lower()
 
 
 # --- _extract_cypher_from_response ---

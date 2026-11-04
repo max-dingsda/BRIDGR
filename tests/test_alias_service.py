@@ -57,7 +57,7 @@ def test_sync_curated_aliases_projects_application_and_org_aliases() -> None:
             "anwendung_name": "SAP XY",
             "cmdb_id": "app-1",
             "resolved_to": "SAP BW",
-            "quelle": "manuell_bestaetigt",
+            "source": "manuell_bestaetigt",
         }
     ]
     org_unit_candidates = [
@@ -92,7 +92,7 @@ def test_sync_curated_aliases_skips_identity_aliases() -> None:
             "anwendung_name": "SAP BW",
             "cmdb_id": "app-1",
             "resolved_to": "SAP BW",
-            "quelle": "manuell_bestaetigt",
+            "source": "manuell_bestaetigt",
         }
     ]
     org_unit_candidates = [

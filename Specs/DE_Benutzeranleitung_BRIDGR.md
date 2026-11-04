@@ -187,10 +187,15 @@ Mögliche zusätzliche Inhalte:
 - tabellarische Ergebnisse
 - technischer Cypher-Query unter `Technische Details`
 - CSV-Export eines Ergebnisses
+- optionales interaktives Antwort-Begleitdiagramm für geeignete Beziehungs-Ergebnisse
 
 #### Button `Als CSV exportieren`
 
 Erscheint bei tabellarischen Treffern und exportiert das sichtbare Ergebnis als CSV-Datei.
+
+#### Button `Als Diagramm anzeigen`
+
+Erscheint bei nichtleeren Beziehungs-Ergebnissen, die sich zu Graphobjekten auflösen lassen. Er öffnet ein lokal validiertes, interaktives Archify-Diagramm, ohne die Antwortabfrage zu wiederholen. Bei einer ausdrücklichen Diagramm-Folgefrage unmittelbar nach einer solchen Antwort verwendet BRIDGR deren gespeichertes Ergebnis wieder; leere Ergebnisse und reine Zählwerte bieten kein Diagramm an.
 
 ### 6.3 Wichtige Hinweise
 

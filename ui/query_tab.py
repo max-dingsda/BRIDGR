@@ -4,27 +4,34 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
-from core.app_config import load_config
+from core.app_config import AppConfig, load_config
 from core.i18n import translate
+from core.neo4j_utils import Neo4jExecutionError
 from ui.layout import get_active_locale
+from services.chat_diagram_service import diagram_is_possible, render_chat_diagram
 from services.query_service import run_query_chat_turn
 from ui.layout import render_page_header
 from services.runtime_service import (
     CHAT_MESSAGES_STATE_KEY,
     append_chat_message,
     ensure_query_chat_defaults,
+    get_session_chat_client,
     reset_query_chat_state,
 )
 
 
-def render_query_chat_messages() -> None:
+_INTERACTIVE_DIAGRAM_HEIGHT = 1000
+
+
+def render_query_chat_messages(config: AppConfig) -> None:
     locale = get_active_locale()
     for idx, message in enumerate(st.session_state.get(CHAT_MESSAGES_STATE_KEY, [])):
         with st.chat_message(message["role"]):
             st.write(message["content"])
             rows = message.get("rows", [])
-            if rows:
+            if rows and message.get("table_visible"):
                 st.markdown(f"**{translate('chat.result', locale)}**")
                 st.dataframe(rows, width="stretch")
                 csv_data = pd.DataFrame(rows).to_csv(index=False).encode("utf-8")
@@ -41,6 +48,56 @@ def render_query_chat_messages() -> None:
                 with st.expander(translate("chat.technical_details", locale), expanded=False):
                     st.markdown("**Cypher**")
                     st.code(message["cypher_query"], language="cypher")
+            if message["role"] == "assistant":
+                _render_message_actions(idx, message, config, locale)
+
+
+def _render_message_actions(idx: int, message: dict, config: AppConfig, locale: str) -> None:
+    """Keep presentation state on the message; no query is repeated for a table."""
+    rows = message.get("rows", [])
+    if rows and st.button("Tabelle anzeigen" if not message.get("table_visible") else "Tabelle ausblenden", key=f"table-btn-{idx}"):
+        message["table_visible"] = not message.get("table_visible", False)
+        st.rerun()
+    if not diagram_is_possible(rows):
+        return
+    if not message.get("diagram_html"):
+        if st.button(f"📊 {translate('chat.show_as_diagram', locale)}", key=f"diagram-btn-{idx}"):
+            try:
+                result = render_chat_diagram(get_session_chat_client(config), rows, message.get("cypher_query", ""), f"chat-{idx}")
+            except Neo4jExecutionError:
+                st.warning(translate("chat.diagram_unavailable", locale))
+                return
+            except RuntimeError as exc:
+                st.warning(str(exc))
+                return
+            message["diagram_html"] = result.html_path or ""
+            message["diagram_png"] = result.png_path or ""
+            message["diagram_note"] = result.note
+            st.rerun()
+        return
+    if not message["diagram_html"]:
+        st.info(translate("chat.diagram_none", locale))
+        return
+    if not _render_interactive_diagram(message["diagram_html"]):
+        if message.get("diagram_png"):
+            st.image(message["diagram_png"], caption="Diagrammvorschau")
+        st.warning("Die interaktive Diagrammansicht konnte nicht geladen werden.")
+    if message.get("diagram_note"):
+        st.caption(message["diagram_note"])
+    if st.button(translate("chat.hide_diagram", locale), key=f"diagram-hide-{idx}"):
+        for key in ("diagram_html", "diagram_png", "diagram_note"):
+            message.pop(key, None)
+        st.rerun()
+
+
+def _render_interactive_diagram(html_path: str) -> bool:
+    """Embed the standalone Archify artifact so its viewer controls remain usable."""
+    try:
+        document = Path(html_path).read_text(encoding="utf-8")
+    except OSError:
+        return False
+    components.html(document, height=_INTERACTIVE_DIAGRAM_HEIGHT, scrolling=True)
+    return True
 
 
 def render_query_tab() -> None:
@@ -62,7 +119,7 @@ def render_query_tab() -> None:
         if st.button(translate("chat.new_conversation", get_active_locale()), key="chat-reset", width="stretch"):
             reset_query_chat_state()
             st.rerun()
-    render_query_chat_messages()
+    render_query_chat_messages(config)
 
     question = st.chat_input(translate("chat.input", get_active_locale()))
     if not question:

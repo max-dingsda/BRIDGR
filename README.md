@@ -57,7 +57,7 @@ release; legacy graph data and snapshots are intentionally not migrated.
 
 The Streamlit workspace provides six tabs:
 
-- Chat: question the knowledge graph in natural language.
+- Chat: question the knowledge graph in natural language and, for suitable persisted results, open a table or locally validated Archify diagram on demand.
 - Import: process documents, transform large BPMN files, and synchronize CMDB data.
 - Mappings: review uncertain application matches and maintain decisions.
 - Organization: resolve organization candidates, responsibilities, roles, and duplicates.
@@ -65,8 +65,8 @@ The Streamlit workspace provides six tabs:
 - Configuration: configure LLM, Neo4j, paths, matching behavior, snapshots, and the default UI language.
 
 The UI is available in German and English. The language switch controls catalogued
-UI text. Chat replies follow the language of the user's question; object names and
-the graph schema remain unchanged.
+UI text. Chat replies follow the language of the user's most recent question; object
+names and the graph schema remain unchanged.
 
 ## Configuration
 
@@ -78,7 +78,8 @@ streamlit run app.py
 ```
 
 `config.json` is local and not versioned. Important settings include the
-OpenAI-compatible LLM endpoint and model, Neo4j connection details, input and
+OpenAI-compatible LLM endpoint and model, Neo4j connection details (including optional
+dedicated read-only chat credentials), input and
 output paths, CMDB column mapping, the fuzzy-match threshold, chat mode,
 snapshot retention, and `ui_locale` (`de` or `en`).
 

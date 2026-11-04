@@ -784,6 +784,14 @@ The chat may distinguish between confirmed facts and unconfirmed candidates:
 
 Decision metadata itself is not a chat subject.
 
+### 13.6 Optional Answer-Companion Diagram
+
+For a suitable persisted chat result, the Communication tab can offer table and diagram actions after the natural-language answer. Both views use only the rows and Cypher query stored on that exact chat message; opening either view never repeats the answering query.
+
+The diagram service deterministically resolves result values to unique domain-node identities, reads only a bounded permitted neighborhood through `execute_read`, excludes `Alias`, `ManualDecision`, `Rejection`, and `OrgCandidate`, and preserves `MAY_SERVE` as an explicitly unconfirmed relationship. Count-only, empty, yes/no, and isolated results do not offer a diagram. Candidate, HTML, and PNG preview are kept below `Output/chat-diagrams/<message-id>/`; the local Archify renderer validates the artifact before presentation.
+
+An explicit diagram follow-up reuses only the immediately preceding diagram-capable result and never repeats the answering query. The presentation is ArchiMate-oriented rather than notation-complete: processes, organization units, and roles use the amber business-layer style; applications and interfaces use the blue application-layer style; servers and fallback types use the green technology-layer style. Sublabels and renderer icons convey the corresponding Business Process, Application Component, Application Interface, Node, and Actor semantics.
+
 ---
 
 ## 14. UI Architecture

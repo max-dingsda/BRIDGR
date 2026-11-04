@@ -92,7 +92,7 @@ def test_run_document_builds_matches_and_review_items(tmp_path: Path) -> None:
             "process_id": "proc_001",
             "cmdb_id": "cmdb-2",
             "resolved_to": "Manual CRM",
-            "quelle": "manueller_link",
+            "source": "manueller_link",
         }
     ]
     result = run_document(
@@ -114,7 +114,7 @@ def test_run_document_builds_matches_and_review_items(tmp_path: Path) -> None:
     assert result.matches[0].cmdb_id == "cmdb-1"
     assert result.matches[1].cmdb_id is None
     assert result.matches[2].application_name == "Manuelles CRM"
-    assert result.matches[2].source == "knowledge_base_manual"
+    assert result.matches[2].source == "knowledge_base"
     assert result.review_items[0].application_name == "Unbekanntes System"
     assert result.graph_payload.process.process_id == "proc_001"
 
@@ -173,7 +173,7 @@ def test_run_document_revives_absent_manuell_bestaetigt_matches(tmp_path: Path) 
                 "process_id": "proc_001",
                 "cmdb_id": "cmdb-9",
                 "resolved_to": "Historic CRM",
-                "quelle": "manuell_bestaetigt",
+                "source": "manuell_bestaetigt",
             }
         ],
         rejected_links=[],

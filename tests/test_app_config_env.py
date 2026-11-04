@@ -70,3 +70,13 @@ def test_load_config_keeps_explicit_neo4j_config_values(tmp_path: Path, monkeypa
     assert config.neo4j_user == "custom-user"
     assert config.neo4j_password == "custom-secret"
     assert config.neo4j_database == "custom-db"
+
+
+def test_load_config_accepts_dedicated_chat_credentials(tmp_path: Path) -> None:
+    config_path = tmp_path / "config.json"
+    config_path.write_text(json.dumps({"neo4j_chat_user": "reader", "neo4j_chat_password": "secret"}), encoding="utf-8")
+
+    config = load_config(config_path)
+
+    assert config.neo4j_chat_user == "reader"
+    assert config.neo4j_chat_password == "secret"

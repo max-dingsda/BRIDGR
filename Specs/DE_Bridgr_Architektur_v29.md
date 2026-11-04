@@ -887,6 +887,14 @@ Der Chat darf bestätigte Fakten und unbestätigte Kandidaten unterscheiden:
 
 Entscheidungsmetadaten selbst sind kein Chat-Gegenstand.
 
+### 13.6 Optionale Antwort-Begleitgrafik
+
+Für geeignete gespeicherte Chat-Ergebnisse bietet der Tab Kommunikation nach der natürlichsprachlichen Antwort Tabelle und Diagramm auf Wunsch an. Beide Ansichten verwenden ausschließlich die an genau dieser Nachricht gespeicherten Ergebniszeilen und Cypher-Abfrage; das Öffnen wiederholt die Antwortabfrage nicht.
+
+Der Diagrammservice löst Ergebniswerte deterministisch auf eindeutige Fachknoten auf, liest nur eine begrenzte erlaubte Nachbarschaft über `execute_read`, schließt `Alias`, `ManualDecision`, `Rejection` und `OrgCandidate` aus und kennzeichnet `MAY_SERVE` weiterhin als unbestätigt. Leere, reine Zähl-, Ja/Nein- und isolierte Ergebnisse bieten kein Diagramm an. Kandidat, HTML und PNG-Vorschau liegen je Nachricht unter `Output/chat-diagrams/<message-id>/`; der lokale Archify-Renderer validiert das Artefakt vor der Anzeige.
+
+Eine ausdrückliche Diagramm-Folgefrage verwendet nur das unmittelbar vorherige diagrammfähige Ergebnis wieder und wiederholt die beantwortende Abfrage nie. Die Darstellung ist ArchiMate-nah, aber nicht notationsvollständig: Prozesse, Organisationseinheiten und Rollen verwenden den gelben Business Layer; Anwendungen und Schnittstellen den blauen Application Layer; Server und unbekannte Typen den grünen Technology Layer. Sublabels und Renderer-Icons vermitteln die Semantik Business Process, Application Component, Application Interface, Node und Actor.
+
 ---
 
 ## 14. UI-Architektur

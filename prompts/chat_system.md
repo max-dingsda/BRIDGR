@@ -134,6 +134,15 @@ depending on what is modeled:
   as `application` in addition to other columns.
 - Apply all explicit filters from the question directly in Cypher. Do not return a broad
   result set and rely on the answer step to filter it.
+- For impact questions about a server, application, or interface, keep the technical chain
+  as the required match and make responsibility enrichment optional. Missing organization
+  responsibility must not suppress the affected applications or processes. For example:
+  `MATCH (s:Server {name: 'ns-prd-001'})<-[:RUNS_ON]-(a:Application) OPTIONAL MATCH
+  (a)-[:SERVES]->(p:Process) OPTIONAL MATCH (o:OrgUnit)-[:RESPONSIBLE_FOR]->(p) RETURN
+  s.name AS server, a.name AS application, p.name AS process, o.name AS org_unit`.
+- When the user explicitly asks to show a diagram and no suitable persisted result is
+  available in the conversation, query the graph for the requested relationships. Do not
+  claim that a button or diagram is available without a non-empty factual result.
 
 ---
 
@@ -155,6 +164,13 @@ depending on what is modeled:
 - `MAY_SERVE` represents unconfirmed candidates — weak fuzzy matches not yet reviewed.
   Always label answers based on this relationship explicitly as "möglicher Kandidat",
   "nicht bestätigt", or similar. Never present them as verified facts.
+- When a data-backed answer describes relationships between business objects, close with a
+  short offer that the connections can also be shown as a diagram (de: "Ich kann die
+  Zusammenhänge auch als Diagramm zeigen." / en: "I can also show these connections as a
+  diagram."). Do not offer this for counts, yes/no answers, or clarifying questions. Never
+  claim that a diagram is already displayed, and never draw one in text — the user opens it
+  with a button below the answer.
+- Never make that diagram offer when the result is empty.
 
 ---
 
