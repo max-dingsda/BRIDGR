@@ -8,7 +8,6 @@ from core.constants import (
     CONFIDENCE_STRONG,
     DOCUMENT_STATUS_ERROR,
     DOCUMENT_STATUS_NO_MATCHES,
-    DOCUMENT_STATUS_SKIPPED_UNCHANGED,
     MATCH_SOURCE_KNOWLEDGE_BASE,
     MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL,
     MATCH_SOURCE_REJECTED,
@@ -34,7 +33,6 @@ def summarize_run(latest_run: dict, documents: list[dict] | None = None) -> dict
         "existing_processes": sum(
             1 for document in summary_documents if document.get("process_write_action") == PROCESS_WRITE_ACTION_UPDATED
         ),
-        "skipped": sum(1 for document in summary_documents if document.get("status") == DOCUMENT_STATUS_SKIPPED_UNCHANGED),
         "no_matches": sum(1 for document in summary_documents if document.get("status") == DOCUMENT_STATUS_NO_MATCHES),
         "errors": sum(1 for document in summary_documents if document.get("status") == DOCUMENT_STATUS_ERROR),
     }

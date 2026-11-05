@@ -58,6 +58,7 @@ def test_summarize_run_counts_statuses() -> None:
     assert summary["identified_processes"] == 1
     assert summary["new_processes"] == 1
     assert summary["existing_processes"] == 0
+    assert "skipped" not in summary
     assert summary["errors"] == 1
 
 

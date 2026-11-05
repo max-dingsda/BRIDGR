@@ -10,7 +10,6 @@ from processing.pipeline import (
     list_bpmn_files,
     run_document,
     run_pipeline,
-    should_skip_file,
 )
 from processing.run_artifacts import LATEST_RUN_FILENAME, STATE_FILENAME
 from skills.graph_writer import GraphWriter
@@ -176,15 +175,6 @@ def test_run_document_does_not_revive_absent_manuell_bestaetigt_matches(tmp_path
     )
 
     assert not any(match.application_name == "Historisches CRM" for match in result.matches)
-
-
-def test_should_skip_file_only_for_unchanged_delta_runs(tmp_path: Path) -> None:
-    source_path = tmp_path / "process.bpmn"
-    source_path.write_text("<definitions />", encoding="utf-8")
-
-    assert should_skip_file("partial", None, source_path, "same-hash", {str(source_path): "same-hash"}) is False
-    assert should_skip_file("full", None, source_path, "same-hash", {str(source_path): "same-hash"}) is False
-    assert should_skip_file("partial", [source_path], source_path, "same-hash", {str(source_path): "same-hash"}) is False
 
 
 def test_run_pipeline_writes_artifacts_for_full_runs(tmp_path: Path, monkeypatch) -> None:

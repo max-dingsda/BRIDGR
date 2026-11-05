@@ -12,7 +12,6 @@ from core.constants import (
     DOCUMENT_STATUS_ERROR,
     DOCUMENT_STATUS_NO_MATCHES,
     DOCUMENT_STATUS_PROCESSED,
-    DOCUMENT_STATUS_SKIPPED_UNCHANGED,
     MATCH_SOURCE_KNOWLEDGE_BASE_MANUAL,
 )
 from core.debug_utils import write_debug_log
@@ -23,7 +22,6 @@ from processing.run_artifacts import (
     DocumentState,
     ImportState,
     compute_file_hash,
-    load_import_state,
     save_import_state,
     write_latest_run,
 )
@@ -267,18 +265,6 @@ def build_document_result(
         review_items=review_items,
         graph_payload=graph_payload,
     )
-
-
-def should_skip_file(
-    run_mode: str,
-    explicit_input_paths: list[Path] | None,
-    source_path: Path,
-    file_hash: str,
-    previous_hashes: dict[str, str],
-) -> bool:
-    if explicit_input_paths is not None:
-        return False
-    return False
 
 
 _PERSISTENT_LINK_SOURCES = {"manueller_link", "manuell_bestaetigt"}
