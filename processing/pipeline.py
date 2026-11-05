@@ -339,19 +339,12 @@ def resolve_org_units(
     org_units: dict[str, str],
     org_unit_aliases: dict[str, str],
 ) -> list[str]:
-    """Resolve role and candidate names to canonical OrgUnit names.
+    """Resolve explicit organization candidates to canonical OrgUnit names.
 
     org_units: {normalized_name: canonical_name} loaded from Neo4j OrgUnit nodes.
     org_unit_aliases: {normalized_alias: canonical_org_unit_name} loaded from Neo4j Alias nodes.
     """
     resolved_org_units: list[str] = []
-    for role_name in extracted_process.roles:
-        normalized_role = normalize_org_unit_name(role_name)
-        matched_name = org_units.get(normalized_role)
-        if not matched_name or matched_name in resolved_org_units:
-            continue
-        resolved_org_units.append(matched_name)
-
     for candidate_name in extracted_process.org_unit_candidates:
         mapped_name = _resolve_org_unit_name(candidate_name, org_units, org_unit_aliases)
         if not mapped_name or mapped_name in resolved_org_units:

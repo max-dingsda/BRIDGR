@@ -500,7 +500,7 @@ def test_run_pipeline_propagates_neo4j_write_failures(tmp_path: Path, monkeypatc
         run_pipeline(config)
 
 
-def test_apply_org_unit_mapping_uses_exact_role_matches_from_curated_org_units() -> None:
+def test_apply_org_unit_mapping_keeps_same_named_lane_as_role() -> None:
     extracted_process = ExtractedProcess(
         process_name="Incident Handling",
         process_id="proc-1",
@@ -517,8 +517,32 @@ def test_apply_org_unit_mapping_uses_exact_role_matches_from_curated_org_units()
 
     result = apply_org_unit_mapping(extracted_process, org_units, {})
 
-    assert result.org_unit == "People & Culture"
-    assert result.org_units == ["People & Culture"]
+    assert result.org_unit == ""
+    assert result.org_units == []
+    assert result.roles == ["People & Culture"]
+
+
+def test_apply_org_unit_mapping_keeps_explicit_owner_as_candidate_until_confirmation() -> None:
+    extracted_process = ExtractedProcess(
+        process_name="Invoice handling",
+        process_id="proc-1",
+        org_unit="",
+        roles=["Buchhaltung"],
+        org_units=[],
+        org_unit_candidates=[],
+        follows_after=[],
+        raw_applications=[],
+        applications=[],
+        source_path="Input/process.txt",
+        process_owner_candidate="Buchhaltung",
+    )
+
+    result = apply_org_unit_mapping(extracted_process, {"buchhaltung": "Buchhaltung"}, {})
+
+    assert result.org_unit == ""
+    assert result.org_units == []
+    assert result.roles == ["Buchhaltung"]
+    assert result.process_owner_candidate == "Buchhaltung"
 
 
 def test_apply_org_unit_mapping_uses_confirmed_candidates_for_unstructured_documents() -> None:
@@ -567,7 +591,7 @@ def test_run_pipeline_persists_org_candidates_to_neo4j(tmp_path: Path, monkeypat
             return {
                 "process": "Einkaufsprozess",
                 "process_id": "proc_einkauf",
-                "role": "Einkäufer",
+                "roles": ["Einkäufer"],
                 "process_owner": "",
                 "org_unit_candidates": ["Team Einkauf"],
                 "follows_after": [],

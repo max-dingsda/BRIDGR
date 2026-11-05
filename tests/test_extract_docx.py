@@ -99,7 +99,7 @@ def test_docx_extractor_splits_comma_separated_roles_and_org_candidates(tmp_path
             return {
                 "process": "Zahlungsabwicklung",
                 "process_id": "",
-                "role": "Buchhaltung, Controlling",
+                "roles": ["Buchhaltung, Controlling"],
                 "process_owner": "",
                 "org_unit_candidates": ["Buchhaltung, Auftragsbearbeitung"],
                 "follows_after": [],

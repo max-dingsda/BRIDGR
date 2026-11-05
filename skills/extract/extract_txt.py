@@ -26,7 +26,7 @@ class TextExtractor:
         payload = self._generate_json_with_required_keys(
             system_prompt=prompt,
             user_prompt=document_text,
-            required_keys={"process", "role", "process_owner", "org_unit_candidates", "applications"},
+            required_keys={"process", "roles", "process_owner", "org_unit_candidates", "applications"},
         )
         return self._to_domain_model(payload, source_path, document_text)
 
@@ -88,10 +88,10 @@ class TextExtractor:
         if self._is_bpmn_transform_text(document_text):
             return []
 
-        role_value = str(payload.get("role") or payload.get("org_unit") or "").strip()
-        if not role_value:
+        raw_roles = payload.get("roles", [])
+        if not isinstance(raw_roles, list):
             return []
-        return self._split_multi_value_names([role_value])
+        return self._split_multi_value_names(raw_roles)
 
     def _resolve_process_owner_candidate(self, payload: dict, document_text: str) -> str:
         if self._is_bpmn_transform_text(document_text):
