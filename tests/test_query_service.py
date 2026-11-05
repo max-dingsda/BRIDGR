@@ -77,6 +77,13 @@ def test_diagram_followup_does_not_reuse_empty_or_count_only_results() -> None:
     assert _diagram_source_from_history("show me a diagram", messages) is None
 
 
+def test_diagram_followup_does_not_promise_a_diagram_for_too_many_elements() -> None:
+    rows = [{"application": f"Application {index}"} for index in range(26)]
+    messages = [{"role": "assistant", "cypher_query": "MATCH (a:Application) RETURN a.name", "rows": rows}]
+
+    assert _diagram_source_from_history("show me a diagram", messages) is None
+
+
 def test_diagram_followup_response_is_localized() -> None:
     assert "Diagramm" in _diagram_followup_response("de")
     assert "diagram" in _diagram_followup_response("en").lower()
@@ -147,6 +154,16 @@ def test_format_query_result_does_not_include_hints_when_rows_present() -> None:
 
 def test_format_query_result_uses_english_protocol_for_english_chat() -> None:
     assert _format_query_result([], [], "en") == "[QUERY_RESULT]\nNo matches."
+
+
+def test_format_query_result_tells_the_llm_not_to_offer_an_oversized_diagram() -> None:
+    rows = [{"application": f"Application {index}"} for index in range(26)]
+
+    result = _format_query_result(rows, [], "de")
+
+    assert "[DIAGRAMM_STATUS]" in result
+    assert "26 unterschiedliche Elemente" in result
+    assert "Biete kein Diagramm an" in result
 
 
 def test_translate_error_for_user_uses_active_response_locale() -> None:

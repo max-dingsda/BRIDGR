@@ -4,16 +4,24 @@ import subprocess
 
 import pytest
 
+from core.chat_neo4j import _is_fixed_visualization_query
 from services.graph_view_service import (
+    ANSWER_DIAGRAM_NODE_LIMIT,
+    _EXPAND_QUERY,
+    _RESOLVE_SEED_QUERY,
+    _WEAK_EDGE_QUERY,
     NODE_BUDGET,
     GraphEdge,
     GraphNode,
     Seed,
     Subgraph,
     apply_node_budget,
+    answer_diagram_is_renderable,
+    build_answer_subgraph,
     build_dot,
     build_subgraph,
     collect_seed_candidates,
+    count_answer_nodes,
     extract_relationship_types,
     generate_graph_dot,
     resolve_seeds,
@@ -69,6 +77,23 @@ def test_collect_seed_candidates_handles_empty_rows() -> None:
     assert collect_seed_candidates([]) == []
 
 
+def test_answer_diagram_limit_counts_distinct_named_objects() -> None:
+    rows = [
+        {"application": "SAP SD", "process": f"Process {index}"}
+        for index in range(ANSWER_DIAGRAM_NODE_LIMIT)
+    ]
+
+    assert count_answer_nodes(rows) == ANSWER_DIAGRAM_NODE_LIMIT + 1
+    assert answer_diagram_is_renderable(rows) is False
+
+
+def test_answer_diagram_limit_allows_at_most_25_distinct_named_objects() -> None:
+    rows = [{"application": f"Application {index}"} for index in range(ANSWER_DIAGRAM_NODE_LIMIT)]
+
+    assert count_answer_nodes(rows) == ANSWER_DIAGRAM_NODE_LIMIT
+    assert answer_diagram_is_renderable(rows) is True
+
+
 # --- resolve_seeds (seed contract) ---------------------------------------------------
 
 
@@ -109,6 +134,38 @@ def test_resolve_seeds_deduplicates_candidates_pointing_at_the_same_node() -> No
     seeds = resolve_seeds(client, ["SAP SD", "SAP Sales"])
 
     assert [seed.element_id for seed in seeds] == ["4:a:1"]
+
+
+def test_resolve_seeds_uses_fixed_visualization_reads_when_available() -> None:
+    class Client:
+        def __init__(self) -> None:
+            self.visualization_queries: list[str] = []
+
+        def execute_read(self, query: str, parameters=None):  # pragma: no cover - must not be used
+            raise AssertionError("generic chat read must not be used for diagram lookups")
+
+        def execute_visualization_read(self, query: str, parameters=None):
+            self.visualization_queries.append(query)
+            return [{"eid": "4:a:1", "label": "Application"}]
+
+    client = Client()
+
+    seeds = resolve_seeds(client, ["SAP SD"])
+
+    assert seeds == [Seed(element_id="4:a:1", label="Application", name="SAP SD")]
+    assert client.visualization_queries
+
+
+def test_fixed_visualization_query_guard_accepts_only_the_diagram_queries() -> None:
+    assert all(_is_fixed_visualization_query(query) for query in (
+        _RESOLVE_SEED_QUERY,
+        _EXPAND_QUERY,
+        _WEAK_EDGE_QUERY,
+        "MATCH (a)-[r]->(b) WHERE elementId(a) IN $element_ids AND elementId(b) IN $element_ids "
+        "AND type(r) IN $relationship_types RETURN elementId(a) AS source_eid, elementId(b) AS target_eid, "
+        "type(r) AS relationship_type",
+    ))
+    assert not _is_fixed_visualization_query("MATCH (n) RETURN n.name")
 
 
 def test_generate_graph_dot_returns_no_diagram_without_resolved_seeds() -> None:
@@ -296,6 +353,31 @@ def test_build_subgraph_returns_nothing_without_seeds() -> None:
 
     assert subgraph.nodes == {}
     assert client.queries == []
+
+
+def test_build_answer_subgraph_keeps_only_returned_nodes_and_their_direct_edges() -> None:
+    client = FakeNeo4jClient(
+        [[
+            {"source_eid": "o1", "target_eid": "p1", "relationship_type": "RESPONSIBLE_FOR"},
+            {"source_eid": "a1", "target_eid": "p1", "relationship_type": "SERVES"},
+        ]]
+    )
+    seeds = [
+        Seed("o1", "OrgUnit", "Controlling"),
+        Seed("p1", "Process", "Forecast aktualisieren"),
+        Seed("a1", "Application", "BI Data Warehouse"),
+    ]
+
+    subgraph = build_answer_subgraph(client, seeds, ["RESPONSIBLE_FOR", "SERVES"])
+
+    assert set(subgraph.nodes) == {"o1", "p1", "a1"}
+    assert subgraph.edges == [
+        GraphEdge("a1", "p1", "SERVES"),
+        GraphEdge("o1", "p1", "RESPONSIBLE_FOR"),
+    ]
+    assert len(client.queries) == 1
+    _, parameters = client.queries[0]
+    assert parameters["element_ids"] == ["o1", "p1", "a1"]
 
 
 # --- apply_node_budget ---------------------------------------------------------------

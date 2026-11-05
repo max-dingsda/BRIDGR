@@ -25,6 +25,18 @@ from services.runtime_service import (
 _INTERACTIVE_DIAGRAM_HEIGHT = 1000
 
 
+def _has_no_matches(message: dict, rows: list[dict]) -> bool:
+    """Only an empty stored result warrants the no-matches notice."""
+    return message.get("role") == "assistant" and bool(message.get("cypher_query")) and not rows
+
+
+def _diagram_state(message: dict) -> str:
+    """Distinguish an unrequested diagram from an unavailable generated one."""
+    if "diagram_html" not in message:
+        return "not_requested"
+    return "ready" if message["diagram_html"] else "unavailable"
+
+
 def render_query_chat_messages(config: AppConfig) -> None:
     locale = get_active_locale()
     for idx, message in enumerate(st.session_state.get(CHAT_MESSAGES_STATE_KEY, [])):
@@ -42,7 +54,7 @@ def render_query_chat_messages(config: AppConfig) -> None:
                     mime="text/csv",
                     key=f"download-csv-{idx}",
                 )
-            elif message["role"] == "assistant" and message.get("cypher_query"):
+            elif _has_no_matches(message, rows):
                 st.info(translate("chat.no_matches", locale))
             if message.get("cypher_query"):
                 with st.expander(translate("chat.technical_details", locale), expanded=False):
@@ -60,7 +72,7 @@ def _render_message_actions(idx: int, message: dict, config: AppConfig, locale: 
         st.rerun()
     if not diagram_is_possible(rows):
         return
-    if not message.get("diagram_html"):
+    if _diagram_state(message) == "not_requested":
         if st.button(f"📊 {translate('chat.show_as_diagram', locale)}", key=f"diagram-btn-{idx}"):
             try:
                 result = render_chat_diagram(get_session_chat_client(config), rows, message.get("cypher_query", ""), f"chat-{idx}")
@@ -75,7 +87,7 @@ def _render_message_actions(idx: int, message: dict, config: AppConfig, locale: 
             message["diagram_note"] = result.note
             st.rerun()
         return
-    if not message["diagram_html"]:
+    if _diagram_state(message) == "unavailable":
         st.info(translate("chat.diagram_none", locale))
         return
     if not _render_interactive_diagram(message["diagram_html"]):

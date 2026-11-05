@@ -10,7 +10,12 @@ from core.graph_schema import build_archimate_mapping_reference, build_query_sch
 from core.llm_client import LlmClientConfig, LlmClientError, OpenAICompatibleClient
 from core.neo4j_utils import Neo4jConnectionError, Neo4jQueryError, QueryValidationError
 from services.alias_service import lookup_alias_matches
-from services.graph_view_service import collect_seed_candidates
+from services.graph_view_service import (
+    ANSWER_DIAGRAM_NODE_LIMIT,
+    answer_diagram_is_renderable,
+    collect_seed_candidates,
+    count_answer_nodes,
+)
 from services.runtime_service import (
     CHAT_MESSAGES_STATE_KEY,
     append_chat_message,
@@ -187,7 +192,7 @@ def _diagram_source_from_history(question: str, messages: list[dict]) -> tuple[s
             continue
         rows = message.get("rows", [])
         cypher_query = message.get("cypher_query", "")
-        if cypher_query and isinstance(rows, list) and collect_seed_candidates(rows):
+        if cypher_query and isinstance(rows, list) and answer_diagram_is_renderable(rows):
             return cypher_query, rows
         return None
     return None
@@ -401,15 +406,16 @@ def _collect_alias_hints(cypher_query: str, neo4j_client) -> list[str]:
 
 
 def _format_query_result(rows: list[dict], alias_hints: list[str], response_locale: str | None = None) -> str:
+    diagram_status = _diagram_status_message(rows, response_locale)
     if normalize_locale(response_locale) == "en":
         if rows:
-            return f"[QUERY_RESULT]\n{json.dumps(rows, ensure_ascii=False, indent=2)}"
+            return f"[QUERY_RESULT]\n{json.dumps(rows, ensure_ascii=False, indent=2)}{diagram_status}"
         if alias_hints:
             hints_text = "\n".join(f"- {hint}" for hint in alias_hints)
             return f"[QUERY_RESULT]\nNo matches.\n\nPossible alternative terms in the knowledge graph:\n{hints_text}"
         return "[QUERY_RESULT]\nNo matches."
     if rows:
-        return f"[ABFRAGEERGEBNIS]\n{json.dumps(rows, ensure_ascii=False, indent=2)}"
+        return f"[ABFRAGEERGEBNIS]\n{json.dumps(rows, ensure_ascii=False, indent=2)}{diagram_status}"
     if alias_hints:
         hints_text = "\n".join(f"- {h}" for h in alias_hints)
         return (
@@ -417,6 +423,26 @@ def _format_query_result(rows: list[dict], alias_hints: list[str], response_loca
             f"Hinweis — mögliche Alternativbegriffe im Wissensgraphen:\n{hints_text}"
         )
     return "[ABFRAGEERGEBNIS]\nKeine Treffer."
+
+
+def _diagram_status_message(rows: list[dict], response_locale: str | None) -> str:
+    """Tell the final LLM response when a result is too large to diagram."""
+    node_count = count_answer_nodes(rows)
+    if node_count <= ANSWER_DIAGRAM_NODE_LIMIT:
+        return ""
+    if normalize_locale(response_locale) == "en":
+        return (
+            "\n\n[DIAGRAM_STATUS]\n"
+            f"The result contains {node_count} distinct elements; the maximum is {ANSWER_DIAGRAM_NODE_LIMIT}. "
+            "Do not offer a diagram. Explain naturally that the result is too large for a readable diagram "
+            "and ask the user to narrow the question, for example to an application, process, or organizational unit."
+        )
+    return (
+        "\n\n[DIAGRAMM_STATUS]\n"
+        f"Das Ergebnis enthält {node_count} unterschiedliche Elemente; maximal erlaubt sind {ANSWER_DIAGRAM_NODE_LIMIT}. "
+        "Biete kein Diagramm an. Erkläre natürlich, dass das Ergebnis für ein lesbares Diagramm zu umfangreich ist, "
+        "und bitte darum, die Frage beispielsweise auf eine Anwendung, einen Prozess oder eine Organisationseinheit einzugrenzen."
+    )
 
 
 def _translate_error_for_user(exc: Exception, response_locale: str | None = None) -> str:

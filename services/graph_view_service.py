@@ -21,6 +21,7 @@ from core.neo4j_utils import _strip_cypher_strings_and_comments
 # --- Module constants (§13.6.4, §13.6.5, §13.6.7) -----------------------------------
 
 NODE_BUDGET = 30
+ANSWER_DIAGRAM_NODE_LIMIT = 25
 RANKDIR = "LR"
 FALLBACK_HOPS = 2
 EXCLUDED_LABELS: frozenset[str] = INTERNAL_NODE_LABELS
@@ -135,6 +136,16 @@ def collect_seed_candidates(rows: list[dict]) -> list[str]:
     return candidates
 
 
+def count_answer_nodes(rows: list[dict]) -> int:
+    """Count distinct named answer objects that a companion diagram would show."""
+    return len(collect_seed_candidates(rows))
+
+
+def answer_diagram_is_renderable(rows: list[dict]) -> bool:
+    """Return whether an answer has a readable number of named objects."""
+    return 2 <= count_answer_nodes(rows) <= ANSWER_DIAGRAM_NODE_LIMIT
+
+
 _RESOLVE_SEED_QUERY = (
     "MATCH (n) "
     "WHERE n.name = $value AND any(l IN labels(n) WHERE l IN $visual_labels) "
@@ -154,7 +165,8 @@ def resolve_seeds(neo4j_client, candidates: list[str]) -> list[Seed]:
     seeds: list[Seed] = []
     seen_element_ids: set[str] = set()
     for candidate in candidates:
-        rows = neo4j_client.execute_read(
+        rows = _execute_visualization_read(
+            neo4j_client,
             _RESOLVE_SEED_QUERY,
             {"value": candidate, "visual_labels": visual_labels},
         )
@@ -205,6 +217,22 @@ _WEAK_EDGE_QUERY = (
     "type(r) AS relationship_type"
 )
 
+_ANSWER_EDGE_QUERY = (
+    "MATCH (a)-[r]->(b) "
+    "WHERE elementId(a) IN $element_ids AND elementId(b) IN $element_ids "
+    "AND type(r) IN $relationship_types "
+    "RETURN elementId(a) AS source_eid, elementId(b) AS target_eid, "
+    "type(r) AS relationship_type"
+)
+
+
+def _execute_visualization_read(neo4j_client, query: str, parameters: dict) -> list[dict]:
+    """Use the narrow fixed-query path when the chat client provides it."""
+    execute = getattr(neo4j_client, "execute_visualization_read", None)
+    if callable(execute):
+        return execute(query, parameters)
+    return neo4j_client.execute_read(query, parameters)
+
 
 def build_subgraph(
     neo4j_client,
@@ -245,7 +273,8 @@ def build_subgraph(
 
     while frontier and (max_hops is None or depth < max_hops):
         depth += 1
-        rows = neo4j_client.execute_read(
+        rows = _execute_visualization_read(
+            neo4j_client,
             _EXPAND_QUERY,
             {
                 "element_ids": frontier,
@@ -282,6 +311,49 @@ def build_subgraph(
         frontier = next_frontier
 
     _add_weak_edges(neo4j_client, subgraph, seen_edges)
+    return subgraph
+
+
+def build_answer_subgraph(
+    neo4j_client,
+    seeds: list[Seed],
+    relationship_types: list[str],
+) -> Subgraph:
+    """Keep a chat diagram faithful to the objects returned in its answer.
+
+    The diagram may verify direct relationships between the resolved answer nodes,
+    but it must not expand the graph with neighbouring objects the answer did not
+    mention.  This makes the visual a companion to the stored result rather than
+    a broader graph exploration.
+    """
+    subgraph = Subgraph(
+        nodes={
+            seed.element_id: GraphNode(seed.element_id, seed.label, seed.name, 0)
+            for seed in seeds
+        }
+    )
+    if len(subgraph.nodes) < 2:
+        return subgraph
+
+    types = relationship_types or list(BUSINESS_RELATIONSHIP_TYPES)
+    rows = _execute_visualization_read(
+        neo4j_client,
+        _ANSWER_EDGE_QUERY,
+        {"element_ids": list(subgraph.nodes), "relationship_types": types},
+    )
+    seen_edges: set[tuple[str, str, str]] = set()
+    for row in sorted(
+        rows or [],
+        key=lambda row: (
+            str(row.get("source_eid") or ""),
+            str(row.get("target_eid") or ""),
+            str(row.get("relationship_type") or ""),
+        ),
+    ):
+        source_id = str(row["source_eid"])
+        target_id = str(row["target_eid"])
+        if source_id in subgraph.nodes and target_id in subgraph.nodes:
+            _add_edge(subgraph, seen_edges, source_id, target_id, str(row["relationship_type"]))
     return subgraph
 
 
@@ -323,7 +395,11 @@ def _add_weak_edges(
     element_ids = list(subgraph.nodes)
     if len(element_ids) < 2:
         return
-    rows = neo4j_client.execute_read(_WEAK_EDGE_QUERY, {"element_ids": element_ids})
+    rows = _execute_visualization_read(
+        neo4j_client,
+        _WEAK_EDGE_QUERY,
+        {"element_ids": element_ids},
+    )
     for row in sorted(
         rows or [],
         key=lambda row: (str(row.get("source_eid") or ""), str(row.get("target_eid") or "")),

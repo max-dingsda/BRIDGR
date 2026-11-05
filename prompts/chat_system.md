@@ -171,6 +171,9 @@ depending on what is modeled:
   claim that a diagram is already displayed, and never draw one in text — the user opens it
   with a button below the answer.
 - Never make that diagram offer when the result is empty.
+- When the query result contains a `[DIAGRAMM_STATUS]` or `[DIAGRAM_STATUS]` instruction,
+  follow it exactly. It is deterministic application state: do not offer a diagram and explain
+  naturally why the result must first be narrowed.
 
 ---
 

@@ -16,8 +16,8 @@ from pathlib import Path
 from services.graph_view_service import (
     GraphEdge,
     GraphNode,
-    apply_node_budget,
-    build_subgraph,
+    answer_diagram_is_renderable,
+    build_answer_subgraph,
     collect_seed_candidates,
     extract_relationship_types,
     resolve_seeds,
@@ -68,16 +68,18 @@ _DEFAULT_NODE_VISUAL = NodeVisual("backend", "", "none")
 
 
 def diagram_is_possible(rows: list[dict]) -> bool:
-    return bool(collect_seed_candidates(rows))
+    return answer_diagram_is_renderable(rows)
 
 
 def render_chat_diagram(neo4j_client, rows: list[dict], cypher_query: str, message_id: str) -> DiagramArtifact:
     """Render a validated local architecture view for one stored chat message."""
+    if not diagram_is_possible(rows):
+        return DiagramArtifact(None, None, None)
     seeds = resolve_seeds(neo4j_client, collect_seed_candidates(rows))
     if not seeds:
         return DiagramArtifact(None, None, None)
-    subgraph = build_subgraph(neo4j_client, seeds, extract_relationship_types(cypher_query))
-    subgraph, truncated = apply_node_budget(subgraph)
+    subgraph = build_answer_subgraph(neo4j_client, seeds, extract_relationship_types(cypher_query))
+    truncated = False
     if not subgraph.nodes:
         return DiagramArtifact(None, None, None)
 
