@@ -336,8 +336,7 @@ Jedes Prozessdokument durchläuft diese Kette:
 
 - fachliche Importkanten werden pro Prozess bzw. pro CMDB-Sync deterministisch aktualisiert
 - persistente manuelle Entscheidungen müssen über Re-Importe hinweg erhalten bleiben
-- bestätigte oder manuell angelegte Zuordnungen dürfen nicht durch blösses
-  Verschwinden eines Rohbegriffs im Quelldokument verloren gehen
+- eine aktive bestätigte oder manuell angelegte `SERVES`-Kante verlangt den Rohbegriff im aktuellen Quelldokument. Verschwindet der Begriff, wird die Kante entfernt, die Entscheidung bleibt aber nachvollziehbar; bei erneuter Nennung wird dieselbe Entscheidung wiederverwendet.
 
 ### 7.5 CMDB-Import-Format
 
@@ -1094,7 +1093,7 @@ bestätigt werden.
 
 ### 18.6 Stabilisierungsverträge (Review R1–R7, 07.09.2026)
 
-- Bestätigungen/Ablehnungen verwenden `process_id`; `process` ist die Namensprojektion. Manuelle/bestätigte `SERVES`-Kanten überstehen Umbenennungen und entfernte Rohbegriffe. Historische Namensablehnungen werden nur eindeutig gebunden. Ungültige gespeicherte Entscheidungen stoppen das erneute Matching ausdrücklich bis zur Datenklärung.
+- Bestätigungen/Ablehnungen verwenden `process_id`; `process` ist die Namensprojektion. Manuelle/bestätigte Entscheidungen überstehen Umbenennungen, eine aktive `SERVES`-Kante besteht jedoch nur, solange ihr Rohbegriff im aktuellen Dokument extrahiert wird. Verschwindet der Begriff, wird die Kante entfernt und die Entscheidung bleibt nachvollziehbar; bei erneuter Nennung wird sie wiederverwendet. Historische Namensablehnungen werden nur eindeutig gebunden. Ungültige gespeicherte Entscheidungen stoppen das erneute Matching ausdrücklich bis zur Datenklärung.
 - Ein datenbankweiter `__BridgrWriteLock` serialisiert alle BRIDGR-Schreiber über Sitzungs-/Prozessgrenzen. Snapshot und geschützte Operation teilen die Sperre. Prozessupdate, CMDB-Sync, ArchiMate-Import, manuelle Entscheidung mit Audit, Merge, Undo mit Audit und Restore sind transaktional. LLM-Extraktion erfolgt vorher. Direkte externe Datenbankänderungen nehmen nicht teil und müssen während geschützter Operationen pausieren. Ein Ausfall der Sperrverbindung ist eine Betriebsstörung; ein verteiltes Fencing-Protokoll wird nicht zugesichert.
 - `latest_run.json` und Importstatus werden als `__BridgrArtifact` zusammen mit Fachänderungen gespeichert und nach Commit atomar veröffentlicht. Dateifehler bleiben wiederholbar; die Meldung unterscheidet den bereits gespeicherten Graphen von der ausstehenden Anzeige. Alte nicht schreibbare Artefakte blockieren unabhängige Änderungen nicht. `in_progress` kennzeichnet einen noch nicht vollständig abgeschlossenen Batch, dessen frühere Dokumente bereits committed sein können. Archivierung erfolgt nach Commit mit vorher persistiertem Journal und Wiederholung im Import-Tab ohne erneuten Import/Audit. Fehlerhafte Quelldokumente bleiben in der Inbox.
 - Merge-Payload Version 2 speichert vollständige typisierte Knoten-/Kantenproperties vor und nach dem Merge. `__bridgr_id` ist über das Zusatzlabel `__BridgrIdentity` eindeutig indiziert; das Label ist kein Fachtyp. Undo vergleicht den betroffenen Graphen mit dem Nachzustand und blockiert bei späteren Änderungen oder fehlenden Endpunkten. Historische unvollständige Payloads werden nicht automatisch zurückgenommen. Bei Gleichstand gewinnen Zielproperties; stärkere manuelle/bestätigte Kanteninformationen haben Vorrang, Identitäts-/ArchiMate-Referenzen des Ziels bleiben erhalten. Konfligierende Originalwerte bleiben für Undo im Vorzustand. Unbekannte Quellbeziehungstypen blockieren den Merge.

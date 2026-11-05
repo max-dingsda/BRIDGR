@@ -1,4 +1,10 @@
-from skills.match import match_application, match_application_candidates, normalize_name_for_matching
+from skills.match import (
+    compute_containment_score,
+    match_application,
+    match_application_candidates,
+    normalize_name_for_matching,
+    similarity_score,
+)
 
 
 def test_match_application_prefers_confirmed_links() -> None:
@@ -93,7 +99,7 @@ def test_normalize_name_for_matching_reduces_technical_noise() -> None:
     assert normalized == "shipper service"
 
 
-def test_match_application_candidates_returns_multiple_weak_candidates() -> None:
+def test_match_application_does_not_match_single_token_containment() -> None:
     results = match_application_candidates(
         application_name="Adobe",
         process_name="Dokumentenmanagement",
@@ -108,6 +114,56 @@ def test_match_application_candidates_returns_multiple_weak_candidates() -> None
         name_column="application_name",
     )
 
-    assert len(results) == 2
-    assert {result.matched_name for result in results} == {"Adobe Reader", "Adobe Professional"}
-    assert all(result.confidence == "schwach" for result in results)
+    assert len(results) == 1
+    assert results[0].source == "unmatched"
+
+
+def test_normalize_name_for_matching_keeps_customer_specific_terms() -> None:
+    normalized = normalize_name_for_matching("Camunda IncidentManagement Examples System")
+
+    assert normalized == "camunda incident management examples"
+
+
+def test_match_application_distinguishes_two_camunda_systems() -> None:
+    results = match_application_candidates(
+        application_name="Camunda Invoice System",
+        process_name="Invoice processing",
+        cmdb_rows=[
+            {"app_id": "invoice", "application_name": "Camunda Invoice System"},
+            {"app_id": "payment", "application_name": "Camunda Payment System"},
+        ],
+        confirmed_links=[],
+        rejected_links=[],
+        threshold=0.85,
+        uuid_column="app_id",
+        name_column="application_name",
+    )
+
+    assert [(result.cmdb_id, result.matched_name) for result in results] == [
+        ("invoice", "Camunda Invoice System"),
+    ]
+
+
+def test_empty_normalizations_do_not_receive_a_similarity_score() -> None:
+    assert normalize_name_for_matching("System Interface") == ""
+    assert similarity_score("", "") == 0.0
+
+
+def test_single_token_sap_containment_is_not_a_candidate_match() -> None:
+    results = match_application_candidates(
+        application_name="SAP",
+        process_name="Finance",
+        cmdb_rows=[
+            {"app_id": "fi", "application_name": "SAP Finance System"},
+            {"app_id": "hr", "application_name": "SAP HR System"},
+        ],
+        confirmed_links=[],
+        rejected_links=[],
+        threshold=0.85,
+        uuid_column="app_id",
+        name_column="application_name",
+    )
+
+    assert len(results) == 1
+    assert results[0].source == "unmatched"
+    assert compute_containment_score("sap", "sap finance") == 0.0

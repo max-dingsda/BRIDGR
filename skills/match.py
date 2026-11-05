@@ -134,6 +134,7 @@ def match_application_candidates(
 
 _APPLICATION_TYPE_BONUS = 0.05
 _INTERFACE_TYPE_PENALTY = 0.05
+_MIN_CONTAINMENT_TOKENS = 2
 
 
 def build_fuzzy_candidates(
@@ -156,7 +157,7 @@ def build_fuzzy_candidates(
         candidate_name = row.get(name_column, "")
         normalized_candidate_name = normalize_name_for_matching(candidate_name)
         raw_score = SequenceMatcher(None, application_name.lower(), candidate_name.lower()).ratio()
-        normalized_score = SequenceMatcher(None, normalized_application_name, normalized_candidate_name).ratio()
+        normalized_score = similarity_score(normalized_application_name, normalized_candidate_name)
         containment_score = compute_containment_score(normalized_application_name, normalized_candidate_name)
         score = max(raw_score, normalized_score, containment_score)
         entity_type = (row.get(entity_type_column) or "").strip().lower()
@@ -198,9 +199,6 @@ def normalize_name_for_matching(value: str) -> str:
             "op",
             "java",
             "com",
-            "camunda",
-            "examples",
-            "incidentmanagement",
         }
     ]
     return " ".join(filtered_tokens)
@@ -217,11 +215,18 @@ def classify_match_confidence(raw_score: float, normalized_score: float) -> str:
 def compute_containment_score(left: str, right: str) -> float:
     left_tokens = set(left.split())
     right_tokens = set(right.split())
-    if not left_tokens or not right_tokens:
+    if len(left_tokens) < _MIN_CONTAINMENT_TOKENS or len(right_tokens) < _MIN_CONTAINMENT_TOKENS:
         return 0.0
     if left_tokens.issubset(right_tokens) or right_tokens.issubset(left_tokens):
         return 0.9
     return 0.0
+
+
+def similarity_score(left: str, right: str) -> float:
+    """Return a similarity score only when both normalized values retain information."""
+    if not left or not right:
+        return 0.0
+    return SequenceMatcher(None, left, right).ratio()
 
 
 def is_application_rejected(

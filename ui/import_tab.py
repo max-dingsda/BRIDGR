@@ -10,7 +10,6 @@ from core.constants import (
     DOCUMENT_STATUS_ERROR,
     DOCUMENT_STATUS_NO_MATCHES,
     DOCUMENT_STATUS_PROCESSED,
-    DOCUMENT_STATUS_SKIPPED_UNCHANGED,
 )
 from processing.bpmn_transformer import BpmnTransformError, transform_bpmn_for_import
 from processing.cmdb import CmdbLoadError, validate_cmdb_entity_file
@@ -94,7 +93,6 @@ def store_last_run_summary(documents: list, input_dir: Path) -> None:
                 "display_path": display_path,
                 "status": document.status,
                 "reason": document.error_message or {
-                    DOCUMENT_STATUS_SKIPPED_UNCHANGED: _t("import.reason_unchanged"),
                     DOCUMENT_STATUS_ERROR: _t("import.reason_error"),
                 }.get(document.status, ""),
             }
@@ -115,10 +113,7 @@ def render_last_run_summary() -> None:
     summary_parts = [_t("import.summary.imported", count=len(imported))]
     if no_matches_count:
         summary_parts.append(_t("import.summary.no_matches", count=no_matches_count))
-    skipped_count = sum(1 for row in rows if row["status"] == DOCUMENT_STATUS_SKIPPED_UNCHANGED)
     error_count = sum(1 for row in rows if row["status"] == DOCUMENT_STATUS_ERROR)
-    if skipped_count:
-        summary_parts.append(_t("import.summary.skipped", count=skipped_count))
     if error_count:
         summary_parts.append(_t("import.summary.errors", count=error_count))
     st.caption(_t("import.last_run", summary=", ".join(summary_parts)))

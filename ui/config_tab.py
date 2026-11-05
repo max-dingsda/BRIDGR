@@ -64,6 +64,17 @@ def _apply_llm_preset(preset: dict[str, str]) -> None:
     st.session_state["config_llm_api_key_env"] = preset["llm_api_key_env"]
 
 
+def _submitted_secret(value: str, current_value: str, current_source: str) -> tuple[str, str]:
+    """Keep an environment secret effective until the user deliberately replaces it."""
+
+    normalized_value = value.strip()
+    if normalized_value:
+        return normalized_value, "file"
+    if current_source == "environment":
+        return current_value, "environment"
+    return "", "file"
+
+
 def render_path_picker_controls() -> None:
     st.markdown(f"**{_t('Pfade auswählen')}**")
     input_column, output_column = st.columns(2)
@@ -135,12 +146,22 @@ def render_config_tab(config_path: Path) -> None:
         neo4j_user = st.text_input(_t("Neo4j-Benutzer"), value=st.session_state["config_neo4j_user"])
         if os.getenv("NEO4J_USERNAME"):
             st.caption(_t("NEO4J_USERNAME wurde aus der Umgebung geladen. Der aktuell wirksame Wert ist im Feld sichtbar und kann hier dauerhaft überschrieben werden."))
-        neo4j_password = st.text_input(_t("Neo4j-Passwort"), value=st.session_state["config_neo4j_password"], type="password")
+        neo4j_password = st.text_input(
+            _t("Neo4j-Passwort"),
+            value=config.neo4j_password if config.neo4j_password_source == "file" else "",
+            type="password",
+        )
         if os.getenv("NEO4J_PASSWORD"):
             st.caption(_t("NEO4J_PASSWORD wurde aus der Umgebung geladen. Der aktuell wirksame Wert bleibt beim Speichern erhalten, bis Sie ihn hier explizit ändern."))
         neo4j_database = st.text_input(_t("Neo4j-Datenbank"), value=st.session_state["config_neo4j_database"])
         neo4j_chat_user = st.text_input(_t("Neo4j-Chat-Benutzer (nur Lesen)"), value=config.neo4j_chat_user)
-        neo4j_chat_password = st.text_input(_t("Neo4j-Chat-Passwort"), value=config.neo4j_chat_password, type="password")
+        neo4j_chat_password = st.text_input(
+            _t("Neo4j-Chat-Passwort"),
+            value=config.neo4j_chat_password if config.neo4j_chat_password_source == "file" else "",
+            type="password",
+        )
+        if os.getenv("NEO4J_CHAT_PASSWORD"):
+            st.caption("NEO4J_CHAT_PASSWORD wurde aus der Umgebung geladen. Der aktuell wirksame Wert bleibt beim Speichern erhalten, bis Sie ihn hier explizit ändern.")
         if os.getenv("NEO4J_DATABASE"):
             st.caption(_t("NEO4J_DATABASE wurde aus der Umgebung geladen. Der aktuell wirksame Wert ist im Feld sichtbar und kann hier dauerhaft überschrieben werden."))
 
@@ -175,6 +196,12 @@ def render_config_tab(config_path: Path) -> None:
         submitted = st.form_submit_button(_t("Konfiguration speichern"))
 
     if submitted:
+        neo4j_password, neo4j_password_source = _submitted_secret(
+            neo4j_password, config.neo4j_password, config.neo4j_password_source
+        )
+        neo4j_chat_password, neo4j_chat_password_source = _submitted_secret(
+            neo4j_chat_password, config.neo4j_chat_password, config.neo4j_chat_password_source
+        )
         previous_client_key = build_neo4j_client_key(config)
         updated_config = AppConfig(
             llm_base_url=llm_base_url,
@@ -184,10 +211,12 @@ def render_config_tab(config_path: Path) -> None:
             llm_timeout_seconds=int(llm_timeout_seconds),
             neo4j_url=neo4j_url.strip(),
             neo4j_user=neo4j_user.strip(),
-            neo4j_password=neo4j_password.strip(),
+            neo4j_password=neo4j_password,
+            neo4j_password_source=neo4j_password_source,
             neo4j_database=neo4j_database.strip(),
             neo4j_chat_user=neo4j_chat_user.strip(),
             neo4j_chat_password=neo4j_chat_password,
+            neo4j_chat_password_source=neo4j_chat_password_source,
             fuzzy_threshold=float(fuzzy_threshold),
             cmdb_uuid_column=cmdb_uuid_column,
             cmdb_name_column=cmdb_name_column,

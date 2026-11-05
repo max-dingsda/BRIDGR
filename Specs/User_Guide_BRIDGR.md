@@ -847,7 +847,7 @@ Configure a dedicated Neo4j read-only chat username/password and an explicit dat
 
 CMDB type files are the only supported input format. Old entity/relation-file settings are no longer used. Relative paths refer to the project root, even when BRIDGR is started elsewhere.
 
-Confirmed and rejected application assignments belong to the process ID and survive renaming. Ambiguous organization aliases remain open for review. Merge undo preserves original properties but refuses later conflicting changes or incomplete historical undo records. Resolve malformed decisions before rerunning matching.
+Confirmed and rejected application decisions belong to the process ID and survive renaming. A confirmed `SERVES` edge stays active only while its raw term occurs in the current process document; when that evidence disappears, the edge is removed but the decision remains auditable and is reused if the term returns. Ambiguous organization aliases remain open for review. Merge undo preserves original properties but refuses later conflicting changes or incomplete historical undo records. Resolve malformed decisions before rerunning matching.
 
 If the graph was saved but display publication failed, the pending projection is retried on the next BRIDGR write. Do not repeat a manual decision merely to refresh its display. Pending archiving can be retried in Import with **Retry archiving**, without reimporting graph data. If recovery is impossible, **Stop archiving** preserves the journal and all files and enables further imports; moved files remain in the archive, remaining files in the input folder. Failed input documents remain in the inbox. Pause direct external writes during snapshots and restore.
 

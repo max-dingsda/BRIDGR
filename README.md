@@ -83,6 +83,11 @@ dedicated read-only chat credentials), input and
 output paths, CMDB column mapping, the fuzzy-match threshold, chat mode,
 snapshot retention, and `ui_locale` (`de` or `en`).
 
+`NEO4J_PASSWORD` and `NEO4J_CHAT_PASSWORD` may be supplied through the
+environment. Their effective values remain hidden in the configuration UI and
+are never written back to `config.json` unless a user explicitly enters a
+replacement value.
+
 CMDB data is normally supplied as one CSV file per type:
 
 ```json

@@ -92,6 +92,7 @@ QUERY_RELATIONSHIP_PATTERNS: tuple[RelationshipPattern, ...] = (
 QUERY_RELATIONSHIP_SCHEMA: dict[str, tuple[str, ...]] = {}
 for _pattern in QUERY_RELATIONSHIP_PATTERNS:
     QUERY_RELATIONSHIP_SCHEMA.setdefault(_pattern.relationship_type, _pattern.properties)
+QUERY_RELATIONSHIP_SCHEMA["ASSOCIATED_WITH"] = ()
 
 # Internal bookkeeping and review-queue labels. They are never exposed to the query LLM
 # and never rendered in a diagram, regardless of whether they appear in a raw result.
@@ -114,7 +115,7 @@ BUSINESS_RELATIONSHIP_TYPES: tuple[str, ...] = tuple(
 
 
 # CONNECTED_TO is unrestricted — no label-pair validation applied.
-_UNRESTRICTED_RELATIONSHIP_TYPES: frozenset[str] = frozenset({"CONNECTED_TO"})
+_UNRESTRICTED_RELATIONSHIP_TYPES: frozenset[str] = frozenset({"CONNECTED_TO", "ASSOCIATED_WITH"})
 
 
 def build_query_schema_reference() -> str:
@@ -126,6 +127,7 @@ def build_query_schema_reference() -> str:
         f"- `(:{pattern.source_label})-[:{pattern.relationship_type}]->(:{pattern.target_label})`"
         for pattern in QUERY_RELATIONSHIP_PATTERNS
     ]
+    relationship_lines.append("- `(:<queryable label>)-[:ASSOCIATED_WITH]->(:<queryable label>)`")
     relationship_property_lines = [
         f"- `[:{relationship}]`: {', '.join(properties) if properties else 'no properties'}"
         for relationship, properties in QUERY_RELATIONSHIP_SCHEMA.items()

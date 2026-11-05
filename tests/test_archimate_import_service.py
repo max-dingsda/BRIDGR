@@ -13,6 +13,8 @@ from services.archimate_import_service import (
     _label_pair_to_relation,
     confirm_archimate_candidate_node,
     load_archimate_mapping,
+    validate_archimate_element_classification,
+    ARCHIMATE_ELEMENT_TYPES,
 )
 
 
@@ -387,7 +389,7 @@ def test_import_org_prozess_skipped_without_bridgr_relation_entry() -> None:
 
 # --- confirm_archimate_candidate_node ---
 
-def test_confirm_archimate_candidate_node_transfers_relations_and_deletes_candidate() -> None:
+def test_confirm_archimate_candidate_node_binds_source_scoped_identity_to_target() -> None:
     client = RecordingNeo4jClient(read_results={})
 
     confirm_archimate_candidate_node(
@@ -399,9 +401,21 @@ def test_confirm_archimate_candidate_node_transfers_relations_and_deletes_candid
     )
 
     written_queries = [q for q, _ in client.queries]
-    assert any("DETACH DELETE" in q for q in written_queries)
-    assert any("SET n.archimate_id" in q for q in written_queries)
-    assert any("MERGE" in q for q in written_queries)
+    assert not any("DETACH DELETE" in q for q in written_queries)
+    assert any("archimate_source" in q for q in written_queries)
+
+
+def test_confirm_archimate_candidate_node_transfers_configured_relation_with_properties() -> None:
+    client = RecordingNeo4jClient(read_results={})
+    confirm_archimate_candidate_node(
+        client, label="Application", candidate_name="SAP", target_name="SAP ERP",
+        archimate_id="id-app", archimate_source="model.xml",
+        relations=[{"direction": "outgoing", "relation_type": "Serving", "other_label": "Process", "other_name": "Order"}],
+        mapping=_DEFAULT_MAPPING,
+    )
+    relation_writes = [(query, params) for query, params in client.queries if "MERGE (n)-[r:SERVES]" in query]
+    assert len(relation_writes) == 1
+    assert relation_writes[0][1]["archimate_rel_type"] == "Serving"
 
 
 def test_confirm_archimate_candidate_node_raises_for_unknown_label() -> None:
@@ -850,7 +864,41 @@ def test_motivation_relations_imported(tmp_path: Path) -> None:
     assert result.relations_skipped == 0
     beeinflusst_qs = [q for q, _ in client.queries if "INFLUENCES" in q]
     realisiert_qs = [q for q, _ in client.queries if "REALIZES" in q]
-    verbunden_qs = [q for q, _ in client.queries if "CONNECTED_TO" in q]
+    association_qs = [q for q, _ in client.queries if "ASSOCIATED_WITH" in q]
     assert len(beeinflusst_qs) == 1
     assert len(realisiert_qs) == 1
-    assert len(verbunden_qs) == 1
+    assert len(association_qs) == 1
+
+
+def test_repository_mapping_classifies_every_known_archimate_element_type() -> None:
+    mapping = load_archimate_mapping()
+    validate_archimate_element_classification(mapping)
+    classified = set(mapping["elements"]["import"]) | set(mapping["elements"]["ignore"])
+    assert not (set(ARCHIMATE_ELEMENT_TYPES) - classified)
+
+
+def test_component_service_process_associations_are_imported(tmp_path: Path) -> None:
+    xml_file = tmp_path / "component-service-process.xml"
+    xml_file.write_text(
+        """<model xmlns="http://www.opengroup.org/xsd/archimate/3.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <elements>
+    <element identifier="component" xsi:type="ApplicationComponent"><name>CRM</name></element>
+    <element identifier="service" xsi:type="ApplicationService"><name>CRM Service</name></element>
+    <element identifier="process" xsi:type="BusinessProcess"><name>Sales</name></element>
+  </elements>
+  <relationships>
+    <relationship identifier="component-service" xsi:type="Association" source="component" target="service"/>
+    <relationship identifier="service-process" xsi:type="Association" source="service" target="process"/>
+  </relationships>
+</model>""",
+        encoding="utf-8",
+    )
+    mapping = load_archimate_mapping()
+    elements, relations, _ = _parse_archimate_xml(xml_file, mapping)
+    client = RecordingNeo4jClient(read_results={})
+
+    result = _import_to_neo4j(client, elements, relations, mapping, xml_file.name)
+
+    assert [element.bridgr_label for element in elements] == ["Application", "Application", "Process"]
+    assert result.relations_imported == 2
+    assert sum("ASSOCIATED_WITH" in query for query, _ in client.queries) == 2

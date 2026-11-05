@@ -16,7 +16,7 @@ _XML_LANG_NS = "http://www.w3.org/XML/1998/namespace"
 _EXPORT_LABELS = {"Process", "Application", "Interface", "Server", "OrgUnit", "Role"}
 _EXPORT_RELATIONS = {
     "SERVES", "PARTICIPATES_IN", "CAN_ASSUME", "FOLLOWS",
-    "USES_INTERFACE", "RUNS_ON", "RESPONSIBLE_FOR",
+    "USES_INTERFACE", "RUNS_ON", "RESPONSIBLE_FOR", "ASSOCIATED_WITH",
 }
 
 
@@ -234,7 +234,7 @@ def _read_relations(client: Neo4jClient) -> list[dict]:
         WHERE s.name IS NOT NULL AND t.name IS NOT NULL
           AND type(r) IN
             ['SERVES','PARTICIPATES_IN','CAN_ASSUME','FOLLOWS',
-             'USES_INTERFACE','RUNS_ON','RESPONSIBLE_FOR']
+             'USES_INTERFACE','RUNS_ON','RESPONSIBLE_FOR','ASSOCIATED_WITH']
         RETURN [label IN labels(s) WHERE label <> '__BridgrIdentity'][0] AS src_label,
                s.name AS src_name,
                [label IN labels(t) WHERE label <> '__BridgrIdentity'][0] AS tgt_label,

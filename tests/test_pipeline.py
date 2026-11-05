@@ -10,7 +10,6 @@ from processing.pipeline import (
     list_bpmn_files,
     run_document,
     run_pipeline,
-    should_skip_file,
 )
 from processing.run_artifacts import LATEST_RUN_FILENAME, STATE_FILENAME
 from skills.graph_writer import GraphWriter
@@ -88,11 +87,11 @@ def test_run_document_builds_matches_and_review_items(tmp_path: Path) -> None:
     confirmed_links = [
         {
             "process": "Auftragsabwicklung",
-            "anwendung_name": "Manuelles CRM",
+            "anwendung_name": "SAP Sales",
             "process_id": "proc_001",
             "cmdb_id": "cmdb-2",
             "resolved_to": "Manual CRM",
-            "source": "manueller_link",
+            "quelle": "manueller_link",
         }
     ]
     result = run_document(
@@ -111,10 +110,8 @@ def test_run_document_builds_matches_and_review_items(tmp_path: Path) -> None:
     )
 
     assert result.status == "processed"
-    assert result.matches[0].cmdb_id == "cmdb-1"
-    assert result.matches[1].cmdb_id is None
-    assert result.matches[2].application_name == "Manuelles CRM"
-    assert result.matches[2].source == "knowledge_base"
+    assert any(match.cmdb_id == "cmdb-2" and match.source.startswith("knowledge_base") for match in result.matches)
+    assert any(match.cmdb_id is None for match in result.matches)
     assert result.review_items[0].application_name == "Unbekanntes System"
     assert result.graph_payload.process.process_id == "proc_001"
 
@@ -146,9 +143,7 @@ def test_apply_org_unit_mapping_resolves_alias_candidates_without_reopening_them
     assert result.process_owner_candidate == "IT-Betrieb"
 
 
-def test_run_document_revives_absent_manuell_bestaetigt_matches(tmp_path: Path) -> None:
-    # manuell_bestaetigt links are persistent: they survive re-import even when the raw
-    # application name is no longer present in the current document version (#16a).
+def test_run_document_does_not_revive_absent_manuell_bestaetigt_matches(tmp_path: Path) -> None:
     bpmn_path = tmp_path / "process.bpmn"
     prompt_path = tmp_path / "prompt.md"
     bpmn_path.write_text("<definitions><process id='proc_001' /></definitions>", encoding="utf-8")
@@ -179,16 +174,7 @@ def test_run_document_revives_absent_manuell_bestaetigt_matches(tmp_path: Path) 
         rejected_links=[],
     )
 
-    assert any(match.application_name == "Historisches CRM" for match in result.matches)
-
-
-def test_should_skip_file_only_for_unchanged_delta_runs(tmp_path: Path) -> None:
-    source_path = tmp_path / "process.bpmn"
-    source_path.write_text("<definitions />", encoding="utf-8")
-
-    assert should_skip_file("partial", None, source_path, "same-hash", {str(source_path): "same-hash"}) is False
-    assert should_skip_file("full", None, source_path, "same-hash", {str(source_path): "same-hash"}) is False
-    assert should_skip_file("partial", [source_path], source_path, "same-hash", {str(source_path): "same-hash"}) is False
+    assert not any(match.application_name == "Historisches CRM" for match in result.matches)
 
 
 def test_run_pipeline_writes_artifacts_for_full_runs(tmp_path: Path, monkeypatch) -> None:
@@ -514,7 +500,7 @@ def test_run_pipeline_propagates_neo4j_write_failures(tmp_path: Path, monkeypatc
         run_pipeline(config)
 
 
-def test_apply_org_unit_mapping_uses_exact_role_matches_from_curated_org_units() -> None:
+def test_apply_org_unit_mapping_keeps_same_named_lane_as_role() -> None:
     extracted_process = ExtractedProcess(
         process_name="Incident Handling",
         process_id="proc-1",
@@ -531,8 +517,32 @@ def test_apply_org_unit_mapping_uses_exact_role_matches_from_curated_org_units()
 
     result = apply_org_unit_mapping(extracted_process, org_units, {})
 
-    assert result.org_unit == "People & Culture"
-    assert result.org_units == ["People & Culture"]
+    assert result.org_unit == ""
+    assert result.org_units == []
+    assert result.roles == ["People & Culture"]
+
+
+def test_apply_org_unit_mapping_keeps_explicit_owner_as_candidate_until_confirmation() -> None:
+    extracted_process = ExtractedProcess(
+        process_name="Invoice handling",
+        process_id="proc-1",
+        org_unit="",
+        roles=["Buchhaltung"],
+        org_units=[],
+        org_unit_candidates=[],
+        follows_after=[],
+        raw_applications=[],
+        applications=[],
+        source_path="Input/process.txt",
+        process_owner_candidate="Buchhaltung",
+    )
+
+    result = apply_org_unit_mapping(extracted_process, {"buchhaltung": "Buchhaltung"}, {})
+
+    assert result.org_unit == ""
+    assert result.org_units == []
+    assert result.roles == ["Buchhaltung"]
+    assert result.process_owner_candidate == "Buchhaltung"
 
 
 def test_apply_org_unit_mapping_uses_confirmed_candidates_for_unstructured_documents() -> None:
@@ -581,7 +591,7 @@ def test_run_pipeline_persists_org_candidates_to_neo4j(tmp_path: Path, monkeypat
             return {
                 "process": "Einkaufsprozess",
                 "process_id": "proc_einkauf",
-                "role": "Einkäufer",
+                "roles": ["Einkäufer"],
                 "process_owner": "",
                 "org_unit_candidates": ["Team Einkauf"],
                 "follows_after": [],

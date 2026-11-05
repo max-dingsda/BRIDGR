@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from core.app_config import AppConfig, is_legacy_input_path, normalize_run_mode, resolve_runtime_output_path, save_config
+from core.app_config import AppConfig, is_legacy_input_path, load_config, normalize_run_mode, resolve_runtime_output_path, save_config
 
 
 def test_resolve_runtime_output_path_uses_project_path_when_writable(tmp_path: Path, monkeypatch) -> None:
@@ -49,6 +49,29 @@ def test_save_config_persists_dedicated_chat_credentials(tmp_path: Path) -> None
     saved = config_path.read_text(encoding="utf-8")
     assert '"neo4j_chat_user": "reader"' in saved
     assert '"neo4j_chat_password": "secret"' in saved
+
+
+def test_environment_secrets_remain_effective_but_are_not_persisted(tmp_path: Path, monkeypatch) -> None:
+    config_path = tmp_path / "config.json"
+    config_path.write_text('{"ui_locale": "de"}', encoding="utf-8")
+    monkeypatch.setenv("NEO4J_PASSWORD", "environment-writer-secret")
+    monkeypatch.setenv("NEO4J_CHAT_PASSWORD", "environment-reader-secret")
+
+    config = load_config(config_path)
+    assert config.neo4j_password == "environment-writer-secret"
+    assert config.neo4j_password_source == "environment"
+    assert config.neo4j_chat_password == "environment-reader-secret"
+    assert config.neo4j_chat_password_source == "environment"
+
+    config.ui_locale = "en"
+    save_config(config, config_path)
+
+    saved = config_path.read_text(encoding="utf-8")
+    assert "environment-writer-secret" not in saved
+    assert "environment-reader-secret" not in saved
+    assert '"neo4j_password": ""' in saved
+    assert '"neo4j_chat_password": ""' in saved
+    assert "_source" not in saved
 
 
 def test_normalize_run_mode_maps_legacy_values() -> None:

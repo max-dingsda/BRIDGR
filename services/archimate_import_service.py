@@ -87,45 +87,61 @@ def load_archimate_mapping(path: Path | None = None) -> dict:
         return json.load(fh)
 
 
+def validate_archimate_element_classification(mapping: dict) -> None:
+    """Require an explicit import-or-ignore decision for every known element type."""
+
+    elements = mapping.get("elements", {})
+    classified = set(elements.get("import", {})) | set(elements.get("ignore", []))
+    unclassified = sorted(set(ARCHIMATE_ELEMENT_TYPES) - classified)
+    if unclassified:
+        raise ValueError("Unclassified ArchiMate element types: " + ", ".join(unclassified))
+
+
 def confirm_archimate_candidate_node(
     neo4j_client: Neo4jClient,
     label: str,
     candidate_name: str,
     target_name: str,
     archimate_id: str,
+    archimate_source: str = "",
+    relations: list[dict] | None = None,
+    mapping: dict | None = None,
 ) -> None:
     with neo4j_client.transaction():
-        from core.graph_schema import QUERY_NODE_SCHEMA, QUERY_RELATIONSHIP_PATTERNS
+        from core.graph_schema import QUERY_NODE_SCHEMA
         if label not in QUERY_NODE_SCHEMA:
             raise ValueError(f"Unbekanntes Label: {label}")
-        outgoing = {p.relationship_type for p in QUERY_RELATIONSHIP_PATTERNS if p.source_label == label}
-        incoming = {p.relationship_type for p in QUERY_RELATIONSHIP_PATTERNS if p.target_label == label}
-        for rel_type in outgoing:
-            neo4j_client.execute_write(
-                f"""
-                MATCH (kandidat:{label} {{name: $candidate_name}})-[:{rel_type}]->(other)
-                MATCH (ziel:{label} {{name: $target_name}})
-                MERGE (ziel)-[:{rel_type}]->(other)
-                """,
-                {"candidate_name": candidate_name, "target_name": target_name},
-            )
-        for rel_type in incoming:
-            neo4j_client.execute_write(
-                f"""
-                MATCH (other)-[:{rel_type}]->(kandidat:{label} {{name: $candidate_name}})
-                MATCH (ziel:{label} {{name: $target_name}})
-                MERGE (other)-[:{rel_type}]->(ziel)
-                """,
-                {"candidate_name": candidate_name, "target_name": target_name},
-            )
         neo4j_client.execute_write(
-            f"MATCH (n:{label} {{name: $target_name}}) SET n.archimate_id = $archimate_id",
-            {"target_name": target_name, "archimate_id": archimate_id},
+            f"MATCH (n:{label} {{name: $target_name}}) SET n.archimate_id = $archimate_id, n.archimate_source = $archimate_source",
+            {"target_name": target_name, "archimate_id": archimate_id, "archimate_source": archimate_source},
         )
-        neo4j_client.execute_write(
-            f"MATCH (n:{label} {{name: $candidate_name}}) DETACH DELETE n",
-            {"candidate_name": candidate_name},
-        )
+        from core.graph_schema import QUERY_RELATIONSHIP_SCHEMA
+        bridgr_map = (mapping or {}).get("relationships", {}).get("bridgr_relation", {})
+        association_relation = (mapping or {}).get("relationships", {}).get("association_bridgr_relation", "ASSOCIATED_WITH")
+        for relation in relations or []:
+            other_label = relation.get("other_label", "")
+            other_name = relation.get("other_name", "")
+            if not other_label or not other_name:
+                continue
+            outgoing = relation.get("direction") == "outgoing"
+            source_label, target_label = (label, other_label) if outgoing else (other_label, label)
+            bridgr_relation = association_relation if relation.get("relation_type") == "Association" else bridgr_map.get(f"{source_label}->{target_label}")
+            if bridgr_relation not in QUERY_RELATIONSHIP_SCHEMA:
+                continue
+            if outgoing:
+                query = f"""
+                MATCH (n:{label} {{name: $target_name}}), (other:{other_label} {{name: $other_name}})
+                MERGE (n)-[r:{bridgr_relation}]->(other)
+                SET r.archimate_rel_type = $archimate_rel_type
+                """
+            else:
+                query = f"""
+                MATCH (n:{label} {{name: $target_name}}), (other:{other_label} {{name: $other_name}})
+                MERGE (other)-[r:{bridgr_relation}]->(n)
+                SET r.archimate_rel_type = $archimate_rel_type
+                """
+            neo4j_client.execute_write(query, {"target_name": target_name, "other_name": other_name,
+                                                "archimate_rel_type": relation.get("relation_type", "")})
 
 
 def save_archimate_mapping(mapping: dict, path: Path | None = None) -> None:
@@ -258,6 +274,9 @@ def _import_to_neo4j(
         threshold: float = mapping.get("fuzzy_match_threshold", 0.85)
         rel_import_map: dict[str, list[str]] = mapping.get("relationships", {}).get("import", {})
         bridgr_map: dict[str, str] = mapping.get("relationships", {}).get("bridgr_relation", {})
+        association_relation = mapping.get("relationships", {}).get(
+            "association_bridgr_relation", "ASSOCIATED_WITH"
+        )
 
         # Snapshot of existing names per label taken BEFORE this import run.
         # Fuzzy matching uses only this snapshot so that nodes created during
@@ -284,24 +303,17 @@ def _import_to_neo4j(
 
         for elem in elements:
             resolved_name = _resolve_identity(
-                client, elem, threshold, mapping,
+                client, elem, source_filename, threshold, mapping,
                 pre_existing_names.get(elem.bridgr_label, []),
             )
             is_candidate = resolved_name is None
             if is_candidate:
-                resolved_name = elem.name
                 result.elements_as_candidates += 1
-            else:
-                result.elements_imported += 1
-
-            writer.merge_archimate_node(
-                client,
-                label=elem.bridgr_label,
-                name=resolved_name,
-                archimate_id=elem.archimate_id,
-                archimate_source=source_filename,
-                archimate_type=elem.archimate_type,
-            )
+                continue
+            result.elements_imported += 1
+            writer.merge_archimate_node(client, label=elem.bridgr_label, name=resolved_name,
+                                        archimate_id=elem.archimate_id, archimate_source=source_filename,
+                                        archimate_type=elem.archimate_type)
             id_to_name[elem.archimate_id] = resolved_name
             id_to_label[elem.archimate_id] = elem.bridgr_label
 
@@ -321,11 +333,20 @@ def _import_to_neo4j(
                     "rel_type": rel.archimate_rel_type,
                     "reason": "unresolvable_endpoint",
                 })
+                _record_pending_relation(
+                    source_filename,
+                    rel,
+                    source_label,
+                    source_name,
+                    target_label,
+                    target_name,
+                )
                 continue
 
             pair_key = f"{source_label}->{target_label}"
             accepted_types = rel_import_map.get(pair_key, [])
-            if rel.archimate_rel_type not in accepted_types:
+            is_neutral_association = rel.archimate_rel_type == "Association"
+            if not is_neutral_association and rel.archimate_rel_type not in accepted_types:
                 result.relations_skipped += 1
                 skipped_types[rel.archimate_rel_type] = skipped_types.get(rel.archimate_rel_type, 0) + 1
                 result.skipped_relations.append({
@@ -336,7 +357,9 @@ def _import_to_neo4j(
                 })
                 continue
 
-            bridgr_relation = _label_pair_to_relation(source_label, target_label, bridgr_map)
+            bridgr_relation = association_relation if is_neutral_association else _label_pair_to_relation(
+                source_label, target_label, bridgr_map
+            )
             if bridgr_relation is None:
                 result.relations_skipped += 1
                 result.skipped_relations.append({
@@ -353,6 +376,9 @@ def _import_to_neo4j(
                 source_label=source_label,
                 target_name=target_name,
                 target_label=target_label,
+                source_archimate_id=rel.source_archimate_id,
+                target_archimate_id=rel.target_archimate_id,
+                archimate_source=source_filename,
                 bridgr_relation=bridgr_relation,
                 archimate_rel_type=rel.archimate_rel_type,
             )
@@ -365,14 +391,15 @@ def _import_to_neo4j(
 def _resolve_identity(
     client: Neo4jClient,
     element: ArchiMateElement,
+    source_filename: str,
     threshold: float,
     mapping: dict,
     pre_existing_names: list[str],
 ) -> str | None:
     # 1. archimate_id lookup (Re-Import)
     rows = client.execute_read_unvalidated(
-        f"MATCH (n:{element.bridgr_label} {{archimate_id: $archimate_id}}) RETURN n.name AS name",
-        {"archimate_id": element.archimate_id},
+        f"MATCH (n:{element.bridgr_label} {{archimate_id: $archimate_id, archimate_source: $archimate_source}}) RETURN n.name AS name",
+        {"archimate_id": element.archimate_id, "archimate_source": source_filename},
     )
     if rows:
         return rows[0]["name"]
@@ -389,7 +416,7 @@ def _resolve_identity(
     # This prevents nodes created during the current import from matching each other.
     matched, score = _fuzzy_match_name(element.name, pre_existing_names, threshold)
     if matched is not None:
-        _add_pending_candidate(element, matched, score)
+        _add_pending_candidate(element, source_filename, matched, score)
         return None
 
     # 4. New node
@@ -409,7 +436,7 @@ def _fuzzy_match_name(name: str, candidates: list[str], threshold: float) -> tup
     return None, best_score
 
 
-def _add_pending_candidate(element: ArchiMateElement, matched_name: str, score: float) -> None:
+def _add_pending_candidate(element: ArchiMateElement, source_filename: str, matched_name: str, score: float) -> None:
     mapping_path = resolve_project_path(_DEFAULT_MAPPING_PATH)
     if not mapping_path.exists():
         return
@@ -417,19 +444,53 @@ def _add_pending_candidate(element: ArchiMateElement, matched_name: str, score: 
         mapping = json.load(fh)
     candidates: list[dict] = mapping.setdefault("pending_candidates", [])
     already_exists = any(
-        c.get("archimate_id") == element.archimate_id for c in candidates
+        c.get("archimate_id") == element.archimate_id and c.get("archimate_source") == source_filename
     )
     if not already_exists:
         candidates.append({
             "archimate_id": element.archimate_id,
+            "archimate_source": source_filename,
             "archimate_type": element.archimate_type,
             "archimate_name": element.name,
             "bridgr_label": element.bridgr_label,
             "suggested_match": matched_name,
             "score": round(score, 3),
+            "relations": [],
         })
         mapping["pending_candidates"] = candidates
         save_archimate_mapping(mapping)
+
+
+def _record_pending_relation(
+    source_filename: str,
+    relation: ArchiMateRelation,
+    source_label: str | None,
+    source_name: str | None,
+    target_label: str | None,
+    target_name: str | None,
+) -> None:
+    """Keep relation evidence attached to an unqueryable pending candidate."""
+    candidate_id = relation.source_archimate_id if source_name is None else relation.target_archimate_id
+    mapping_path = resolve_project_path(_DEFAULT_MAPPING_PATH)
+    if not mapping_path.exists():
+        return
+    mapping = load_archimate_mapping(mapping_path)
+    for candidate in mapping.get("pending_candidates", []):
+        if candidate.get("archimate_id") != candidate_id or candidate.get("archimate_source") != source_filename:
+            continue
+        other_label, other_name = (target_label, target_name) if source_name is None else (source_label, source_name)
+        if not other_label or not other_name:
+            return
+        entry = {
+            "direction": "outgoing" if source_name is None else "incoming",
+            "relation_type": relation.archimate_rel_type,
+            "other_label": other_label,
+            "other_name": other_name,
+        }
+        if entry not in candidate["relations"]:
+            candidate["relations"].append(entry)
+            save_archimate_mapping(mapping, mapping_path)
+        return
 
 
 def _label_pair_to_relation(source_label: str, target_label: str, bridgr_map: dict) -> str | None:
@@ -498,6 +559,7 @@ def _default_mapping() -> dict:
                 "OrgUnit->Server":        "RESPONSIBLE_FOR",
                 "OrgUnit->Process":       "RESPONSIBLE_FOR",
             },
+            "association_bridgr_relation": "ASSOCIATED_WITH",
         },
         "pending_candidates": [],
     }

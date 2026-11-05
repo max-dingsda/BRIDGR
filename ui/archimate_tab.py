@@ -284,12 +284,15 @@ def _confirm_candidate(mapping: dict, candidate: dict, config: AppConfig) -> str
             candidate_name=candidate["archimate_name"],
             target_name=candidate["suggested_match"],
             archimate_id=candidate["archimate_id"],
+            archimate_source=candidate.get("archimate_source", ""),
+            relations=candidate.get("relations", []),
+            mapping=mapping,
         )
     except Exception as exc:
         return _t("Neo4j-Merge fehlgeschlagen: {error}", error=exc)
     mapping["pending_candidates"] = [
         c for c in mapping.get("pending_candidates", [])
-        if c.get("archimate_id") != candidate["archimate_id"]
+        if (c.get("archimate_id"), c.get("archimate_source", "")) != (candidate["archimate_id"], candidate.get("archimate_source", ""))
     ]
     save_archimate_mapping(mapping)
     return None
@@ -298,7 +301,7 @@ def _confirm_candidate(mapping: dict, candidate: dict, config: AppConfig) -> str
 def _reject_candidate(mapping: dict, candidate: dict) -> None:
     mapping["pending_candidates"] = [
         c for c in mapping.get("pending_candidates", [])
-        if c.get("archimate_id") != candidate["archimate_id"]
+        if (c.get("archimate_id"), c.get("archimate_source", "")) != (candidate["archimate_id"], candidate.get("archimate_source", ""))
     ]
     save_archimate_mapping(mapping)
 

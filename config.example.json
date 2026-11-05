@@ -19,7 +19,7 @@
   "cmdb_uses_interfaces_column": "uses_interfaces",
   "input_path": "Input",
   "output_path": "Output",
-  "last_run_mode": "partial",
+  "last_run_mode": "full",
   "chat_mode": "prompt-only",
   "debug_mode": false,
   "snapshot_retention_count": 10

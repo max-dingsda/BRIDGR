@@ -72,6 +72,8 @@ def test_graph_writer_removes_existing_process_application_links_before_rewrite(
 
     queries = [query for query, _ in client.queries]
     assert any("DELETE r" in query for query in queries)
+    serves_cleanup = next(query for query in queries if "[r:SERVES]" in query and "DELETE r" in query)
+    assert "manuell_bestaetigt" not in serves_cleanup
     assert not any("MERGE (a)-[r:SERVES]->(p)" in query for query in queries)
     assert process_write_action == "inserted"
 

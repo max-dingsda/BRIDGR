@@ -15,12 +15,14 @@
       "ApplicationInteraction": "Process",
       "ApplicationInterface": "Interface",
       "ApplicationProcess": "Application",
+      "ApplicationService": "Application",
       "Artifact": "DataObject",
       "Assessment": "Context",
       "BusinessActor": "OrgUnit",
       "BusinessCollaboration": "Process",
       "BusinessEvent": "Process",
       "BusinessFunction": "Process",
+      "BusinessInterface": "Interface",
       "BusinessInteraction": "Process",
       "BusinessObject": "DataObject",
       "BusinessProcess": "Process",
@@ -35,7 +37,7 @@
       "Driver": "Context",
       "Goal": "Goal",
       "Meaning": "Goal",
-      "Node": "Infrastructure",
+      "Node": "Server",
       "Outcome": "Goal",
       "Path": "Infrastructure",
       "Principle": "Requirement",
@@ -88,6 +90,7 @@
     }
   },
   "relationships": {
+    "association_bridgr_relation": "ASSOCIATED_WITH",
     "import": {
       "Requirement->Application": [
         "Influence",

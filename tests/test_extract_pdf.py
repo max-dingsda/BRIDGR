@@ -91,7 +91,7 @@ def test_pdf_extractor_splits_comma_separated_roles_and_org_candidates(tmp_path:
             return {
                 "process": "Rechnungsstellung",
                 "process_id": "",
-                "role": "Buchhaltung, Auftragsbearbeitung",
+                "roles": ["Buchhaltung, Auftragsbearbeitung"],
                 "process_owner": "",
                 "org_unit_candidates": ["Buchhaltung, Controlling"],
                 "follows_after": [],

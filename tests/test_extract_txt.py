@@ -10,7 +10,7 @@ class FakeLlmClient:
         return {
             "process": "Incident Handling",
             "process_id": "",
-            "role": "Support",
+            "roles": ["Support"],
             "org_unit_candidates": ["Support Team"],
             "follows_after": ["Ticket Intake"],
             "applications": [
@@ -112,7 +112,7 @@ def test_text_extractor_extracts_explicit_process_owner(tmp_path: Path) -> None:
             return {
                 "process": "Bestellabwicklung",
                 "process_id": "",
-                "role": "",
+                "roles": [],
                 "process_owner": "Einkauf",
                 "org_unit_candidates": [],
                 "follows_after": [],
@@ -151,7 +151,7 @@ def test_text_extractor_ignores_process_owner_in_bpmn_transform(tmp_path: Path) 
             return {
                 "process": "Bestellabwicklung",
                 "process_id": "proc-1",
-                "role": "",
+                "roles": [],
                 "process_owner": "Einkauf",
                 "org_unit_candidates": [],
                 "follows_after": [],
@@ -191,7 +191,7 @@ def test_text_extractor_splits_comma_separated_roles_and_org_candidates(tmp_path
             return {
                 "process": "Rechnungsstellung",
                 "process_id": "",
-                "role": "Buchhaltung, Auftragsbearbeitung",
+                "roles": ["Buchhaltung, Auftragsbearbeitung"],
                 "process_owner": "",
                 "org_unit_candidates": ["Buchhaltung, Controlling"],
                 "follows_after": [],

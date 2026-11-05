@@ -32,6 +32,32 @@ def test_config_renders_separate_chat_credentials_without_exposing_passwords(tmp
     assert "reader-secret" not in displayed and "writer-secret" not in displayed
 
 
+def test_config_hides_environment_passwords_from_inputs(tmp_path, monkeypatch):
+    from streamlit.testing.v1 import AppTest
+    from streamlit.proto.TextInput_pb2 import TextInput
+    from ui import config_tab
+
+    path = tmp_path / "config.json"
+    save_config(AppConfig(output_path=str(tmp_path)), path)
+    monkeypatch.setenv("NEO4J_PASSWORD", "environment-writer-secret")
+    monkeypatch.setenv("NEO4J_CHAT_PASSWORD", "environment-reader-secret")
+    monkeypatch.setattr(config_tab, "get_neo4j_connection_status", lambda *args, **kwargs: (False, "Offline test"))
+    monkeypatch.setattr(config_tab, "get_llm_status", lambda *args, **kwargs: ("warning", "Offline test"))
+
+    app = AppTest.from_string(
+        "from pathlib import Path\n"
+        "from ui.config_tab import render_config_tab\n"
+        f"render_config_tab(Path({str(path)!r}))\n"
+    ).run(timeout=15)
+
+    assert not app.exception
+    password_inputs = [entry for entry in app.text_input if entry.proto.type == TextInput.PASSWORD]
+    assert all(entry.value == "" for entry in password_inputs)
+    rendered_values = " ".join(str(entry.value) for entry in app.text_input)
+    assert "environment-writer-secret" not in rendered_values
+    assert "environment-reader-secret" not in rendered_values
+
+
 def test_organization_ui_consumes_canonical_process_id_contract():
     from streamlit.testing.v1 import AppTest
     app = AppTest.from_string('''

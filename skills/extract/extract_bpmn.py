@@ -4,6 +4,7 @@ import json
 import inspect
 from pathlib import Path
 import re
+from copy import deepcopy
 from xml.etree import ElementTree
 
 from core.llm_client import OpenAICompatibleClient
@@ -20,21 +21,66 @@ class BpmnExtractor:
         self._llm_client = llm_client
 
     def extract(self, source_path: Path) -> ExtractedProcess:
+        """Extract one process for the legacy single-process extractor contract."""
+        processes = self.extract_many(source_path)
+        if len(processes) != 1:
+            raise BpmnExtractorError(
+                f"BPMN file {source_path} contains {len(processes)} processes; use extract_many()."
+            )
+        return processes[0]
+
+    def extract_many(self, source_path: Path) -> list[ExtractedProcess]:
         bpmn_xml = source_path.read_text(encoding="utf-8")
-        self._validate_xml(bpmn_xml, source_path)
+        root = self._parse_xml(bpmn_xml, source_path)
         prompt = self._prompt_path.read_text(encoding="utf-8")
-        payload = self._generate_json_with_required_keys(
-            system_prompt=prompt,
-            user_prompt=bpmn_xml,
-            required_keys={"process", "process_id", "roles", "applications"},
-        )
-        return self._to_domain_model(payload, source_path)
+        processes = root.findall(".//{http://www.omg.org/spec/BPMN/20100524/MODEL}process") or root.findall(".//process")
+        if not processes:
+            raise BpmnExtractorError(f"No BPMN processes found in {source_path}.")
+
+        extracted_processes: list[ExtractedProcess] = []
+        for process in processes:
+            payload = self._generate_json_with_required_keys(
+                system_prompt=prompt,
+                user_prompt=self._build_process_context(root, process),
+                required_keys={"process", "process_id", "roles", "applications"},
+            )
+            structural_id = process.get("id", "").strip()
+            structural_name = process.get("name", "").strip()
+            if structural_id:
+                payload["process_id"] = structural_id
+            if structural_name:
+                payload.setdefault("process", structural_name)
+            extracted_processes.append(self._to_domain_model(payload, source_path))
+        return extracted_processes
 
     def _validate_xml(self, xml_text: str, source_path: Path) -> None:
+        self._parse_xml(xml_text, source_path)
+
+    def _parse_xml(self, xml_text: str, source_path: Path) -> ElementTree.Element:
         try:
-            ElementTree.fromstring(xml_text)
+            return ElementTree.fromstring(xml_text)
         except ElementTree.ParseError as exc:
             raise BpmnExtractorError(f"Invalid BPMN XML in {source_path}.") from exc
+
+    def _build_process_context(self, root: ElementTree.Element, process: ElementTree.Element) -> str:
+        """Keep each LLM request within one process plus its collaboration context."""
+        process_id = process.get("id", "").strip()
+        context = ElementTree.Element(root.tag, root.attrib)
+        context.append(deepcopy(process))
+        namespace = "{http://www.omg.org/spec/BPMN/20100524/MODEL}"
+        collaborations = root.findall(f".//{namespace}collaboration") or root.findall(".//collaboration")
+        for collaboration in collaborations:
+            participants = collaboration.findall(f"{namespace}participant") or collaboration.findall("participant")
+            relevant_participants = [
+                deepcopy(participant)
+                for participant in participants
+                if participant.get("processRef", "").strip() == process_id
+            ]
+            if relevant_participants:
+                contextual_collaboration = ElementTree.Element(collaboration.tag, collaboration.attrib)
+                contextual_collaboration.extend(relevant_participants)
+                context.append(contextual_collaboration)
+        return ElementTree.tostring(context, encoding="unicode")
 
     def _to_domain_model(self, payload: dict, source_path: Path) -> ExtractedProcess:
         try:
