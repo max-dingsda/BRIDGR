@@ -279,3 +279,8 @@ CODEX_BRIDGR_Stabilisierungsplan_2026-09-07.md
 CODEX_BRIDGR_Umsetzung_2026-09-07.md
 HANDOVER_visualization.md
 Specs/PLAN_Antwort-Begleitdiagramm.md
+.archify/
+Output/chat-diagrams/
+Specs/error_stacktrace.txt
+Specs/PROMPT_Archify-Chatdiagramme.md
+tmp/
