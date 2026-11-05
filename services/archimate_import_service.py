@@ -103,40 +103,15 @@ def confirm_archimate_candidate_node(
     candidate_name: str,
     target_name: str,
     archimate_id: str,
+    archimate_source: str = "",
 ) -> None:
     with neo4j_client.transaction():
-        from core.graph_schema import QUERY_NODE_SCHEMA, QUERY_RELATIONSHIP_PATTERNS
+        from core.graph_schema import QUERY_NODE_SCHEMA
         if label not in QUERY_NODE_SCHEMA:
             raise ValueError(f"Unbekanntes Label: {label}")
-        outgoing = {p.relationship_type for p in QUERY_RELATIONSHIP_PATTERNS if p.source_label == label}
-        incoming = {p.relationship_type for p in QUERY_RELATIONSHIP_PATTERNS if p.target_label == label}
-        outgoing.add("ASSOCIATED_WITH")
-        incoming.add("ASSOCIATED_WITH")
-        for rel_type in outgoing:
-            neo4j_client.execute_write(
-                f"""
-                MATCH (kandidat:{label} {{name: $candidate_name}})-[:{rel_type}]->(other)
-                MATCH (ziel:{label} {{name: $target_name}})
-                MERGE (ziel)-[:{rel_type}]->(other)
-                """,
-                {"candidate_name": candidate_name, "target_name": target_name},
-            )
-        for rel_type in incoming:
-            neo4j_client.execute_write(
-                f"""
-                MATCH (other)-[:{rel_type}]->(kandidat:{label} {{name: $candidate_name}})
-                MATCH (ziel:{label} {{name: $target_name}})
-                MERGE (other)-[:{rel_type}]->(ziel)
-                """,
-                {"candidate_name": candidate_name, "target_name": target_name},
-            )
         neo4j_client.execute_write(
-            f"MATCH (n:{label} {{name: $target_name}}) SET n.archimate_id = $archimate_id",
-            {"target_name": target_name, "archimate_id": archimate_id},
-        )
-        neo4j_client.execute_write(
-            f"MATCH (n:{label} {{name: $candidate_name}}) DETACH DELETE n",
-            {"candidate_name": candidate_name},
+            f"MATCH (n:{label} {{name: $target_name}}) SET n.archimate_id = $archimate_id, n.archimate_source = $archimate_source",
+            {"target_name": target_name, "archimate_id": archimate_id, "archimate_source": archimate_source},
         )
 
 
@@ -299,24 +274,17 @@ def _import_to_neo4j(
 
         for elem in elements:
             resolved_name = _resolve_identity(
-                client, elem, threshold, mapping,
+                client, elem, source_filename, threshold, mapping,
                 pre_existing_names.get(elem.bridgr_label, []),
             )
             is_candidate = resolved_name is None
             if is_candidate:
-                resolved_name = elem.name
                 result.elements_as_candidates += 1
-            else:
-                result.elements_imported += 1
-
-            writer.merge_archimate_node(
-                client,
-                label=elem.bridgr_label,
-                name=resolved_name,
-                archimate_id=elem.archimate_id,
-                archimate_source=source_filename,
-                archimate_type=elem.archimate_type,
-            )
+                continue
+            result.elements_imported += 1
+            writer.merge_archimate_node(client, label=elem.bridgr_label, name=resolved_name,
+                                        archimate_id=elem.archimate_id, archimate_source=source_filename,
+                                        archimate_type=elem.archimate_type)
             id_to_name[elem.archimate_id] = resolved_name
             id_to_label[elem.archimate_id] = elem.bridgr_label
 
@@ -383,14 +351,15 @@ def _import_to_neo4j(
 def _resolve_identity(
     client: Neo4jClient,
     element: ArchiMateElement,
+    source_filename: str,
     threshold: float,
     mapping: dict,
     pre_existing_names: list[str],
 ) -> str | None:
     # 1. archimate_id lookup (Re-Import)
     rows = client.execute_read_unvalidated(
-        f"MATCH (n:{element.bridgr_label} {{archimate_id: $archimate_id}}) RETURN n.name AS name",
-        {"archimate_id": element.archimate_id},
+        f"MATCH (n:{element.bridgr_label} {{archimate_id: $archimate_id, archimate_source: $archimate_source}}) RETURN n.name AS name",
+        {"archimate_id": element.archimate_id, "archimate_source": source_filename},
     )
     if rows:
         return rows[0]["name"]
@@ -407,7 +376,7 @@ def _resolve_identity(
     # This prevents nodes created during the current import from matching each other.
     matched, score = _fuzzy_match_name(element.name, pre_existing_names, threshold)
     if matched is not None:
-        _add_pending_candidate(element, matched, score)
+        _add_pending_candidate(element, source_filename, matched, score)
         return None
 
     # 4. New node
@@ -427,7 +396,7 @@ def _fuzzy_match_name(name: str, candidates: list[str], threshold: float) -> tup
     return None, best_score
 
 
-def _add_pending_candidate(element: ArchiMateElement, matched_name: str, score: float) -> None:
+def _add_pending_candidate(element: ArchiMateElement, source_filename: str, matched_name: str, score: float) -> None:
     mapping_path = resolve_project_path(_DEFAULT_MAPPING_PATH)
     if not mapping_path.exists():
         return
@@ -435,11 +404,12 @@ def _add_pending_candidate(element: ArchiMateElement, matched_name: str, score: 
         mapping = json.load(fh)
     candidates: list[dict] = mapping.setdefault("pending_candidates", [])
     already_exists = any(
-        c.get("archimate_id") == element.archimate_id for c in candidates
+        c.get("archimate_id") == element.archimate_id and c.get("archimate_source") == source_filename
     )
     if not already_exists:
         candidates.append({
             "archimate_id": element.archimate_id,
+            "archimate_source": source_filename,
             "archimate_type": element.archimate_type,
             "archimate_name": element.name,
             "bridgr_label": element.bridgr_label,

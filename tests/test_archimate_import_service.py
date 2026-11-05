@@ -389,7 +389,7 @@ def test_import_org_prozess_skipped_without_bridgr_relation_entry() -> None:
 
 # --- confirm_archimate_candidate_node ---
 
-def test_confirm_archimate_candidate_node_transfers_relations_and_deletes_candidate() -> None:
+def test_confirm_archimate_candidate_node_binds_source_scoped_identity_to_target() -> None:
     client = RecordingNeo4jClient(read_results={})
 
     confirm_archimate_candidate_node(
@@ -401,9 +401,8 @@ def test_confirm_archimate_candidate_node_transfers_relations_and_deletes_candid
     )
 
     written_queries = [q for q, _ in client.queries]
-    assert any("DETACH DELETE" in q for q in written_queries)
-    assert any("SET n.archimate_id" in q for q in written_queries)
-    assert any("MERGE" in q for q in written_queries)
+    assert not any("DETACH DELETE" in q for q in written_queries)
+    assert any("archimate_source" in q for q in written_queries)
 
 
 def test_confirm_archimate_candidate_node_raises_for_unknown_label() -> None:
