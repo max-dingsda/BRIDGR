@@ -405,6 +405,19 @@ def test_confirm_archimate_candidate_node_binds_source_scoped_identity_to_target
     assert any("archimate_source" in q for q in written_queries)
 
 
+def test_confirm_archimate_candidate_node_transfers_configured_relation_with_properties() -> None:
+    client = RecordingNeo4jClient(read_results={})
+    confirm_archimate_candidate_node(
+        client, label="Application", candidate_name="SAP", target_name="SAP ERP",
+        archimate_id="id-app", archimate_source="model.xml",
+        relations=[{"direction": "outgoing", "relation_type": "Serving", "other_label": "Process", "other_name": "Order"}],
+        mapping=_DEFAULT_MAPPING,
+    )
+    relation_writes = [(query, params) for query, params in client.queries if "MERGE (n)-[r:SERVES]" in query]
+    assert len(relation_writes) == 1
+    assert relation_writes[0][1]["archimate_rel_type"] == "Serving"
+
+
 def test_confirm_archimate_candidate_node_raises_for_unknown_label() -> None:
     client = RecordingNeo4jClient(read_results={})
 

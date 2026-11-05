@@ -285,6 +285,8 @@ def _confirm_candidate(mapping: dict, candidate: dict, config: AppConfig) -> str
             target_name=candidate["suggested_match"],
             archimate_id=candidate["archimate_id"],
             archimate_source=candidate.get("archimate_source", ""),
+            relations=candidate.get("relations", []),
+            mapping=mapping,
         )
     except Exception as exc:
         return _t("Neo4j-Merge fehlgeschlagen: {error}", error=exc)

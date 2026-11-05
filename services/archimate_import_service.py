@@ -104,6 +104,8 @@ def confirm_archimate_candidate_node(
     target_name: str,
     archimate_id: str,
     archimate_source: str = "",
+    relations: list[dict] | None = None,
+    mapping: dict | None = None,
 ) -> None:
     with neo4j_client.transaction():
         from core.graph_schema import QUERY_NODE_SCHEMA
@@ -113,6 +115,33 @@ def confirm_archimate_candidate_node(
             f"MATCH (n:{label} {{name: $target_name}}) SET n.archimate_id = $archimate_id, n.archimate_source = $archimate_source",
             {"target_name": target_name, "archimate_id": archimate_id, "archimate_source": archimate_source},
         )
+        from core.graph_schema import QUERY_RELATIONSHIP_SCHEMA
+        bridgr_map = (mapping or {}).get("relationships", {}).get("bridgr_relation", {})
+        association_relation = (mapping or {}).get("relationships", {}).get("association_bridgr_relation", "ASSOCIATED_WITH")
+        for relation in relations or []:
+            other_label = relation.get("other_label", "")
+            other_name = relation.get("other_name", "")
+            if not other_label or not other_name:
+                continue
+            outgoing = relation.get("direction") == "outgoing"
+            source_label, target_label = (label, other_label) if outgoing else (other_label, label)
+            bridgr_relation = association_relation if relation.get("relation_type") == "Association" else bridgr_map.get(f"{source_label}->{target_label}")
+            if bridgr_relation not in QUERY_RELATIONSHIP_SCHEMA:
+                continue
+            if outgoing:
+                query = f"""
+                MATCH (n:{label} {{name: $target_name}}), (other:{other_label} {{name: $other_name}})
+                MERGE (n)-[r:{bridgr_relation}]->(other)
+                SET r.archimate_rel_type = $archimate_rel_type
+                """
+            else:
+                query = f"""
+                MATCH (n:{label} {{name: $target_name}}), (other:{other_label} {{name: $other_name}})
+                MERGE (other)-[r:{bridgr_relation}]->(n)
+                SET r.archimate_rel_type = $archimate_rel_type
+                """
+            neo4j_client.execute_write(query, {"target_name": target_name, "other_name": other_name,
+                                                "archimate_rel_type": relation.get("relation_type", "")})
 
 
 def save_archimate_mapping(mapping: dict, path: Path | None = None) -> None:
@@ -304,6 +333,14 @@ def _import_to_neo4j(
                     "rel_type": rel.archimate_rel_type,
                     "reason": "unresolvable_endpoint",
                 })
+                _record_pending_relation(
+                    source_filename,
+                    rel,
+                    source_label,
+                    source_name,
+                    target_label,
+                    target_name,
+                )
                 continue
 
             pair_key = f"{source_label}->{target_label}"
@@ -339,6 +376,9 @@ def _import_to_neo4j(
                 source_label=source_label,
                 target_name=target_name,
                 target_label=target_label,
+                source_archimate_id=rel.source_archimate_id,
+                target_archimate_id=rel.target_archimate_id,
+                archimate_source=source_filename,
                 bridgr_relation=bridgr_relation,
                 archimate_rel_type=rel.archimate_rel_type,
             )
@@ -415,9 +455,42 @@ def _add_pending_candidate(element: ArchiMateElement, source_filename: str, matc
             "bridgr_label": element.bridgr_label,
             "suggested_match": matched_name,
             "score": round(score, 3),
+            "relations": [],
         })
         mapping["pending_candidates"] = candidates
         save_archimate_mapping(mapping)
+
+
+def _record_pending_relation(
+    source_filename: str,
+    relation: ArchiMateRelation,
+    source_label: str | None,
+    source_name: str | None,
+    target_label: str | None,
+    target_name: str | None,
+) -> None:
+    """Keep relation evidence attached to an unqueryable pending candidate."""
+    candidate_id = relation.source_archimate_id if source_name is None else relation.target_archimate_id
+    mapping_path = resolve_project_path(_DEFAULT_MAPPING_PATH)
+    if not mapping_path.exists():
+        return
+    mapping = load_archimate_mapping(mapping_path)
+    for candidate in mapping.get("pending_candidates", []):
+        if candidate.get("archimate_id") != candidate_id or candidate.get("archimate_source") != source_filename:
+            continue
+        other_label, other_name = (target_label, target_name) if source_name is None else (source_label, source_name)
+        if not other_label or not other_name:
+            return
+        entry = {
+            "direction": "outgoing" if source_name is None else "incoming",
+            "relation_type": relation.archimate_rel_type,
+            "other_label": other_label,
+            "other_name": other_name,
+        }
+        if entry not in candidate["relations"]:
+            candidate["relations"].append(entry)
+            save_archimate_mapping(mapping, mapping_path)
+        return
 
 
 def _label_pair_to_relation(source_label: str, target_label: str, bridgr_map: dict) -> str | None:

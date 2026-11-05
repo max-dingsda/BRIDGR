@@ -498,9 +498,8 @@ class GraphWriter:
         canonical_name = self._resolve_org_unit_canonical_name(client, name) if label == "OrgUnit" else name
         client.execute_write(
             f"""
-            MERGE (n:{label} {{name: $name}})
-            SET n.archimate_id = $archimate_id,
-                n.archimate_source = $archimate_source,
+            MERGE (n:{label} {{archimate_id: $archimate_id, archimate_source: $archimate_source}})
+            SET n.name = $name,
                 n.archimate_type = $archimate_type
             """,
             {
@@ -518,19 +517,25 @@ class GraphWriter:
         source_label: str,
         target_name: str,
         target_label: str,
+        source_archimate_id: str,
+        target_archimate_id: str,
+        archimate_source: str,
         bridgr_relation: str,
         archimate_rel_type: str,
     ) -> None:
         client.execute_write(
             f"""
-            MATCH (s:{source_label} {{name: $source_name}})
-            MATCH (t:{target_label} {{name: $target_name}})
+            MATCH (s:{source_label} {{archimate_id: $source_archimate_id, archimate_source: $archimate_source}})
+            MATCH (t:{target_label} {{archimate_id: $target_archimate_id, archimate_source: $archimate_source}})
             MERGE (s)-[r:{bridgr_relation}]->(t)
             SET r.archimate_rel_type = $archimate_rel_type
             """,
             {
                 "source_name": source_name,
                 "target_name": target_name,
+                "source_archimate_id": source_archimate_id,
+                "target_archimate_id": target_archimate_id,
+                "archimate_source": archimate_source,
                 "archimate_rel_type": archimate_rel_type,
             },
         )
