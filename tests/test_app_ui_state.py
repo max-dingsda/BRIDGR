@@ -200,6 +200,15 @@ def test_sync_config_session_defaults_refreshes_neo4j_values() -> None:
     assert st.session_state["config_neo4j_database"] == "bridgr-architecture"
 
 
+def test_sync_config_session_defaults_does_not_store_environment_password() -> None:
+    st.session_state.clear()
+    st.session_state["config_neo4j_password"] = "old-secret"
+
+    sync_config_session_defaults(AppConfig(neo4j_password="environment-secret", neo4j_password_source="environment"))
+
+    assert "config_neo4j_password" not in st.session_state
+
+
 def test_get_session_neo4j_client_reuses_cached_client(monkeypatch) -> None:
     st.session_state.clear()
     created_clients = []

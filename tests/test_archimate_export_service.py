@@ -142,6 +142,22 @@ def test_export_relation_uses_original_rel_type_for_roundtrip(tmp_path: Path) ->
     assert rel.get(f"{{{_XSI_NS}}}type") == "Flow"
 
 
+def test_export_association_roundtrips_as_association(tmp_path: Path) -> None:
+    nodes = [
+        {"label": "Application", "name": "CRM", "archimate_id": "id-app", "archimate_type": "ApplicationComponent"},
+        {"label": "Process", "name": "Growth", "archimate_id": "id-process", "archimate_type": "BusinessProcess"},
+    ]
+    relations = [
+        {"src_label": "Application", "src_name": "CRM", "tgt_label": "Process", "tgt_name": "Growth",
+         "rel_type": "ASSOCIATED_WITH", "archimate_rel_type": "Association"},
+    ]
+    result = _run(tmp_path, nodes, relations)
+    assert result.relations_exported == 1
+    root = _parse_export(result.output_path)
+    rel = root.find(f"{{{_ARCHIMATE_NS}}}relationships").find(f"{{{_ARCHIMATE_NS}}}relationship")
+    assert rel.get(f"{{{_XSI_NS}}}type") == "Association"
+
+
 def test_export_normalizes_legacy_long_rel_type(tmp_path: Path) -> None:
     nodes = [
         {"label": "Process", "name": "A", "archimate_id": None, "archimate_type": None},

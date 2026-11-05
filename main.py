@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from pathlib import Path
 
 from core.app_config import load_config
@@ -28,7 +28,9 @@ def main() -> int:
     config = load_config(args.config)
 
     if args.file is None:
-        run_result = run_pipeline(config)
+        # The CLI without an explicit file is always an inbox import.  The UI
+        # may retain a partial selection mode independently.
+        run_result = run_pipeline(replace(config, last_run_mode="full"))
         print(json.dumps({"documents": [asdict(document) for document in run_result.documents]}, indent=2, ensure_ascii=False))
         return 0
 

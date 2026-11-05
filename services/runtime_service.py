@@ -406,8 +406,11 @@ def sync_config_session_defaults(config: AppConfig) -> None:
         st.session_state["config_neo4j_url"] = config.neo4j_url
     if st.session_state.get("config_neo4j_user") != config.neo4j_user:
         st.session_state["config_neo4j_user"] = config.neo4j_user
-    if st.session_state.get("config_neo4j_password") != config.neo4j_password:
-        st.session_state["config_neo4j_password"] = config.neo4j_password
+    if config.neo4j_password_source == "file":
+        if st.session_state.get("config_neo4j_password") != config.neo4j_password:
+            st.session_state["config_neo4j_password"] = config.neo4j_password
+    else:
+        st.session_state.pop("config_neo4j_password", None)
     if st.session_state.get("config_neo4j_database") != config.neo4j_database:
         st.session_state["config_neo4j_database"] = config.neo4j_database
 
@@ -422,7 +425,10 @@ def update_config_session_defaults(config: AppConfig) -> None:
     st.session_state["config_output_path"] = config.output_path
     st.session_state["config_neo4j_url"] = config.neo4j_url
     st.session_state["config_neo4j_user"] = config.neo4j_user
-    st.session_state["config_neo4j_password"] = config.neo4j_password
+    if config.neo4j_password_source == "file":
+        st.session_state["config_neo4j_password"] = config.neo4j_password
+    else:
+        st.session_state.pop("config_neo4j_password", None)
     st.session_state["config_neo4j_database"] = config.neo4j_database
 
 

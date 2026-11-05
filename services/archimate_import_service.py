@@ -87,6 +87,16 @@ def load_archimate_mapping(path: Path | None = None) -> dict:
         return json.load(fh)
 
 
+def validate_archimate_element_classification(mapping: dict) -> None:
+    """Require an explicit import-or-ignore decision for every known element type."""
+
+    elements = mapping.get("elements", {})
+    classified = set(elements.get("import", {})) | set(elements.get("ignore", []))
+    unclassified = sorted(set(ARCHIMATE_ELEMENT_TYPES) - classified)
+    if unclassified:
+        raise ValueError("Unclassified ArchiMate element types: " + ", ".join(unclassified))
+
+
 def confirm_archimate_candidate_node(
     neo4j_client: Neo4jClient,
     label: str,
@@ -100,6 +110,8 @@ def confirm_archimate_candidate_node(
             raise ValueError(f"Unbekanntes Label: {label}")
         outgoing = {p.relationship_type for p in QUERY_RELATIONSHIP_PATTERNS if p.source_label == label}
         incoming = {p.relationship_type for p in QUERY_RELATIONSHIP_PATTERNS if p.target_label == label}
+        outgoing.add("ASSOCIATED_WITH")
+        incoming.add("ASSOCIATED_WITH")
         for rel_type in outgoing:
             neo4j_client.execute_write(
                 f"""
@@ -258,6 +270,9 @@ def _import_to_neo4j(
         threshold: float = mapping.get("fuzzy_match_threshold", 0.85)
         rel_import_map: dict[str, list[str]] = mapping.get("relationships", {}).get("import", {})
         bridgr_map: dict[str, str] = mapping.get("relationships", {}).get("bridgr_relation", {})
+        association_relation = mapping.get("relationships", {}).get(
+            "association_bridgr_relation", "ASSOCIATED_WITH"
+        )
 
         # Snapshot of existing names per label taken BEFORE this import run.
         # Fuzzy matching uses only this snapshot so that nodes created during
@@ -325,7 +340,8 @@ def _import_to_neo4j(
 
             pair_key = f"{source_label}->{target_label}"
             accepted_types = rel_import_map.get(pair_key, [])
-            if rel.archimate_rel_type not in accepted_types:
+            is_neutral_association = rel.archimate_rel_type == "Association"
+            if not is_neutral_association and rel.archimate_rel_type not in accepted_types:
                 result.relations_skipped += 1
                 skipped_types[rel.archimate_rel_type] = skipped_types.get(rel.archimate_rel_type, 0) + 1
                 result.skipped_relations.append({
@@ -336,7 +352,9 @@ def _import_to_neo4j(
                 })
                 continue
 
-            bridgr_relation = _label_pair_to_relation(source_label, target_label, bridgr_map)
+            bridgr_relation = association_relation if is_neutral_association else _label_pair_to_relation(
+                source_label, target_label, bridgr_map
+            )
             if bridgr_relation is None:
                 result.relations_skipped += 1
                 result.skipped_relations.append({
@@ -498,6 +516,7 @@ def _default_mapping() -> dict:
                 "OrgUnit->Server":        "RESPONSIBLE_FOR",
                 "OrgUnit->Process":       "RESPONSIBLE_FOR",
             },
+            "association_bridgr_relation": "ASSOCIATED_WITH",
         },
         "pending_candidates": [],
     }

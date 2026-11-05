@@ -58,6 +58,39 @@ def test_bpmn_extractor_returns_empty_roles_when_no_lanes(tmp_path: Path) -> Non
     assert result.roles == []
 
 
+def test_bpmn_extractor_extracts_each_process_with_isolated_context(tmp_path: Path) -> None:
+    source_path = tmp_path / "multiple.bpmn"
+    prompt_path = tmp_path / "prompt.md"
+    source_path.write_text(
+        """<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL">
+  <bpmn:process id="sales" name="Sales"><bpmn:laneSet><bpmn:lane name="Sales" /></bpmn:laneSet></bpmn:process>
+  <bpmn:process id="purchasing" name="Purchasing"><bpmn:laneSet><bpmn:lane name="Purchasing" /></bpmn:laneSet></bpmn:process>
+  <bpmn:collaboration><bpmn:participant name="Sales Portal" processRef="sales" /><bpmn:participant name="Buying API" processRef="purchasing" /></bpmn:collaboration>
+</bpmn:definitions>""",
+        encoding="utf-8",
+    )
+    prompt_path.write_text("prompt", encoding="utf-8")
+
+    class ProcessScopedLlmClient:
+        def __init__(self) -> None:
+            self.prompts: list[str] = []
+
+        def generate_json(self, system_prompt: str, user_prompt: str) -> dict:
+            self.prompts.append(user_prompt)
+            if 'id="sales"' in user_prompt:
+                return {"process": "Sales", "process_id": "ignored", "roles": ["Sales"], "applications": [{"name": "Sales Portal", "confidence": "stark"}]}
+            return {"process": "Purchasing", "process_id": "ignored", "roles": ["Purchasing"], "applications": [{"name": "Buying API", "confidence": "stark"}]}
+
+    llm_client = ProcessScopedLlmClient()
+    results = BpmnExtractor(prompt_path=prompt_path, llm_client=llm_client).extract_many(source_path)
+
+    assert [result.process_id for result in results] == ["sales", "purchasing"]
+    assert [application.name for application in results[0].applications] == ["Sales Portal"]
+    assert [application.name for application in results[1].applications] == ["Buying API"]
+    assert 'Buying API' not in llm_client.prompts[0]
+    assert 'Sales Portal' not in llm_client.prompts[1]
+
+
 def test_bpmn_extractor_deduplicates_roles(tmp_path: Path) -> None:
     source_path = tmp_path / "process.bpmn"
     prompt_path = tmp_path / "prompt.md"

@@ -73,9 +73,6 @@ def run_pipeline(
     cmdb_rows = load_application_cmdb_rows(config)
     candidate_paths = (list(input_paths) if input_paths is not None else
                        list_bpmn_files(resolve_project_path(config.input_path)) if config.last_run_mode == "full" else [])
-    total = len(candidate_paths)
-    if progress_callback:
-        progress_callback({"phase": "start", "completed": 0, "total": total, "source_path": "", "status": ""})
     llm_client = OpenAICompatibleClient(LlmClientConfig(
         base_url=config.llm_base_url, model=config.llm_model, api_key_env=config.llm_api_key_env,
         timeout_seconds=config.llm_timeout_seconds,
@@ -83,8 +80,17 @@ def run_pipeline(
     ))
     writer = GraphWriter()
     # All extraction/LLM work precedes the write lock and database transactions.
-    prepared = [run_document(path, compute_file_hash(path), build_extractor_for_path(path, llm_client),
-                             config, cmdb_rows, writer) for path in candidate_paths]
+    prepared: list[DocumentRunResult] = []
+    for path in candidate_paths:
+        file_hash = compute_file_hash(path)
+        extractor = build_extractor_for_path(path, llm_client)
+        if isinstance(extractor, BpmnExtractor):
+            prepared.extend(run_bpmn_document(path, file_hash, extractor, config, cmdb_rows, writer))
+        else:
+            prepared.append(run_document(path, file_hash, extractor, config, cmdb_rows, writer))
+    total = len(prepared)
+    if progress_callback:
+        progress_callback({"phase": "start", "completed": 0, "total": total, "source_path": "", "status": ""})
     client = build_neo4j_client(config)
     completed = []
     states = []
@@ -177,7 +183,6 @@ def run_document(
     org_unit_aliases = org_unit_aliases if org_unit_aliases is not None else {}
     try:
         extracted_process = extractor.extract(source_path)
-        extracted_process = apply_org_unit_mapping(extracted_process, org_units, org_unit_aliases)
     except (BpmnExtractorError, TextExtractorError, DocxExtractorError, PdfExtractorError) as exc:
         return DocumentRunResult(
             source_path=str(source_path),
@@ -190,6 +195,50 @@ def run_document(
             error_message=str(exc),
         )
 
+    return build_document_result(
+        source_path, file_hash, extracted_process, config, cmdb_rows, graph_writer,
+        confirmed_links, rejected_links, org_units, org_unit_aliases,
+    )
+
+
+def run_bpmn_document(
+    source_path: Path,
+    file_hash: str,
+    extractor: BpmnExtractor,
+    config: AppConfig,
+    cmdb_rows: list[dict[str, str]],
+    graph_writer: GraphWriter,
+) -> list[DocumentRunResult]:
+    try:
+        extracted_processes = extractor.extract_many(source_path)
+    except BpmnExtractorError as exc:
+        return [DocumentRunResult(
+            source_path=str(source_path), file_hash=file_hash, status=DOCUMENT_STATUS_ERROR,
+            extracted_process=None, matches=[], review_items=[], graph_payload=None, error_message=str(exc),
+        )]
+    return [
+        build_document_result(source_path, file_hash, process, config, cmdb_rows, graph_writer)
+        for process in extracted_processes
+    ]
+
+
+def build_document_result(
+    source_path: Path,
+    file_hash: str,
+    extracted_process: ExtractedProcess,
+    config: AppConfig,
+    cmdb_rows: list[dict[str, str]],
+    graph_writer: GraphWriter,
+    confirmed_links: list[dict] | None = None,
+    rejected_links: list[dict] | None = None,
+    org_units: dict[str, str] | None = None,
+    org_unit_aliases: dict[str, str] | None = None,
+) -> DocumentRunResult:
+    confirmed_links = confirmed_links if confirmed_links is not None else []
+    rejected_links = rejected_links if rejected_links is not None else []
+    org_units = org_units if org_units is not None else {}
+    org_unit_aliases = org_unit_aliases if org_unit_aliases is not None else {}
+    extracted_process = apply_org_unit_mapping(extracted_process, org_units, org_unit_aliases)
     matches: list[MatchResult] = []
     for application in extracted_process.applications:
         matches.extend(
@@ -241,21 +290,20 @@ def build_manual_matches(
     confirmed_links: list[ConfirmedLink],
     process_id: str = "",
 ) -> list[MatchResult]:
-    """Reconstruct confirmed links that survive re-import regardless of document content.
-
-    Both manueller_link (manual links) and manuell_bestaetigt (user-confirmed weak candidates)
-    are treated as persistent: they are recreated even when the raw application name is no
-    longer mentioned in the current version of the document.
-    """
-    extracted_names = {application.name for application in extracted_applications}
+    """Reconstruct a decision only while its raw term is present in this document."""
+    extracted_names = {
+        normalize_org_unit_name(application.name)
+        for application in extracted_applications
+    }
     manual_matches: list[MatchResult] = []
     for link in confirmed_links:
         if not decision_matches_process(link, process_name, process_id):
             continue
-        if link.get("source") not in _PERSISTENT_LINK_SOURCES:
+        source = link.get("quelle", link.get("source", ""))
+        if source not in _PERSISTENT_LINK_SOURCES:
             continue
         application_name = link.get("anwendung_name", "")
-        if application_name in extracted_names:
+        if normalize_org_unit_name(application_name) not in extracted_names:
             continue
         manual_matches.append(
             MatchResult(

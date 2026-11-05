@@ -299,6 +299,10 @@ def test_validator_accepts_ist_verbunden_mit_arbitrary_labels() -> None:
     validate_query_schema("MATCH (k:Context)-[:CONNECTED_TO]->(r:Risk) RETURN k.name, r.name")
 
 
+def test_validator_accepts_neutral_association_between_queryable_labels() -> None:
+    validate_query_schema("MATCH (a:Application)-[:ASSOCIATED_WITH]->(z:Goal) RETURN a.name, z.name")
+
+
 def test_validator_rejects_undirected_ist_verbunden_mit() -> None:
     with pytest.raises(ValueError, match="undirected"):
         validate_query_schema("MATCH (a:Application)-[:CONNECTED_TO]-(p:Process) RETURN a.name")

@@ -67,7 +67,6 @@ class GraphWriter:
             client.execute_write(
                 """
                 MATCH (:Application)-[r:SERVES]->(p:Process {process_id: $process_id})
-                WHERE NOT coalesce(r.source, '') IN ['manuell_bestaetigt', 'manueller_link']
                 DELETE r
                 """,
                 {

@@ -235,6 +235,11 @@ Aktuell erwartet das Projekt für Webprovider typischerweise:
 
 Für Neo4j-Aura können die Zugangsdaten direkt über `.env` kommen. Wenn in `config.json` noch die lokalen Defaults (`bolt://localhost:7687`, `neo4j`) stehen, werden die gesetzten `NEO4J_*`-Variablen automatisch bevorzugt. Das Passwort aus `NEO4J_PASSWORD` wird in der UI verwendet, aber beim Speichern nicht stillschweigend nach `config.json` zurückgeschrieben.
 
+`NEO4J_CHAT_PASSWORD` folgt demselben Schutzvertrag wie `NEO4J_PASSWORD`: Ein
+aus der Umgebung aufgelöstes Passwort bleibt im Konfigurationsformular leer und
+wird beim Speichern nicht in `config.json` geschrieben. Erst eine bewusste
+Eingabe im Formular ersetzt es als lokalen Dateiwert.
+
 Eine Vorlage liegt in:
 
 - `Specs/.env.example`

@@ -26,9 +26,11 @@ class AppConfig:
     neo4j_url: str = DEFAULT_NEO4J_URL
     neo4j_user: str = DEFAULT_NEO4J_USER
     neo4j_password: str = field(default="", repr=False)
+    neo4j_password_source: str = field(default="file", repr=False)
     neo4j_database: str = ""
     neo4j_chat_user: str = ""
     neo4j_chat_password: str = field(default="", repr=False)
+    neo4j_chat_password_source: str = field(default="file", repr=False)
     fuzzy_threshold: float = 0.85
     cmdb_uuid_column: str = "id"
     cmdb_name_column: str = "name"
@@ -77,7 +79,7 @@ def load_config(path: Path | None = None) -> AppConfig:
         env_name="NEO4J_USERNAME",
         default=DEFAULT_NEO4J_USER,
     )
-    raw_config["neo4j_password"] = resolve_env_backed_value(
+    raw_config["neo4j_password"], raw_config["neo4j_password_source"] = resolve_env_backed_value_with_source(
         raw_config.get("neo4j_password"),
         env_name="NEO4J_PASSWORD",
         default="",
@@ -88,7 +90,9 @@ def load_config(path: Path | None = None) -> AppConfig:
         default="",
     )
     raw_config["neo4j_chat_user"] = resolve_env_backed_value(raw_config.get("neo4j_chat_user"), "NEO4J_CHAT_USERNAME", "")
-    raw_config["neo4j_chat_password"] = resolve_env_backed_value(raw_config.get("neo4j_chat_password"), "NEO4J_CHAT_PASSWORD", "")
+    raw_config["neo4j_chat_password"], raw_config["neo4j_chat_password_source"] = resolve_env_backed_value_with_source(
+        raw_config.get("neo4j_chat_password"), "NEO4J_CHAT_PASSWORD", ""
+    )
     raw_config["last_run_mode"] = normalize_run_mode(raw_config.get("last_run_mode", "partial"))
     raw_config["ui_locale"] = raw_config.get("ui_locale", "de") if raw_config.get("ui_locale", "de") in {"de", "en"} else "de"
 
@@ -114,11 +118,28 @@ def resolve_env_backed_value(config_value: str | None, env_name: str, default: s
     return normalized_config or default
 
 
+def resolve_env_backed_value_with_source(config_value: str | None, env_name: str, default: str) -> tuple[str, str]:
+    """Resolve a value while retaining whether a secret came from the environment."""
+
+    env_value = os.getenv(env_name, "").strip()
+    normalized_config = (config_value or "").strip()
+    if env_value and not normalized_config:
+        return env_value, "environment"
+    if normalized_config:
+        return normalized_config, "file"
+    return default, "empty"
+
+
 def save_config(config: AppConfig, path: Path | None = None) -> None:
     config_path = resolve_project_path(path if path is not None else DEFAULT_CONFIG_PATH)
     config_path.parent.mkdir(parents=True, exist_ok=True)
+    serializable_config = asdict(config)
+    for secret_key in ("neo4j_password", "neo4j_chat_password"):
+        source_key = f"{secret_key}_source"
+        if serializable_config.pop(source_key) == "environment":
+            serializable_config[secret_key] = ""
     with config_path.open("w", encoding="utf-8") as handle:
-        json.dump(asdict(config), handle, indent=2, ensure_ascii=False)
+        json.dump(serializable_config, handle, indent=2, ensure_ascii=False)
         handle.write("\n")
 
 
