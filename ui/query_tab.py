@@ -75,7 +75,7 @@ def _render_message_actions(idx: int, message: dict, config: AppConfig, locale: 
     if _diagram_state(message) == "not_requested":
         if st.button(f"📊 {translate('chat.show_as_diagram', locale)}", key=f"diagram-btn-{idx}"):
             try:
-                result = render_chat_diagram(get_session_chat_client(config), rows, message.get("cypher_query", ""), f"chat-{idx}")
+                result = render_chat_diagram(config, get_session_chat_client(config), rows, message.get("cypher_query", ""), f"chat-{idx}")
             except Neo4jExecutionError:
                 st.warning(translate("chat.diagram_unavailable", locale))
                 return

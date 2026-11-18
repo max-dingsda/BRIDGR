@@ -42,6 +42,7 @@ class AppConfig:
     cmdb_uses_interfaces_column: str = "uses_interfaces"
     input_path: str = "Input"
     output_path: str = "Output"
+    archify_renderer_path: str = ""
     last_run_mode: str = "partial"
     chat_mode: str = "prompt-only"
     debug_mode: bool = False

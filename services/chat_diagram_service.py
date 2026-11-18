@@ -9,9 +9,12 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
+
+from core.app_config import resolve_runtime_output_path
 
 from services.graph_view_service import (
     GraphEdge,
@@ -24,9 +27,6 @@ from services.graph_view_service import (
 )
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[1]
-_ARCHIFY_CLI = _PROJECT_ROOT / ".agents" / "skills" / "archify" / "bin" / "archify.mjs"
-if not _ARCHIFY_CLI.exists():
-    _ARCHIFY_CLI = Path(r"C:\Users\mgoum\.agents\skills\archify\bin\archify.mjs")
 _NODE_COMMAND = "node"
 _RENDER_TIMEOUT_SECONDS = 30
 _LABEL_HORIZONTAL_PADDING = 22
@@ -71,7 +71,7 @@ def diagram_is_possible(rows: list[dict]) -> bool:
     return answer_diagram_is_renderable(rows)
 
 
-def render_chat_diagram(neo4j_client, rows: list[dict], cypher_query: str, message_id: str) -> DiagramArtifact:
+def render_chat_diagram(config, neo4j_client, rows: list[dict], cypher_query: str, message_id: str) -> DiagramArtifact:
     """Render a validated local architecture view for one stored chat message."""
     if not diagram_is_possible(rows):
         return DiagramArtifact(None, None, None)
@@ -84,7 +84,8 @@ def render_chat_diagram(neo4j_client, rows: list[dict], cypher_query: str, messa
         return DiagramArtifact(None, None, None)
 
     safe_id = re.sub(r"[^A-Za-z0-9_-]", "-", message_id)[:80] or "message"
-    artifact_dir = (_PROJECT_ROOT / "Output" / "chat-diagrams" / safe_id).resolve()
+    output_path, _ = resolve_runtime_output_path(config.output_path)
+    artifact_dir = (output_path / "chat-diagrams" / safe_id).resolve()
     artifact_dir.mkdir(parents=True, exist_ok=True)
     candidate_path = artifact_dir / "candidate.json"
     html_path = artifact_dir / "diagram.html"
@@ -92,11 +93,10 @@ def render_chat_diagram(neo4j_client, rows: list[dict], cypher_query: str, messa
     candidate_path.write_text(candidate_json, encoding="utf-8")
     evidence_dir = _renderer_evidence_dir(artifact_dir, candidate_json)
 
-    if not _ARCHIFY_CLI.is_file():
-        raise RuntimeError("Der lokale Archify-Renderer ist nicht verfügbar.")
+    renderer_path = _renderer_path(config.archify_renderer_path)
     command = [
         _NODE_COMMAND,
-        str(_ARCHIFY_CLI),
+        str(renderer_path),
         "finalize",
         "architecture",
         str(candidate_path),
@@ -116,7 +116,7 @@ def render_chat_diagram(neo4j_client, rows: list[dict], cypher_query: str, messa
     preview_dir = evidence_dir / "preview"
     try:
         preview = subprocess.run(
-            [_NODE_COMMAND, str(_ARCHIFY_CLI), "visual-check", str(html_path), "--json", "--out-dir", str(preview_dir)],
+            [_NODE_COMMAND, str(renderer_path), "visual-check", str(html_path), "--json", "--out-dir", str(preview_dir)],
             cwd=_PROJECT_ROOT,
             capture_output=True,
             text=True,
@@ -135,6 +135,19 @@ def _renderer_evidence_dir(artifact_dir: Path, candidate_json: str) -> Path:
     """Keep renderer evidence immutable when a stored chat answer is rendered again."""
     fingerprint = hashlib.sha256(candidate_json.encode("utf-8")).hexdigest()[:12]
     return artifact_dir / "evidence" / fingerprint
+
+
+def _renderer_path(configured_path: str) -> Path:
+    if not shutil.which(_NODE_COMMAND):
+        raise RuntimeError("Node.js is required for local Archify diagrams but was not found in PATH.")
+    renderer_path = (
+        Path(configured_path).expanduser()
+        if configured_path.strip()
+        else _PROJECT_ROOT / ".agents" / "skills" / "archify" / "bin" / "archify.mjs"
+    )
+    if not renderer_path.is_file():
+        raise RuntimeError("The local Archify renderer is missing. Configure archify_renderer_path with archify.mjs.")
+    return renderer_path
 
 
 def _renderer_failure_detail(completed: subprocess.CompletedProcess[str]) -> str:

@@ -26,7 +26,7 @@ from services.graph_view_service import (
     generate_graph_dot,
     resolve_seeds,
 )
-from services.chat_diagram_service import _candidate, _node_visual, _renderer_evidence_dir, _renderer_failure_detail
+from services.chat_diagram_service import _candidate, _node_visual, _renderer_evidence_dir, _renderer_failure_detail, _renderer_path
 
 
 class FakeNeo4jClient:
@@ -612,6 +612,21 @@ def test_renderer_evidence_dir_changes_with_the_candidate_content(tmp_path) -> N
 
     assert first.parent == tmp_path / "evidence"
     assert first != second
+
+
+def test_renderer_path_uses_configured_renderer(tmp_path, monkeypatch) -> None:
+    renderer = tmp_path / "archify.mjs"
+    renderer.write_text("export {};", encoding="utf-8")
+    monkeypatch.setattr("services.chat_diagram_service.shutil.which", lambda _: "node")
+
+    assert _renderer_path(str(renderer)) == renderer
+
+
+def test_renderer_path_requires_nodejs(monkeypatch) -> None:
+    monkeypatch.setattr("services.chat_diagram_service.shutil.which", lambda _: None)
+
+    with pytest.raises(RuntimeError, match="Node.js"):
+        _renderer_path("")
 
 
 def test_renderer_failure_detail_prefers_archify_diagnostics() -> None:
