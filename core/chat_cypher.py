@@ -7,7 +7,12 @@ projected. Unsupported Cypher syntax fails closed before database execution.
 from dataclasses import dataclass
 import re
 
-from core.graph_schema import QUERY_NODE_SCHEMA, QUERY_RELATIONSHIP_SCHEMA, QUERY_RELATIONSHIP_PATTERNS
+from core.graph_schema import (
+    QUERY_NODE_SCHEMA,
+    QUERY_RELATIONSHIP_SCHEMA,
+    QUERY_RELATIONSHIP_PATTERNS,
+    UNRESTRICTED_RELATIONSHIP_TYPES,
+)
 
 
 @dataclass(frozen=True)
@@ -133,7 +138,7 @@ class Reader:
             self.take("-" if reverse else "->")
             right = self.node()
             source, target = (right, left) if reverse else (left, right)
-            if relation != "CONNECTED_TO" and not any(
+            if relation not in UNRESTRICTED_RELATIONSHIP_TYPES and not any(
                 p.relationship_type == relation and p.source_label == source.label
                 and p.target_label == target.label for p in QUERY_RELATIONSHIP_PATTERNS
             ):

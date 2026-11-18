@@ -141,6 +141,12 @@ def test_validate_read_only_cypher_allows_correct_dient_direction() -> None:
     )
 
 
+def test_validate_read_only_cypher_allows_unrestricted_association() -> None:
+    validate_read_only_cypher(
+        "MATCH (a:Application)-[:ASSOCIATED_WITH]->(p:Process) RETURN a.name AS application, p.name AS process"
+    )
+
+
 def test_validate_read_only_cypher_rejects_undirected_relationship() -> None:
     with pytest.raises(QueryValidationError):
         validate_read_only_cypher(

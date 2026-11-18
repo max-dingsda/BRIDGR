@@ -67,6 +67,7 @@ class GraphWriter:
             client.execute_write(
                 """
                 MATCH (:Application)-[r:SERVES]->(p:Process {process_id: $process_id})
+                WHERE NOT coalesce(r.source, '') IN ['manuell_bestaetigt', 'manueller_link']
                 DELETE r
                 """,
                 {
@@ -111,7 +112,6 @@ class GraphWriter:
                     MERGE (current:Process {process_id: $process_id})
                     MERGE (previous:Process {name: $previous_process_name})
                     ON CREATE SET previous.placeholder = true
-                    SET previous.placeholder = coalesce(previous.placeholder, true)
                     MERGE (current)-[:FOLLOWS]->(previous)
                     """,
                     {
@@ -496,11 +496,12 @@ class GraphWriter:
         archimate_type: str,
     ) -> None:
         canonical_name = self._resolve_org_unit_canonical_name(client, name) if label == "OrgUnit" else name
+        process_placeholder_property = ",\n                n.placeholder = false" if label == "Process" else ""
         client.execute_write(
             f"""
             MERGE (n:{label} {{archimate_id: $archimate_id, archimate_source: $archimate_source}})
             SET n.name = $name,
-                n.archimate_type = $archimate_type
+                n.archimate_type = $archimate_type{process_placeholder_property}
             """,
             {
                 "name": canonical_name,

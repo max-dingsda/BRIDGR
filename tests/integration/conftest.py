@@ -19,6 +19,9 @@ def isolated_neo4j_config():
 
     load_env_files()
     config = load_config()
+    if os.getenv("BRIDGR_USE_CONFIGURED_NEO4J_TEST_DATABASE") == "1":
+        yield config
+        return
     database = "bridgr-test-" + uuid4().hex
     assert re.fullmatch(r"bridgr-test-[0-9a-f]{32}", database)
     assert database != config.neo4j_database
@@ -38,6 +41,7 @@ def isolated_neo4j_config():
 @pytest.fixture
 def graph_client(isolated_neo4j_config):
     config = isolated_neo4j_config
+    using_configured_database = os.getenv("BRIDGR_USE_CONFIGURED_NEO4J_TEST_DATABASE") == "1"
     client = Neo4jClient(Neo4jConfig(config.neo4j_url, config.neo4j_user,
                                    config.neo4j_password, config.neo4j_database))
     try:
@@ -45,6 +49,8 @@ def graph_client(isolated_neo4j_config):
         client.ensure_constraints()
         yield client
     finally:
+        if using_configured_database:
+            client.execute_write("MATCH (n) WHERE NOT n:__BridgrWriteLock DETACH DELETE n")
         client.close()
 
 

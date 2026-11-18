@@ -42,6 +42,54 @@ def test_confirmed_link_survives_rename_and_removed_raw_term(graph_client):
         "source": "manuell_bestaetigt", "raw_name": "SAP", "confidence": "stark"}}]
 
 
+def test_reimport_keeps_manual_serves_link_when_no_match_is_rewritten(graph_client):
+    """Prevent data loss when a process re-import yields no application matches."""
+    graph_client.execute_write("""
+        CREATE (p:Process {process_id:'p1', name:'Original'})
+        CREATE (a:Application {cmdb_id:'a1', name:'ERP'})
+        CREATE (a)-[:SERVES {source:'manueller_link', raw_name:'ERP', confidence:'stark'}]->(p)
+    """)
+
+    writer = GraphWriter()
+    process = reconstruct_extracted_process(document()["extracted_process"])
+    writer.write_payload(graph_client, writer.build_payload(process, []))
+
+    rows = graph_client.execute_read_unvalidated("""
+        MATCH (a:Application {cmdb_id:'a1'})-[r:SERVES]->(p:Process {process_id:'p1'})
+        RETURN a.name AS application, properties(r) AS props
+    """)
+    assert rows == [{"application": "ERP", "props": {
+        "source": "manueller_link", "raw_name": "ERP", "confidence": "stark"}}]
+
+
+def test_bpmn_reimport_does_not_delete_archimate_predecessor(graph_client):
+    """Prevent a real ArchiMate process from becoming a disposable placeholder."""
+    writer = GraphWriter()
+    writer.merge_archimate_node(
+        graph_client,
+        label="Process",
+        name="ArchiMate predecessor",
+        archimate_id="arch-process-1",
+        archimate_source="architecture.archimate",
+        archimate_type="BusinessProcess",
+    )
+    process = reconstruct_extracted_process({
+        "process_name": "Current BPMN process",
+        "process_id": "bpmn-1",
+        "follows_after": ["ArchiMate predecessor"],
+        "source_path": "Input/current.bpmn",
+    })
+
+    writer.write_payload(graph_client, writer.build_payload(process, []))
+    writer.cleanup_process_placeholders(graph_client)
+
+    rows = graph_client.execute_read_unvalidated("""
+        MATCH (current:Process {process_id:'bpmn-1'})-[:FOLLOWS]->(previous:Process)
+        RETURN previous.archimate_id AS archimate_id, previous.placeholder AS placeholder
+    """)
+    assert rows == [{"archimate_id": "arch-process-1", "placeholder": False}]
+
+
 def test_rejection_uses_process_identity_and_survives_rename(graph_client):
     graph_client.execute_write("CREATE (:Process {process_id:'p1', name:'Original'})")
     GraphWriter().reject_candidate_link(graph_client, cmdb_id=None, process_id="p1",

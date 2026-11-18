@@ -114,8 +114,9 @@ BUSINESS_RELATIONSHIP_TYPES: tuple[str, ...] = tuple(
 )
 
 
-# CONNECTED_TO is unrestricted — no label-pair validation applied.
-_UNRESTRICTED_RELATIONSHIP_TYPES: frozenset[str] = frozenset({"CONNECTED_TO", "ASSOCIATED_WITH"})
+# These relation types are permitted between any two queryable labels. Both the
+# published schema reference and every read-only validation path use this set.
+UNRESTRICTED_RELATIONSHIP_TYPES: frozenset[str] = frozenset({"CONNECTED_TO", "ASSOCIATED_WITH"})
 
 
 def build_query_schema_reference() -> str:
@@ -200,7 +201,7 @@ def _validate_relationship_patterns(
             raise ValueError(
                 f"Cypher query uses undirected relationship pattern for {relationship_type}; use the canonical direction."
             )
-        if relationship_type in _UNRESTRICTED_RELATIONSHIP_TYPES:
+        if relationship_type in UNRESTRICTED_RELATIONSHIP_TYPES:
             continue
 
         left_labels = _resolve_labels(match.group("left_var"), match.group("left_label"), variable_labels)
