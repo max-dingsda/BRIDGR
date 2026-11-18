@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "bridgr"
 version = "0.1.0"
 description = "BRIDGR builds an enterprise architecture knowledge graph from process documents and CMDB data."
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "streamlit>=1.45,<1.57",
     "pandas>=2.0,<4.0",

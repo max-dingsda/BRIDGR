@@ -70,6 +70,8 @@ names and the graph schema remain unchanged.
 
 ## Configuration
 
+BRIDGR requires Python 3.11 or newer.
+
 Copy the distributed configuration template and adapt it for your environment:
 
 ```powershell

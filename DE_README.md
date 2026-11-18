@@ -104,6 +104,8 @@ Mehr Informationen zur Architektur finden sich in der
 
 ## Konfiguration
 
+BRIDGR benötigt Python 3.11 oder neuer.
+
 Alternativ zur nachfolgenden Beschreibung kann die Konfiguration auch vollständig über die Oberfläche erfolgen. Dazu einfach in das BRIDGR Verzeichnis wechseln und die Anwendung starten:
 
 ```powershell
