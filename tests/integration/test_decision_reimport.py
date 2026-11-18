@@ -1,4 +1,5 @@
 from core.app_config import AppConfig
+from services.archimate_import_service import ArchiMateElement, _default_mapping, _import_to_neo4j
 from services.review_service import rerun_single_document_from_artifact
 from skills.graph_writer import GraphWriter
 from services.review_service import reconstruct_extracted_process, reconstruct_match_result
@@ -88,6 +89,34 @@ def test_bpmn_reimport_does_not_delete_archimate_predecessor(graph_client):
         RETURN previous.archimate_id AS archimate_id, previous.placeholder AS placeholder
     """)
     assert rows == [{"archimate_id": "arch-process-1", "placeholder": False}]
+
+
+def test_archimate_exact_name_match_enriches_existing_cmdb_application(graph_client):
+    """Prevent duplicate Applications when ArchiMate enriches a CMDB entity."""
+    graph_client.execute_write("""
+        CREATE (:Application {cmdb_id:'cmdb-erp-1', name:'ERP', owner_name:'Finance'})
+    """)
+
+    result = _import_to_neo4j(
+        graph_client,
+        [ArchiMateElement("arch-app-1", "ApplicationComponent", "ERP", "Application")],
+        [],
+        _default_mapping(),
+        "architecture.archimate",
+    )
+
+    rows = graph_client.execute_read_unvalidated("""
+        MATCH (a:Application {name:'ERP'})
+        RETURN count(a) AS count, collect(a.cmdb_id) AS cmdb_ids,
+               collect(a.archimate_id) AS archimate_ids, collect(a.owner_name) AS owner_names
+    """)
+    assert result.elements_imported == 1
+    assert rows == [{
+        "count": 1,
+        "cmdb_ids": ["cmdb-erp-1"],
+        "archimate_ids": ["arch-app-1"],
+        "owner_names": ["Finance"],
+    }]
 
 
 def test_rejection_uses_process_identity_and_survives_rename(graph_client):

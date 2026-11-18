@@ -267,12 +267,12 @@ def test_import_exact_name_match_merges_existing(tmp_path: Path) -> None:
         bridgr_label="Process",
     )
     client = RecordingNeo4jClient(
-        read_results={"archimate_id": [], "n.name": [{"name": "Posteingang"}]}
+        read_results={"archimate_id": [], "n.name": [{"name": "Posteingang", "element_id": "process-1"}]}
     )
     result = _import_to_neo4j(client, [element], [], _DEFAULT_MAPPING, "test.xml")
     assert result.elements_imported == 1
-    merge_queries = [q for q, _ in client.queries if "MERGE" in q and "Process" in q]
-    assert len(merge_queries) == 1
+    enrichment_queries = [q for q, _ in client.queries if "WHERE elementId(n) = $element_id" in q]
+    assert len(enrichment_queries) == 1
 
 
 def test_import_archimate_id_lookup_on_reimport() -> None:
@@ -285,10 +285,36 @@ def test_import_archimate_id_lookup_on_reimport() -> None:
         bridgr_label="Process",
     )
     client = RecordingNeo4jClient(
-        read_results={"archimate_id": [{"name": "Posteingang"}]}
+        read_results={"archimate_id": [{"name": "Posteingang", "element_id": "process-1"}]}
     )
     result = _import_to_neo4j(client, [element], [], _DEFAULT_MAPPING, "test.xml")
     assert result.elements_imported == 1
+
+
+def test_import_ambiguous_exact_name_match_is_not_merged() -> None:
+    from services.archimate_import_service import ArchiMateElement
+
+    element = ArchiMateElement(
+        archimate_id="id-ambiguous",
+        archimate_type="BusinessProcess",
+        name="Posteingang",
+        bridgr_label="Process",
+    )
+    client = RecordingNeo4jClient(
+        read_results={
+            "archimate_id": [],
+            "n.name": [
+                {"name": "Posteingang", "element_id": "process-1"},
+                {"name": "Posteingang", "element_id": "process-2"},
+            ],
+        }
+    )
+
+    result = _import_to_neo4j(client, [element], [], _DEFAULT_MAPPING, "test.xml")
+
+    assert result.elements_imported == 0
+    assert result.elements_as_candidates == 1
+    assert not any("MERGE (n:Process" in query for query, _ in client.queries)
 
 
 def test_import_new_node_created_when_no_match() -> None:

@@ -494,9 +494,29 @@ class GraphWriter:
         archimate_id: str,
         archimate_source: str,
         archimate_type: str,
+        existing_element_id: str | None = None,
     ) -> None:
         canonical_name = self._resolve_org_unit_canonical_name(client, name) if label == "OrgUnit" else name
         process_placeholder_property = ",\n                n.placeholder = false" if label == "Process" else ""
+        if existing_element_id:
+            client.execute_write(
+                f"""
+                MATCH (n:{label})
+                WHERE elementId(n) = $element_id
+                SET n.name = $name,
+                    n.archimate_id = $archimate_id,
+                    n.archimate_source = $archimate_source,
+                    n.archimate_type = $archimate_type{process_placeholder_property}
+                """,
+                {
+                    "element_id": existing_element_id,
+                    "name": canonical_name,
+                    "archimate_id": archimate_id,
+                    "archimate_source": archimate_source,
+                    "archimate_type": archimate_type,
+                },
+            )
+            return
         client.execute_write(
             f"""
             MERGE (n:{label} {{archimate_id: $archimate_id, archimate_source: $archimate_source}})

@@ -79,6 +79,12 @@ class ArchiMateImportResult:
     skipped_relations: list[dict] = field(default_factory=list)
 
 
+@dataclass(frozen=True, slots=True)
+class ResolvedIdentity:
+    name: str
+    element_id: str | None = None
+
+
 def load_archimate_mapping(path: Path | None = None) -> dict:
     mapping_path = path or resolve_project_path(_DEFAULT_MAPPING_PATH)
     if not mapping_path.exists():
@@ -302,19 +308,20 @@ def _import_to_neo4j(
         skipped_types: dict[str, int] = {}
 
         for elem in elements:
-            resolved_name = _resolve_identity(
+            resolved_identity = _resolve_identity(
                 client, elem, source_filename, threshold, mapping,
                 pre_existing_names.get(elem.bridgr_label, []),
             )
-            is_candidate = resolved_name is None
+            is_candidate = resolved_identity is None
             if is_candidate:
                 result.elements_as_candidates += 1
                 continue
             result.elements_imported += 1
-            writer.merge_archimate_node(client, label=elem.bridgr_label, name=resolved_name,
+            writer.merge_archimate_node(client, label=elem.bridgr_label, name=resolved_identity.name,
                                         archimate_id=elem.archimate_id, archimate_source=source_filename,
-                                        archimate_type=elem.archimate_type)
-            id_to_name[elem.archimate_id] = resolved_name
+                                        archimate_type=elem.archimate_type,
+                                        existing_element_id=resolved_identity.element_id)
+            id_to_name[elem.archimate_id] = resolved_identity.name
             id_to_label[elem.archimate_id] = elem.bridgr_label
 
         for rel in relations:
@@ -395,22 +402,27 @@ def _resolve_identity(
     threshold: float,
     mapping: dict,
     pre_existing_names: list[str],
-) -> str | None:
+) -> ResolvedIdentity | None:
     # 1. archimate_id lookup (Re-Import)
     rows = client.execute_read_unvalidated(
-        f"MATCH (n:{element.bridgr_label} {{archimate_id: $archimate_id, archimate_source: $archimate_source}}) RETURN n.name AS name",
+        f"MATCH (n:{element.bridgr_label} {{archimate_id: $archimate_id, archimate_source: $archimate_source}}) "
+        "RETURN n.name AS name, elementId(n) AS element_id",
         {"archimate_id": element.archimate_id, "archimate_source": source_filename},
     )
-    if rows:
-        return rows[0]["name"]
+    if len(rows) == 1:
+        return ResolvedIdentity(rows[0]["name"], rows[0]["element_id"])
+    if len(rows) > 1:
+        return None
 
     # 2. Exact name match against pre-existing nodes
     rows = client.execute_read_unvalidated(
-        f"MATCH (n:{element.bridgr_label} {{name: $name}}) RETURN n.name AS name",
+        f"MATCH (n:{element.bridgr_label} {{name: $name}}) RETURN n.name AS name, elementId(n) AS element_id",
         {"name": element.name},
     )
-    if rows:
-        return rows[0]["name"]
+    if len(rows) == 1:
+        return ResolvedIdentity(rows[0]["name"], rows[0]["element_id"])
+    if len(rows) > 1:
+        return None
 
     # 3. Fuzzy match — only against names that existed BEFORE this import run.
     # This prevents nodes created during the current import from matching each other.
@@ -420,7 +432,7 @@ def _resolve_identity(
         return None
 
     # 4. New node
-    return element.name
+    return ResolvedIdentity(element.name)
 
 
 def _fuzzy_match_name(name: str, candidates: list[str], threshold: float) -> tuple[str | None, float]:
