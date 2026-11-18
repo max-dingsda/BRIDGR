@@ -429,6 +429,7 @@ def _resolve_identity(
     if len(rows) == 1:
         return ResolvedIdentity(rows[0]["name"], rows[0]["element_id"])
     if len(rows) > 1:
+        _add_pending_candidate(mapping, element, source_filename, element.name, 1.0, reason="ambiguous_exact_name")
         return None
 
     # 3. Fuzzy match — only against names that existed BEFORE this import run.
@@ -455,10 +456,11 @@ def _fuzzy_match_name(name: str, candidates: list[str], threshold: float) -> tup
     return None, best_score
 
 
-def _add_pending_candidate(mapping: dict, element: ArchiMateElement, source_filename: str, matched_name: str, score: float) -> None:
+def _add_pending_candidate(mapping: dict, element: ArchiMateElement, source_filename: str, matched_name: str, score: float, reason: str = "fuzzy_match") -> None:
     candidates: list[dict] = mapping.setdefault("pending_candidates", [])
     already_exists = any(
         c.get("archimate_id") == element.archimate_id and c.get("archimate_source") == source_filename
+        for c in candidates
     )
     if not already_exists:
         candidates.append({
@@ -469,6 +471,7 @@ def _add_pending_candidate(mapping: dict, element: ArchiMateElement, source_file
             "bridgr_label": element.bridgr_label,
             "suggested_match": matched_name,
             "score": round(score, 3),
+            "reason": reason,
             "relations": [],
         })
         mapping["pending_candidates"] = candidates

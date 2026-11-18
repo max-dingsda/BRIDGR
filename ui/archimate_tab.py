@@ -264,7 +264,7 @@ def _render_candidates_section(mapping: dict, config: AppConfig) -> None:
             f"→ Vorschlag: **{cand['suggested_match']}** "
             f"(Score: {cand['score']:.0%})"
         )
-        if col_confirm.button("✓", key=f"confirm_cand_{i}"):
+        if cand.get("reason") != "ambiguous_exact_name" and col_confirm.button("✓", key=f"confirm_cand_{i}"):
             error = _confirm_candidate(mapping, cand, config)
             if error:
                 st.error(error)

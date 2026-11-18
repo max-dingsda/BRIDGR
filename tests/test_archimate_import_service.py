@@ -294,7 +294,8 @@ def test_import_exact_name_match_merges_existing(tmp_path: Path) -> None:
     client = RecordingNeo4jClient(
         read_results={"archimate_id": [], "n.name": [{"name": "Posteingang", "element_id": "process-1"}]}
     )
-    result = _import_to_neo4j(client, [element], [], _DEFAULT_MAPPING, "test.xml")
+    mapping = {**_DEFAULT_MAPPING, "pending_candidates": []}
+    result = _import_to_neo4j(client, [element], [], mapping, "test.xml")
     assert result.elements_imported == 1
     enrichment_queries = [q for q, _ in client.queries if "WHERE elementId(n) = $element_id" in q]
     assert len(enrichment_queries) == 1
@@ -312,7 +313,8 @@ def test_import_archimate_id_lookup_on_reimport() -> None:
     client = RecordingNeo4jClient(
         read_results={"archimate_id": [{"name": "Posteingang", "element_id": "process-1"}]}
     )
-    result = _import_to_neo4j(client, [element], [], _DEFAULT_MAPPING, "test.xml")
+    mapping = {**_DEFAULT_MAPPING, "pending_candidates": []}
+    result = _import_to_neo4j(client, [element], [], mapping, "test.xml")
     assert result.elements_imported == 1
 
 
@@ -335,11 +337,23 @@ def test_import_ambiguous_exact_name_match_is_not_merged() -> None:
         }
     )
 
-    result = _import_to_neo4j(client, [element], [], _DEFAULT_MAPPING, "test.xml")
+    mapping = {**_DEFAULT_MAPPING, "pending_candidates": []}
+    result = _import_to_neo4j(client, [element], [], mapping, "test.xml")
 
     assert result.elements_imported == 0
     assert result.elements_as_candidates == 1
     assert not any("MERGE (n:Process" in query for query, _ in client.queries)
+    assert mapping["pending_candidates"] == [{
+        "archimate_id": "id-ambiguous",
+        "archimate_source": "test.xml",
+        "archimate_type": "BusinessProcess",
+        "archimate_name": "Posteingang",
+        "bridgr_label": "Process",
+        "suggested_match": "Posteingang",
+        "score": 1.0,
+        "reason": "ambiguous_exact_name",
+        "relations": [],
+    }]
 
 
 def test_import_new_node_created_when_no_match() -> None:
