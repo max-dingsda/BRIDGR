@@ -360,5 +360,30 @@
       "Application->Capability": "SUPPORTS"
     }
   },
-  "pending_candidates": []
+  "pending_candidates": [
+    {
+      "archimate_id": "id-elem-4a1a2405745e143d",
+      "archimate_source": "nordstern_archimate_3_1.xml",
+      "archimate_type": "BusinessRole",
+      "archimate_name": "IAM Administrator",
+      "bridgr_label": "Role",
+      "suggested_match": "PKI Administrator",
+      "score": 0.882,
+      "reason": "fuzzy_match",
+      "relations": [
+        {
+          "direction": "outgoing",
+          "relation_type": "Assignment",
+          "other_label": "Process",
+          "other_name": "Benutzerkonto anlegen"
+        },
+        {
+          "direction": "incoming",
+          "relation_type": "Assignment",
+          "other_label": "OrgUnit",
+          "other_name": "IT-Betrieb"
+        }
+      ]
+    }
+  ]
 }
