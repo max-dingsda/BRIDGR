@@ -32,7 +32,7 @@ _EN = {
     "LLM-Presets": "LLM presets", "Sprache": "Language", "Standardsprache": "Default language",
     "Die Standardsprache gilt für neue Sitzungen. Sie können sie jederzeit im Kopfbereich ändern.": "The default language applies to new sessions. You can change it at any time in the header.",
     "LLM-Endpunkt": "LLM endpoint", "LLM-Modell": "LLM model", "API-Schlüssel (Umgebungsvariable)": "API key (environment variable)", "Kontextfenster": "Context window", "LLM-Timeout (Sekunden)": "LLM timeout (seconds)", "Chat-Modus": "Chat mode",
-    "Neo4j-URL": "Neo4j URL", "Neo4j-Benutzer": "Neo4j user", "Neo4j-Passwort": "Neo4j password", "Neo4j-Datenbank": "Neo4j database", "Datei-Pfade": "File paths", "Eingabepfad": "Input path", "Ausgabepfad": "Output path",
+    "Neo4j-URL": "Neo4j URL", "Neo4j-Benutzer": "Neo4j user", "Neo4j-Passwort": "Neo4j password", "Neo4j-Datenbank": "Neo4j database", "Datei-Pfade": "File paths", "Eingabepfad": "Input path", "Ausgabepfad": "Output path", "Archify-Rendererpfad": "Archify renderer path",
     "CMDB-Spaltenmapping": "CMDB column mapping", "ID-Spalte": "ID column", "Namensspalte": "Name column", "Servertyp-Spalte": "Server type column", "Eigentümer-Spalte": "Owner column", "Spalte 'läuft auf' (Server-IDs)": "'runs on' column (server IDs)", "Spalte 'nutzt Schnittstellen' (Schnittstellen-IDs)": "'uses interfaces' column (interface IDs)", "Mehrwert-Trennzeichen": "Multi-value separator",
     "Import & Matching": "Import & matching", "Fuzzy-Schwellenwert": "Fuzzy threshold", "Standard-Importmodus": "Default import mode", "Debug-Modus": "Debug mode", "Aufbewahrung Snapshots": "Snapshot retention", "Konfiguration speichern": "Save configuration", "Konfiguration gespeichert.": "Configuration saved.", "Neo4j-Verbindung neu prüfen": "Recheck Neo4j connection", "Modelle aktualisieren": "Refresh models", "LLM-Verbindung neu prüfen": "Recheck LLM connection", "Verfügbare Modelle": "Available models", "Sicherung und Wiederherstellung": "Backup and restore", "Snapshot": "Snapshot", "Zeitpunkt": "Created", "Auslöser": "Trigger", "Knoten": "Nodes", "Beziehungen": "Relationships", "Status": "Status", "gültig": "valid", "ungültig": "invalid", "Aktuelle Konfiguration": "Current configuration",
     "`prompt-only`: Cypher als Textblock (kompatibel mit lokalen Modellen ohne Function-Calling). `tool-use`: Formales Function-Calling (erfordert Backend-Unterstützung).": "`prompt-only`: Cypher in a text block (compatible with local models without function calling). `tool-use`: formal function calling (requires backend support).",
@@ -169,6 +169,11 @@ def render_config_tab(config_path: Path) -> None:
         st.markdown(f"#### {_t('Datei-Pfade')}")
         input_path = st.text_input(_t("Eingabepfad"), value=st.session_state["config_input_path"])
         output_path = st.text_input(_t("Ausgabepfad"), value=st.session_state["config_output_path"])
+        archify_renderer_path = st.text_input(
+            _t("Archify-Rendererpfad"),
+            value=config.archify_renderer_path,
+            help="Optionaler Pfad zu archify.mjs. Ohne Angabe wird die Projektinstallation verwendet.",
+        )
 
         st.divider()
         st.markdown(f"#### {_t('CMDB-Spaltenmapping')}")
@@ -228,6 +233,7 @@ def render_config_tab(config_path: Path) -> None:
             cmdb_uses_interfaces_column=cmdb_uses_interfaces_column or "uses_interfaces",
             input_path=input_path,
             output_path=output_path,
+            archify_renderer_path=archify_renderer_path.strip(),
             last_run_mode=last_run_mode,
             chat_mode=chat_mode,
             ui_locale=ui_locale,

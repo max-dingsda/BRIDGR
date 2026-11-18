@@ -41,6 +41,15 @@ def test_save_config_persists_debug_mode_and_snapshot_retention(tmp_path: Path) 
     assert '"snapshot_retention_count": 7' in config_path.read_text(encoding="utf-8")
 
 
+def test_save_config_persists_archify_renderer_path(tmp_path: Path) -> None:
+    config_path = tmp_path / "config.json"
+    renderer_path = "C:/tools/archify/bin/archify.mjs"
+
+    save_config(AppConfig(archify_renderer_path=renderer_path), config_path)
+
+    assert load_config(config_path).archify_renderer_path == renderer_path
+
+
 def test_save_config_persists_dedicated_chat_credentials(tmp_path: Path) -> None:
     config_path = tmp_path / "config.json"
 
