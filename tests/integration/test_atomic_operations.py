@@ -70,6 +70,22 @@ def test_artifact_is_not_published_if_domain_transaction_rolls_back(graph_client
     assert graph_client.read_staged_artifact(path) is None
 
 
+def test_archimate_mapping_is_not_published_if_import_transaction_rolls_back(graph_client, tmp_path):
+    """Prevent pending ArchiMate review data from outliving a failed graph import."""
+    mapping_path = tmp_path / "archimate_mapping.json"
+    mapping = {"pending_candidates": [{"archimate_id": "arch-1", "reason": "ambiguous_exact_name"}]}
+
+    with pytest.raises(RuntimeError, match="injected import failure"):
+        with graph_client.transaction():
+            graph_client.execute_write("CREATE (:Application {cmdb_id:'archimate-rollback', name:'ERP'})")
+            graph_client.stage_artifact(mapping_path, mapping)
+            raise RuntimeError("injected import failure")
+
+    assert not mapping_path.exists()
+    assert graph_client.read_staged_artifact(mapping_path) is None
+    assert graph_client.execute_read_unvalidated("MATCH (a:Application {cmdb_id:'archimate-rollback'}) RETURN count(a) AS count") == [{"count": 0}]
+
+
 def test_unwritable_old_artifact_does_not_block_unrelated_write(graph_client, tmp_path, monkeypatch):
     from processing import run_artifacts
     def fail(*args, **kwargs):
