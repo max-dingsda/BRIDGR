@@ -159,11 +159,17 @@ def save_archimate_mapping(mapping: dict, path: Path | None = None) -> None:
 
 def persist_archimate_import(config: AppConfig, source_path: Path) -> ArchiMateImportResult:
     from services.runtime_service import get_session_neo4j_client, write_debug_log
+    from services.snapshot_service import create_snapshot
 
     mapping = load_archimate_mapping()
     elements, relations, parse_skipped_types = _parse_archimate_xml(source_path, mapping)
     neo4j_client = get_session_neo4j_client(config)
-    result = _import_to_neo4j(neo4j_client, elements, relations, mapping, source_path.name)
+    mapping_path = resolve_project_path(_DEFAULT_MAPPING_PATH)
+    with neo4j_client.serialized_writes():
+        create_snapshot(config, neo4j_client, trigger="archimate_import", operation="archimate_import")
+        with neo4j_client.transaction():
+            result = _import_to_neo4j(neo4j_client, elements, relations, mapping, source_path.name)
+            neo4j_client.stage_artifact(mapping_path, mapping)
     for archimate_type, count in parse_skipped_types.items():
         result.skipped_types[archimate_type] = result.skipped_types.get(archimate_type, 0) + count
     write_debug_log(
@@ -341,6 +347,7 @@ def _import_to_neo4j(
                     "reason": "unresolvable_endpoint",
                 })
                 _record_pending_relation(
+                    mapping,
                     source_filename,
                     rel,
                     source_label,
@@ -428,7 +435,7 @@ def _resolve_identity(
     # This prevents nodes created during the current import from matching each other.
     matched, score = _fuzzy_match_name(element.name, pre_existing_names, threshold)
     if matched is not None:
-        _add_pending_candidate(element, source_filename, matched, score)
+        _add_pending_candidate(mapping, element, source_filename, matched, score)
         return None
 
     # 4. New node
@@ -448,12 +455,7 @@ def _fuzzy_match_name(name: str, candidates: list[str], threshold: float) -> tup
     return None, best_score
 
 
-def _add_pending_candidate(element: ArchiMateElement, source_filename: str, matched_name: str, score: float) -> None:
-    mapping_path = resolve_project_path(_DEFAULT_MAPPING_PATH)
-    if not mapping_path.exists():
-        return
-    with mapping_path.open("r", encoding="utf-8") as fh:
-        mapping = json.load(fh)
+def _add_pending_candidate(mapping: dict, element: ArchiMateElement, source_filename: str, matched_name: str, score: float) -> None:
     candidates: list[dict] = mapping.setdefault("pending_candidates", [])
     already_exists = any(
         c.get("archimate_id") == element.archimate_id and c.get("archimate_source") == source_filename
@@ -470,10 +472,10 @@ def _add_pending_candidate(element: ArchiMateElement, source_filename: str, matc
             "relations": [],
         })
         mapping["pending_candidates"] = candidates
-        save_archimate_mapping(mapping)
 
 
 def _record_pending_relation(
+    mapping: dict,
     source_filename: str,
     relation: ArchiMateRelation,
     source_label: str | None,
@@ -483,10 +485,6 @@ def _record_pending_relation(
 ) -> None:
     """Keep relation evidence attached to an unqueryable pending candidate."""
     candidate_id = relation.source_archimate_id if source_name is None else relation.target_archimate_id
-    mapping_path = resolve_project_path(_DEFAULT_MAPPING_PATH)
-    if not mapping_path.exists():
-        return
-    mapping = load_archimate_mapping(mapping_path)
     for candidate in mapping.get("pending_candidates", []):
         if candidate.get("archimate_id") != candidate_id or candidate.get("archimate_source") != source_filename:
             continue
@@ -501,7 +499,6 @@ def _record_pending_relation(
         }
         if entry not in candidate["relations"]:
             candidate["relations"].append(entry)
-            save_archimate_mapping(mapping, mapping_path)
         return
 
 

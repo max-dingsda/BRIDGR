@@ -117,6 +117,7 @@ class RecordingNeo4jClient:
     def __init__(self, read_results: dict[str, list[dict]] | None = None) -> None:
         self.queries: list[tuple[str, dict | None]] = []
         self._read_results = read_results or {}
+        self.staged_artifacts: list[tuple[Path, dict]] = []
 
     def ensure_constraints(self) -> None:
         pass
@@ -138,8 +139,7 @@ class RecordingNeo4jClient:
     serialized_writes = transaction
 
     def stage_artifact(self, path, payload):
-        from processing.run_artifacts import atomic_write_json
-        atomic_write_json(path, payload)
+        self.staged_artifacts.append((path, payload))
 
     def read_staged_artifact(self, path):
         return None
@@ -256,6 +256,31 @@ def test_label_pair_to_relation_reads_custom_map() -> None:
 
 
 # --- _import_to_neo4j ---
+
+def test_persist_archimate_import_creates_snapshot_and_stages_mapping(tmp_path: Path, monkeypatch) -> None:
+    import services.archimate_import_service as import_service
+    import services.runtime_service as runtime_service
+    import services.snapshot_service as snapshot_service
+
+    client = RecordingNeo4jClient(read_results={})
+    mapping = import_service._default_mapping()
+    source_path = tmp_path / "architecture.archimate"
+    snapshot_calls = []
+
+    monkeypatch.setattr(import_service, "load_archimate_mapping", lambda: mapping)
+    monkeypatch.setattr(import_service, "resolve_project_path", lambda _: tmp_path / "archimate_mapping.json")
+    monkeypatch.setattr(import_service, "_parse_archimate_xml", lambda *_: (
+        [import_service.ArchiMateElement("id-1", "BusinessProcess", "Posteingang", "Process")], [], {}
+    ))
+    monkeypatch.setattr(runtime_service, "get_session_neo4j_client", lambda _: client)
+    monkeypatch.setattr(runtime_service, "write_debug_log", lambda *_: None)
+    monkeypatch.setattr(snapshot_service, "create_snapshot", lambda *args, **kwargs: snapshot_calls.append((args, kwargs)))
+
+    result = import_service.persist_archimate_import(import_service.AppConfig(), source_path)
+
+    assert result.elements_imported == 1
+    assert len(snapshot_calls) == 1
+    assert client.staged_artifacts == [(tmp_path / "archimate_mapping.json", mapping)]
 
 def test_import_exact_name_match_merges_existing(tmp_path: Path) -> None:
     from services.archimate_import_service import ArchiMateElement, ArchiMateRelation
